@@ -1,4 +1,6 @@
-package it.polimi.ingsw.am43;
+package it.polimi.ingsw.am43.model.cards;
+
+import it.polimi.ingsw.am43.model.player.*;
 
 public class EventBuilding extends Building {
     private final EventEffect<SustenanceEvent> sustenanceReaction;
@@ -18,6 +20,11 @@ public class EventBuilding extends Building {
     public void tribeEntranceEffect(Player player) {
         player.getTribe().addBuilding(this);
         player.alterFood(-(this.getCost()));
+    }
+
+    @Override
+    public InsertionStrategy getInsertionStrategy() {
+        return null;
     }
 
     public void reactToEvent(Player player, SustenanceEvent event) {

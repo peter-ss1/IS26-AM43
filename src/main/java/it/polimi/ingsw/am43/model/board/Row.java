@@ -1,9 +1,9 @@
-package it.polimi.ingsw.am43.Board;
+package it.polimi.ingsw.am43.model.board;
 
 import java.util.List;
 import java.util.ArrayList;
-import it.polimi.ingsw.am43.Board.Cards.*;
-import it.polimi.ingsw.am43.Board.Players.*;
+import it.polimi.ingsw.am43.model.cards.*;
+import it.polimi.ingsw.am43.model.player.*;
 
 public class Row {
 
@@ -35,11 +35,10 @@ public class Row {
     //then those to probablt separated to animate better
     public void pickCard(Player player, Card card) throws IllegalArgumentException{
         if (!this.nonBuildingCards.remove(card)) throw new IllegalArgumentException("card picked not in row");
-        card.tribeEntranceEffect;   // to be atomized
+        ((TribeCard) card).tribeEntranceEffect(player);   // to be atomized
     }
     public void pickCard(Player player, Building building) throws IllegalArgumentException{
-        if(!this.buildings.remove(card)) throw new IllegalArgumentException("card picked not in row");
-        player.getTribe().addBuilding(building);   // to be atomized
+        if(!this.buildings.remove(building)) throw new IllegalArgumentException("card picked not in row");
     }
 
 

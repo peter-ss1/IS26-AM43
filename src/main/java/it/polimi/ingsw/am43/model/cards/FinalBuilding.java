@@ -1,4 +1,8 @@
-package it.polimi.ingsw.am43;
+package it.polimi.ingsw.am43.model.cards;
+
+import it.polimi.ingsw.am43.model.board.Game;
+import it.polimi.ingsw.am43.model.board.Row;
+import it.polimi.ingsw.am43.model.player.Player;
 
 public class FinalBuilding extends Building {
     private final FinalEffect effect;
@@ -14,7 +18,22 @@ public class FinalBuilding extends Building {
         player.alterFood(-(this.getCost()));
     }
 
-    public void FinalBuildingEffect(Player player) {
+    @Override
+    public InsertionStrategy getInsertionStrategy() {
+        return null;
+    }
+
+    public void finalBuildingEffect(Player player) {
        this.effect.manifest(player);
+    }
+
+    @Override
+    public void rowAction(Row row) {
+
+    }
+
+    @Override
+    public void firstRowAction(Game game) {
+
     }
 }

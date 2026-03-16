@@ -1,4 +1,6 @@
-package it.polimi.ingsw.am43;
+package it.polimi.ingsw.am43.model.cards;
+
+import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.ArrayList;
 
@@ -50,11 +52,11 @@ public class RitualEvent extends Event {
         }
         for (Player p : this.losers) {
             p.alterFood(malus);
-            p.activateEventBuildings(this);
+            p.getTribe().activateEventBuildings(this, p);
         }
         for (Player p : this.winners) {
             p.alterFood(this.getEra()*5);
-            p.activateEventBuildings(this);
+            p.getTribe().activateEventBuildings(this, p);
         }
     }
 

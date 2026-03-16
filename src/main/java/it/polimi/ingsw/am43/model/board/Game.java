@@ -1,12 +1,18 @@
-package it.polimi.ingsw.am43.Board.*;
+package it.polimi.ingsw.am43.model.board;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import it.polimi.ingsw.am43.Players.*;
+
+
+import it.polimi.ingsw.am43.model.enums.*;
+import it.polimi.ingsw.am43.model.player.*;
+import it.polimi.ingsw.am43.model.cards.*;
 
 public class Game {
 
     private  List<Color> availableColors;
-    private  List<Player> players;
+    private List<Player> players;
     private int numPlayers;
     private Player currPlayer;
     private GamePhase phase;

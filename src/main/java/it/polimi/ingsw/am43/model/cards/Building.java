@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43;
+package it.polimi.ingsw.am43.model.cards;
 
 public abstract class Building extends TribeCard {
     private final int cost;

@@ -1,7 +1,10 @@
-package it.polimi.ingsw.am43.Board;
+package it.polimi.ingsw.am43.model.board;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import it.polimi.ingsw.am43.Players.Player;
+
+import it.polimi.ingsw.am43.model.enums.OfferAction;
+import it.polimi.ingsw.am43.model.player.*;
 
 
 public class OfferTrackCard {
@@ -33,6 +36,6 @@ public class OfferTrackCard {
     }
 
     public void removePlayer() {
-        this.player=Optional.empty();   //unusefull but for explainability
+        this.player=Optional.empty();
     }
 }

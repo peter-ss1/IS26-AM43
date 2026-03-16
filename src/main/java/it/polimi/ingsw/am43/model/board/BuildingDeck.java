@@ -1,9 +1,9 @@
-package it.polimi.ingsw.am43.Board;
+package it.polimi.ingsw.am43.model.board;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import it.polimi.ingsw.am43.Board.Cards.*;
+import it.polimi.ingsw.am43.model.cards.*;
 
 public class BuildingDeck {
 
