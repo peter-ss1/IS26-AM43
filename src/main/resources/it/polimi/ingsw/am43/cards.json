@@ -1,0 +1,11 @@
+{
+  "buildings": [
+    {
+      "type": "TribeBuilding",
+      "era": 1,
+      "cost": 4,
+      "prestigePoints": 3,
+      "effect": "SETS_DURING_GAME"
+    }
+  ]
+}
