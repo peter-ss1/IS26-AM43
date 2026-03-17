@@ -107,7 +107,7 @@ public class Tribe {
 
     public void activateTribeBuildings(Player owner) {
         for (Building b : buildings.get("TRIBE"))
-            ((TribeBuilding) b).TribeBuildingEffect(owner);
+            ((TribeBuilding) b).tribeBuildingEffect(owner);
     }
 
     public void activateTimedBuilding(Game game, Player owner) {

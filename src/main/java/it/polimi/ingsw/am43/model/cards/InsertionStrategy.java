@@ -4,5 +4,5 @@ import it.polimi.ingsw.am43.model.player.Player;
 
 @FunctionalInterface
 public interface InsertionStrategy {
-    void insert(Player player);
+    void apply(Player player, Card card);
 }

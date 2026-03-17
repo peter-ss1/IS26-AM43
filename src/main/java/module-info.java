@@ -9,4 +9,6 @@ module it.polimi.ingsw.am43 {
     opens it.polimi.ingsw.am43.model.cards to javafx.fxml;
     exports it.polimi.ingsw.am43.model.board;
     opens it.polimi.ingsw.am43.model.board to javafx.fxml;
+    exports it.polimi.ingsw.am43.model.player;
+
 }

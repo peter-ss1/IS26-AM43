@@ -1,5 +1,5 @@
 package it.polimi.ingsw.am43.model.board;
-import it.polimi.ingsw.am43.model.player.*;
+import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.*;
 

@@ -11,7 +11,7 @@ import it.polimi.ingsw.am43.model.cards.*;
 
 public class Game {
 
-    private  List<Color> availableColors;
+    private List<Color> availableColors;
     private List<Player> players;
     private int numPlayers;
     private Player currPlayer;
