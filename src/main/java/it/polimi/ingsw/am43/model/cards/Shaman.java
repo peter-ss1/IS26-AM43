@@ -1,14 +1,22 @@
 package it.polimi.ingsw.am43.model.cards;
 
-public class Shaman extends CharacterCard {
-    private final int shamanStars;
+import it.polimi.ingsw.am43.model.player.Player;
 
-    public Shaman(int shamanStars) {
+public class Shaman extends CharacterCard {
+    private int shamanStars;
+
+    public Shaman(int era, int shamanStars) {
+        super(era, "Shaman");
         this.shamanStars = shamanStars;
     }
 
     public int getShamanStars() {
         return shamanStars;
+    }
+
+    @Override
+    public void tribeEntranceEffect(Player player) {
+        // effetto specifico
     }
 
 }

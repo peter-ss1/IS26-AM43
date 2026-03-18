@@ -1,13 +1,21 @@
 package it.polimi.ingsw.am43.model.cards;
 
-public class Hunter extends CharacterCard {
-    private final boolean active;
+import it.polimi.ingsw.am43.model.player.Player;
 
-    public Hunter(boolean active) {
+public class Hunter extends CharacterCard {
+    private boolean active;
+
+    public Hunter(int era, boolean active) {
+        super(era, "Hunter");
         this.active = active;
     }
 
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public void tribeEntranceEffect(Player player) {
+        // effetto specifico
     }
 }

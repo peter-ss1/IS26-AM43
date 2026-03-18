@@ -17,8 +17,6 @@ public abstract class TribeCard extends Card {
 
     public abstract void tribeEntranceEffect(Player player);
 
-    public abstract InsertionStrategy getInsertionStrategy();
-
     @Override
     public void rowAction(Row row) {}
 

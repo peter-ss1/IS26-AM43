@@ -1,14 +1,23 @@
 package it.polimi.ingsw.am43.model.cards;
 
-public class Inventor extends CharacterCard {
-    private final char symbol;
+import it.polimi.ingsw.am43.model.enums.InventorSymbol;
+import it.polimi.ingsw.am43.model.player.Player;
 
-    public Inventor(char symbol) {
+public class Inventor extends CharacterCard {
+    private InventorSymbol symbol;
+
+    public Inventor(int era, InventorSymbol symbol) {
+        super(era, "Inventor");
         this.symbol = symbol;
     }
 
-    public char getSymbol() {
+    public InventorSymbol getSymbol() {
         return symbol;
+    }
+
+    @Override
+    public void tribeEntranceEffect(Player player) {
+        // effetto specifico
     }
 
 }

@@ -1,12 +1,16 @@
 package it.polimi.ingsw.am43.model.cards;
+import it.polimi.ingsw.am43.model.player.Player;
 
 public class Artist extends CharacterCard {
+
     public Artist(int era) {
-        super(era);
+        super(era, "Artist");
     }
 
     @Override
-    public InsertionStrategy getInsertionStrategy() {
-        return () -> characters.addKey("ARTIST");
+    public void tribeEntranceEffect(Player player) {
+        // effetto specifico
     }
+
+
 }
