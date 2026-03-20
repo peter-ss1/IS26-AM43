@@ -1,8 +1,10 @@
 package it.polimi.ingsw.am43.model.player;
 
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.player.Tribe;
 
 public class Player {
+
     private String nickname;
     private Color color;
     private int food;
@@ -13,62 +15,85 @@ public class Player {
     private Tribe tribe;
 
     public Player(String nickname) {
-        this.nickname=nickname;
-        this.food=0;
-        this.prestigePoints=0;
-        this.sustenanceDiscount=0;
-        this.buildingDiscount=0;
-        this.shamanStars=0;
-        this.tribe=new Tribe();
+        this.nickname = nickname;
+        this.food = 0;
+        this.prestigePoints = 0;
+        this.sustenanceDiscount = 0;
+        this.buildingDiscount = 0;
+        this.shamanStars = 0;
+        this.tribe = new Tribe();
     }
+
 
     public String getNickname() {
         return nickname;
     }
 
-    public Color getColor(){
+
+    public Color getColor() {
         return color;
     }
-    public void  setColor(Color color) {
+
+    public void setColor(Color color) {
         this.color = color;
     }
 
-    public int  getFood() {
+
+    public int getFood() {
         return food;
     }
-    public void alterFood(int delta) {
-        this.food += delta;
+
+
+    public void alterFood(int amount) {
+        this.food += amount;
     }
 
-    public int  getPrestigePoints()  {
+
+    public int getPrestigePoints() {
         return prestigePoints;
     }
-    public void alterPrestigePoints(int delta){
-        this.prestigePoints += delta;  //AGGIUNGI ONTROLLO
+
+    public void alterPrestigePoints(int amount) {
+        this.prestigePoints += amount;
     }
 
-    public int  getSustenanceDiscount(){
+
+    public int getSustenanceDiscount() {
         return sustenanceDiscount;
     }
-    public void alterSustenanceDiscount(int delta) {
-        this.sustenanceDiscount += delta;
+
+    public void alterSustenanceDiscount(int amount) {
+        this.sustenanceDiscount += amount;
     }
 
-    public int  getBuildingDiscount(){
+
+
+    public int getBuildingDiscount() {
         return buildingDiscount;
     }
-    public void alterBuildingDiscount(int delta){
-        this.buildingDiscount += delta; }
 
 
-    public int  getShamanStars(){
+    public void alterBuildingDiscount(int amount) {
+        this.buildingDiscount += amount;
+    }
+
+
+    public int getShamanStars() {
         return shamanStars;
     }
-    public void alterShamanStars(int delta) {
-        this.shamanStars += delta;
+
+
+    public void alterShamanStars(int amount) {
+        this.shamanStars += amount;
     }
+
+
 
     public Tribe getTribe() {
         return tribe;
     }
+
+
+
+
 }
