@@ -5,11 +5,12 @@ import it.polimi.ingsw.am43.model.player.Player;
 public class Gatherer extends CharacterCard {
 
     public Gatherer(int era) {
-        super(era, "Gatherer");
+        super(era);
     }
 
     @Override
     public void tribeEntranceEffect(Player player) {
-        // effetto specifico
+        player.getTribe().addCardToTribe(this);
+        player.alterSustenanceDiscount(3);
     }
 }

@@ -7,7 +7,7 @@ public class Inventor extends CharacterCard {
     private InventorSymbol symbol;
 
     public Inventor(int era, InventorSymbol symbol) {
-        super(era, "Inventor");
+        super(era);
         this.symbol = symbol;
     }
 
@@ -17,7 +17,7 @@ public class Inventor extends CharacterCard {
 
     @Override
     public void tribeEntranceEffect(Player player) {
-        // effetto specifico
+        player.getTribe().addCardToTribe(this);
     }
 
 }

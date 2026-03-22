@@ -1,0 +1,44 @@
+package it.polimi.ingsw.am43;
+
+import it.polimi.ingsw.am43.model.cards.Inventor;
+import it.polimi.ingsw.am43.model.enums.CharacterType;
+import it.polimi.ingsw.am43.model.enums.InventorSymbol;
+import it.polimi.ingsw.am43.model.player.Player;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class InventorTest {
+    @Test
+    void constructorShouldStoreEraAndInventorSymbol() {
+        Inventor inventor = new Inventor(2, InventorSymbol.BOAT);
+
+        assertEquals(2, inventor.getEra());
+        assertEquals(InventorSymbol.BOAT, inventor.getSymbol());
+    }
+
+    @Test
+    void tribeEntranceEffectShouldAddInventorToPlayersTribe() {
+        Player player = new Player("alice");
+        Inventor inventor = new Inventor(1, InventorSymbol.FLUTE);
+
+        inventor.tribeEntranceEffect(player);
+
+        assertEquals(1, player.getTribe().getNumberByCharacterType(CharacterType.INVENTOR));
+    }
+
+    @Test
+    void tribeEntranceEffectShouldNotChangePlayerResourcesOrDiscounts() {
+        Player player = new Player("alice");
+        Inventor inventor = new Inventor(1, InventorSymbol.ROPE);
+
+        inventor.tribeEntranceEffect(player);
+
+        assertEquals(0, player.getFood());
+        assertEquals(0, player.getBuildingDiscount());
+        assertEquals(0, player.getSustenanceDiscount());
+        assertEquals(0, player.getShamanStars());
+        assertEquals(0, player.getPrestigePoints());
+    }
+
+}
