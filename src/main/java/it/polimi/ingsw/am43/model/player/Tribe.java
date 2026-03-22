@@ -43,7 +43,35 @@ public class Tribe {
         timedBuildings=new ArrayList<>();
     }
 
-
+    public void addCardToTribe(Hunter c){
+        hunters.add(c);
+    }
+    public void addCardToTribe(Inventor c){
+        inventors.add(c);
+    }
+    public void addCardToTribe(Builder c){
+        builders.add(c);
+    }
+    public void addCardToTribe(Gatherer c){
+        gatherers.add(c);
+    }
+    public void addCardToTribe(Artist c){
+        artists.add(c); }
+    public void addCardToTribe(Shaman c){
+        shaman.add(c);
+    }
+    public void addCardToTribe(FinalBuilding c){
+        finalBuildings.add(c);
+    }
+    public void addCardToTribe(EventBuilding c){
+        eventBuildings.add(c);
+    }
+    public void addCardToTribe(TribeBuilding c){
+        tribeBuildings.add(c);
+    }
+    public void addCardToTribe(TimedBuilding c){
+        timedBuildings.add(c);
+    }
 
 
 
