@@ -16,12 +16,12 @@ public class TribeBuilding extends Building {
     public void tribeEntranceEffect(Player player) {
         player.getTribe().addCardToTribe(this);
         player.alterFood(-(this.getCost()));
-        lastGivenBonus = this.bonus.giveBonus(player);
+        lastGivenBonus = this.bonus.calculateBonus(player);
     }
 
     public void tribeBuildingEffect(Player player) {
-        int newBonus = this.bonus.giveBonus(player);
-        player.alterFood(newBonus - this.lastGivenBonus);
+        int newBonus = this.bonus.calculateBonus(player);
+        bonus.giveBonus(player,newBonus - this.lastGivenBonus);
         this.lastGivenBonus = newBonus;
     }
 }
