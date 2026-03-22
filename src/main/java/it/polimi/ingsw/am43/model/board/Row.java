@@ -60,6 +60,6 @@ public class Row {
     }
 
     public  void finalMoment(){
-        this.nonBuildingCards.forEach(c->c.rowAction(this));
+        this.nonBuildingCards.forEach(c->c.addToRow(this));
     }
 }

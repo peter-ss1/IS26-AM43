@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.player.Player;
 
 public class TribeBuilding extends Building {
@@ -15,22 +14,14 @@ public class TribeBuilding extends Building {
 
     @Override
     public void tribeEntranceEffect(Player player) {
-        player.getTribe().addBuilding(this);
+        player.getTribe().addCardToTribe(this);
         player.alterFood(-(this.getCost()));
         lastGivenBonus = this.bonus.giveBonus(player);
     }
 
-    @Override
-    public InsertionStrategy getInsertionStrategy() {
-        return null;
-    }
-
     public void tribeBuildingEffect(Player player) {
-        player.alterFood(this.bonus.giveBonus(player) - this.lastGivenBonus);
-    }
-
-    @Override
-    public void firstRowAction(Game game) {
-
+        int newBonus = this.bonus.giveBonus(player);
+        player.alterFood(newBonus - this.lastGivenBonus);
+        this.lastGivenBonus = newBonus;
     }
 }

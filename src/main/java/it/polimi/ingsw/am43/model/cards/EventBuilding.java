@@ -10,26 +10,15 @@ public abstract class EventBuilding extends Building {
 
     @Override
     public void tribeEntranceEffect(Player player) {
-        player.getTribe().addBuilding(this);
+        player.getTribe().addCardToTribe(this);
         player.alterFood(-(this.getCost()));
     }
 
-    @Override
-    public InsertionStrategy getInsertionStrategy() {
-        return null;
-    }
+    public void reactToEvent(Player player, SustenanceEvent event) {}
 
-    public void reactToEvent(Player player, SustenanceEvent event) {
-    }
+    public void reactToEvent(Player player, HuntEvent event) {}
 
-    public void reactToEvent(Player player, HuntEvent event) {
-    }
+    public void reactToEvent(Player player, PaintingEvent event) {}
 
-    public void reactToEvent(Player player, PaintingEvent event) {
-
-    }
-
-    public void reactToEvent(Player player, RitualEvent event) {
-
-    }
+    public void reactToEvent(Player player, RitualEvent event) {}
 }

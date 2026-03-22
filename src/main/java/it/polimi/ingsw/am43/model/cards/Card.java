@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.model.board.*;
+import it.polimi.ingsw.am43.model.board.Row;
+import it.polimi.ingsw.am43.model.enums.OfferAction;
 
 public abstract class Card {
     private final int era;
@@ -15,7 +16,7 @@ public abstract class Card {
 
     public abstract boolean isPickable();
 
-    public abstract void rowAction(Row row);
+    public abstract void addToRow(Row row);
 
-    public abstract void firstRowAction(Game game);
+    public abstract OfferAction firstRowChoice();
 }
