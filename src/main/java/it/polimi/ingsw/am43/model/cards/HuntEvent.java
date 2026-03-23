@@ -1,8 +1,9 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class HuntEvent extends Event {
 
@@ -11,12 +12,12 @@ public class HuntEvent extends Event {
     }
 
     @Override
-    public void affectPlayers(ArrayList<Player> players) {
+    public void affectPlayers(List<Player> players) {
         for (Player p : players) {
-            int amount = p.getHunterNumber();
+            int amount = p.getTribe().getNumberByCharacterType(CharacterType.HUNTER);
             p.alterFood(amount);
             p.alterPrestigePoints(amount*this.getEra());
-            p.getTribe().activateEventBuildings(this);
+            p.getTribe().activateEventBuildings(this, p);
         }
     }
 

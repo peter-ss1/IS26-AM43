@@ -13,13 +13,8 @@ public class TimedBuilding extends Building {
 
     @Override
     public void tribeEntranceEffect(Player player) {
-        player.getTribe().addBuilding(this);
+        player.getTribe().addCardToTribe(this);
         player.alterFood(-(this.getCost()));
-    }
-
-    @Override
-    public InsertionStrategy getInsertionStrategy() {
-        return null;
     }
 
     public void TimedBuildingEffect(Player player, Game game) {

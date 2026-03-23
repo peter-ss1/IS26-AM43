@@ -12,25 +12,13 @@
         "active": true
       },
       {
-        "id": 2,
-        "class": "",
-        "nome": "Costruttrice",
-        "professione": "COSTRUTTORE",
-        "costoCibo": 1,
-        "puntiPrestigio": 3,
-        "noteAggiuntive": "Visualizzato come -1 carne, 3 Punti corona (es. Pagina 6)"
+
       }
 
     ],
     "buildingDeck": [
       {
-        "id": 101,
-        "tipo": "EDIFICIO",
-        "nome": "Tenda Base",
-        "costoInCibo": 3,
-        "puntiPrestigio": 0,
-        "effettoPassivo": "Aumenta capienza tribù",
-        "noteAggiuntive": "Edifici finali (es. Pagina 101)"
+
       },
 
     ]

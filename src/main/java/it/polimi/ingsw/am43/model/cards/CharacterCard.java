@@ -1,16 +1,18 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.board.Row;
+
 public abstract class CharacterCard extends TribeCard {
-    private final String characterType;
 
-    public CharacterCard(int era,int id, String characterType) {
+    public CharacterCard(int era, int id) {
         super(era,id);
-        this.characterType= characterType ;
     }
 
-    public String getCharacterType() {
-        return characterType;
+    @Override
+    public void addToRow(Row row) {
+        row.addCard(this);
     }
+
 
 
 

@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.model.board.Game;
-import it.polimi.ingsw.am43.model.board.Row;
+import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Player;
 
 public abstract class TribeCard extends Card {
@@ -18,10 +17,7 @@ public abstract class TribeCard extends Card {
     public abstract void tribeEntranceEffect(Player player);
 
     @Override
-    public void rowAction(Row row) {}
-
-    @Override
-    public void firstRowAction(Game game) {
-
+    public OfferAction firstRowChoice() {
+        return  OfferAction.BOTTOM;
     }
 }

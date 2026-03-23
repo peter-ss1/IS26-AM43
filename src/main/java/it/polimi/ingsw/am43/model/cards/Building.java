@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.board.Row;
+
 public abstract class Building extends TribeCard {
     private final int cost;
     private final int prestigePoints;
@@ -8,6 +10,11 @@ public abstract class Building extends TribeCard {
         super(era,id);
         this.cost = cost;
         this.prestigePoints = prestigePoints;
+    }
+
+    @Override
+    public void addToRow(Row row) {
+        row.addCard(this);
     }
 
     public int getCost() {

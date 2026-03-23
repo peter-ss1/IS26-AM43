@@ -3,6 +3,7 @@ package it.polimi.ingsw.am43.model.cards;
 import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RitualEvent extends Event {
     private final int malus;
@@ -12,8 +13,8 @@ public class RitualEvent extends Event {
     public RitualEvent(int era,int id, int malus) {
         super(era,id);
         this.malus = malus;
-        this.losers = new ArrayList<Player>();
-        this.winners = new ArrayList<Player>();
+        this.losers = new ArrayList<>();
+        this.winners = new ArrayList<>();
     }
 
     public int getMalus() {
@@ -29,7 +30,7 @@ public class RitualEvent extends Event {
     }
 
     @Override
-    public void affectPlayers(ArrayList<Player> players) {
+    public void affectPlayers(List<Player> players) {
         int minStars = players.getFirst().getShamanStars();
         int maxStars = minStars;
         for (Player p : players) {
@@ -41,7 +42,6 @@ public class RitualEvent extends Event {
             } else if (stars == minStars) {
                 this.losers.add(p);
             }
-
             if (stars > maxStars) {
                 maxStars = stars;
                 this.winners.clear();

@@ -6,8 +6,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 public class Inventor extends CharacterCard {
     private InventorSymbol symbol;
 
-    public Inventor(int era,int id, InventorSymbol symbol) {
-        super(era,id, "Inventor");
+    public Inventor(int era, InventorSymbol symbol) {
+        super(era);
         this.symbol = symbol;
     }
 
@@ -17,7 +17,7 @@ public class Inventor extends CharacterCard {
 
     @Override
     public void tribeEntranceEffect(Player player) {
-        // effetto specifico
+        player.getTribe().addCardToTribe(this);
     }
 
 }
