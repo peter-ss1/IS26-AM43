@@ -7,8 +7,8 @@ public class TribeBuilding extends Building {
     private final TribeBonus bonus;
     private int lastGivenBonus;
 
-    public TribeBuilding(int era, int cost, int prestigePoints, TribeBonus bonus) {
-        super(era,cost, prestigePoints);
+    public TribeBuilding(int era,int id, int cost, int prestigePoints, TribeBonus bonus) {
+        super(era,id,cost, prestigePoints);
         this.bonus = bonus;
         this.lastGivenBonus = 0;
     }

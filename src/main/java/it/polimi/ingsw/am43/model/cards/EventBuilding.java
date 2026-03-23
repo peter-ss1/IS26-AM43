@@ -4,8 +4,8 @@ import it.polimi.ingsw.am43.model.player.*;
 
 public abstract class EventBuilding extends Building {
 
-    public EventBuilding(int era, int cost, int prestigePoints) {
-        super(era, cost, prestigePoints);
+    public EventBuilding(int era,int id, int cost, int prestigePoints) {
+        super(era,id, cost, prestigePoints);
     }
 
     @Override

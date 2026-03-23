@@ -6,8 +6,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 
 public abstract class TribeCard extends Card {
 
-    public TribeCard(int era) {
-        super(era);
+    public TribeCard(int era,int id) {
+        super(era, id);
     }
 
     @Override

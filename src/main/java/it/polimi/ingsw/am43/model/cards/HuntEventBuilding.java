@@ -5,8 +5,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 public class HuntEventBuilding extends EventBuilding {
     public final EventEffect<HuntEvent> reaction;
 
-    public HuntEventBuilding(int era, int cost, int prestigePoints, EventEffect<HuntEvent> reaction) {
-        super(era, cost, prestigePoints);
+    public HuntEventBuilding(int era,int id, int cost, int prestigePoints, EventEffect<HuntEvent> reaction) {
+        super(era,id, cost, prestigePoints);
         this.reaction = reaction;
     }
 

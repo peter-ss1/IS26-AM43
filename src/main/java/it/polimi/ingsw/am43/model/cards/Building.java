@@ -4,8 +4,8 @@ public abstract class Building extends TribeCard {
     private final int cost;
     private final int prestigePoints;
 
-    public Building(int era, int cost, int prestigePoints) {
-        super(era);
+    public Building(int era,int id, int cost, int prestigePoints) {
+        super(era,id);
         this.cost = cost;
         this.prestigePoints = prestigePoints;
     }

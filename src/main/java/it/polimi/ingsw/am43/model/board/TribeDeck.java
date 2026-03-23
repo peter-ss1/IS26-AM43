@@ -1,20 +1,25 @@
 package it.polimi.ingsw.am43.model.board;
 
-import it.polimi.ingsw.am43.model.cards.TribeCard;
+
+import it.polimi.ingsw.am43.model.cards.Card;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TribeDeck {
-    private final List<TribeCard> deck;
+    private final List<Card> deck;
 
-    public TribeDeck(int seed){
-        this.deck= new ArrayList<TribeCard>();
-        // to complete
+    public TribeDeck(int seed, ArrayList<Card> deck){
+        this.deck= deck;
+        this.shuffle(seed);
     }
-    public TribeCard draw(){
-        TribeCard tb= deck.getLast();
+    public Card draw(){
+        Card tb= deck.getLast();
         deck.removeLast();
         return tb;
+    }
+    private void shuffle(int seed){
+        //to complete
     }
 }

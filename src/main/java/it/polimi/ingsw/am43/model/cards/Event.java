@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public abstract class Event extends Card {
 
-    public Event(int era) {
-        super(era);
+    public Event(int era,int id) {
+        super(era,id);
     }
 
     @Override

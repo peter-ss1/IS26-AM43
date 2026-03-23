@@ -9,12 +9,10 @@ import it.polimi.ingsw.am43.model.player.*;
 
 public class OfferTrackCard {
 
-    private final char letter;
     private final List<OfferAction> actions;
     private Optional<Player> player;
 
-    public OfferTrackCard(char l,ArrayList<OfferAction> a){
-        this.letter=l;
+    public OfferTrackCard(ArrayList<OfferAction> a){
         this.actions=new ArrayList<OfferAction>(a);
         player=Optional.empty();
     }

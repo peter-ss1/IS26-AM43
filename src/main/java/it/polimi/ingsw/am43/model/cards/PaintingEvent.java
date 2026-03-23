@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public class PaintingEvent extends Event {
 
-    public PaintingEvent(int era) {
-        super(era);
+    public PaintingEvent(int era,int id) {
+        super(era,id);
     }
 
     @Override

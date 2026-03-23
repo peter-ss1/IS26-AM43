@@ -5,8 +5,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 public class Shaman extends CharacterCard {
     private int shamanStars;
 
-    public Shaman(int era, int shamanStars) {
-        super(era, "Shaman");
+    public Shaman(int era,int id, int shamanStars) {
+        super(era,id, "Shaman");
         this.shamanStars = shamanStars;
     }
 

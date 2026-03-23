@@ -5,8 +5,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 public class PaintingEventBuilding extends EventBuilding {
     public final EventEffect<PaintingEvent> reaction;
 
-    public PaintingEventBuilding(int era, int cost, int prestigePoints, EventEffect<PaintingEvent> reaction) {
-        super(era, cost, prestigePoints);
+    public PaintingEventBuilding(int era,int id, int cost, int prestigePoints, EventEffect<PaintingEvent> reaction) {
+        super(era,id, cost, prestigePoints);
         this.reaction = reaction;
     }
 

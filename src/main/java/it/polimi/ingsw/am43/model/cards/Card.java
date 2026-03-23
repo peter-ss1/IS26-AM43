@@ -4,9 +4,11 @@ import it.polimi.ingsw.am43.model.board.*;
 
 public abstract class Card {
     private final int era;
+    private final int id;
 
-    public Card(int era) {
+    public Card(int era, int id) {
         this.era = era;
+        this.id = id;
     }
 
     public int getEra() {

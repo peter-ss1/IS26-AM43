@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public class HuntEvent extends Event {
 
-    public HuntEvent(int era) {
-        super(era);
+    public HuntEvent(int era, int id) {
+        super(era,id);
     }
 
     @Override

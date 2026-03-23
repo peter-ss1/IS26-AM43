@@ -9,10 +9,13 @@ public class OrderQueue {
     private final List<Integer> foodModifiers;
 
 
-    public OrderQueue(ArrayList<Player> p, ArrayList<Integer> f) throws IllegalArgumentException{
-        if(p.size()!=f.size())  throw new IllegalArgumentException("wrong sizes");
+    public OrderQueue(ArrayList<Player> players, ArrayList<Integer> foodModifiers) throws IllegalArgumentException{
+        if(players.size()!=foodModifiers.size())  throw new IllegalArgumentException("wrong sizes");
+        Collections.shuffle(players);
         this.playerOrder = new ArrayDeque<>();
-        this.foodModifiers = new ArrayList<>(f);
+        this.foodModifiers = new ArrayList<>(foodModifiers);
+        for(Player p: players)this.playerOrder.offer(p);
+
     }
 
     public int getFoodModifier(int position) throws IllegalArgumentException {
@@ -23,7 +26,7 @@ public class OrderQueue {
     }
 
     public void append(Player player) {
-        this.playerOrder.add(player);
+        this.playerOrder.offer(player);
         player.alterFood(this.foodModifiers.get(playerOrder.size()-1));
         //to activete timedbuilding
     }

@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public class SustenanceEvent extends Event {
 
-    public SustenanceEvent(int era) {
-        super(era);
+    public SustenanceEvent(int era,int id) {
+        super(era,id);
     }
 
     @Override

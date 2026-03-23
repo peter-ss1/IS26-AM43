@@ -5,8 +5,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 public class Hunter extends CharacterCard {
     private boolean active;
 
-    public Hunter(int era, boolean active) {
-        super(era, "Hunter");
+    public Hunter(int era,int id, boolean active) {
+        super(era,id, "Hunter");
         this.active = active;
     }
 

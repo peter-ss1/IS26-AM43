@@ -6,8 +6,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 public class TimedBuilding extends Building {
     private final TimedEffect effect;
 
-    public TimedBuilding(int era, int cost, int prestigePoints, TimedEffect effect) {
-        super(era, cost, prestigePoints);
+    public TimedBuilding(int era,int id, int cost, int prestigePoints, TimedEffect effect) {
+        super(era,id, cost, prestigePoints);
         this.effect = effect;
     }
 

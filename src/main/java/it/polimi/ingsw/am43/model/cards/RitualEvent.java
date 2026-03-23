@@ -9,8 +9,8 @@ public class RitualEvent extends Event {
     private final ArrayList<Player> losers;
     private final ArrayList<Player> winners;
 
-    public RitualEvent(int era, int malus) {
-        super(era);
+    public RitualEvent(int era,int id, int malus) {
+        super(era,id);
         this.malus = malus;
         this.losers = new ArrayList<Player>();
         this.winners = new ArrayList<Player>();

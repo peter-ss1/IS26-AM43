@@ -3,8 +3,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 
 public class Artist extends CharacterCard {
 
-    public Artist(int era) {
-        super(era, "Artist");
+    public Artist(int era, int id) {
+        super(era,id, "Artist");
     }
 
     @Override

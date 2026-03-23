@@ -24,27 +24,17 @@ public class Row {
         return new ArrayList<>(this.buildings);
     }
 
+    public int size(){
+        return this.buildings.size() + this.nonBuildingCards.size();
+    }
+
+
     public void addCard(Card card) {
         this.nonBuildingCards.add(card);
     }
 
     public void addCard(Building building) {//to talk later
         this.buildings.add(building);
-    }
-
-    //then those to probablt separated to animate better
-    public void pickCard(Player player, Card card) throws IllegalArgumentException{
-        if (!this.nonBuildingCards.remove(card)) throw new IllegalArgumentException("card picked not in row");
-        ((TribeCard) card).tribeEntranceEffect(player);   // to be atomized
-    }
-    public void pickCard(Player player, Building building) throws IllegalArgumentException{
-        if(!this.buildings.remove(building)) throw new IllegalArgumentException("card picked not in row");
-    }
-
-
-
-    public void replenish(int amount) {
-        //pass under and draw
     }
 
     public void removeNonBuildingCards() {
@@ -55,11 +45,22 @@ public class Row {
         this.buildings.clear();
     }
 
+    public void removeNonBuildingCard(Card c)throws IllegalArgumentException{
+        if(!this.nonBuildingCards.remove(c)) throw new IllegalArgumentException(("card not in row"));
+    }
+    public void removeBuilding(Building b)throws IllegalArgumentException{
+        if(!this.buildings.remove(b)) throw new IllegalArgumentException(("card not in row"));
+    }
+
     public void activateEvents(ArrayList<Player> p) {
         this.eventResolutionQueue.forEach(e->e.affectPlayers(p));
     }
 
     public  void finalMoment(){
         this.nonBuildingCards.forEach(c->c.rowAction(this));
+    }
+
+    public void roundEndingRow(){
+        //ask what it does
     }
 }

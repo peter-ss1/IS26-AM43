@@ -5,8 +5,8 @@ public class Builder extends CharacterCard {
     private int buildingDiscount;
     private int prestigePoints;
 
-    public Builder(int era, int buildingDiscount, int prestigePoints) {
-        super(era, "Builder");
+    public Builder(int era, int id, int buildingDiscount, int prestigePoints) {
+        super(era,id, "Builder");
         this.buildingDiscount = buildingDiscount;
         this.prestigePoints = prestigePoints;
     }
