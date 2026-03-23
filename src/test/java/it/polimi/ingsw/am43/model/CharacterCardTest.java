@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43;
+package it.polimi.ingsw.am43.model;
 
 import it.polimi.ingsw.am43.model.board.Row;
 import it.polimi.ingsw.am43.model.cards.CharacterCard;

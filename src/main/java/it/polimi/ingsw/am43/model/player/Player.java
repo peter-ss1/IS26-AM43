@@ -2,6 +2,8 @@ package it.polimi.ingsw.am43.model.player;
 
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Tribe;
+import it.polimi.ingsw.am43.model.cards.*;
+import it.polimi.ingsw.am43.model.enums.CharacterType;
 
 public class Player {
 
@@ -93,7 +95,15 @@ public class Player {
         return tribe;
     }
 
-
+    public void countFinalPoints() {
+        alterPrestigePoints(tribe.getBuildersTotalPrestigePoints());
+        int inventors = tribe.getNumberByCharacterType(CharacterType.INVENTOR);
+        alterPrestigePoints(inventors * tribe.getDistinctInventorSymbols());
+        int artists = tribe.getNumberByCharacterType(CharacterType.ARTIST);
+        alterPrestigePoints((artists / 2) * 10);
+        alterPrestigePoints(tribe.getBuildingsTotalPrestigePoints());
+        tribe.activateFinalBuildings(this);
+    }
 
 
 }

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43;
+package it.polimi.ingsw.am43.model;
 
 import it.polimi.ingsw.am43.model.cards.Hunter;
 import it.polimi.ingsw.am43.model.enums.CharacterType;

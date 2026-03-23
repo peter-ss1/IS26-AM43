@@ -189,6 +189,22 @@ public class Tribe {
 
 
 
+    public int getBuildersTotalPrestigePoints() {
+        int total = 0;
+        for (Builder b : builders) {
+            total += b.getPrestigePoints();
+        }
+        return total;
+    }
+
+    public int getBuildingsTotalPrestigePoints() {
+        int total = 0;
+        for (FinalBuilding fb : finalBuildings)  total += fb.getPrestigePoints();
+        for (EventBuilding eb : eventBuildings)  total += eb.getPrestigePoints();
+        for (TribeBuilding tb : tribeBuildings)  total += tb.getPrestigePoints();
+        for (TimedBuilding tb : timedBuildings)  total += tb.getPrestigePoints();
+        return total;
+    }
 
 
 
