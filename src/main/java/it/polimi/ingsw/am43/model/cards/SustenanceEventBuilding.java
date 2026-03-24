@@ -5,11 +5,13 @@ import it.polimi.ingsw.am43.model.player.Player;
 public class SustenanceEventBuilding extends EventBuilding {
     public final EventEffect<SustenanceEvent> reaction;
 
-    public SustenanceEventBuilding(int era,int id, int cost, int prestigePoints, EventEffect<SustenanceEvent> reaction) {
-        super(era,id, cost, prestigePoints);
+    public SustenanceEventBuilding(int era, int id, int cost, int prestigePoints, EventEffect<SustenanceEvent> reaction) {
+        super(era, id, cost, prestigePoints);
         this.reaction = reaction;
     }
 
     @Override
-    public void reactToEvent(Player player, SustenanceEvent event) {reaction.manifest(player, event);}
+    public void reactToEvent(Player player, SustenanceEvent event) {
+        reaction.manifest(player, event);
+    }
 }

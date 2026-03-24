@@ -1,12 +1,13 @@
 package it.polimi.ingsw.am43.model.cards;
+
 import it.polimi.ingsw.am43.model.player.Player;
 
 public class Builder extends CharacterCard {
     private final int buildingDiscount;
     private final int prestigePoints;
 
-    public Builder(int era, int buildingDiscount, int prestigePoints) {
-        super(era);
+    public Builder(int era, int id, int buildingDiscount, int prestigePoints) {
+        super(era, id);
         this.buildingDiscount = buildingDiscount;
         this.prestigePoints = prestigePoints;
     }
@@ -23,5 +24,6 @@ public class Builder extends CharacterCard {
     public void tribeEntranceEffect(Player player) {
         player.getTribe().addCardToTribe(this);
         player.alterBuildingDiscount(buildingDiscount);
+        player.getTribe().activateTribeBuildings(player);
     }
 }

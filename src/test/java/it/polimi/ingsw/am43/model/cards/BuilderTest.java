@@ -1,6 +1,5 @@
-package it.polimi.ingsw.am43;
+package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.model.cards.Builder;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
@@ -10,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class BuilderTest {
     @Test
     void constructorShouldStoreEraBuildingDiscountAndPrestigePoints() {
-        Builder builder = new Builder(2, 3, 5);
+        Builder builder = new Builder(2, 0, 3, 5);
 
         assertEquals(2, builder.getEra());
         assertEquals(3, builder.getBuildingDiscount());
@@ -20,7 +19,7 @@ public class BuilderTest {
     @Test
     void tribeEntranceEffectShouldAddBuilderToPlayersTribe() {
         Player player = new Player("alice");
-        Builder builder = new Builder(1, 2, 4);
+        Builder builder = new Builder(1, 0, 2, 4);
 
         builder.tribeEntranceEffect(player);
 
@@ -30,7 +29,7 @@ public class BuilderTest {
     @Test
     void tribeEntranceEffectShouldIncreasePlayersBuildingDiscountByBuildersDiscount() {
         Player player = new Player("alice");
-        Builder builder = new Builder(1, 2, 4);
+        Builder builder = new Builder(1, 0, 2, 4);
 
         builder.tribeEntranceEffect(player);
 
@@ -40,8 +39,8 @@ public class BuilderTest {
     @Test
     void tribeEntranceEffectShouldAccumulateBuildingDiscountWhenMultipleBuildersEnter() {
         Player player = new Player("alice");
-        Builder firstBuilder = new Builder(1, 2, 1);
-        Builder secondBuilder = new Builder(1, 3, 2);
+        Builder firstBuilder = new Builder(1, 0, 2, 1);
+        Builder secondBuilder = new Builder(1, 0,3, 2);
 
         firstBuilder.tribeEntranceEffect(player);
         secondBuilder.tribeEntranceEffect(player);

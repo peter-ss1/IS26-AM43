@@ -17,9 +17,8 @@ public class PaintingEvent extends Event {
             int amount = p.getTribe().getNumberByCharacterType(CharacterType.ARTIST);
             if (amount < this.getEra()) {
                 p.alterPrestigePoints(-2);
-            }
-            else {
-                p.alterPrestigePoints(amount*this.getEra());
+            } else {
+                p.alterPrestigePoints(amount * this.getEra());
             }
             p.getTribe().activateEventBuildings(this, p);
         }

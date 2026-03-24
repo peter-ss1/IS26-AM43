@@ -13,6 +13,10 @@ public abstract class Card {
         this.id = id;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public int getEra() {
         return era;
     }
@@ -24,4 +28,5 @@ public abstract class Card {
     public abstract void addToPlayer(Player player);
 
     public abstract OfferAction firstRowChoice();
+    public abstract void pick(Player player);
 }
