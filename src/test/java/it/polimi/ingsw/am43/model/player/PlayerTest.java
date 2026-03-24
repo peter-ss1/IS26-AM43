@@ -117,16 +117,16 @@ class PlayerTest {
 
     @Test
     void testCountFinalPointsBuilders() {
-        new Builder(1, 0, 3).tribeEntranceEffect(player);
-        new Builder(1, 0, 2).tribeEntranceEffect(player);
+        new Builder(1, 0, 0, 3).tribeEntranceEffect(player);
+        new Builder(1, 0, 0, 2).tribeEntranceEffect(player);
         player.countFinalPoints();
         assertEquals(5, player.getPrestigePoints());
     }
 
     @Test
     void testCountFinalPointsInventors() {
-        new Inventor(1, InventorSymbol.BOAT).tribeEntranceEffect(player);
-        new Inventor(1, InventorSymbol.HOOK).tribeEntranceEffect(player);
+        new Inventor(1, 0, InventorSymbol.BOAT).tribeEntranceEffect(player);
+        new Inventor(1, 0, InventorSymbol.HOOK).tribeEntranceEffect(player);
         // 2 inventori x 2 simboli diversi = 4 PP
         player.countFinalPoints();
         assertEquals(4, player.getPrestigePoints());
@@ -134,8 +134,8 @@ class PlayerTest {
 
     @Test
     void testCountFinalPointsArtistsPairs() {
-        new Artist(1).tribeEntranceEffect(player);
-        new Artist(1).tribeEntranceEffect(player);
+        new Artist(1, 0).tribeEntranceEffect(player);
+        new Artist(1, 0).tribeEntranceEffect(player);
         // 2 artisti / 2 * 10 = 10 PP
         player.countFinalPoints();
         assertEquals(10, player.getPrestigePoints());
@@ -143,9 +143,9 @@ class PlayerTest {
 
     @Test
     void testCountFinalPointsArtistsOdd() {
-        new Artist(1).tribeEntranceEffect(player);
-        new Artist(1).tribeEntranceEffect(player);
-        new Artist(1).tribeEntranceEffect(player);
+        new Artist(1,  0).tribeEntranceEffect(player);
+        new Artist(1, 0).tribeEntranceEffect(player);
+        new Artist(1, 0).tribeEntranceEffect(player);
         // 3 artisti / 2 * 10 = 10 PP (1 artista non conta)
         player.countFinalPoints();
         assertEquals(10, player.getPrestigePoints());
@@ -154,7 +154,7 @@ class PlayerTest {
     @Test
     void testCountFinalPointsFinalBuilding() {
         TribeTest.CountingFinalEffect effect = new TribeTest.CountingFinalEffect();
-        new FinalBuilding(1, 0, 5, effect).tribeEntranceEffect(player);
+        new FinalBuilding(1, 0, 0, 5, effect).tribeEntranceEffect(player);
         player.countFinalPoints();
         // 5 PP base edificio + effetto chiamato
         assertEquals(5, player.getPrestigePoints());

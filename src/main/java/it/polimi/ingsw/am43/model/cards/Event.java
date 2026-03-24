@@ -8,8 +8,8 @@ import java.util.List;
 
 public abstract class Event extends Card {
 
-    public Event(int era,int id) {
-        super(era,id);
+    public Event(int era, int id) {
+        super(era, id);
     }
 
     @Override
@@ -31,4 +31,8 @@ public abstract class Event extends Card {
 
     public abstract void triggerBuilding(EventBuilding building, Player player);
 
+    @Override
+    public void pick(Player player) {
+        throw new IllegalArgumentException("Events can't be picked");
+    }
 }

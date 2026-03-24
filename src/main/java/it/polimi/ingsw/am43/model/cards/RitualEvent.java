@@ -4,14 +4,16 @@ import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RitualEvent extends Event {
     private final int malus;
-    private final ArrayList<Player> losers;
-    private final ArrayList<Player> winners;
+    private final List<Player> losers;
+    private final List<Player> winners;
 
-    public RitualEvent(int era,int id, int malus) {
-        super(era,id);
+    public RitualEvent(int era, int id, int malus) {
+        super(era, id);
         this.malus = malus;
         this.losers = new ArrayList<>();
         this.winners = new ArrayList<>();
@@ -46,16 +48,17 @@ public class RitualEvent extends Event {
                 maxStars = stars;
                 this.winners.clear();
                 this.winners.add(p);
-            } else if (stars == minStars) {
+            } else if (stars == maxStars) {
                 this.winners.add(p);
             }
         }
         for (Player p : this.losers) {
-            p.alterFood(malus);
-            p.getTribe().activateEventBuildings(this, p);
+            p.alterPrestigePoints(malus);
         }
         for (Player p : this.winners) {
-            p.alterFood(this.getEra()*5);
+            p.alterPrestigePoints(this.getEra() * 5);
+        }
+        for (Player p : Stream.concat(losers.stream(), winners.stream()).distinct().toList()) {
             p.getTribe().activateEventBuildings(this, p);
         }
     }

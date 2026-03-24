@@ -5,7 +5,7 @@ import it.polimi.ingsw.am43.model.player.Player;
 
 public abstract class TribeCard extends Card {
 
-    public TribeCard(int era,int id) {
+    public TribeCard(int era, int id) {
         super(era, id);
     }
 
@@ -18,6 +18,6 @@ public abstract class TribeCard extends Card {
 
     @Override
     public OfferAction firstRowChoice() {
-        return  OfferAction.BOTTOM;
+        return OfferAction.BOTTOM;
     }
 }

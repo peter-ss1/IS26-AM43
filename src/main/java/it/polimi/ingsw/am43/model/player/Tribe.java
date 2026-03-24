@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.player;
 
+import it.polimi.ingsw.am43.model.board.Board;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
@@ -134,9 +135,9 @@ public class Tribe {
     }
 
 
-    public void activateTimedBuilding(Game game, Player player) {
+    public void activateTimedBuilding(Game game, Player player, Board board) {
         for (TimedBuilding tb : timedBuildings) {
-            tb.TimedBuildingEffect(player, game);
+            tb.TimedBuildingEffect(player, game, board);
         }
     }
 

@@ -11,5 +11,7 @@ public class RitualEventBuilding extends EventBuilding {
     }
 
     @Override
-    public void reactToEvent(Player player, RitualEvent event) {reaction.manifest(player, event);}
+    public void reactToEvent(Player player, RitualEvent event) {
+        reaction.manifest(player, event);
+    }
 }

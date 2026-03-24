@@ -7,8 +7,8 @@ import java.util.List;
 
 public class SustenanceEvent extends Event {
 
-    public SustenanceEvent(int era,int id) {
-        super(era,id);
+    public SustenanceEvent(int era, int id) {
+        super(era, id);
     }
 
     @Override
@@ -19,13 +19,16 @@ public class SustenanceEvent extends Event {
     @Override
     public void affectPlayers(List<Player> players) {
         for (Player p : players) {
-            int amount = p.getTribe().getTribeNumber()-p.getSustenanceDiscount();
-            if (amount <= 0) { return;}
+            int amount = p.getTribe().getTribeNumber() - p.getSustenanceDiscount();
+            if (amount <= 0) {
+                continue;
+            }
             int excess = p.getFood() - amount;
-            p.alterFood(-amount);
             if (excess < 0) {
+                p.alterFood(-p.getFood());
                 p.alterPrestigePoints(excess * this.getEra());
             }
+            else {p.alterFood(-amount);}
             p.getTribe().activateEventBuildings(this, p);
         }
     }

@@ -1,6 +1,5 @@
-package it.polimi.ingsw.am43.model;
+package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.model.cards.Hunter;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
@@ -10,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HunterTest {
     @Test
     void constructorShouldStoreActiveFlag() {
-        Hunter activeHunter = new Hunter(1, true);
-        Hunter inactiveHunter = new Hunter(1, false);
+        Hunter activeHunter = new Hunter(1, 0,true);
+        Hunter inactiveHunter = new Hunter(1, 0,false);
 
         assertTrue(activeHunter.isActive());
         assertFalse(inactiveHunter.isActive());
@@ -20,7 +19,7 @@ public class HunterTest {
     @Test
     void tribeEntranceEffectShouldAddHunterToPlayersTribeEvenWhenInactive() {
         Player player = new Player("alice");
-        Hunter hunter = new Hunter(1, false);
+        Hunter hunter = new Hunter(1, 0,false);
 
         hunter.tribeEntranceEffect(player);
 
@@ -30,7 +29,7 @@ public class HunterTest {
     @Test
     void tribeEntranceEffectShouldNotIncreaseFoodWhenHunterIsInactive() {
         Player player = new Player("alice");
-        Hunter hunter = new Hunter(1, false);
+        Hunter hunter = new Hunter(1, 0,false);
 
         hunter.tribeEntranceEffect(player);
 
@@ -40,7 +39,7 @@ public class HunterTest {
     @Test
     void tribeEntranceEffectShouldIncreaseFoodByCurrentNumberOfHuntersWhenHunterIsActive() {
         Player player = new Player("alice");
-        Hunter hunter = new Hunter(1, true);
+        Hunter hunter = new Hunter(1, 0,true);
 
         hunter.tribeEntranceEffect(player);
 
@@ -51,8 +50,8 @@ public class HunterTest {
     @Test
     void tribeEntranceEffectShouldCountPreviouslyPresentHuntersWhenActiveHunterEnters() {
         Player player = new Player("alice");
-        Hunter firstHunter = new Hunter(1, false);
-        Hunter secondHunter = new Hunter(1, true);
+        Hunter firstHunter = new Hunter(1, 0,false);
+        Hunter secondHunter = new Hunter(1, 0,true);
 
         firstHunter.tribeEntranceEffect(player);
         secondHunter.tribeEntranceEffect(player);
@@ -64,8 +63,8 @@ public class HunterTest {
     @Test
     void multipleActiveHuntersShouldAccumulateFoodAccordingToUpdatedHunterCount() {
         Player player = new Player("alice");
-        Hunter firstHunter = new Hunter(1, true);
-        Hunter secondHunter = new Hunter(1, true);
+        Hunter firstHunter = new Hunter(1, 0,true);
+        Hunter secondHunter = new Hunter(1, 0,true);
 
         firstHunter.tribeEntranceEffect(player);   // +1
         secondHunter.tribeEntranceEffect(player);  // +2

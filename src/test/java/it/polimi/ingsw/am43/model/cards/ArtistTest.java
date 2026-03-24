@@ -1,6 +1,5 @@
-package it.polimi.ingsw.am43.model;
+package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.model.cards.Artist;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,7 @@ public class ArtistTest {
     @Test
     void tribeEntranceEffectShouldAddArtistToPlayersTribe() {
         Player player = new Player("alice");
-        Artist artist = new Artist(1);
+        Artist artist = new Artist(1, 0);
 
         artist.tribeEntranceEffect(player);
 
@@ -21,9 +20,9 @@ public class ArtistTest {
     @Test
     void tribeEntranceEffectShouldNotChangeOtherPlayerAttributes() {
         Player player = new Player("Alice");
-        Artist artist = new Artist(1);
+        Artist artist = new Artist(1, 0);
 
-        artist.tribeEntranceEffect(player);
+        artist.pick(player);
 
         assertEquals(0, player.getFood());
         assertEquals(0, player.getBuildingDiscount());

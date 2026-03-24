@@ -1,6 +1,5 @@
-package it.polimi.ingsw.am43.model;
+package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.model.cards.Inventor;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
 import it.polimi.ingsw.am43.model.player.Player;
@@ -11,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class InventorTest {
     @Test
     void constructorShouldStoreEraAndInventorSymbol() {
-        Inventor inventor = new Inventor(2, InventorSymbol.BOAT);
+        Inventor inventor = new Inventor(2, 0,InventorSymbol.BOAT);
 
         assertEquals(2, inventor.getEra());
         assertEquals(InventorSymbol.BOAT, inventor.getSymbol());
@@ -20,7 +19,7 @@ public class InventorTest {
     @Test
     void tribeEntranceEffectShouldAddInventorToPlayersTribe() {
         Player player = new Player("alice");
-        Inventor inventor = new Inventor(1, InventorSymbol.FLUTE);
+        Inventor inventor = new Inventor(1, 0,InventorSymbol.FLUTE);
 
         inventor.tribeEntranceEffect(player);
 
@@ -30,7 +29,7 @@ public class InventorTest {
     @Test
     void tribeEntranceEffectShouldNotChangePlayerResourcesOrDiscounts() {
         Player player = new Player("alice");
-        Inventor inventor = new Inventor(1, InventorSymbol.ROPE);
+        Inventor inventor = new Inventor(1, 0, InventorSymbol.ROPE);
 
         inventor.tribeEntranceEffect(player);
 

@@ -35,10 +35,10 @@ public class Board{
         this.offerTrack= offerTrack;
         while (this.bottomRow.size()<=numPlayers){
             Card cardDrawn= this.tribeDeck.draw();
-            switch (cardDrawn.firstRowAction()){
-                case "TOP":
+            switch (cardDrawn.firstRowChoice()){
+                case OfferAction.TOP:
                     this.topRow.addCard(cardDrawn);
-                case "BOTTOM":
+                case OfferAction.BOTTOM:
                     this.bottomRow.addCard(cardDrawn);
             }
         }

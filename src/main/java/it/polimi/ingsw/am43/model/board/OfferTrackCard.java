@@ -17,10 +17,6 @@ public class OfferTrackCard {
         player=Optional.empty();
     }
 
-    public char getLetter() {
-        return this.letter;
-    }
-
     public ArrayList<OfferAction> getActions() {
         return new ArrayList<>(this.actions);
     }

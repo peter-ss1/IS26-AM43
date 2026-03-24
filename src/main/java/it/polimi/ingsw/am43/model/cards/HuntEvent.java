@@ -16,7 +16,7 @@ public class HuntEvent extends Event {
         for (Player p : players) {
             int amount = p.getTribe().getNumberByCharacterType(CharacterType.HUNTER);
             p.alterFood(amount);
-            p.alterPrestigePoints(amount*this.getEra());
+            p.alterPrestigePoints(amount * this.getEra());
             p.getTribe().activateEventBuildings(this, p);
         }
     }

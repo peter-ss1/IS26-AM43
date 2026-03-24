@@ -5,8 +5,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 public class FinalBuilding extends Building {
     private final FinalEffect effect;
 
-    public FinalBuilding(int era, int cost, int prestigePoints, FinalEffect effect) {
-        super(era, cost, prestigePoints);
+    public FinalBuilding(int era, int id, int cost, int prestigePoints, FinalEffect effect) {
+        super(era, id, cost, prestigePoints);
         this.effect = effect;
     }
 

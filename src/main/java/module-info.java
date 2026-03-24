@@ -1,7 +1,9 @@
 module it.polimi.ingsw.am43 {
     requires javafx.controls;
     requires javafx.fxml;
-
+    requires com.fasterxml.jackson.annotation;
+    requires com.fasterxml.jackson.databind;
+    
     opens it.polimi.ingsw.am43 to javafx.fxml;
     exports it.polimi.ingsw.am43.model.player;
     exports it.polimi.ingsw.am43.model.cards;
