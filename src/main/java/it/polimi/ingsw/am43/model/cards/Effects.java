@@ -1,10 +1,14 @@
 package it.polimi.ingsw.am43.model.utils;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.player.Player;
+
+
 
 public class Effects {
     public static class FoodOnSet implements TribeBonus {
@@ -22,7 +26,8 @@ public class Effects {
     public static class SustenanceDiscountByCharacterType implements TribeBonus {
         private final CharacterType character;
 
-        public SustenanceDiscountByCharacterType(CharacterType character) {
+        @JsonCreator
+        public SustenanceDiscountByCharacterType(@JsonProperty("character") CharacterType character) {
             this.character = character;
         }
 
@@ -65,7 +70,8 @@ public class Effects {
         private final CharacterType character;
         private final int amount;
 
-        public FinalPrestigePointsByCharacterType(CharacterType character, int amount) {
+        @JsonCreator
+        public FinalPrestigePointsByCharacterType(@JsonProperty("character") CharacterType character,@JsonProperty("amount") int amount) {
             this.character = character;
             this.amount = amount;
         }
