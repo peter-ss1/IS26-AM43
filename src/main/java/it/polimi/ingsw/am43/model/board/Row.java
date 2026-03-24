@@ -7,50 +7,75 @@ import it.polimi.ingsw.am43.model.player.*;
 
 public class Row {
 
-    private final List<Card> nonBuildingCards;
+    private final List<CharacterCard> characters;
     private final List<Building> buildings;
-    private List<Event> eventResolutionQueue;
+    private final List<Event> events;
+    private final List<Event> eventResolutionQueue;
 
     public Row() {
-        this.nonBuildingCards = new ArrayList<>();
+        this.characters = new ArrayList<>();
         this.buildings = new ArrayList<>();
+        this.events = new ArrayList<>();
+        this.eventResolutionQueue = new ArrayList<>();
     }
 
-    public List<Card> getNonBuildingCards() {
-        return new ArrayList<>(this.nonBuildingCards);
-    }
-
-    public List<Building> getBuildings() {
-        return new ArrayList<>(this.buildings);
-    }
 
     public int size(){
-        return this.buildings.size() + this.nonBuildingCards.size();
+        return this.buildings.size() + this.characters.size() +this.events.size();
     }
 
-
-    public void addCard(Card card) {
-        this.nonBuildingCards.add(card);
+    public void addCard(CharacterCard card) {
+        this.characters.add(card);
     }
-
+    public void addCard(Event event) {
+        this.events.add(event);
+    }
     public void addCard(Building building) {//to talk later
         this.buildings.add(building);
     }
-
-    public void removeNonBuildingCards() {
-        this.nonBuildingCards.clear();
+    public void addCard(SustenanceEvent sustenanceEvent){
+        this.events.addFirst(sustenanceEvent);
     }
 
+    public void removeCharacters() {
+        this.characters.clear();
+    }
     public void removeBuildings() {
         this.buildings.clear();
     }
+    public void removeEvents() {
+        this.events.clear();
+    }
 
-    public void removeNonBuildingCard(Card c)throws IllegalArgumentException{
-        if(!this.nonBuildingCards.remove(c)) throw new IllegalArgumentException(("card not in row"));
+    public ArrayList<CharacterCard> getAllCharacters(){
+        return new ArrayList<>(this.characters);
     }
-    public void removeBuilding(Building b)throws IllegalArgumentException{
-        if(!this.buildings.remove(b)) throw new IllegalArgumentException(("card not in row"));
+    public ArrayList<Building> getAllBuildings(){
+        return new ArrayList<>(this.buildings);
     }
+    public ArrayList<Event> getAllEvents(){
+        return new ArrayList<>(this.events);
+    }
+
+    public void addAllCharacters(ArrayList<CharacterCard> characters){
+        this.characters.addAll(characters);
+    }
+    public void addAllBuildings(ArrayList<Building> buildings){
+        this.buildings.addAll(buildings);
+    }
+    public void addAllEvents(ArrayList<Event> events){
+        this.events.addAll(events);
+    }
+
+
+
+    public boolean contains(Card card){
+        return this.characters.contains(card) || buildings.contains(card) || events.contains(card);
+    }
+    public boolean removeCard(Card c){
+        return this.characters.remove(c) || this.buildings.remove(c) || this.events.remove(c);
+    }
+
 
     public void activateEvents(ArrayList<Player> p) {
         this.eventResolutionQueue.forEach(e->e.affectPlayers(p));

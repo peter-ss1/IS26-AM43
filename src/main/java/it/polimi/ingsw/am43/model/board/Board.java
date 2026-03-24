@@ -2,12 +2,11 @@ package it.polimi.ingsw.am43.model.board;
 
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
+import it.polimi.ingsw.am43.model.cards.TribeCard;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Board{
 
@@ -35,20 +34,28 @@ public class Board{
         this.offerTrack= offerTrack;
         while (this.bottomRow.size()<=numPlayers){
             Card cardDrawn= this.tribeDeck.draw();
-            switch (cardDrawn.firstRowAction()){
-                case "TOP":
-                    this.topRow.addCard(cardDrawn);
-                case "BOTTOM":
-                    this.bottomRow.addCard(cardDrawn);
+            switch (cardDrawn.firstRowChoice()){
+                case TOP:
+                    cardDrawn.addToRow(this.topRow);
+                case BOTTOM:
+                    cardDrawn.addToRow(this.bottomRow);
             }
         }
         while (this.topRow.size()<numPlayers+4){
-            this.topRow.addCard(this.tribeDeck.draw());
+            this.tribeDeck.draw().addToRow(this.topRow);
         }
         for(Building building : this.buildingDeck.draw(1)){
-            this.topRow.addCard(building);
+            building.addToRow(this.bottomRow);
         }
     }
+
+    public Map<Integer,Card> idTribeCardMap(){
+        return this.tribeDeck.idTribeCardMap();
+    }
+    public Map<Integer,Building> idBuildingCardMap(){
+        return this.buildingDeck.idBuildingCardMap();
+    }
+
 
     public List<OfferAction> getOfferTrackCardActions(int position) throws IllegalArgumentException {
         try {
@@ -62,27 +69,62 @@ public class Board{
 
     public void increaseCurrEra() throws IllegalStateException{
         if(this.currEra++ >3) throw new IllegalStateException("era not supported");
+        this.buildingDeck.revealEra(this.currEra);
     }
 
     public void replenishTopRow(int amount){
         for (int i=0;i<amount;i++){
-            this.topRow.addCard(this.tribeDeck.draw());
+            this.tribeDeck.draw().addToRow(this.topRow);
         }
     }
-    //per i building ?
-
-    public void removeCardTopRow(Card c) throws IllegalArgumentException{
-        this.topRow.removeNonBuildingCard(c);
+    public ArrayList<OfferAction >getAvailableActions(Player player){
+        return player.getAvailableActionsActions();
     }
 
-    public void removeCardBottomRow(Card c){
-        this.bottomRow.removeNonBuildingCard(c);
+    public OfferAction getCardPosition(Card card){
+        if(this.topRow.contains(card))return OfferAction.TOP;
+        if(this.bottomRow.contains(card))return OfferAction.BOTTOM;
+        throw new IllegalArgumentException("card not in board");
     }
 
-    public void removeBuildingTopRow(Building b){
-        this.topRow.removeBuilding(b);
+    public void removeAvailableAction(Player player, OfferAction offerAction) throws IllegalArgumentException{
+        player.removeAvailableAction(offerAction);
     }
-    public void removeBuildingBottomRow(Building b){
-        this.bottomRow.removeBuilding(b);
+
+    public void removeCard(Card c) throws IllegalArgumentException{
+        if(!this.bottomRow.removeCard(c) && !this.topRow.removeCard(c)) throw new IllegalArgumentException("card not in the board");
     }
+
+    public Player getNextPlayerInOrderQueue(){
+        return this.turnOrder.pop();
+    }
+
+    public Optional<OfferTrackCard> getNextOccupiedOfferTrackCard(){
+        for(OfferTrackCard otd : this.offerTrack){
+            if(otd.getPlayer().isPresent()) return Optional.of(otd);
+        }
+        return Optional.empty();
+    }
+
+    public void  activateEvents(ArrayList<Player> players){
+        this.bottomRow.activateEvents(players);
+    }
+
+    public void moveTopToBottomTribe(){
+        this.bottomRow.addAllCharacters(this.topRow.getAllCharacters());
+        this.bottomRow.addAllEvents(this.topRow.getAllEvents());
+        this.topRow.removeCharacters();
+        this.bottomRow.removeEvents();
+    }
+    public void moveTopToBottomBuildings(){
+        this.bottomRow.addAllBuildings(this.topRow.getAllBuildings());
+        this.topRow.removeBuildings();
+    }
+
+    public void returnPlayerToOrderQueue(Player player){
+        this.turnOrder.append(player);
+    }
+
+
+
 }

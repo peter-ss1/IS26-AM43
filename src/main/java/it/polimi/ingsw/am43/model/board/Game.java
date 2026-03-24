@@ -1,10 +1,7 @@
 package it.polimi.ingsw.am43.model.board;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 import it.polimi.ingsw.am43.model.enums.*;
@@ -20,6 +17,9 @@ public class Game {
     private Player currPlayer;
     private GamePhase phase;
     private Board board;
+    private Map<Integer,Card> idToTribe;
+    private Map<Integer,Building> idToBuilding;
+
 
 
     public Game(int np, String nk) throws IOException {
@@ -29,11 +29,20 @@ public class Game {
         this.numPlayers=np;
         this.phase= GamePhase.PREPARATION;
         this.board=new Board();
+        this.idToTribe = new HashMap<>();
+        this.idToBuilding = new HashMap<>();
     }
 
 
     public ArrayList<Color> getAvailableColors() {
         return new ArrayList<>(this.availableColors);
+    }
+
+    public void setIdTribeCard(){
+        this.idToTribe=this.board.idTribeCardMap();
+    }
+    public void setIdBuildingCard(){
+        this.idToBuilding= this.board.idBuildingCardMap();
     }
 
     public void pickColor(String name, Color color) throws IllegalArgumentException {
@@ -57,15 +66,12 @@ public class Game {
 
         }
     }
-
     public int getNumPlayers() {
         return this.numPlayers;
     }
-
     public Player getCurrPlayer() {
         return this.currPlayer;
     }
-
     public void setCurrPlayer(Player player) throws IllegalArgumentException{
         if(!this.players.contains(player)) throw new IllegalArgumentException(("Player is not registered in the game"));
         this.currPlayer=player;
@@ -74,25 +80,43 @@ public class Game {
     public GamePhase getPhase() {
         return this.phase;
     }
-
     public void setPhase(GamePhase phase) {
         this.phase=phase;
     }
 
-    public void placePlayerOnTrack(String name, int position){
-        Player np= players.stream().filter(p->p.getNickname().equals(name)).findFirst().orElseThrow(()->new IllegalArgumentException("PLayer not registered"));
+    public void placeTotemOnTrack(String name, int position) throws IllegalArgumentException{
+        Player np= this.getPlayerByName(name);
         this.board.setPlayerOnTrack(np,position);
     }
 
-    public void pickCard(OfferAction r, int id,String cardClass, String namePlayer)throws IllegalArgumentException{
-        switch (r){
-            case TOP:{
-
-            }
-            case BOTTOM:{
-
-            }
-            default: throw new IllegalArgumentException("row not exist");
-        }
+    public Player getPlayerByName(String name) throws IllegalArgumentException{
+        return players.stream().filter(p->p.getNickname().equals(name)).findFirst().orElseThrow(()->new IllegalArgumentException("PLayer not registered"));
     }
+    public Card getCardById (int id){
+        return this.idToTribe.get(id);
+    }
+    public Building getBuildingById(int id){
+        return this.idToBuilding.get(id);
+    }
+
+    public void pickCard(Card card, Player player)throws IllegalArgumentException{
+        if(!this.currPlayer.equals(player) || !this.players.contains(player)) throw new IllegalArgumentException(("wrong player"));
+        if(player.getAvailableActionsActions()==null) throw  new IllegalArgumentException("player has no actions left");
+        if(!player.getAvailableActionsActions().contains(this.board.getCardPosition(card))) throw new IllegalArgumentException("player cannot pick that card");
+        card.tribeEntranceEffect(player);
+        player.removeAvailableAction(this.board.getCardPosition(card));
+        this.board.removeCard(card);
+    }
+
+
+    //ask
+    public void endCurrentTurn(Player player){
+
+    }
+    public void resolveOffer(){
+
+    }
+
+
+
 }

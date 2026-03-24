@@ -1,7 +1,10 @@
 package it.polimi.ingsw.am43.model.player;
 
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Tribe;
+
+import java.util.ArrayList;
 
 public class Player {
 
@@ -13,6 +16,7 @@ public class Player {
     private int buildingDiscount;
     private int shamanStars;
     private Tribe tribe;
+    private ArrayList<OfferAction> availableActions;
 
     public Player(String nickname) {
         this.nickname = nickname;
@@ -22,6 +26,7 @@ public class Player {
         this.buildingDiscount = 0;
         this.shamanStars = 0;
         this.tribe = new Tribe();
+        this.availableActions=new ArrayList<OfferAction>();
     }
 
 
@@ -46,6 +51,17 @@ public class Player {
 
     public void alterFood(int amount) {
         this.food += amount;
+    }
+
+    //new
+    public void setAvailableActions(ArrayList<OfferAction> offerActions){
+        this.availableActions.addAll(offerActions);
+    }
+    public ArrayList<OfferAction> getAvailableActionsActions(){
+        return new ArrayList<>(this.availableActions);
+    }
+    public void removeAvailableAction(OfferAction offerAction) throws IllegalArgumentException{
+        if(!this.availableActions.remove(offerAction)) throw new IllegalArgumentException("cannot do this action");
     }
 
 

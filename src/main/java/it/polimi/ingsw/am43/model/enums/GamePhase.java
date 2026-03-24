@@ -23,6 +23,8 @@ public enum GamePhase {
                     loader.loadBuildingDeck(),
                     loader.loadOfferTrackCard(game.getNumPlayers())
             );
+            game.setIdTribeCard();
+            game.setIdBuildingCard();
 
 
         };

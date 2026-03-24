@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.*;
 import it.polimi.ingsw.am43.model.board.OfferTrackCard;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
+import it.polimi.ingsw.am43.model.cards.Card.*;
 import it.polimi.ingsw.am43.model.cards.TribeCard;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.utils.DTOs.BuildingDeckCardDTO;
@@ -109,6 +110,7 @@ public class GameLoader {
         JsonNode seedNode = mapper.readTree(inputStream).path("board").path("seed");
         return  seedNode.asInt(1234);
     }
+
 
 
 }
