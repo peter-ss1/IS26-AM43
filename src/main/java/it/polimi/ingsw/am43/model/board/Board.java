@@ -20,7 +20,7 @@ public class Board{
 
     public void setPlayerOnTrack(Player player, int position) throws IllegalArgumentException {
         try {
-            this.offerTrack.get(position).setPlayer(player);//controlll is free
+            this.offerTrack.get(position).setPlayer(player);//control is free
         }catch (IndexOutOfBoundsException e){throw new IllegalArgumentException("Index out of bounds");}
     }
 
@@ -77,7 +77,7 @@ public class Board{
             this.tribeDeck.draw().addToRow(this.topRow);
         }
     }
-    public ArrayList<OfferAction >getAvailableActions(Player player){
+    public ArrayList<OfferAction>getAvailableActions(Player player){
         return player.getAvailableActionsActions();
     }
 

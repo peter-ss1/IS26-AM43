@@ -4,7 +4,6 @@ import it.polimi.ingsw.am43.model.board.Row;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
 import it.polimi.ingsw.am43.model.player.Player;
-import it.polimi.ingsw.am43.model.utils.Effects;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

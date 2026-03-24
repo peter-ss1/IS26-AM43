@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43.model.utils;
+package it.polimi.ingsw.am43.model.cards;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

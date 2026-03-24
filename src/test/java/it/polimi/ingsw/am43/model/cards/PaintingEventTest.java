@@ -3,7 +3,6 @@ package it.polimi.ingsw.am43.model.cards;
 import it.polimi.ingsw.am43.model.board.Row;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Player;
-import it.polimi.ingsw.am43.model.utils.Effects;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

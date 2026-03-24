@@ -81,9 +81,6 @@ public class Row {
         this.eventResolutionQueue.forEach(e->e.affectPlayers(p));
     }
 
-    public  void finalMoment(){
-        this.nonBuildingCards.forEach(c->c.addToRow(this));
-    }
 
     public void roundEndingRow(){
         //ask what it does
