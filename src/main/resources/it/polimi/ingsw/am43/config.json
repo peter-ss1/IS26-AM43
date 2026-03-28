@@ -137,15 +137,189 @@
 
     ],
     "buildingDeck": [
+
+
       {
-        "id": 23,
+        "id": 1,
+        "era": 1,
+        "cost": "4",
+        "prestigePoints": "3",
         "class": "tribe",
-        "lastGivenBonus": "2",
-        "effect":{
-          "class": "FoodOnSet",
-          "altriAttributi": ""
+        "lastGivenBonus": 0,
+        "effect": { "class": "foodOnSet" }
+      },
+      {
+        "id": 2,
+        "era": 1,
+        "cost": "5",
+        "prestigePoints": "3",
+        "class": "tribe",
+        "lastGivenBonus": 0,
+        "effect": { "class": "sustenanceDiscount", "character": "ARTIST" }
+      },
+      {
+        "id": 3,
+        "era": 1,
+        "cost": "3",
+        "prestigePoints": "4",
+        "class": "tribe",
+        "lastGivenBonus": 0,
+        "effect": { "class": "foodOnInventor" }
+      },
+      {
+        "id": 4,
+        "era": 1,
+        "cost": "5",
+        "prestigePoints": "2",
+        "class": "ritualEvent",
+        "reaction": { "class": "noLossRitual" }
+      },
+      {
+        "id": 5,
+        "era": 1,
+        "cost": "6",
+        "prestigePoints": "4",
+        "class": "ritualEvent",
+        "reaction": { "class": "shamanStars" }
+      },
+      {
+        "id": 6,
+        "era": 1,
+        "cost": "3",
+        "prestigePoints": "3",
+        "class": "timed",
+        "effect": { "class": "bonusTurnFood" }
+      },
+
+
+      {
+        "id": 7,
+        "era": 2,
+        "cost": "7",
+        "prestigePoints": "4",
+        "class": "tribe",
+        "lastGivenBonus": 0,
+        "effect": { "class": "sustenanceDiscount", "character": "INVENTOR" }
+      },
+      {
+        "id": 8,
+        "era": 2,
+        "cost": "4",
+        "prestigePoints": "4",
+        "class": "tribe",
+        "lastGivenBonus": 0,
+        "effect": { "class": "sustenanceDiscount", "character": "GATHERER" }
+      },
+      {
+        "id": 9,
+        "era": 2,
+        "cost": "7",
+
+        "class": "ritualEvent",
+        "reaction": { "class": "doubleWinRitual" }
+      },
+      {
+        "id": 10,
+        "era": 2,
+        "cost": "7",
+        "prestigePoints": "2",
+        "class": "huntEvent",
+        "reaction": { "class": "bonusHunt" }
+      },
+      {
+        "id": 11,
+        "era": 2,
+        "cost": "5",
+        "prestigePoints": "6",
+        "class": "paintingEvent",
+        "reaction": { "class": "bonusPainting" }
+      },
+      {
+        "id": 12,
+        "era": 2,
+        "cost": "6",
+        "prestigePoints": "4",
+        "class": "final",
+        "effect": { "class": "finalDoubleBuilder" }
+      },
+      {
+        "id": 13,
+        "era": 2,
+        "cost": "9",
+        "prestigePoints": "3",
+        "class": "timed",
+        "effect": { "class": "bonusPickCard" }
+      },
+
+
+      {
+        "id": 14,
+        "era": 3,
+        "cost": "5",
+        "prestigePoints": "6",
+        "class": "final",
+        "effect": { "class": "finalPointsPerSet" }
+      },
+      {
+        "id": 15,
+        "era": 3,
+        "cost": "8",
+        "prestigePoints": "8",
+        "class": "final",
+        "effect": {
+          "class": "finalPointsByType",
+          "character": "HUNTER",
+          "amount": "3"
         }
+      },
+      {
+        "id": 16,
+        "era": 3,
+        "cost": "7",
+        "prestigePoints": "4",
+        "class": "final",
+        "effect": {
+          "class": "finalPointsByType",
+          "character": "ARTIST",
+          "amount": "4"
+        }
+      },
+      {
+        "id": 17,
+        "era": 3,
+        "cost": "6",
+        "prestigePoints": "6",
+        "class": "final",
+        "effect": {
+          "class": "finalPointsByType",
+          "character": "INVENTOR",
+          "amount": "2"
+        }
+      },
+      {
+        "id": 18,
+        "era": 3,
+        "cost": "0",
+        "prestigePoints": "25",
+        "class": "final",
+        "effect": { "class": "finalBonusPoints" }
 
+      },
+      {
+        "id": 19, "era": 3, "cost": "6", "prestigePoints": "3",
+        "class": "final",
+        "effect": { "class": "finalPointsByType", "character": "BUILDER", "amount": "4" }
+      },
+      {
+        "id": 20, "era": 3, "cost": "7", "prestigePoints": "6",
+        "class": "final",
+        "effect": { "class": "finalPointsByType", "character": "GATHERER", "amount": "4" }
+      },
+      {
+        "id": 21, "era": 3, "cost": "7", "prestigePoints": "4",
+        "class": "final",
+        "effect": { "class": "finalPointsByType", "character": "SHAMAN", "amount": "4" }
+      }
+    ]
 
-  }
 }
