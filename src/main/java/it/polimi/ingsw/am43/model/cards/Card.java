@@ -25,8 +25,7 @@ public abstract class Card {
 
     public abstract void addToRow(Row row);
 
-    public abstract void addToPlayer(Player player);
-
     public abstract OfferAction firstRowChoice();
     public abstract void pick(Player player);
+
 }

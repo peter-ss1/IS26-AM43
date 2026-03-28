@@ -27,7 +27,7 @@ public class TribeDeck {
     public Map<Integer,Card> idTribeCardMap(){
         Map<Integer, Card> map = new HashMap<>();
         for(Card c : this.deck){
-            map.put(c.getId,c);
+            map.put(c.getId(),c);
         }
         return map;
     }

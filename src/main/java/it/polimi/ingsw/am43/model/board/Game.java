@@ -24,9 +24,9 @@ public class Game {
 
     public Game(int np, String nk) throws IOException {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
+        this.numPlayers=np;
         this.players=new ArrayList<>();
         this.addPlayer(nk);
-        this.numPlayers=np;
         this.phase= GamePhase.PREPARATION;
         this.board=new Board();
         this.idToTribe = new HashMap<>();
@@ -103,7 +103,7 @@ public class Game {
         if(!this.currPlayer.equals(player) || !this.players.contains(player)) throw new IllegalArgumentException(("wrong player"));
         if(player.getAvailableActionsActions()==null) throw  new IllegalArgumentException("player has no actions left");
         if(!player.getAvailableActionsActions().contains(this.board.getCardPosition(card))) throw new IllegalArgumentException("player cannot pick that card");
-        card.tribeEntranceEffect(player);
+        card.pick(player);
         player.removeAvailableAction(this.board.getCardPosition(card));
         this.board.removeCard(card);
     }

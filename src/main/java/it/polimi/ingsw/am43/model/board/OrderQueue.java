@@ -28,7 +28,7 @@ public class OrderQueue {
     public void append(Player player) {
         this.playerOrder.offer(player);
         player.alterFood(this.foodModifiers.get(playerOrder.size()-1));
-        player.getTribe().activateTimedBuilding(); //to understand better if there are other solutions
+        player.getTribe().activateTimedBuilding(null, player, null); //to understand better if there are other solutions
     }
 
     public Player pop() {
