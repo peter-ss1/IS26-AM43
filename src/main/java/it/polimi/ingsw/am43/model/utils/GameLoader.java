@@ -84,21 +84,21 @@ public class GameLoader {
         JsonNode offerTrackNode = mapper.readTree(inputStream).path("board").path("offerTrack");
         if (offerTrackNode == null) throw new IOException("node json error");
 
-        ArrayList<ArrayList<OfferAction>> offertTrackBone= mapper.convertValue(
+        ArrayList<ArrayList<OfferAction>> offerTrackBone= mapper.convertValue(
                 offerTrackNode,
                 new TypeReference<ArrayList<ArrayList<OfferAction>>>() {}
         );
         if(numPlayers<5){
-            offertTrackBone.removeFirst();
+            offerTrackBone.removeFirst();
             if(numPlayers<4){
-                offertTrackBone.removeLast();
+                offerTrackBone.removeLast();
                 if(numPlayers<3)
-                    offertTrackBone.remove(4);
+                    offerTrackBone.remove(4);
             }
         }
 
         ArrayList<OfferTrackCard> offerTrack = new ArrayList<OfferTrackCard>();
-        for(ArrayList<OfferAction> actions: offertTrackBone){
+        for(ArrayList<OfferAction> actions: offerTrackBone){
             offerTrack.add(new OfferTrackCard(actions));
         }
         return offerTrack;

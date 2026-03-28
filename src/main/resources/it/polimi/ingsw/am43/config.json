@@ -18,7 +18,13 @@
     ],
     "buildingDeck": [
       {
-
+        "id": 23,
+        "class": "tribe",
+        "lastGivenBonus": "2",
+        "effect":{
+          "class": "FoodOnSet",
+          "altriAttributi": "",
+        }
       },
 
     ]
