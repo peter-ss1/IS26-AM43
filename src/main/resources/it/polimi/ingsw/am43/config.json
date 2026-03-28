@@ -1,19 +1,139 @@
 {
   "board": {
     "orderQueue": {
-      "3": [2,0,-1],
-      "5": [3,1,0,0,-1]
+      "2": [1, -1],
+      "3": [2, 0, -1],
+      "4": [2, 1, 0, -1],
+      "5": [3, 1, 0, 0, -1]
     },
-    "tribeDeck": [
-      {
-        "id": 1,
-        "class": "hunter",
-        "era": 1,
-        "active": true
-      },
-      {
 
-      }
+    "offerTrack": [
+      ["FOOD"],
+      ["BOTTOM"],
+      ["TOP"],
+      ["BOTTOM", "BOTTOM"],
+      ["BOTTOM", "TOP"],
+      ["TOP", "TOP"],
+      ["BOTTOM", "TOP", "TOP"]
+    ],
+
+    "tribeDeck": [
+      { "subClass": "HUNTER",   "era": 1, "id": 1,  "active": true },
+      { "subClass": "HUNTER",   "era": 1, "id": 2,  "active": true },
+      { "subClass": "HUNTER",   "era": 1, "id": 3,  "active": false },
+      { "subClass": "HUNTER",   "era": 1, "id": 4,  "active": false  },
+      { "subClass": "HUNTER",   "era": 1, "id": 5,  "active": false  },
+
+      { "subClass": "BUILDER",  "era": 1, "id": 6,  "buildingDiscount": 1, "prestigePoint": 3 },
+      { "subClass": "BUILDER",  "era": 1, "id": 7,  "buildingDiscount": 2, "prestigePoint": 0 },
+      { "subClass": "BUILDER",  "era": 1, "id": 8,  "buildingDiscount": 2, "prestigePoint": 1 },
+      { "subClass": "BUILDER",  "era": 1, "id": 9,  "buildingDiscount": 1, "prestigePoint": 2 },
+
+      { "subClass": "GATHERER", "era": 1, "id": 10 },
+      { "subClass": "GATHERER", "era": 1, "id": 11 },
+      { "subClass": "GATHERER", "era": 1, "id": 12 },
+      { "subClass": "GATHERER", "era": 1, "id": 13 },
+
+      { "subClass": "ARTIST",   "era": 1, "id": 14 },
+      { "subClass": "ARTIST",   "era": 1, "id": 15 },
+      { "subClass": "ARTIST",   "era": 1, "id": 16 },
+      { "subClass": "ARTIST",   "era": 1, "id": 17 },
+      { "subClass": "ARTIST",   "era": 1, "id": 18 },
+
+      { "subClass": "INVENTOR", "era": 1, "id": 19, "symbol": "LEATHER"    },
+      { "subClass": "INVENTOR", "era": 1, "id": 20, "symbol": "BOAT"       },
+      { "subClass": "INVENTOR", "era": 1, "id": 21, "symbol": "SPEARHEAD"  },
+      { "subClass": "INVENTOR", "era": 1, "id": 22, "symbol": "BREAD"      },
+      { "subClass": "INVENTOR", "era": 1, "id": 23, "symbol": "ROPE"       },
+      { "subClass": "INVENTOR", "era": 1, "id": 24, "symbol": "FLUTE"      },
+      { "subClass": "INVENTOR", "era": 1, "id": 25, "symbol": "MORTAR"     },
+
+      { "subClass": "SHAMAN",   "era": 1, "id": 26, "shamansStars": 2 },
+      { "subClass": "SHAMAN",   "era": 1, "id": 27, "shamansStars": 2 },
+      { "subClass": "SHAMAN",   "era": 1, "id": 28, "shamansStars": 1 },
+      { "subClass": "SHAMAN",   "era": 1, "id": 29, "shamansStars": 1 },
+
+      { "subClass": "HUNTER",   "era": 2, "id": 30, "active": false },
+      { "subClass": "HUNTER",   "era": 2, "id": 31, "active": false },
+      { "subClass": "HUNTER",   "era": 2, "id": 32, "active": true  },
+      { "subClass": "HUNTER",   "era": 2, "id": 33, "active": true  },
+      { "subClass": "HUNTER",   "era": 2, "id": 34, "active": true  },
+      { "subClass": "HUNTER",   "era": 2, "id": 35, "active": false },
+
+      { "subClass": "BUILDER",  "era": 2, "id": 36, "buildingDiscount": 1, "prestigePoint": 4 },
+      { "subClass": "BUILDER",  "era": 2, "id": 37, "buildingDiscount": 2, "prestigePoint": 1 },
+      { "subClass": "BUILDER",  "era": 2, "id": 38, "buildingDiscount": 1, "prestigePoint": 2 },
+      { "subClass": "BUILDER",  "era": 2, "id": 39, "buildingDiscount": 2, "prestigePoint": 3 },
+
+      { "subClass": "GATHERER", "era": 2, "id": 40 },
+      { "subClass": "GATHERER", "era": 2, "id": 41 },
+      { "subClass": "GATHERER", "era": 2, "id": 42 },
+      { "subClass": "GATHERER", "era": 2, "id": 43 },
+
+      { "subClass": "ARTIST",   "era": 2, "id": 44 },
+      { "subClass": "ARTIST",   "era": 2, "id": 45 },
+      { "subClass": "ARTIST",   "era": 2, "id": 46 },
+      { "subClass": "ARTIST",   "era": 2, "id": 47 },
+
+      { "subClass": "INVENTOR", "era": 2, "id": 48, "symbol": "FIGURINE" },
+      { "subClass": "INVENTOR", "era": 2, "id": 49, "symbol": "HOOK"      },
+      { "subClass": "INVENTOR", "era": 2, "id": 50, "symbol": "ROPE"  },
+      { "subClass": "INVENTOR", "era": 2, "id": 51, "symbol": "FLUTE"     },
+      { "subClass": "INVENTOR", "era": 2, "id": 52, "symbol": "MORTAR"    },
+      { "subClass": "INVENTOR", "era": 2, "id": 53, "symbol": "LEATHER"   },
+
+      { "subClass": "SHAMAN",   "era": 2, "id": 54, "shamansStars": 2 },
+      { "subClass": "SHAMAN",   "era": 2, "id": 55, "shamansStars": 2 },
+      { "subClass": "SHAMAN",   "era": 2, "id": 56, "shamansStars": 1 },
+      { "subClass": "SHAMAN",   "era": 2, "id": 57, "shamansStars": 2 },
+
+      { "subClass": "HUNTER",   "era": 3, "id": 58, "active": true  },
+      { "subClass": "HUNTER",   "era": 3, "id": 59, "active": false  },
+      { "subClass": "HUNTER",   "era": 3, "id": 60, "active": false  },
+      { "subClass": "HUNTER",   "era": 3, "id": 61, "active": true  },
+
+      { "subClass": "BUILDER",  "era": 3, "id": 62, "buildingDiscount": 1, "prestigePoint": 5 },
+      { "subClass": "BUILDER",  "era": 3, "id": 63, "buildingDiscount": 2, "prestigePoint": 3 },
+      { "subClass": "BUILDER",  "era": 3, "id": 64, "buildingDiscount": 1, "prestigePoint": 4 },
+      { "subClass": "BUILDER",  "era": 3, "id": 65, "buildingDiscount": 2, "prestigePoint": 2 },
+
+      { "subClass": "GATHERER", "era": 3, "id": 66 },
+      { "subClass": "GATHERER", "era": 3, "id": 67 },
+      { "subClass": "GATHERER", "era": 3, "id": 68 },
+
+      { "subClass": "ARTIST",   "era": 3, "id": 69 },
+      { "subClass": "ARTIST",   "era": 3, "id": 70 },
+      { "subClass": "ARTIST",   "era": 3, "id": 71 },
+      { "subClass": "ARTIST",   "era": 3, "id": 72 },
+
+      { "subClass": "INVENTOR", "era": 3, "id": 73, "symbol": "NECKLACE" },
+      { "subClass": "INVENTOR", "era": 3, "id": 74, "symbol": "BOAT"      },
+      { "subClass": "INVENTOR", "era": 3, "id": 75, "symbol": "SPEARHEAD" },
+      { "subClass": "INVENTOR", "era": 3, "id": 76, "symbol": "FIGURINE"  },
+      { "subClass": "INVENTOR", "era": 3, "id": 77, "symbol": "HOOK"      },
+      { "subClass": "INVENTOR", "era": 3, "id": 78, "symbol": "NECKLACE"  },
+      { "subClass": "INVENTOR", "era": 3, "id": 79, "symbol": "BREAD"     },
+
+      { "subClass": "SHAMAN",   "era": 3, "id": 80, "shamansStars": 2 },
+      { "subClass": "SHAMAN",   "era": 3, "id": 81, "shamansStars": 3 },
+      { "subClass": "SHAMAN",   "era": 3, "id": 82, "shamansStars": 2 },
+      { "subClass": "SHAMAN",   "era": 3, "id": 83, "shamansStars": 3 },
+      { "subClass": "SHAMAN",   "era": 3, "id": 84, "shamansStars": 2 },
+
+      { "subClass": "HUNT",        "era": 1, "id": 85 },
+      { "subClass": "SUSTENANCE",  "era": 1, "id": 86 },
+      { "subClass": "RITUAL",      "era": 1, "id": 87, "malus": -3 },
+      { "subClass": "PAINT",       "era": 1, "id": 88 },
+
+      { "subClass": "HUNT",        "era": 2, "id": 89 },
+      { "subClass": "SUSTENANCE",  "era": 2, "id": 90 },
+      { "subClass": "RITUAL",      "era": 2, "id": 91, "malus": -5 },
+      { "subClass": "PAINT",       "era": 2, "id": 92 },
+
+      { "subClass": "HUNT",        "era": 3, "id": 93 },
+      { "subClass": "PAINT",       "era": 3, "id": 94 },
+      { "subClass": "SUSTENANCE",  "era": 3, "id": 95 },
+      { "subClass": "RITUAL",      "era": 3, "id": 96, "malus": -7 }
 
     ],
     "buildingDeck": [
@@ -23,10 +143,9 @@
         "lastGivenBonus": "2",
         "effect":{
           "class": "FoodOnSet",
-          "altriAttributi": "",
+          "altriAttributi": ""
         }
-      },
 
-    ]
+
   }
 }
