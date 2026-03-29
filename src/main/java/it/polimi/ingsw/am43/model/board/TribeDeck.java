@@ -31,4 +31,8 @@ public class TribeDeck {
         }
         return map;
     }
+
+    public boolean isEmpty() {
+        return this.deck.isEmpty();
+    }
 }

@@ -10,12 +10,12 @@ import it.polimi.ingsw.am43.model.player.*;
 public class OfferTrackCard {
 
     private final ArrayList<OfferAction> actions;
-    private Optional<Player> player;
+    private Player player;
     private List<OfferAction> remainingActions;
 
     public OfferTrackCard(ArrayList<OfferAction> a){
         this.actions=new ArrayList<OfferAction>(a);
-        player=Optional.empty();
+        player=null;
     }
 
     public ArrayList<OfferAction> getActions() {
@@ -23,16 +23,16 @@ public class OfferTrackCard {
     }
 
     public Optional<Player> getPlayer() {
-        return this.player;
+        return Optional.ofNullable(this.player);
     }
 
     public void setPlayer(Player p) {
-        this.player= Optional.of(p);
+        this.player= p;
         p.setAvailableActions(this.actions);
     }
 
     public void removePlayer() {
-        this.player=Optional.empty();
+        this.player=null;
     }
 
 }
