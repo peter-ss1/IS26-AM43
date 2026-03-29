@@ -9,7 +9,7 @@ import it.polimi.ingsw.am43.model.player.Player;
 import java.io.IOException;
 
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = TimedEffect.BonusTurnFood.class, name = "bonusTurnFood"),
         @JsonSubTypes.Type(value = TimedEffect.BonusPickCard.class, name = "bonusPickCard")

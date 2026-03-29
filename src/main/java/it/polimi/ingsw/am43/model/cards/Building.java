@@ -31,4 +31,13 @@ public abstract class Building extends TribeCard {
         if (player.getFood()<this.cost) throw new IllegalArgumentException("Insufficient Food");
         this.tribeEntranceEffect(player);
     }
+
+    @Override
+    public boolean isContainedInRow(Row row){
+        return row.contains(this);
+    }
+    @Override
+    public void removeFromRow(Row row){
+        row.removeCard(this);
+    }
 }

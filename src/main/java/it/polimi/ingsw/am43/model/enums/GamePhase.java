@@ -9,9 +9,9 @@ import java.io.IOException;
 public enum GamePhase {
     PREPARATION {
         @Override
-        public void resolvePhase(Game game, Board board) throws IOException {
-            GameLoader loader = new GameLoader("config.json");
-            board.initBoard(
+        public void resolvePhase(Game game, Board board) throws IOException, RuntimeException {
+            GameLoader loader = new GameLoader("/it/polimi/ingsw/am43/config.json");
+            game.initBoard(
                     game.getPlayers(),
                     game.getNumPlayers(),
                     loader.loadSeed(),
@@ -20,9 +20,8 @@ public enum GamePhase {
                     loader.loadBuildingDeck(),
                     loader.loadOfferTrackCard(game.getNumPlayers())
             );
-            game.setIdTribeCard();
-            game.setIdBuildingCard();
-
+            game.setIdCard(loader.loadIdToCardMap());
+            game.setCurrPlayer(board.getNextPlayerInOrderQueue());
         }
 
         ;

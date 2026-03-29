@@ -9,7 +9,7 @@ import it.polimi.ingsw.am43.model.utils.DTOs.TribeDeckCardDTO.*;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
-        property = "subClass"
+        property = "classTribe"
 )
 
 @JsonSubTypes({

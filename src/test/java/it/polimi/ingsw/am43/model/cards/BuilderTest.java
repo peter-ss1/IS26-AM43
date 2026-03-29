@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.model.enums.CharacterType;
+import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +19,7 @@ public class BuilderTest {
 
     @Test
     void tribeEntranceEffectShouldAddBuilderToPlayersTribe() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.CYAN);
         Builder builder = new Builder(1, 0, 2, 4);
 
         builder.tribeEntranceEffect(player);
@@ -28,7 +29,7 @@ public class BuilderTest {
 
     @Test
     void tribeEntranceEffectShouldIncreasePlayersBuildingDiscountByBuildersDiscount() {
-        Player player = new Player("alice");
+        Player player = new Player("alice",Color.WHITE);
         Builder builder = new Builder(1, 0, 2, 4);
 
         builder.tribeEntranceEffect(player);
@@ -38,7 +39,7 @@ public class BuilderTest {
 
     @Test
     void tribeEntranceEffectShouldAccumulateBuildingDiscountWhenMultipleBuildersEnter() {
-        Player player = new Player("alice");
+        Player player = new Player("alice",Color.CYAN);
         Builder firstBuilder = new Builder(1, 0, 2, 1);
         Builder secondBuilder = new Builder(1, 0,3, 2);
 

@@ -1,325 +1,852 @@
 {
   "board": {
     "orderQueue": {
-      "2": [1, -1],
-      "3": [2, 0, -1],
-      "4": [2, 1, 0, -1],
-      "5": [3, 1, 0, 0, -1]
+      "2": [
+        1,
+        -1
+      ],
+      "3": [
+        2,
+        0,
+        -1
+      ],
+      "4": [
+        2,
+        1,
+        0,
+        -1
+      ],
+      "5": [
+        3,
+        1,
+        0,
+        0,
+        -1
+      ]
     },
-
     "offerTrack": [
-      ["FOOD"],
-      ["BOTTOM"],
-      ["TOP"],
-      ["BOTTOM", "BOTTOM"],
-      ["BOTTOM", "TOP"],
-      ["TOP", "TOP"],
-      ["BOTTOM", "TOP", "TOP"]
+      [
+        "FOOD"
+      ],
+      [
+        "BOTTOM"
+      ],
+      [
+        "TOP"
+      ],
+      [
+        "BOTTOM",
+        "BOTTOM"
+      ],
+      [
+        "BOTTOM",
+        "TOP"
+      ],
+      [
+        "TOP",
+        "TOP"
+      ],
+      [
+        "BOTTOM",
+        "TOP",
+        "TOP"
+      ]
     ],
-
+    "seed": 19853,
     "tribeDeck": [
-      { "subClass": "HUNTER",   "era": 1, "id": 1,  "active": true },
-      { "subClass": "HUNTER",   "era": 1, "id": 2,  "active": true },
-      { "subClass": "HUNTER",   "era": 1, "id": 3,  "active": false },
-      { "subClass": "HUNTER",   "era": 1, "id": 4,  "active": false  },
-      { "subClass": "HUNTER",   "era": 1, "id": 5,  "active": false  },
-
-      { "subClass": "BUILDER",  "era": 1, "id": 6,  "buildingDiscount": 1, "prestigePoint": 3 },
-      { "subClass": "BUILDER",  "era": 1, "id": 7,  "buildingDiscount": 2, "prestigePoint": 0 },
-      { "subClass": "BUILDER",  "era": 1, "id": 8,  "buildingDiscount": 2, "prestigePoint": 1 },
-      { "subClass": "BUILDER",  "era": 1, "id": 9,  "buildingDiscount": 1, "prestigePoint": 2 },
-
-      { "subClass": "GATHERER", "era": 1, "id": 10 },
-      { "subClass": "GATHERER", "era": 1, "id": 11 },
-      { "subClass": "GATHERER", "era": 1, "id": 12 },
-      { "subClass": "GATHERER", "era": 1, "id": 13 },
-
-      { "subClass": "ARTIST",   "era": 1, "id": 14 },
-      { "subClass": "ARTIST",   "era": 1, "id": 15 },
-      { "subClass": "ARTIST",   "era": 1, "id": 16 },
-      { "subClass": "ARTIST",   "era": 1, "id": 17 },
-      { "subClass": "ARTIST",   "era": 1, "id": 18 },
-
-      { "subClass": "INVENTOR", "era": 1, "id": 19, "symbol": "LEATHER"    },
-      { "subClass": "INVENTOR", "era": 1, "id": 20, "symbol": "BOAT"       },
-      { "subClass": "INVENTOR", "era": 1, "id": 21, "symbol": "SPEARHEAD"  },
-      { "subClass": "INVENTOR", "era": 1, "id": 22, "symbol": "BREAD"      },
-      { "subClass": "INVENTOR", "era": 1, "id": 23, "symbol": "ROPE"       },
-      { "subClass": "INVENTOR", "era": 1, "id": 24, "symbol": "FLUTE"      },
-      { "subClass": "INVENTOR", "era": 1, "id": 25, "symbol": "MORTAR"     },
-
-      { "subClass": "SHAMAN",   "era": 1, "id": 26, "shamansStars": 2 },
-      { "subClass": "SHAMAN",   "era": 1, "id": 27, "shamansStars": 2 },
-      { "subClass": "SHAMAN",   "era": 1, "id": 28, "shamansStars": 1 },
-      { "subClass": "SHAMAN",   "era": 1, "id": 29, "shamansStars": 1 },
-
-      { "subClass": "HUNTER",   "era": 2, "id": 30, "active": false },
-      { "subClass": "HUNTER",   "era": 2, "id": 31, "active": false },
-      { "subClass": "HUNTER",   "era": 2, "id": 32, "active": true  },
-      { "subClass": "HUNTER",   "era": 2, "id": 33, "active": true  },
-      { "subClass": "HUNTER",   "era": 2, "id": 34, "active": true  },
-      { "subClass": "HUNTER",   "era": 2, "id": 35, "active": false },
-
-      { "subClass": "BUILDER",  "era": 2, "id": 36, "buildingDiscount": 1, "prestigePoint": 4 },
-      { "subClass": "BUILDER",  "era": 2, "id": 37, "buildingDiscount": 2, "prestigePoint": 1 },
-      { "subClass": "BUILDER",  "era": 2, "id": 38, "buildingDiscount": 1, "prestigePoint": 2 },
-      { "subClass": "BUILDER",  "era": 2, "id": 39, "buildingDiscount": 2, "prestigePoint": 3 },
-
-      { "subClass": "GATHERER", "era": 2, "id": 40 },
-      { "subClass": "GATHERER", "era": 2, "id": 41 },
-      { "subClass": "GATHERER", "era": 2, "id": 42 },
-      { "subClass": "GATHERER", "era": 2, "id": 43 },
-
-      { "subClass": "ARTIST",   "era": 2, "id": 44 },
-      { "subClass": "ARTIST",   "era": 2, "id": 45 },
-      { "subClass": "ARTIST",   "era": 2, "id": 46 },
-      { "subClass": "ARTIST",   "era": 2, "id": 47 },
-
-      { "subClass": "INVENTOR", "era": 2, "id": 48, "symbol": "FIGURINE" },
-      { "subClass": "INVENTOR", "era": 2, "id": 49, "symbol": "HOOK"      },
-      { "subClass": "INVENTOR", "era": 2, "id": 50, "symbol": "ROPE"  },
-      { "subClass": "INVENTOR", "era": 2, "id": 51, "symbol": "FLUTE"     },
-      { "subClass": "INVENTOR", "era": 2, "id": 52, "symbol": "MORTAR"    },
-      { "subClass": "INVENTOR", "era": 2, "id": 53, "symbol": "LEATHER"   },
-
-      { "subClass": "SHAMAN",   "era": 2, "id": 54, "shamansStars": 2 },
-      { "subClass": "SHAMAN",   "era": 2, "id": 55, "shamansStars": 2 },
-      { "subClass": "SHAMAN",   "era": 2, "id": 56, "shamansStars": 1 },
-      { "subClass": "SHAMAN",   "era": 2, "id": 57, "shamansStars": 2 },
-
-      { "subClass": "HUNTER",   "era": 3, "id": 58, "active": true  },
-      { "subClass": "HUNTER",   "era": 3, "id": 59, "active": false  },
-      { "subClass": "HUNTER",   "era": 3, "id": 60, "active": false  },
-      { "subClass": "HUNTER",   "era": 3, "id": 61, "active": true  },
-
-      { "subClass": "BUILDER",  "era": 3, "id": 62, "buildingDiscount": 1, "prestigePoint": 5 },
-      { "subClass": "BUILDER",  "era": 3, "id": 63, "buildingDiscount": 2, "prestigePoint": 3 },
-      { "subClass": "BUILDER",  "era": 3, "id": 64, "buildingDiscount": 1, "prestigePoint": 4 },
-      { "subClass": "BUILDER",  "era": 3, "id": 65, "buildingDiscount": 2, "prestigePoint": 2 },
-
-      { "subClass": "GATHERER", "era": 3, "id": 66 },
-      { "subClass": "GATHERER", "era": 3, "id": 67 },
-      { "subClass": "GATHERER", "era": 3, "id": 68 },
-
-      { "subClass": "ARTIST",   "era": 3, "id": 69 },
-      { "subClass": "ARTIST",   "era": 3, "id": 70 },
-      { "subClass": "ARTIST",   "era": 3, "id": 71 },
-      { "subClass": "ARTIST",   "era": 3, "id": 72 },
-
-      { "subClass": "INVENTOR", "era": 3, "id": 73, "symbol": "NECKLACE" },
-      { "subClass": "INVENTOR", "era": 3, "id": 74, "symbol": "BOAT"      },
-      { "subClass": "INVENTOR", "era": 3, "id": 75, "symbol": "SPEARHEAD" },
-      { "subClass": "INVENTOR", "era": 3, "id": 76, "symbol": "FIGURINE"  },
-      { "subClass": "INVENTOR", "era": 3, "id": 77, "symbol": "HOOK"      },
-      { "subClass": "INVENTOR", "era": 3, "id": 78, "symbol": "NECKLACE"  },
-      { "subClass": "INVENTOR", "era": 3, "id": 79, "symbol": "BREAD"     },
-
-      { "subClass": "SHAMAN",   "era": 3, "id": 80, "shamansStars": 2 },
-      { "subClass": "SHAMAN",   "era": 3, "id": 81, "shamansStars": 3 },
-      { "subClass": "SHAMAN",   "era": 3, "id": 82, "shamansStars": 2 },
-      { "subClass": "SHAMAN",   "era": 3, "id": 83, "shamansStars": 3 },
-      { "subClass": "SHAMAN",   "era": 3, "id": 84, "shamansStars": 2 },
-
-      { "subClass": "HUNT",        "era": 1, "id": 85 },
-      { "subClass": "SUSTENANCE",  "era": 1, "id": 86 },
-      { "subClass": "RITUAL",      "era": 1, "id": 87, "malus": -3 },
-      { "subClass": "PAINT",       "era": 1, "id": 88 },
-
-      { "subClass": "HUNT",        "era": 2, "id": 89 },
-      { "subClass": "SUSTENANCE",  "era": 2, "id": 90 },
-      { "subClass": "RITUAL",      "era": 2, "id": 91, "malus": -5 },
-      { "subClass": "PAINT",       "era": 2, "id": 92 },
-
-      { "subClass": "HUNT",        "era": 3, "id": 93 },
-      { "subClass": "PAINT",       "era": 3, "id": 94 },
-      { "subClass": "SUSTENANCE",  "era": 3, "id": 95 },
-      { "subClass": "RITUAL",      "era": 3, "id": 96, "malus": -7 }
-
-    ],
-    "buildingDeck": [
-
-
       {
-        "id": 97,
+        "classTribe": "HUNTER",
         "era": 1,
-        "cost": "4",
-        "prestigePoints": "3",
-        "class": "tribe",
-        "lastGivenBonus": 0,
-        "effect": { "class": "foodOnSet" }
+        "id": 1,
+        "active": true
       },
       {
-        "id": 98,
+        "classTribe": "HUNTER",
         "era": 1,
-        "cost": "5",
-        "prestigePoints": "3",
-        "class": "tribe",
-        "lastGivenBonus": 0,
-        "effect": { "class": "sustenanceDiscount", "character": "ARTIST" }
+        "id": 2,
+        "active": true
       },
       {
-        "id": 99,
+        "classTribe": "HUNTER",
         "era": 1,
-        "cost": "3",
-        "prestigePoints": "4",
-        "class": "tribe",
-        "lastGivenBonus": 0,
-        "effect": { "class": "foodOnInventor" }
+        "id": 3,
+        "active": false
       },
       {
-        "id": 100,
+        "classTribe": "HUNTER",
         "era": 1,
-        "cost": "5",
-        "prestigePoints": "2",
-        "class": "ritualEvent",
-        "reaction": { "class": "noLossRitual" }
+        "id": 4,
+        "active": false
       },
       {
-        "id": 101,
+        "classTribe": "HUNTER",
         "era": 1,
-        "cost": "6",
-        "prestigePoints": "4",
-        "class": "ritualEvent",
-        "reaction": { "class": "shamanStars" }
+        "id": 5,
+        "active": false
       },
       {
-        "id": 102,
+        "classTribe": "BUILDER",
         "era": 1,
-        "cost": "3",
-        "prestigePoints": "3",
-        "class": "timed",
-        "effect": { "class": "bonusTurnFood" }
+        "id": 6,
+        "buildingDiscount": 1,
+        "prestigePoint": 3
       },
-
-
       {
-        "id": 103,
+        "classTribe": "BUILDER",
+        "era": 1,
+        "id": 7,
+        "buildingDiscount": 2,
+        "prestigePoint": 0
+      },
+      {
+        "classTribe": "BUILDER",
+        "era": 1,
+        "id": 8,
+        "buildingDiscount": 2,
+        "prestigePoint": 1
+      },
+      {
+        "classTribe": "BUILDER",
+        "era": 1,
+        "id": 9,
+        "buildingDiscount": 1,
+        "prestigePoint": 2
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 1,
+        "id": 10
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 1,
+        "id": 11
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 1,
+        "id": 12
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 1,
+        "id": 13
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 1,
+        "id": 14
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 1,
+        "id": 15
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 1,
+        "id": 16
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 1,
+        "id": 17
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 1,
+        "id": 18
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 1,
+        "id": 19,
+        "symbol": "LEATHER"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 1,
+        "id": 20,
+        "symbol": "BOAT"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 1,
+        "id": 21,
+        "symbol": "SPEARHEAD"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 1,
+        "id": 22,
+        "symbol": "BREAD"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 1,
+        "id": 23,
+        "symbol": "ROPE"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 1,
+        "id": 24,
+        "symbol": "FLUTE"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 1,
+        "id": 25,
+        "symbol": "MORTAR"
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 1,
+        "id": 26,
+        "shamansStars": 2
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 1,
+        "id": 27,
+        "shamansStars": 2
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 1,
+        "id": 28,
+        "shamansStars": 1
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 1,
+        "id": 29,
+        "shamansStars": 1
+      },
+      {
+        "classTribe": "HUNTER",
         "era": 2,
-        "cost": "7",
-        "prestigePoints": "4",
-        "class": "tribe",
-        "lastGivenBonus": 0,
-        "effect": { "class": "sustenanceDiscount", "character": "INVENTOR" }
+        "id": 30,
+        "active": false
       },
       {
-        "id": 104,
+        "classTribe": "HUNTER",
         "era": 2,
-        "cost": "4",
-        "prestigePoints": "4",
-        "class": "tribe",
-        "lastGivenBonus": 0,
-        "effect": { "class": "sustenanceDiscount", "character": "GATHERER" }
+        "id": 31,
+        "active": false
       },
       {
-        "id": 105,
+        "classTribe": "HUNTER",
         "era": 2,
-        "cost": "7",
-
-        "class": "ritualEvent",
-        "reaction": { "class": "doubleWinRitual" }
+        "id": 32,
+        "active": true
       },
       {
-        "id": 106,
+        "classTribe": "HUNTER",
         "era": 2,
-        "cost": "7",
-        "prestigePoints": "2",
-        "class": "huntEvent",
-        "reaction": { "class": "bonusHunt" }
+        "id": 33,
+        "active": true
       },
       {
-        "id": 107,
+        "classTribe": "HUNTER",
         "era": 2,
-        "cost": "5",
-        "prestigePoints": "6",
-        "class": "paintingEvent",
-        "reaction": { "class": "bonusPainting" }
+        "id": 34,
+        "active": true
       },
       {
-        "id": 108,
+        "classTribe": "HUNTER",
         "era": 2,
-        "cost": "6",
-        "prestigePoints": "4",
-        "class": "final",
-        "effect": { "class": "finalDoubleBuilder" }
+        "id": 35,
+        "active": false
       },
       {
-        "id": 109,
+        "classTribe": "BUILDER",
         "era": 2,
-        "cost": "9",
-        "prestigePoints": "3",
-        "class": "timed",
-        "effect": { "class": "bonusPickCard" }
+        "id": 36,
+        "buildingDiscount": 1,
+        "prestigePoint": 4
       },
-
-
       {
-        "id": 110,
+        "classTribe": "BUILDER",
+        "era": 2,
+        "id": 37,
+        "buildingDiscount": 2,
+        "prestigePoint": 1
+      },
+      {
+        "classTribe": "BUILDER",
+        "era": 2,
+        "id": 38,
+        "buildingDiscount": 1,
+        "prestigePoint": 2
+      },
+      {
+        "classTribe": "BUILDER",
+        "era": 2,
+        "id": 39,
+        "buildingDiscount": 2,
+        "prestigePoint": 3
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 2,
+        "id": 40
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 2,
+        "id": 41
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 2,
+        "id": 42
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 2,
+        "id": 43
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 2,
+        "id": 44
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 2,
+        "id": 45
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 2,
+        "id": 46
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 2,
+        "id": 47
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 2,
+        "id": 48,
+        "symbol": "FIGURINE"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 2,
+        "id": 49,
+        "symbol": "HOOK"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 2,
+        "id": 50,
+        "symbol": "ROPE"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 2,
+        "id": 51,
+        "symbol": "FLUTE"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 2,
+        "id": 52,
+        "symbol": "MORTAR"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 2,
+        "id": 53,
+        "symbol": "LEATHER"
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 2,
+        "id": 54,
+        "shamansStars": 2
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 2,
+        "id": 55,
+        "shamansStars": 2
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 2,
+        "id": 56,
+        "shamansStars": 1
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 2,
+        "id": 57,
+        "shamansStars": 2
+      },
+      {
+        "classTribe": "HUNTER",
         "era": 3,
-        "cost": "5",
-        "prestigePoints": "6",
-        "class": "final",
-        "effect": { "class": "finalPointsPerSet" }
+        "id": 58,
+        "active": true
       },
       {
-        "id": 111,
+        "classTribe": "HUNTER",
         "era": 3,
-        "cost": "8",
-        "prestigePoints": "8",
-        "class": "final",
-        "effect": {
-          "class": "finalPointsByType",
-          "character": "HUNTER",
-          "amount": "3"
-        }
+        "id": 59,
+        "active": false
       },
       {
-        "id": 112,
+        "classTribe": "HUNTER",
         "era": 3,
-        "cost": "7",
-        "prestigePoints": "4",
-        "class": "final",
-        "effect": {
-          "class": "finalPointsByType",
-          "character": "ARTIST",
-          "amount": "4"
-
-      }},
+        "id": 60,
+        "active": false
+      },
       {
-        "id": 113,
+        "classTribe": "HUNTER",
         "era": 3,
-        "cost": "6",
-        "prestigePoints": "6",
-        "class": "final",
-        "effect": {
-          "class": "finalPointsByType",
-          "character": "INVENTOR",
-          "amount": "2"
-        }
+        "id": 61,
+        "active": true
       },
       {
-        "id": 114,
+        "classTribe": "BUILDER",
         "era": 3,
-        "cost": "0",
-        "prestigePoints": "25",
-        "class": "final",
-        "effect": { "class": "finalBonusPoints" }
-
+        "id": 62,
+        "buildingDiscount": 1,
+        "prestigePoint": 5
       },
       {
-        "id": 115, "era": 3, "cost": "6", "prestigePoints": "3",
-        "class": "final",
-        "effect": { "class": "finalPointsByType", "character": "BUILDER", "amount": "4" }
+        "classTribe": "BUILDER",
+        "era": 3,
+        "id": 63,
+        "buildingDiscount": 2,
+        "prestigePoint": 3
       },
       {
-        "id": 116, "era": 3, "cost": "7", "prestigePoints": "6",
-        "class": "final",
-        "effect": { "class": "finalPointsByType", "character": "GATHERER", "amount": "4" }
+        "classTribe": "BUILDER",
+        "era": 3,
+        "id": 64,
+        "buildingDiscount": 1,
+        "prestigePoint": 4
       },
       {
-        "id": 117, "era": 3, "cost": "7", "prestigePoints": "4",
-        "class": "final",
-        "effect": { "class": "finalPointsByType", "character": "SHAMAN", "amount": "4" }
+        "classTribe": "BUILDER",
+        "era": 3,
+        "id": 65,
+        "buildingDiscount": 2,
+        "prestigePoint": 2
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 3,
+        "id": 66
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 3,
+        "id": 67
+      },
+      {
+        "classTribe": "GATHERER",
+        "era": 3,
+        "id": 68
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 3,
+        "id": 69
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 3,
+        "id": 70
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 3,
+        "id": 71
+      },
+      {
+        "classTribe": "ARTIST",
+        "era": 3,
+        "id": 72
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 3,
+        "id": 73,
+        "symbol": "NECKLACE"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 3,
+        "id": 74,
+        "symbol": "BOAT"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 3,
+        "id": 75,
+        "symbol": "SPEARHEAD"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 3,
+        "id": 76,
+        "symbol": "FIGURINE"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 3,
+        "id": 77,
+        "symbol": "HOOK"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 3,
+        "id": 78,
+        "symbol": "NECKLACE"
+      },
+      {
+        "classTribe": "INVENTOR",
+        "era": 3,
+        "id": 79,
+        "symbol": "BREAD"
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 3,
+        "id": 80,
+        "shamansStars": 2
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 3,
+        "id": 81,
+        "shamansStars": 3
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 3,
+        "id": 82,
+        "shamansStars": 2
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 3,
+        "id": 83,
+        "shamansStars": 3
+      },
+      {
+        "classTribe": "SHAMAN",
+        "era": 3,
+        "id": 84,
+        "shamansStars": 2
+      },
+      {
+        "classTribe": "HUNT",
+        "era": 1,
+        "id": 85
+      },
+      {
+        "classTribe": "SUSTENANCE",
+        "era": 1,
+        "id": 86
+      },
+      {
+        "classTribe": "RITUAL",
+        "era": 1,
+        "id": 87,
+        "malus": -3
+      },
+      {
+        "classTribe": "PAINT",
+        "era": 1,
+        "id": 88
+      },
+      {
+        "classTribe": "HUNT",
+        "era": 2,
+        "id": 89
+      },
+      {
+        "classTribe": "SUSTENANCE",
+        "era": 2,
+        "id": 90
+      },
+      {
+        "classTribe": "RITUAL",
+        "era": 2,
+        "id": 91,
+        "malus": -5
+      },
+      {
+        "classTribe": "PAINT",
+        "era": 2,
+        "id": 92
+      },
+      {
+        "classTribe": "HUNT",
+        "era": 3,
+        "id": 93
+      },
+      {
+        "classTribe": "PAINT",
+        "era": 3,
+        "id": 94
+      },
+      {
+        "classTribe": "SUSTENANCE",
+        "era": 3,
+        "id": 95
+      },
+      {
+        "classTribe": "RITUAL",
+        "era": 3,
+        "id": 96,
+        "malus": -7
       }
-    ]
-
+    ],
+    "buildingDeck": {
+      "1": [
+        {
+          "id": 97,
+          "era": 1,
+          "cost": 4,
+          "prestigePoints": 3,
+          "classBuilding": "TRIBE",
+          "lastGivenBonus": 0,
+          "effect": {
+            "classEvent": "foodOnSet"
+          }
+        },
+        {
+          "id": 98,
+          "era": 1,
+          "cost": 5,
+          "prestigePoints": 3,
+          "classBuilding": "TRIBE",
+          "lastGivenBonus": 0,
+          "effect": {
+            "classEvent": "sustenanceDiscount",
+            "character": "ARTIST"
+          }
+        },
+        {
+          "id": 99,
+          "era": 1,
+          "cost": 3,
+          "prestigePoints": 4,
+          "classBuilding": "TRIBE",
+          "lastGivenBonus": 0,
+          "effect": {
+            "classEvent": "foodOnInventor"
+          }
+        },
+        {
+          "id": 100,
+          "era": 1,
+          "cost": 5,
+          "prestigePoints": 2,
+          "classBuilding": "RITUAL_BUILDING",
+          "effect": {
+            "classEvent": "noLossRitual"
+          }
+        },
+        {
+          "id": 101,
+          "era": 1,
+          "cost": 6,
+          "prestigePoints": 4,
+          "classBuilding": "TRIBE",
+          "effect": {
+            "classEvent": "shamanStars"
+          }
+        },
+        {
+          "id": 102,
+          "era": 1,
+          "cost": 3,
+          "prestigePoints": 3,
+          "classBuilding": "TIMED",
+          "effect": {
+            "classEvent": "bonusTurnFood"
+          }
+        }
+      ],
+      "2": [
+        {
+          "id": 103,
+          "era": 2,
+          "cost": 7,
+          "prestigePoints": 4,
+          "classBuilding": "TRIBE",
+          "lastGivenBonus": 0,
+          "effect": {
+            "classEvent": "sustenanceDiscount",
+            "character": "INVENTOR"
+          }
+        },
+        {
+          "id": 104,
+          "era": 2,
+          "cost": 4,
+          "prestigePoints": 4,
+          "classBuilding": "TRIBE",
+          "lastGivenBonus": 0,
+          "effect": {
+            "classEvent": "sustenanceDiscount",
+            "character": "GATHERER"
+          }
+        },
+        {
+          "id": 105,
+          "era": 2,
+          "cost": 7,
+          "prestigePoints": 0,
+          "classBuilding": "RITUAL_BUILDING",
+          "effect": {
+            "classEvent": "doubleWinRitual"
+          }
+        },
+        {
+          "id": 106,
+          "era": 2,
+          "cost": 7,
+          "prestigePoints": 2,
+          "classBuilding": "HUNT_BUILDING",
+          "effect": {
+            "classEvent": "bonusHunt"
+          }
+        },
+        {
+          "id": 107,
+          "era": 2,
+          "cost": 5,
+          "prestigePoints": 6,
+          "classBuilding": "PAINTING_BUILDING",
+          "effect": {
+            "classEvent": "bonusPainting"
+          }
+        },
+        {
+          "id": 108,
+          "era": 2,
+          "cost": 6,
+          "prestigePoints": 4,
+          "classBuilding": "FINAL",
+          "effect": {
+            "classEvent": "finalDoubleBuilder"
+          }
+        },
+        {
+          "id": 109,
+          "era": 2,
+          "cost": 9,
+          "prestigePoints": 3,
+          "classBuilding": "TIMED",
+          "effect": {
+            "classEvent": "bonusPickCard"
+          }
+        }
+      ],
+      "3": [
+        {
+          "id": 110,
+          "era": 3,
+          "cost": 5,
+          "prestigePoints": 6,
+          "classBuilding": "FINAL",
+          "effect": {
+            "classEvent": "finalPointsPerSet"
+          }
+        },
+        {
+          "id": 111,
+          "era": 3,
+          "cost": 8,
+          "prestigePoints": 8,
+          "classBuilding": "FINAL",
+          "effect": {
+            "classEvent": "finalPointsByType",
+            "character": "HUNTER",
+            "amount": 3
+          }
+        },
+        {
+          "id": 112,
+          "era": 3,
+          "cost": 7,
+          "prestigePoints": 4,
+          "classBuilding": "FINAL",
+          "effect": {
+            "classEvent": "finalPointsByType",
+            "character": "ARTIST",
+            "amount": 4
+          }
+        },
+        {
+          "id": 113,
+          "era": 3,
+          "cost": 6,
+          "prestigePoints": 6,
+          "classBuilding": "FINAL",
+          "effect": {
+            "classEvent": "finalPointsByType",
+            "character": "INVENTOR",
+            "amount": 2
+          }
+        },
+        {
+          "id": 114,
+          "era": 3,
+          "cost": 0,
+          "prestigePoints": 25,
+          "classBuilding": "FINAL",
+          "effect": {
+            "classEvent": "finalBonusPoints"
+          }
+        },
+        {
+          "id": 115,
+          "era": 3,
+          "cost": 6,
+          "prestigePoints": 3,
+          "classBuilding": "FINAL",
+          "effect": {
+            "classEvent": "finalPointsByType",
+            "character": "BUILDER",
+            "amount": 4
+          }
+        },
+        {
+          "id": 116,
+          "era": 3,
+          "cost": 7,
+          "prestigePoints": 6,
+          "classBuilding": "FINAL",
+          "effect": {
+            "classEvent": "finalPointsByType",
+            "character": "GATHERER",
+            "amount": 4
+          }
+        },
+        {
+          "id": 117,
+          "era": 3,
+          "cost": 7,
+          "prestigePoints": 4,
+          "classBuilding": "FINAL",
+          "effect": {
+            "classEvent": "finalPointsByType",
+            "character": "SHAMAN",
+            "amount": 4
+          }
+        }
+      ]
+    }
+  }
 }

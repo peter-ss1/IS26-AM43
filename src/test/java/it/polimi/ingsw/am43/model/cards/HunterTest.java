@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.model.enums.CharacterType;
+import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +19,7 @@ public class HunterTest {
 
     @Test
     void tribeEntranceEffectShouldAddHunterToPlayersTribeEvenWhenInactive() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.BLACK);
         Hunter hunter = new Hunter(1, 0,false);
 
         hunter.tribeEntranceEffect(player);
@@ -28,7 +29,7 @@ public class HunterTest {
 
     @Test
     void tribeEntranceEffectShouldNotIncreaseFoodWhenHunterIsInactive() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.BLACK);
         Hunter hunter = new Hunter(1, 0,false);
 
         hunter.tribeEntranceEffect(player);
@@ -38,7 +39,7 @@ public class HunterTest {
 
     @Test
     void tribeEntranceEffectShouldIncreaseFoodByCurrentNumberOfHuntersWhenHunterIsActive() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.BLACK);
         Hunter hunter = new Hunter(1, 0,true);
 
         hunter.tribeEntranceEffect(player);
@@ -49,7 +50,7 @@ public class HunterTest {
 
     @Test
     void tribeEntranceEffectShouldCountPreviouslyPresentHuntersWhenActiveHunterEnters() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.BLACK);
         Hunter firstHunter = new Hunter(1, 0,false);
         Hunter secondHunter = new Hunter(1, 0,true);
 
@@ -62,7 +63,7 @@ public class HunterTest {
 
     @Test
     void multipleActiveHuntersShouldAccumulateFoodAccordingToUpdatedHunterCount() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.BLACK);
         Hunter firstHunter = new Hunter(1, 0,true);
         Hunter secondHunter = new Hunter(1, 0,true);
 

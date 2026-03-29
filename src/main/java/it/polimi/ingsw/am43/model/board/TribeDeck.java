@@ -24,11 +24,4 @@ public class TribeDeck {
         this.deck.sort((a,b)-> Integer.compare(a.getEra(),b.getEra()));
     }
 
-    public Map<Integer,Card> idTribeCardMap(){
-        Map<Integer, Card> map = new HashMap<>();
-        for(Card c : this.deck){
-            map.put(c.getId(),c);
-        }
-        return map;
-    }
 }

@@ -20,8 +20,9 @@ public class Player {
     private Tribe tribe;
     private ArrayList<OfferAction> availableActions;
 
-    public Player(String nickname) {
+    public Player(String nickname, Color color) {
         this.nickname = nickname;
+        this.color=color;
         this.food = 0;
         this.prestigePoints = 0;
         this.sustenanceDiscount = 0;

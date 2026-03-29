@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.model.enums.CharacterType;
+import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ public class ShamanTest {
 
     @Test
     void tribeEntranceEffectShouldAddShamanToPlayersTribe() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.RED);
         Shaman shaman = new Shaman(1, 0, 2);
 
         shaman.tribeEntranceEffect(player);
@@ -27,7 +28,7 @@ public class ShamanTest {
 
     @Test
     void tribeEntranceEffectShouldIncreasePlayersShamanStarsByCardValue() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.YELLOW);
         Shaman shaman = new Shaman(1, 0, 2);
 
         shaman.tribeEntranceEffect(player);
@@ -37,7 +38,7 @@ public class ShamanTest {
 
     @Test
     void tribeEntranceEffectShouldAccumulateShamanStarsWithMultipleShamans() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.RED);
         Shaman firstShaman = new Shaman(1, 0, 1);
         Shaman secondShaman = new Shaman(1, 0,3);
 

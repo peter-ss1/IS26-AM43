@@ -18,13 +18,16 @@ public class Board{
     private int currEra;
     private ArrayList<OfferTrackCard> offerTrack;
 
+
+
     public void setPlayerOnTrack(Player player, int position) throws IllegalArgumentException {
         try {
             this.offerTrack.get(position).setPlayer(player);//control is free
         }catch (IndexOutOfBoundsException e){throw new IllegalArgumentException("Index out of bounds");}
     }
 
-    public void initBoard(ArrayList<Player> players, int numPlayers, int seed, ArrayList<Integer> foodModifiers, ArrayList<Card> tribeDeck, Map<Integer, ArrayList<Building>> buildingDeck, ArrayList<OfferTrackCard> offerTrack){
+
+    public Board(ArrayList<Player> players, int numPlayers, int seed, ArrayList<Integer> foodModifiers, ArrayList<Card> tribeDeck, Map<Integer, ArrayList<Building>> buildingDeck, ArrayList<OfferTrackCard> offerTrack) throws RuntimeException{
         this.turnOrder= new OrderQueue(players,foodModifiers);
         this.tribeDeck= new TribeDeck(seed,tribeDeck);
         this.buildingDeck= new BuildingDeck(seed,buildingDeck);
@@ -35,25 +38,22 @@ public class Board{
         while (this.bottomRow.size()<=numPlayers){
             Card cardDrawn= this.tribeDeck.draw();
             switch (cardDrawn.firstRowChoice()){
-                case TOP:
+                case OfferAction.TOP:
                     cardDrawn.addToRow(this.topRow);
-                case BOTTOM:
+                    break;
+                case OfferAction.BOTTOM:
                     cardDrawn.addToRow(this.bottomRow);
+                    break;
+                default:
+                    throw new RuntimeException("error in draw");
             }
         }
         while (this.topRow.size()<numPlayers+4){
             this.tribeDeck.draw().addToRow(this.topRow);
         }
-        for(Building building : this.buildingDeck.draw(1)){
+        for(Building building : this.buildingDeck.revealEra(1)){
             building.addToRow(this.bottomRow);
         }
-    }
-
-    public Map<Integer,Card> idTribeCardMap(){
-        return this.tribeDeck.idTribeCardMap();
-    }
-    public Map<Integer,Building> idBuildingCardMap(){
-        return this.buildingDeck.idBuildingCardMap();
     }
 
 
@@ -69,12 +69,18 @@ public class Board{
 
     public void increaseCurrEra() throws IllegalStateException{
         if(this.currEra++ >3) throw new IllegalStateException("era not supported");
-        this.buildingDeck.revealEra(this.currEra);
+        this.bottomRow.removeBuildings();
+        this.moveTopToBottomBuildings();
+        this.topRow.addAllBuildings(this.buildingDeck.revealEra(this.currEra));
     }
 
     public void replenishTopRow(int amount){
         for (int i=0;i<amount;i++){
-            this.tribeDeck.draw().addToRow(this.topRow);
+            Card card= this.tribeDeck.draw();
+            card.addToRow(this.topRow);
+            if(card.getEra()>this.currEra){
+                this.increaseCurrEra();
+            }
         }
     }
     public ArrayList<OfferAction>getAvailableActions(Player player){
@@ -82,8 +88,8 @@ public class Board{
     }
 
     public OfferAction getCardPosition(Card card){
-        if(this.topRow.contains(card))return OfferAction.TOP;
-        if(this.bottomRow.contains(card))return OfferAction.BOTTOM;
+        if(card.isContainedInRow(this.topRow))return OfferAction.TOP;
+        if(card.isContainedInRow(this.bottomRow))return OfferAction.BOTTOM;
         throw new IllegalArgumentException("card not in board");
     }
 
@@ -91,11 +97,23 @@ public class Board{
         player.removeAvailableAction(offerAction);
     }
 
-    public void removeCard(Card c) throws IllegalArgumentException{
-        if(!this.bottomRow.removeCard(c) && !this.topRow.removeCard(c)) throw new IllegalArgumentException("card not in the board");
+    public void removeCard(Card card) throws IllegalArgumentException{
+        if(card.isContainedInRow(this.topRow)){
+            card.removeFromRow(this.topRow);
+            return;
+        }
+        if(card.isContainedInRow(this.bottomRow)){
+            card.removeFromRow(this.topRow);
+            return;
+        }
+        throw new IllegalArgumentException("card not in board");
     }
 
     public Player getNextPlayerInOrderQueue(){
+        return this.turnOrder.peek();
+    }
+
+    public Player popNextPlayerInOrderQueue(){
         return this.turnOrder.pop();
     }
 

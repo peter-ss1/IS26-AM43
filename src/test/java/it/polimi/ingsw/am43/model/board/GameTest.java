@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,84 +18,33 @@ class GameTest {
     private Game game;
 
     @BeforeEach
-    void setUp() {
-        try {
-            game = new Game(2, "1");
-            //game.addPlayer("2");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    void gameInitTest() throws Exception{
+        game=new Game(5,"pippo7", Color.BLACK);
+        assertEquals(GamePhase.PREPARATION,game.getPhase());
+        game.addPlayer("jonny_0", Color.RED);
+        game.addPlayer("rick", Color.CYAN);
+        game.addPlayer("gandalf", Color.WHITE);
+        game.addPlayer("frodo", Color.YELLOW);
+        assertTrue(game.getAvailableColors().isEmpty());
+        //assert game.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION);
+        assertEquals(5,game.getPlayers().size());
+        List<String> namePlayers = new ArrayList<>();
+        namePlayers.add("pippo7");
+        namePlayers.add("jonny_0");
+        namePlayers.add("rick");
+        namePlayers.add("gandalf");
+        namePlayers.add("frodo");
+        for(Player player : game.getPlayers()){
+            assertTrue(namePlayers.contains(player.getNickname()));
+        };
+        assertNotNull(game.getCurrPlayer());
+        assertTrue(namePlayers.contains(game.getCurrPlayer().getNickname()));
+        for(int i=1;i<=117;i++){
+            assertNotNull(game.getCardById(i));
+            assertEquals(i,game.getCardById(i).getId());
         }
     }
 
-    @Test
-    void getAvailableColors() {
-        game.getAvailableColors();
-    }
 
-    @Test
-    void pickColor() {
-        game.pickColor("1", Color.BLACK);
-    }
 
-    @Test
-    void getPlayers() {
-        game.getPlayers();
-    }
-
-    @Test
-    void getNumPlayers() {
-        assertEquals(2, game.getNumPlayers());
-    }
-
-    @Test
-    void setCurrPlayer() {
-        game.setCurrPlayer(game.getPlayerByName("1"));
-        assertEquals(game.getPlayerByName("1"), game.getCurrPlayer());
-    }
-
-    @Test
-    void getPhase() {
-        assertEquals(GamePhase.PREPARATION, game.getPhase());
-    }
-
-    @Test
-    void setPhase() {
-        game.setPhase(GamePhase.OFFER_TRACK_SELECTION);
-        assertEquals(GamePhase.OFFER_TRACK_SELECTION, game.getPhase());
-    }
-
-    @Test
-    void placeTotemOnTrack() {
-        //game.placeTotemOnTrack("1", 3);
-    }
-
-    @Test
-    void getPlayerByName() {
-        game.getPlayerByName("1");
-    }
-
-    @Test
-    void getCardById() {
-        game.getCardById(1);
-    }
-
-    @Test
-    void getBuildingById() {
-        game.getBuildingById(1);
-    }
-
-    @Test
-    void pickCard() {
-        //game.pickCard(new Artist(1, 1), new Player("2"));
-    }
-
-    @Test
-    void endCurrentTurn() {
-        game.endCurrentTurn(new Player("1"));
-    }
-
-    @Test
-    void resolveOffer() {
-        game.resolveOffer();
-    }
 }

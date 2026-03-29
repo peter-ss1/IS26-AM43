@@ -21,27 +21,28 @@ public class GameLoader {
 
     private final ObjectMapper mapper;
     private final String pathConfig;
+    private final Map<Integer,Card> idToCard;
 
     public  GameLoader(String pathConfig){
         this.mapper=new ObjectMapper();
-        this.pathConfig=pathConfig;
+        this.pathConfig= pathConfig;
+        this.idToCard=new HashMap<>();
     }
 
-    public ArrayList<Integer> loadFoodModifiers(int numPlayers) throws IOException{
-         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(this.pathConfig);
+    public ArrayList<Integer> loadFoodModifiers(int numPlayers) throws IOException, IndexOutOfBoundsException{
+         InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
          if (inputStream == null) throw new IOException("path json error");
-         JsonNode orderQueueNode= mapper.readTree(inputStream).path("board").get("orderQueue");
+         JsonNode orderQueueNode= mapper.readTree(inputStream).path("board").path("orderQueue");
 
          Map<Integer, ArrayList<Integer>> valueMap = mapper.convertValue(
                  orderQueueNode,
                  new TypeReference<Map<Integer, ArrayList<Integer>>>() {}
          );
-         if(numPlayers>3) return valueMap.get(5);
-         else return  valueMap.get(3);
+        return valueMap.get(numPlayers);
     }
 
     public ArrayList<Card> loadTribeDeck()throws IOException, IllegalArgumentException{
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(this.pathConfig);
+        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode tribeDeckNode = mapper.readTree(inputStream).path("board").path("tribeDeck");
         if (tribeDeckNode == null) throw new IOException("node json error");
@@ -52,13 +53,15 @@ public class GameLoader {
         );
         ArrayList<Card> tribeDeck= new ArrayList<Card>();
         for(TribeDeckCardDTO tdo : tribeDeckDTO){
-            tribeDeck.add(tdo.createCard());
+            Card newCard= tdo.createCard();
+            tribeDeck.add(newCard);
+            this.idToCard.put(newCard.getId(),newCard);
         }
         return tribeDeck;
     }
 
     public Map<Integer,ArrayList<Building>> loadBuildingDeck()throws IOException, IllegalArgumentException{
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(this.pathConfig);
+        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode buildingDeckNode = mapper.readTree(inputStream).path("board").path("buildingDeck");
         if (buildingDeckNode == null) throw new IOException("node json error");
@@ -71,15 +74,21 @@ public class GameLoader {
         for(Integer i : buildingDeckTDO.keySet()){
             buildingDeck.put(i,new ArrayList<Building>());
             for (BuildingDeckCardDTO tdo : buildingDeckTDO.get(i)){
-                buildingDeck.get(i).add(tdo.createBuilding());
+                Building newBuilding= tdo.createBuilding();
+                buildingDeck.get(i).add(newBuilding);
+                this.idToCard.put(newBuilding.getId(),newBuilding);
             }
         }
 
         return buildingDeck;
     }
 
+    public Map<Integer,Card> loadIdToCardMap(){
+        return new HashMap<>(this.idToCard);
+    }
+
     public ArrayList<OfferTrackCard> loadOfferTrackCard(int numPlayers) throws IOException, IllegalArgumentException{
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(this.pathConfig);
+        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode offerTrackNode = mapper.readTree(inputStream).path("board").path("offerTrack");
         if (offerTrackNode == null) throw new IOException("node json error");
@@ -105,7 +114,7 @@ public class GameLoader {
     }
 
     public Integer loadSeed()throws IOException{
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(this.pathConfig);
+        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode seedNode = mapper.readTree(inputStream).path("board").path("seed");
         return  seedNode.asInt(1234);

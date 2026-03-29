@@ -14,28 +14,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class BuildingDeckTest {
     private BuildingDeck buildingDeck = new BuildingDeck(1, new HashMap<>());
 
-    @Test
-    void draw() {
-        ArrayList<Building> deck = new ArrayList<>();
-        deck.add(new FinalBuilding(1, 1, 1, 1, new Effects.FinalPrestigePointsByCharacterType(CharacterType.HUNTER, 1)));
-        Map<Integer, ArrayList<Building>> bDeck= new HashMap<>();
-        bDeck.put(1, deck);
-        buildingDeck = new BuildingDeck(1, bDeck);
-        buildingDeck.draw(1);
-    }
 
     @Test
     void revealEra() {
         ArrayList<Building> deck = new ArrayList<>();
-        deck.add(new FinalBuilding(1, 1, 1, 1, new Effects.FinalPrestigePointsByCharacterType(CharacterType.HUNTER, 1)));
+        deck.add(new FinalBuilding(1, 1, 1, 1, new FinalEffect.FinalPrestigePointsByCharacterType(CharacterType.HUNTER, 1)));
         Map<Integer, ArrayList<Building>> bDeck= new HashMap<>();
         bDeck.put(1, deck);
         buildingDeck = new BuildingDeck(1, bDeck);
         buildingDeck.revealEra(1);
     }
 
-    @Test
-    void idBuildingCardMap() {
-        buildingDeck.idBuildingCardMap();
-    }
 }

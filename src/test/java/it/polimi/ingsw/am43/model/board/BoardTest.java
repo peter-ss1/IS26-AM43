@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am43.model.board;
 
 import it.polimi.ingsw.am43.model.cards.Artist;
+import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,17 +20,10 @@ class BoardTest {
 
     @Test
     void setPlayerOnTrack() {
-        assertThrows(NullPointerException.class, () -> board.setPlayerOnTrack(new Player("1"), 3));
+        Player player = new Player("pippo", Color.RED);
+        board.setPlayerOnTrack(player,3);
     }
 
-    @Test
-    void initBoard() {
-    }
-
-    @Test
-    void idTribeCardMap() {
-        assertThrows(NullPointerException.class, () -> board.idTribeCardMap());
-    }
 
     @Test
     void idBuildingCardMap() {
@@ -58,7 +52,7 @@ class BoardTest {
 
     @Test
     void getAvailableActions() {
-        board.getAvailableActions(new Player("1"));
+        board.getAvailableActions(new Player("1", Color.RED));
     }
 
     @Test

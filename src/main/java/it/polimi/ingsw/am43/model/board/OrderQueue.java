@@ -27,9 +27,14 @@ public class OrderQueue {
 
     public void append(Player player) {
         this.playerOrder.offer(player);
-        player.alterFood(this.foodModifiers.get(playerOrder.size()-1));
+        if(player.getFood()+this.foodModifiers.get(playerOrder.size()-1)>=0)
+            player.alterFood(this.foodModifiers.get(playerOrder.size()-1));
+        else
+            player.alterPrestigePoints(this.foodModifiers.get(playerOrder.size()-1));
         player.getTribe().activateTimedBuilding(null, player, null); //to understand better if there are other solutions
     }
+
+    public Player peek(){return this.playerOrder.peek();}
 
     public Player pop() {
         return this.playerOrder.poll();

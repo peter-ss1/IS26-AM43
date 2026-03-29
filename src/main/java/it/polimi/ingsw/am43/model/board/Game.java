@@ -17,50 +17,43 @@ public class Game {
     private Player currPlayer;
     private GamePhase phase;
     private Board board;
-    private Map<Integer,Card> idToTribe;
-    private Map<Integer,Building> idToBuilding;
+    public Map<Integer,Card> idToCard;
 
 
 
-    public Game(int np, String nk) throws IOException {
+    public Game(int np, String nk, Color color) throws IOException {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
         this.numPlayers=np;
         this.players=new ArrayList<>();
-        this.addPlayer(nk);
+        this.addPlayer(nk, color);
         this.phase= GamePhase.PREPARATION;
-        this.board=new Board();
-        this.idToTribe = new HashMap<>();
-        this.idToBuilding = new HashMap<>();
+        this.idToCard = new HashMap<>();
     }
+
 
 
     public ArrayList<Color> getAvailableColors() {
         return new ArrayList<>(this.availableColors);
     }
 
-    public void setIdTribeCard(){
-        this.idToTribe=this.board.idTribeCardMap();
-    }
-    public void setIdBuildingCard(){
-        this.idToBuilding= this.board.idBuildingCardMap();
+    public void initBoard(ArrayList<Player> players, int numPlayers, int seed, ArrayList<Integer> foodModifiers, ArrayList<Card> tribeDeck, Map<Integer, ArrayList<Building>> buildingDeck, ArrayList<OfferTrackCard> offerTrack) throws RuntimeException{
+        this.board=new Board(players,numPlayers,seed,foodModifiers,tribeDeck,buildingDeck,offerTrack);
     }
 
-    public void pickColor(String name, Color color) throws IllegalArgumentException {
-        if(!this.availableColors.remove(color)) throw new IllegalArgumentException("Chosen color is not available");
-        if(this.players.stream().noneMatch(p->p.getNickname().equals(name))) throw new IllegalArgumentException("Player is not registered in the game");
-        players.forEach(p->{
-            if (p.getNickname().equals(name))  p.setColor(color) ;
-        });
+    public void setIdCard(Map<Integer,Card> map){
+        this.idToCard.putAll(map);
     }
+
 
     public ArrayList<Player> getPlayers() {
         return new ArrayList<>(this.players);
     }
 
-    public void addPlayer(String nickname) throws IllegalArgumentException, IOException {
+    public void addPlayer(String nickname, Color color) throws IllegalArgumentException, IOException {
         if(this.players.stream().anyMatch(p->p.getNickname().equals(nickname))) throw new IllegalArgumentException("nickname already in use");
         if(this.players.size()==numPlayers) throw new IllegalArgumentException("exiding player");
-        this.players.add(new Player(nickname));
+        if(!this.availableColors.remove(color)) throw new IllegalArgumentException("Chosen color is not available");
+        this.players.add(new Player(nickname,color));
         if(this.players.size()==numPlayers){
             this.getPhase().resolvePhase(this,this.board);
 
@@ -84,19 +77,15 @@ public class Game {
         this.phase=phase;
     }
 
-    public void placeTotemOnTrack(String name, int position) throws IllegalArgumentException{
-        Player np= this.getPlayerByName(name);
-        this.board.setPlayerOnTrack(np,position);
+    public void placeTotemOnTrack(Player player, int position) throws IllegalArgumentException{
+        this.board.setPlayerOnTrack(player,position);
     }
 
     public Player getPlayerByName(String name) throws IllegalArgumentException{
         return players.stream().filter(p->p.getNickname().equals(name)).findFirst().orElseThrow(()->new IllegalArgumentException("PLayer not registered"));
     }
     public Card getCardById (int id){
-        return this.idToTribe.get(id);
-    }
-    public Building getBuildingById(int id){
-        return this.idToBuilding.get(id);
+        return this.idToCard.get(id);
     }
 
     public void pickCard(Card card, Player player)throws IllegalArgumentException{
