@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
 
@@ -14,9 +15,9 @@ class RitualEventTest {
     void shouldAffectPlayers() {
         example = new RitualEvent(1, 0, -3);
         List<Player> players = new ArrayList<>();
-        Player p1 = new Player("p1");
-        Player p2 = new Player("p2");
-        Player p3 = new Player("p3");
+        Player p1 = new Player("p1", Color.WHITE);
+        Player p2 = new Player("p2",Color.BLACK);
+        Player p3 = new Player("p3",Color.YELLOW);
         players.add(p1);
         players.add(p2);
         players.add(p3);
@@ -34,14 +35,14 @@ class RitualEventTest {
     void shouldTriggerBuilding() {
         example = new RitualEvent(1, 0, -3);
         List<Player> players = new ArrayList<>();
-        Player p1 = new Player("p1");
-        Player p2 = new Player("p2");
+        Player p1 = new Player("p1",Color.BLACK);
+        Player p2 = new Player("p2",Color.YELLOW);
         players.add(p1);
         players.add(p2);
 
 
-        p1.getTribe().addCardToTribe(new RitualEventBuilding(1, 0, 0, 0, new Effects.NoLossInRitualEvent()));
-        p1.getTribe().addCardToTribe(new RitualEventBuilding(1, 0, 0, 0, new Effects.DoubleWinInRitualEvent()));
+        p1.getTribe().addCardToTribe(new RitualEventBuilding(1, 0, 0, 0, new EventEffect.NoLossInRitualEvent()));
+        p1.getTribe().addCardToTribe(new RitualEventBuilding(1, 0, 0, 0, new EventEffect.DoubleWinInRitualEvent()));
         example.triggerBuilding(new SustenanceEventBuilding(1, 0, 0, 0, (player, event) -> {player.alterFood(2);}), p1);
         example.affectPlayers(players);
         assertEquals(10, p1.getPrestigePoints());

@@ -18,8 +18,4 @@ class TribeDeckTest {
         assertEquals(Artist.class, tribeDeck.draw().getClass());
     }
 
-    @Test
-    void idTribeCardMap() {
-        tribeDeck.idTribeCardMap();
-    }
 }

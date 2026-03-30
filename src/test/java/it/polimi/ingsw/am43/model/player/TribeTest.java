@@ -4,6 +4,7 @@ import it.polimi.ingsw.am43.model.board.Board;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
+import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,7 +74,7 @@ class TribeTest {
 
     @BeforeEach
     void setUp() {
-        player = new Player("Lorenzo");
+        player = new Player("Lorenzo", Color.WHITE);
     }
 
 

@@ -35,4 +35,13 @@ public abstract class Event extends Card {
     public void pick(Player player) {
         throw new IllegalArgumentException("Events can't be picked");
     }
+
+    @Override
+    public boolean isContainedInRow(Row row){
+        return row.contains(this);
+    }
+    @Override
+    public void removeFromRow(Row row){
+        row.removeCard(this);
+    }
 }

@@ -8,13 +8,13 @@ import it.polimi.ingsw.am43.model.utils.DTOs.BuildingDeckCardDTO.*;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
-        property = "subClass"
+        property = "classBuilding"
 )
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FinalBuildingDTO.class, name = "FINAL"),
         @JsonSubTypes.Type(value = TribeBuildingDTO.class, name = "TRIBE"),
-        @JsonSubTypes.Type(value = TribeBuildingDTO.class, name = "TIMED"),
+        @JsonSubTypes.Type(value = TimedBuildingDTO.class, name = "TIMED"),
         @JsonSubTypes.Type(value = HuntEventBuildingDTO.class, name = "HUNT_BUILDING"),
         @JsonSubTypes.Type(value = RitualEventBuildingDTO.class, name = "RITUAL_BUILDING"),
         @JsonSubTypes.Type(value = SustenanceEventBuilding.class, name = "SUSTENANCE_BUILDING"),
@@ -50,16 +50,16 @@ public abstract class BuildingDeckCardDTO {
 
     public static class TribeBuildingDTO extends BuildingDeckCardDTO{
         public Integer lastGivenBonus;
-        public TribeBonus bonus;
+        public TribeBonus effect;
 
         @Override
         public Building createBuilding() {
-            return new TribeBuilding(this.era,this.id,this.cost,this.prestigePoints,this.bonus);
+            return new TribeBuilding(this.era,this.id,this.cost,this.prestigePoints,this.effect);
         }
     }
 
     public static class HuntEventBuildingDTO extends BuildingDeckCardDTO{
-        public EventEffect effect;
+        public EventEffect<HuntEvent> effect;
         @Override
         public Building createBuilding() {
             return new HuntEventBuilding(this.era,this.id,this.cost,this.prestigePoints,this.effect);
@@ -67,7 +67,7 @@ public abstract class BuildingDeckCardDTO {
     }
 
     public static class PaintingEventBuildingDTO extends BuildingDeckCardDTO {
-        public EventEffect effect;
+        public EventEffect<PaintingEvent> effect;
         @Override
         public Building createBuilding() {
             return new PaintingEventBuilding(this.era,this.id,this.cost,this.prestigePoints,this.effect);
@@ -75,7 +75,7 @@ public abstract class BuildingDeckCardDTO {
     }
 
     public static class RitualEventBuildingDTO extends BuildingDeckCardDTO {
-        public EventEffect effect;
+        public EventEffect<RitualEvent> effect;
         @Override
         public Building createBuilding() {
             return new RitualEventBuilding(this.era,this.id,this.cost,this.prestigePoints,this.effect);
@@ -83,7 +83,7 @@ public abstract class BuildingDeckCardDTO {
     }
 
     public static class SustenanceEventBuildingDTO extends BuildingDeckCardDTO{
-        public EventEffect effect;
+        public EventEffect<SustenanceEvent> effect;
         @Override
         public Building createBuilding() {
             return new SustenanceEventBuilding(this.era,this.id,this.cost,this.prestigePoints,this.effect);

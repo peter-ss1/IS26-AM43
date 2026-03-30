@@ -9,7 +9,7 @@ import it.polimi.ingsw.am43.model.player.Player;
 import java.io.IOException;
 
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = TimedEffect.BonusTurnFood.class, name = "bonusTurnFood"),
         @JsonSubTypes.Type(value = TimedEffect.BonusPickCard.class, name = "bonusPickCard")
@@ -37,11 +37,8 @@ public interface TimedEffect {
             if (game.getPhase() == GamePhase.ACTION_RESOLUTION /*&& game.isTurnOrderFull*/) {
                 game.setPhase(GamePhase.DRAW_FROM_TOP_BONUS_ACTION);
                 game.setCurrPlayer(player);
-                try {
-                    game.getPhase().resolvePhase(game, board);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                game.getPhase().resolvePhase(game, board);
+
             }
         }
     }

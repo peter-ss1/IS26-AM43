@@ -18,4 +18,15 @@ public abstract class CharacterCard extends TribeCard {
     public void pick(Player player) {
         this.tribeEntranceEffect(player);
     }
+
+    @Override
+    public boolean isContainedInRow(Row row){
+        return row.contains(this);
+    }
+
+    @Override
+    public void removeFromRow(Row row){
+        row.removeCard(this);
+    }
+
 }

@@ -17,7 +17,7 @@ class PlayerTest {
 
     @BeforeEach
     void setUp() {
-        player = new Player("Lorenzo");
+        player = new Player("Lorenzo", Color.WHITE);
     }
 
     @Test

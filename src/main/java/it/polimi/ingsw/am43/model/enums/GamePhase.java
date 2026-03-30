@@ -13,9 +13,9 @@ public enum GamePhase {
     PREPARATION {
         @Override
         public void resolvePhase(Game game, Board board) {
-            GameLoader loader = new GameLoader("config.json");
+            GameLoader loader = new GameLoader("/it/polimi/ingsw/am43/config.json");
             try {
-                board.initBoard(
+                game.initBoard(
                         game.getPlayers(),
                         game.getNumPlayers(),
                         loader.loadSeed(),
@@ -24,12 +24,9 @@ public enum GamePhase {
                         loader.loadBuildingDeck(),
                         loader.loadOfferTrackCard(game.getNumPlayers())
                 );
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            game.setIdTribeCard();
-            game.setIdBuildingCard();
-            game.setCurrPlayer(board.getNextPlayerInOrderQueue());
+            }catch (IOException e){throw new RuntimeException(e);}
+            game.setIdCard(loader.loadIdToCardMap());
+            game.setPhase(GamePhase.OFFER_TRACK_SELECTION);
         }
 
         ;
@@ -37,6 +34,7 @@ public enum GamePhase {
     OFFER_TRACK_SELECTION {
         @Override
         public void resolvePhase(Game game, Board board) {
+            game.setPhase(GamePhase.ACTION_RESOLUTION);
             board.getNextOccupiedOfferTrackCard()
                     .ifPresentOrElse(offer -> {
                         game.setCurrPlayer(offer.getPlayer().orElseThrow(()->new IllegalArgumentException("Player is not registered")));
@@ -68,7 +66,7 @@ public enum GamePhase {
             }
             else {
                 game.setPhase(OFFER_TRACK_SELECTION);
-                game.setCurrPlayer(board.getNextPlayerInOrderQueue());
+                game.setCurrPlayer(board.popNextPlayerInOrderQueue());
             }
         }
     },
@@ -87,7 +85,7 @@ public enum GamePhase {
         }
     };
 
-    public void resolvePhase(Game game, Board board) {
+    public void resolvePhase(Game game, Board board) throws RuntimeException{
     }
 
     ;

@@ -19,7 +19,6 @@ public class Row {
         this.eventResolutionQueue = new ArrayList<>();
     }
 
-
     public int size(){
         return this.buildings.size() + this.characters.size() +this.events.size();
     }
@@ -67,22 +66,28 @@ public class Row {
         this.events.addAll(events);
     }
 
-
-
-    public boolean contains(Card card){
-        return this.characters.contains(card) || buildings.contains(card) || events.contains(card);
+    public boolean contains(CharacterCard character){
+        return this.characters.contains(character);
     }
-    public boolean removeCard(Card c){
-        return this.characters.remove(c) || this.buildings.remove(c) || this.events.remove(c);
+    public boolean contains(Building building){
+        return buildings.contains(building);
+    }
+    public boolean contains(Event event){
+        return events.contains(event);
     }
 
+    public void removeCard(CharacterCard character) throws IllegalArgumentException{
+        if(!this.characters.remove(character)) throw new IllegalArgumentException("card not in row");
+    }
+    public void removeCard(Building building) throws IllegalArgumentException{
+        if(!this.buildings.remove(building)) throw new IllegalArgumentException("card not in row");
+    }
+    public void removeCard(Event event) throws IllegalArgumentException{
+        if(!this.events.remove(event)) throw new IllegalArgumentException("card not in row");
+    }
 
     public void activateEvents(ArrayList<Player> p) {
         this.eventResolutionQueue.forEach(e->e.affectPlayers(p));
     }
-
-
-    public void roundEndingRow(){
-        //ask what it does
-    }
+    
 }

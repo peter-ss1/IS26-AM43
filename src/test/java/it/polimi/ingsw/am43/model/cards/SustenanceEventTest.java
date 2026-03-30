@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.model.board.Row;
+import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
 
@@ -14,10 +15,10 @@ class SustenanceEventTest {
     @Test
     void shouldAffectPlayers() {
         List<Player> players = new ArrayList<>();
-        Player p1 = new Player("p1");
-        Player p2 = new Player("p2");
-        Player p3 = new Player("p3");
-        Player p4 = new Player("p4");
+        Player p1 = new Player("p1", Color.BLACK);
+        Player p2 = new Player("p2",Color.RED);
+        Player p3 = new Player("p3",Color.WHITE);
+        Player p4 = new Player("p4",Color.YELLOW );
         players.add(p1);
         players.add(p2);
         players.add(p3);
@@ -53,7 +54,7 @@ class SustenanceEventTest {
 
     @Test
     void shouldTriggerBuilding() {
-        Player p1 = new Player("p1");
+        Player p1 = new Player("p1",Color.CYAN);
         example.triggerBuilding(new SustenanceEventBuilding(1, 0, 0, 0, (player, event) -> {player.alterFood(2);}), p1);
         example.triggerBuilding(new PaintingEventBuilding(1, 0, 0, 0, (player, event) -> {player.alterFood(2);}), p1);
         example.triggerBuilding(new RitualEventBuilding(1, 0, 0, 0, (player, event) -> {player.alterFood(2);}), p1);

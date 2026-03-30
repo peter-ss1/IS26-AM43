@@ -8,7 +8,7 @@ import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
 
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = TribeBonus.FoodOnSet.class, name = "foodOnSet"),
         @JsonSubTypes.Type(value = TribeBonus.SustenanceDiscountByCharacterType.class, name = "sustenanceDiscount"),

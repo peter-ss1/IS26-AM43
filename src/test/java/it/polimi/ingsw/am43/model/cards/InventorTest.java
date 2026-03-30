@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.model.enums.CharacterType;
+import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ public class InventorTest {
 
     @Test
     void tribeEntranceEffectShouldAddInventorToPlayersTribe() {
-        Player player = new Player("alice");
+        Player player = new Player("alice", Color.YELLOW);
         Inventor inventor = new Inventor(1, 0,InventorSymbol.FLUTE);
 
         inventor.tribeEntranceEffect(player);
@@ -28,7 +29,7 @@ public class InventorTest {
 
     @Test
     void tribeEntranceEffectShouldNotChangePlayerResourcesOrDiscounts() {
-        Player player = new Player("alice");
+        Player player = new Player("alice",Color.YELLOW);
         Inventor inventor = new Inventor(1, 0, InventorSymbol.ROPE);
 
         inventor.tribeEntranceEffect(player);
