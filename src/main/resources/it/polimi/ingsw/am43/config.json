@@ -53,6 +53,12 @@
       ]
     ],
     "seed": 19853,
+    "numBuildingsByNumPlayers": {
+      "2": [1, 2, 3],
+      "3": [2, 2, 4],
+      "4": [2, 3, 4],
+      "5": [2, 3, 5]
+    },
     "tribeDeck": [
       {
         "classTribe": "HUNTER",

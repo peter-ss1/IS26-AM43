@@ -39,4 +39,8 @@ public class OrderQueue {
     public Player pop() {
         return this.playerOrder.poll();
     }
+
+    public boolean isEmpty(){
+        return this.playerOrder.isEmpty();
+    }
 }

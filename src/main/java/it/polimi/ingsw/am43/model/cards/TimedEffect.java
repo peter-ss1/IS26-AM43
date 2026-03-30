@@ -37,11 +37,8 @@ public interface TimedEffect {
             if (game.getPhase() == GamePhase.ACTION_RESOLUTION /*&& game.isTurnOrderFull*/) {
                 game.setPhase(GamePhase.DRAW_FROM_TOP_BONUS_ACTION);
                 game.setCurrPlayer(player);
-                try {
-                    game.getPhase().resolvePhase(game, board);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                game.getPhase().resolvePhase(game, board);
+
             }
         }
     }

@@ -102,7 +102,7 @@ public class GameLoader {
             if(numPlayers<4){
                 offerTrackBone.removeLast();
                 if(numPlayers<3)
-                    offerTrackBone.remove(4);
+                    offerTrackBone.remove(2);
             }
         }
 
@@ -118,6 +118,18 @@ public class GameLoader {
         if (inputStream == null) throw new IOException("path json error");
         JsonNode seedNode = mapper.readTree(inputStream).path("board").path("seed");
         return  seedNode.asInt(1234);
+    }
+
+    public ArrayList<Integer> loadNumBuildings(int numPlayers) throws IOException, IndexOutOfBoundsException{
+        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
+        if (inputStream == null) throw new IOException("path json error");
+        JsonNode numBuildings = mapper.readTree(inputStream).path("board").path("numBuildingsByNumPlayers");
+        if (numBuildings == null) throw new IOException("node json error");
+        Map<Integer,ArrayList<Integer>> map= mapper.convertValue(
+                numBuildings,
+                new TypeReference<Map<Integer, ArrayList<Integer>>>() {}
+        );
+        return map.get(numPlayers);
     }
 
 

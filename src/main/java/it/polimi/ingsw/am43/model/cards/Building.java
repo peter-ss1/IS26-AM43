@@ -28,7 +28,7 @@ public abstract class Building extends TribeCard {
 
     @Override
     public void pick(Player player) {
-        if (player.getFood()<this.cost) throw new IllegalArgumentException("Insufficient Food");
+        if (player.getFood() - player.getBuildingDiscount() < this.cost) throw new IllegalArgumentException("Insufficient Food");
         this.tribeEntranceEffect(player);
     }
 

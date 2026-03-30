@@ -2,13 +2,15 @@ package it.polimi.ingsw.am43.model.board;
 
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
-import it.polimi.ingsw.am43.model.cards.TribeCard;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-public class Board{
+public class Board {
 
     private OrderQueue turnOrder;
     private TribeDeck tribeDeck;
@@ -20,11 +22,7 @@ public class Board{
 
 
 
-    public void setPlayerOnTrack(Player player, int position) throws IllegalArgumentException {
-        try {
-            this.offerTrack.get(position).setPlayer(player);//control is free
-        }catch (IndexOutOfBoundsException e){throw new IllegalArgumentException("Index out of bounds");}
-    }
+
 
 
     public Board(ArrayList<Player> players, int numPlayers, int seed, ArrayList<Integer> foodModifiers, ArrayList<Card> tribeDeck, Map<Integer, ArrayList<Building>> buildingDeck, ArrayList<OfferTrackCard> offerTrack) throws RuntimeException{
@@ -56,10 +54,9 @@ public class Board{
         }
     }
 
-
-    public List<OfferAction> getOfferTrackCardActions(int position) throws IllegalArgumentException {
+    public void setPlayerOnTrack(Player player, int position) throws IllegalArgumentException {
         try {
-            return this.offerTrack.get(position).getActions();
+            this.offerTrack.get(position).setPlayer(player);//control is free
         }catch (IndexOutOfBoundsException e){throw new IllegalArgumentException("Index out of bounds");}
     }
 
@@ -83,6 +80,7 @@ public class Board{
             }
         }
     }
+
     public ArrayList<OfferAction>getAvailableActions(Player player){
         return player.getAvailableActionsActions();
     }
@@ -91,10 +89,6 @@ public class Board{
         if(card.isContainedInRow(this.topRow))return OfferAction.TOP;
         if(card.isContainedInRow(this.bottomRow))return OfferAction.BOTTOM;
         throw new IllegalArgumentException("card not in board");
-    }
-
-    public void removeAvailableAction(Player player, OfferAction offerAction) throws IllegalArgumentException{
-        player.removeAvailableAction(offerAction);
     }
 
     public void removeCard(Card card) throws IllegalArgumentException{
@@ -112,7 +106,6 @@ public class Board{
     public Player getNextPlayerInOrderQueue(){
         return this.turnOrder.peek();
     }
-
     public Player popNextPlayerInOrderQueue(){
         return this.turnOrder.pop();
     }
@@ -122,6 +115,9 @@ public class Board{
             if(otd.getPlayer().isPresent()) return Optional.of(otd);
         }
         return Optional.empty();
+    }
+    public boolean containsCard(Card card){
+        return card.isContainedInRow(this.topRow) || card.isContainedInRow(this.bottomRow);
     }
 
     public void  activateEvents(ArrayList<Player> players){
@@ -142,7 +138,47 @@ public class Board{
     public void returnPlayerToOrderQueue(Player player){
         this.turnOrder.append(player);
     }
+    public boolean isOrderQueueEmpty(){
+        return this.turnOrder.isEmpty();
+    }
 
+    public boolean checkEndTurnCondition(Player player) {
+        for (OfferAction action : player.getAvailableActionsActions()) {
+            switch (action) {
+                case TOP:
+                    if (!topRow.getAllCharacters().isEmpty()) {
+                        return false;
+                    }
+                case BOTTOM:
+                    if (!bottomRow.getAllCharacters().isEmpty()) {
+                        return false;
+                    }
+                default:
+            }
+        }
+        return true;
+    }
 
+    public boolean isOfferResolved(Player player) {
+        for (OfferAction action : player.getAvailableActionsActions()) {
+            switch (action) {
+                case TOP:
+                    if (!topRow.getAllCharacters().isEmpty() || !topRow.getAllBuildings().isEmpty()) {
+                        return false;
+                    }
+                case BOTTOM:
+                    if (bottomRow.getAllCharacters().isEmpty() || !bottomRow.getAllBuildings().isEmpty()) {
+                        return false;
+                    }
+                case FOOD:
+                    player.alterFood(3);
+                    return true;
+            }
+        }
+        return true;
+    }
 
+    public boolean checkFinalRound() {
+        return tribeDeck.isEmpty();
+    }
 }

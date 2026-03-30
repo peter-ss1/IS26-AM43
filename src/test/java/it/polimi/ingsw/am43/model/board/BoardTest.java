@@ -15,7 +15,7 @@ class BoardTest {
     private Board board;
     @BeforeEach
     void setUp() {
-        board = new Board();
+        //board = new Board();
     }
 
     @Test
