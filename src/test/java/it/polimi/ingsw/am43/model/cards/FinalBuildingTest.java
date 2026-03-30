@@ -7,7 +7,7 @@ import it.polimi.ingsw.am43.model.enums.InventorSymbol;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FinalBuildingTest {
     private FinalBuilding example = new FinalBuilding(1, 0, 1, 1, new FinalEffect.FinalBonusPrestigePoints());
@@ -17,6 +17,8 @@ class FinalBuildingTest {
         Row row  = new Row();
         example.addToRow(row);
         assertEquals(1, row.size());
+        example.removeFromRow(row);
+        assertEquals(0, row.size());
     }
 
     @Test

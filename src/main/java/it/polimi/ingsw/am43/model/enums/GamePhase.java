@@ -7,7 +7,6 @@ import it.polimi.ingsw.am43.model.utils.GameLoader;
 
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.List;
 
 public enum GamePhase {
     PREPARATION {
@@ -22,9 +21,12 @@ public enum GamePhase {
                         loader.loadFoodModifiers(game.getNumPlayers()),
                         loader.loadTribeDeck(),
                         loader.loadBuildingDeck(),
-                        loader.loadOfferTrackCard(game.getNumPlayers())
+                        loader.loadOfferTrackCard(game.getNumPlayers()),
+                        loader.loadNumBuildings(game.getNumPlayers())
                 );
-            }catch (IOException e){throw new RuntimeException(e);}
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             game.setIdCard(loader.loadIdToCardMap());
             game.setPhase(GamePhase.OFFER_TRACK_SELECTION);
         }
@@ -35,11 +37,11 @@ public enum GamePhase {
         @Override
         public void resolvePhase(Game game, Board board) {
             game.setPhase(GamePhase.ACTION_RESOLUTION);
-            board.getNextOccupiedOfferTrackCard()
-                    .ifPresentOrElse(offer -> {
-                        game.setCurrPlayer(offer.getPlayer().orElseThrow(()->new IllegalArgumentException("Player is not registered")));
-                        game.resolveOffer(game.getCurrPlayer());
-                    }, () -> {
+            board.getNextPlayerOnOfferTrack().ifPresentOrElse(player -> {
+                        game.setCurrPlayer(player);
+                        game.resolveOffer(player);
+                    },
+                    () -> {
                         game.getPhase().resolvePhase(game, board);
                     });
         }
@@ -49,25 +51,27 @@ public enum GamePhase {
         public void resolvePhase(Game game, Board board) {
             game.setPhase(ROUND_ENDING);
             for (Player player : game.getPlayers()) {
-                player.getTribe().activateTribeBuildings(player);
+                player.getTribe().activateTimedBuilding(game, player, board);
             }
-            if (game.getPhase().equals(ROUND_ENDING)) {game.getPhase().resolvePhase(game, board);}
+            if (game.getPhase().equals(ROUND_ENDING)) {
+                game.getPhase().resolvePhase(game, board);
+            }
         }
     },
     ROUND_ENDING {
         @Override
         public void resolvePhase(Game game, Board board) {
-            board.activateEvents(game.getPlayers());
-            board.moveTopToBottomTribe();
-            board.replenishTopRow(game.getNumPlayers()+4);
+            board.activateEvents(OfferAction.BOTTOM, game.getPlayers());
             if (board.checkFinalRound()) {
+                board.activateEvents(OfferAction.TOP, game.getPlayers());
                 game.setPhase(FINAL_COUNT);
                 game.getPhase().resolvePhase(game, board);
+                return;
             }
-            else {
-                game.setPhase(OFFER_TRACK_SELECTION);
-                game.setCurrPlayer(board.popNextPlayerInOrderQueue());
-            }
+            board.moveTopToBottomTribe();
+            board.replenishTopRow(game.getNumPlayers() + 4);
+            game.setPhase(OFFER_TRACK_SELECTION);
+            game.setCurrPlayer(board.getNextPlayerInOrderQueue());
         }
     },
     DRAW_FROM_TOP_BONUS_ACTION {
@@ -85,7 +89,7 @@ public enum GamePhase {
         }
     };
 
-    public void resolvePhase(Game game, Board board) throws RuntimeException{
+    public void resolvePhase(Game game, Board board) throws RuntimeException {
     }
 
     ;

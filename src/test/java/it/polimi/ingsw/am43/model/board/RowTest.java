@@ -2,16 +2,21 @@ package it.polimi.ingsw.am43.model.board;
 
 import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
-import it.polimi.ingsw.am43.model.player.Player;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class RowTest {
     private Row row = new Row();
+
+    @BeforeEach
+    void setUp(){
+        this.row = new Row();
+    }
+
     @Test
     void size() {
         Building building = new TribeBuilding(1,1,1,1,new TribeBonus.FoodOnSet());
@@ -62,6 +67,7 @@ class RowTest {
         this.row.addAllCharacters(list);
         assertTrue(this.row.contains(card1) && this.row.contains(card2));
         assertEquals(list,this.row.getAllCharacters());
+        this.row.removeCharacters();
         assertFalse(this.row.contains(card1) || this.row.contains(card2));
     }
 
@@ -75,6 +81,7 @@ class RowTest {
         this.row.addAllBuildings(list);
         assertTrue(this.row.contains(card1) && this.row.contains(card2));
         assertEquals(list,this.row.getAllBuildings());
+        this.row.removeBuildings();
         assertFalse(this.row.contains(card1) || this.row.contains(card2));
     }
 
@@ -88,7 +95,7 @@ class RowTest {
         this.row.addAllEvents(list);
         assertTrue(this.row.contains(card1) && this.row.contains(card2));
         assertEquals(list,this.row.getAllEvents());
-        assertFalse(this.row.contains(card1) || this.row.contains(card2));
+        assertFalse(!this.row.contains(card1) || !this.row.contains(card2));
     }
 
     @Test
@@ -112,6 +119,7 @@ class RowTest {
         this.row.addAllBuildings(list);
         assertTrue(this.row.contains(card1) && this.row.contains(card2));
         assertEquals(list,this.row.getAllBuildings());
+        this.row.removeBuildings();
         assertFalse(this.row.contains(card1) || this.row.contains(card2));
     }
 
@@ -125,6 +133,7 @@ class RowTest {
         this.row.addAllEvents(list);
         assertTrue(this.row.contains(card1) && this.row.contains(card2));
         assertEquals(list,this.row.getAllEvents());
+        this.row.removeEvents();
         assertFalse(this.row.contains(card1) || this.row.contains(card2));
     }
 

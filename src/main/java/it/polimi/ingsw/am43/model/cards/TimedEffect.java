@@ -5,8 +5,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am43.model.board.Board;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
+import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Player;
-import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
@@ -24,7 +27,7 @@ public interface TimedEffect {
 
         @Override
         public void manifest(Player player, Game game, Board board) {
-            if (game.getPhase() == GamePhase.ACTION_RESOLUTION && player == game.getCurrPlayer() /*&& game.isTurnOrderNotFull*/) {
+            if (game.getPhase() == GamePhase.ACTION_RESOLUTION && player == game.getCurrPlayer() && !board.isOrderQueueFull() && board.hasFoodBonus()) {
                 player.alterFood(1);
             }
         }
@@ -34,11 +37,15 @@ public interface TimedEffect {
 
         @Override
         public void manifest(Player player, Game game, Board board) {
-            if (game.getPhase() == GamePhase.ACTION_RESOLUTION /*&& game.isTurnOrderFull*/) {
+            if (game.getPhase() == GamePhase.ROUND_ENDING && board.isOrderQueueFull()) {
                 game.setPhase(GamePhase.DRAW_FROM_TOP_BONUS_ACTION);
+                List<OfferAction> bonusAction = new ArrayList<>();
+                bonusAction.add(OfferAction.TOP);
+                player.setAvailableActions(bonusAction);
                 game.setCurrPlayer(player);
-                game.getPhase().resolvePhase(game, board);
-
+                if (!board.pickableCards(OfferAction.TOP, player)) {
+                    game.getPhase().resolvePhase(game, board);
+                }
             }
         }
     }

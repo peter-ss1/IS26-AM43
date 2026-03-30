@@ -3,39 +3,34 @@ package it.polimi.ingsw.am43.model.board;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
+import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.player.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class Board {
 
-    private OrderQueue turnOrder;
-    private TribeDeck tribeDeck;
-    private BuildingDeck buildingDeck;
-    private Row topRow;
-    private Row bottomRow;
+    private final OrderQueue turnOrder;
+    private final TribeDeck tribeDeck;
+    private final BuildingDeck buildingDeck;
+    private final Row topRow;
+    private final Row bottomRow;
+    private final List<OfferTrackCard> offerTrack;
     private int currEra;
-    private ArrayList<OfferTrackCard> offerTrack;
 
-
-
-
-
-
-    public Board(ArrayList<Player> players, int numPlayers, int seed, ArrayList<Integer> foodModifiers, ArrayList<Card> tribeDeck, Map<Integer, ArrayList<Building>> buildingDeck, ArrayList<OfferTrackCard> offerTrack) throws RuntimeException{
-        this.turnOrder= new OrderQueue(players,foodModifiers);
-        this.tribeDeck= new TribeDeck(seed,tribeDeck);
-        this.buildingDeck= new BuildingDeck(seed,buildingDeck);
-        this.topRow= new Row();
-        this.bottomRow= new Row();
-        this.currEra=1;
-        this.offerTrack= offerTrack;
-        while (this.bottomRow.size()<=numPlayers){
-            Card cardDrawn= this.tribeDeck.draw();
-            switch (cardDrawn.firstRowChoice()){
+    public Board(List<Player> players, int numPlayers, int seed, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack, List<Integer> numBuildings) throws RuntimeException {
+        this.turnOrder = new OrderQueue(players, foodModifiers);
+        this.tribeDeck = new TribeDeck(seed, tribeDeck);
+        this.buildingDeck = new BuildingDeck(seed, buildingDeck, numBuildings);
+        this.topRow = new Row();
+        this.bottomRow = new Row();
+        this.offerTrack = offerTrack;
+        this.currEra = 1;
+        while (this.bottomRow.size() <= numPlayers) {
+            Card cardDrawn = this.tribeDeck.draw();
+            switch (cardDrawn.firstRowChoice()) {
                 case OfferAction.TOP:
                     cardDrawn.addToRow(this.topRow);
                     break;
@@ -46,113 +41,128 @@ public class Board {
                     throw new RuntimeException("error in draw");
             }
         }
-        while (this.topRow.size()<numPlayers+4){
+        while (this.topRow.size() < numPlayers + 4) {
             this.tribeDeck.draw().addToRow(this.topRow);
         }
-        for(Building building : this.buildingDeck.revealEra(1)){
+        for (Building building : this.buildingDeck.revealEra(1)) {
             building.addToRow(this.bottomRow);
         }
     }
 
-    public void setPlayerOnTrack(Player player, int position) throws IllegalArgumentException {
-        try {
-            this.offerTrack.get(position).setPlayer(player);//control is free
-        }catch (IndexOutOfBoundsException e){throw new IllegalArgumentException("Index out of bounds");}
+    public int getCurrEra() { return this.currEra; }
+
+    public void setPlayerOnTrack(Player player, int position) {
+        if (position < 0 || position > this.offerTrack.size()) throw new IndexOutOfBoundsException("Invalid position");
+        if (this.offerTrack.get(position).getPlayer().isPresent()) throw new IllegalMoveException("Cannot pick occupied tile");
+        this.offerTrack.get(position).setPlayer(player);
     }
 
-    public int getCurrEra() {
-        return this.currEra;
-    }
-
-    public void increaseCurrEra() throws IllegalStateException{
-        if(this.currEra++ >3) throw new IllegalStateException("era not supported");
+    public void increaseCurrEra() {
+        if (this.currEra++ > 3) throw new IllegalStateException("Era does not exist");
         this.bottomRow.removeBuildings();
         this.moveTopToBottomBuildings();
         this.topRow.addAllBuildings(this.buildingDeck.revealEra(this.currEra));
     }
 
-    public void replenishTopRow(int amount){
-        for (int i=0;i<amount;i++){
-            Card card= this.tribeDeck.draw();
+    public void replenishTopRow(int amount) {
+        for (int i = 0; i < amount; i++) {
+            Card card = this.tribeDeck.draw();
             card.addToRow(this.topRow);
-            if(card.getEra()>this.currEra){
+            if (card.getEra() > this.currEra) {
                 this.increaseCurrEra();
             }
         }
     }
 
-    public ArrayList<OfferAction>getAvailableActions(Player player){
-        return player.getAvailableActionsActions();
-    }
-
-    public OfferAction getCardPosition(Card card){
-        if(card.isContainedInRow(this.topRow))return OfferAction.TOP;
-        if(card.isContainedInRow(this.bottomRow))return OfferAction.BOTTOM;
+    public OfferAction getCardPosition(Card card) {
+        if (card.isContainedInRow(this.topRow)) return OfferAction.TOP;
+        if (card.isContainedInRow(this.bottomRow)) return OfferAction.BOTTOM;
         throw new IllegalArgumentException("card not in board");
     }
 
-    public void removeCard(Card card) throws IllegalArgumentException{
-        if(card.isContainedInRow(this.topRow)){
+    public void removeCard(Card card) {
+        if (card.isContainedInRow(this.topRow)) {
             card.removeFromRow(this.topRow);
             return;
         }
-        if(card.isContainedInRow(this.bottomRow)){
-            card.removeFromRow(this.topRow);
-            return;
+        if (card.isContainedInRow(this.bottomRow)) {
+            card.removeFromRow(this.bottomRow);
         }
-        throw new IllegalArgumentException("card not in board");
     }
 
-    public Player getNextPlayerInOrderQueue(){
+    public Player getNextPlayerInOrderQueue() {
         return this.turnOrder.peek();
     }
-    public Player popNextPlayerInOrderQueue(){
-        return this.turnOrder.pop();
+
+    public void popNextPlayerInOrderQueue() {
+        this.turnOrder.pop();
     }
 
-    public Optional<OfferTrackCard> getNextOccupiedOfferTrackCard(){
-        for(OfferTrackCard otd : this.offerTrack){
-            if(otd.getPlayer().isPresent()) return Optional.of(otd);
+    public Optional<Player> getNextPlayerOnOfferTrack() {
+        for (OfferTrackCard otd : this.offerTrack) {
+            if (otd.getPlayer().isPresent()) return otd.getPlayer();
         }
         return Optional.empty();
     }
-    public boolean containsCard(Card card){
+
+    public boolean containsCard(Card card) {
         return card.isContainedInRow(this.topRow) || card.isContainedInRow(this.bottomRow);
     }
 
-    public void  activateEvents(ArrayList<Player> players){
-        this.bottomRow.activateEvents(players);
+    public void activateEvents(OfferAction row, List<Player> players) {
+        switch (row) {
+            case OfferAction.TOP:
+                this.topRow.activateEvents(players);
+                return;
+            case OfferAction.BOTTOM:
+                this.bottomRow.activateEvents(players);
+                return;
+            default:
+                throw new RuntimeException("error in activate events");
+        }
     }
 
-    public void moveTopToBottomTribe(){
+    public void moveTopToBottomTribe() {
+        this.bottomRow.removeBuildings();
+        this.bottomRow.removeEvents();
         this.bottomRow.addAllCharacters(this.topRow.getAllCharacters());
         this.bottomRow.addAllEvents(this.topRow.getAllEvents());
         this.topRow.removeCharacters();
         this.bottomRow.removeEvents();
     }
-    public void moveTopToBottomBuildings(){
+
+    public void moveTopToBottomBuildings() {
         this.bottomRow.addAllBuildings(this.topRow.getAllBuildings());
         this.topRow.removeBuildings();
     }
 
-    public void returnPlayerToOrderQueue(Player player){
+    public void returnPlayerToOrderQueue(Player player) {
+        for (OfferTrackCard otd : this.offerTrack) {
+            if (otd.getPlayer().isPresent() && otd.getPlayer().get().equals(player)) {
+                otd.removePlayer();
+                break;
+            }
+        }
         this.turnOrder.append(player);
     }
-    public boolean isOrderQueueEmpty(){
+
+    public boolean isOrderQueueEmpty() {
         return this.turnOrder.isEmpty();
     }
 
     public boolean checkEndTurnCondition(Player player) {
-        for (OfferAction action : player.getAvailableActionsActions()) {
+        for (OfferAction action : player.getAvailableActions()) {
             switch (action) {
                 case TOP:
                     if (!topRow.getAllCharacters().isEmpty()) {
                         return false;
                     }
+                    break;
                 case BOTTOM:
                     if (!bottomRow.getAllCharacters().isEmpty()) {
                         return false;
                     }
+                    break;
                 default:
             }
         }
@@ -160,16 +170,11 @@ public class Board {
     }
 
     public boolean isOfferResolved(Player player) {
-        for (OfferAction action : player.getAvailableActionsActions()) {
+        for (OfferAction action : player.getAvailableActions()) {
             switch (action) {
-                case TOP:
-                    if (!topRow.getAllCharacters().isEmpty() || !topRow.getAllBuildings().isEmpty()) {
-                        return false;
-                    }
-                case BOTTOM:
-                    if (bottomRow.getAllCharacters().isEmpty() || !bottomRow.getAllBuildings().isEmpty()) {
-                        return false;
-                    }
+                case TOP, BOTTOM:
+                    if (this.pickableCards(action, player)) return false;
+                    break;
                 case FOOD:
                     player.alterFood(3);
                     return true;
@@ -180,5 +185,29 @@ public class Board {
 
     public boolean checkFinalRound() {
         return tribeDeck.isEmpty();
+    }
+
+    public boolean isOrderQueueFull() {
+        return turnOrder.isFull();
+    }
+
+    public boolean pickableCards(OfferAction row, Player player) {
+        switch (row) {
+            case TOP:
+                if (topRow.getAllCharacters().isEmpty() && topRow.getAllBuildings().isEmpty() && topRow.getAllBuildings().stream().noneMatch(building -> building.getCost()<(player.getFood() - player.getBuildingDiscount()))) {
+                    return false;
+                }
+                break;
+            case BOTTOM:
+                if (bottomRow.getAllCharacters().isEmpty() && bottomRow.getAllBuildings().isEmpty() && bottomRow.getAllBuildings().stream().noneMatch(building -> building.getCost()<(player.getFood() - player.getBuildingDiscount()))) {
+                    return false;
+                }
+                break;
+        }
+        return true;
+    }
+
+    public boolean hasFoodBonus() {
+        return turnOrder.getLastFoodGiven()>0;
     }
 }

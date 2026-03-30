@@ -60,17 +60,17 @@ public class GameLoader {
         return tribeDeck;
     }
 
-    public Map<Integer,ArrayList<Building>> loadBuildingDeck()throws IOException, IllegalArgumentException{
+    public Map<Integer, List<Building>> loadBuildingDeck()throws IOException, IllegalArgumentException{
         InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode buildingDeckNode = mapper.readTree(inputStream).path("board").path("buildingDeck");
         if (buildingDeckNode == null) throw new IOException("node json error");
 
-        Map<Integer,ArrayList<BuildingDeckCardDTO>> buildingDeckTDO= mapper.convertValue(
+        Map<Integer,List<BuildingDeckCardDTO>> buildingDeckTDO= mapper.convertValue(
                 buildingDeckNode,
-                new TypeReference<Map<Integer, ArrayList<BuildingDeckCardDTO>>>() {}
+                new TypeReference<Map<Integer, List<BuildingDeckCardDTO>>>() {}
         );
-        Map<Integer,ArrayList<Building>> buildingDeck = new HashMap<Integer,ArrayList<Building>>();
+        Map<Integer,List<Building>> buildingDeck = new HashMap<Integer, List<Building>>();
         for(Integer i : buildingDeckTDO.keySet()){
             buildingDeck.put(i,new ArrayList<Building>());
             for (BuildingDeckCardDTO tdo : buildingDeckTDO.get(i)){

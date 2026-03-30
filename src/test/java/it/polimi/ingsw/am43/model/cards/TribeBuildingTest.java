@@ -3,10 +3,12 @@ package it.polimi.ingsw.am43.model.cards;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
+import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TribeBuildingTest {
     TribeBuilding example;
@@ -49,9 +51,9 @@ class TribeBuildingTest {
     @Test
     void shouldNotBePickedWithoutFood() {
         example = new TribeBuilding(1, 0, 1, 1, new TribeBonus.FoodOnInventorSymbolPair());
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> {
             example.pick(new Player("p1",Color.WHITE));
         });
-        assertEquals("Insufficient Food", exception.getMessage());
+        assertEquals("Cannot pick building with insufficient food", exception.getMessage());
     }
 }

@@ -1,102 +1,43 @@
 package it.polimi.ingsw.am43.model.board;
 
-import it.polimi.ingsw.am43.model.cards.Artist;
-import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.model.enums.OfferAction;
-import it.polimi.ingsw.am43.model.player.Player;
-import org.junit.jupiter.api.BeforeEach;
+import it.polimi.ingsw.am43.model.cards.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BoardTest {
-    private Board board;
-    @BeforeEach
-    void setUp() {
-        //board = new Board();
-    }
-
     @Test
-    void setPlayerOnTrack() {
-        Player player = new Player("pippo", Color.RED);
-        board.setPlayerOnTrack(player,3);
-    }
-
-
-    @Test
-    void idBuildingCardMap() {
-        //board.idBuildingCardMap();
-    }
-
-    @Test
-    void getOfferTrackCardActions() {
-        //board.getOfferTrackCardActions(3);
-    }
-
-    @Test
-    void getCurrEra() {
-        board.getCurrEra();
-    }
-
-    @Test
-    void increaseCurrEra() {
-        //board.increaseCurrEra();
-    }
-
-    @Test
-    void replenishTopRow() {
-        //board.replenishTopRow(3);
-    }
-
-    @Test
-    void getAvailableActions() {
-        board.getAvailableActions(new Player("1", Color.RED));
-    }
-
-    @Test
-    void getCardPosition() {
-        //board.getCardPosition(new Artist(1, 1));
-    }
-
-    @Test
-    void removeAvailableAction() {
-        //board.removeAvailableAction(new Player("1"), OfferAction.TOP);
-    }
-
-    @Test
-    void removeCard() {
-        //board.removeCard(new Artist(1, 1));
-    }
-
-    @Test
-    void getNextPlayerInOrderQueue() {
-        //board.getNextPlayerInOrderQueue();
-    }
-
-    @Test
-    void getNextOccupiedOfferTrackCard() {
-        //board.getNextOccupiedOfferTrackCard();
-    }
-
-    @Test
-    void activateEvents() {
-       // board.activateEvents(new ArrayList<>());
-    }
-
-    @Test
-    void moveTopToBottomTribe() {
-        //board.moveTopToBottomTribe();
-    }
-
-    @Test
-    void moveTopToBottomBuildings() {
-        //board.moveTopToBottomBuildings();
-    }
-
-    @Test
-    void returnPlayerToOrderQueue() {
-        //board.returnPlayerToOrderQueue(new Player("1"));
+    void shouldIncreaseCurrEra() {
+        List<Building> buildings1 = new ArrayList<>();
+        buildings1.add(new FinalBuilding(1, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints()));
+        List<Building> buildings2 = new ArrayList<>();
+        buildings2.add(new FinalBuilding(2, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints()));
+        buildings2.add(new FinalBuilding(2, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints()));
+        List<Building> buildings3 = new ArrayList<>();
+        buildings3.add(new FinalBuilding(3, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints()));
+        buildings3.add(new FinalBuilding(3, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints()));
+        buildings3.add(new FinalBuilding(3, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints()));
+        Map<Integer, List<Building>> deckInit = new HashMap<>();
+        deckInit.put(1, buildings1);
+        deckInit.put(2, buildings2);
+        deckInit.put(3, buildings3);
+        List<Integer> buildingsInit = new ArrayList<>();
+        buildingsInit.add(1);
+        buildingsInit.add(2);
+        buildingsInit.add(3);
+        List<Card> cards = new ArrayList<>();
+        cards.add(new Artist(1, 1));
+        cards.add(new Artist(2, 1));
+        cards.add(new Gatherer(1, 1));
+        cards.add(new Artist(2, 1));
+        cards.add(new Artist(3, 1));
+        Board board = new Board(new ArrayList<>(), -4, 1, new ArrayList<>(), cards, deckInit, new ArrayList<>(), buildingsInit);
+        board.replenishTopRow(3);
+        assertEquals(2, board.getCurrEra());
     }
 }

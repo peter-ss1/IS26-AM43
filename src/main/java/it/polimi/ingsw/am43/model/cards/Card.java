@@ -29,6 +29,6 @@ public abstract class Card {
     public abstract void pick(Player player);
 
     public abstract boolean isContainedInRow(Row row);
-    public abstract void removeFromRow(Row row) throws IllegalArgumentException;
+    public abstract void removeFromRow(Row row);
 
 }

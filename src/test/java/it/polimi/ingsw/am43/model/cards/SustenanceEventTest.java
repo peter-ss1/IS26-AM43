@@ -8,10 +8,11 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SustenanceEventTest {
-    private SustenanceEvent example = new SustenanceEvent(2, 0);
+    private final SustenanceEvent example = new SustenanceEvent(2, 0);
     @Test
     void shouldAffectPlayers() {
         List<Player> players = new ArrayList<>();
@@ -50,6 +51,10 @@ class SustenanceEventTest {
         Row row = new Row();
         example.addToRow(row);
         assertEquals(1, row.size());
+        assertTrue(example.isContainedInRow(row));
+        example.removeFromRow(row);
+        assertEquals(0, row.size());
+
     }
 
     @Test

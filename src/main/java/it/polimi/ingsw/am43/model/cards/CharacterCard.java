@@ -25,7 +25,7 @@ public abstract class CharacterCard extends TribeCard {
     }
 
     @Override
-    public void removeFromRow(Row row){
+    public void removeFromRow(Row row) {
         row.removeCard(this);
     }
 

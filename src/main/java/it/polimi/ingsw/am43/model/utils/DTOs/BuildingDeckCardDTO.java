@@ -82,13 +82,13 @@ public abstract class BuildingDeckCardDTO {
         }
     }
 
-    public static class SustenanceEventBuildingDTO extends BuildingDeckCardDTO{
+    /*public static class SustenanceEventBuildingDTO extends BuildingDeckCardDTO{
         public EventEffect<SustenanceEvent> effect;
         @Override
         public Building createBuilding() {
             return new SustenanceEventBuilding(this.era,this.id,this.cost,this.prestigePoints,this.effect);
         }
-    }
+    }*/
 
 
 

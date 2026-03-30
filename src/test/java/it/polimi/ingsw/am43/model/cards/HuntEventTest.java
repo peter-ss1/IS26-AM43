@@ -1,13 +1,15 @@
 package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class HuntEventTest {
     private final HuntEvent example = new HuntEvent(2, 0);
@@ -42,9 +44,9 @@ class HuntEventTest {
 
     @Test
     void shouldNotGetPicked() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> {
             example.pick(new Player("p1",Color.CYAN));
         });
-        assertEquals("Events can't be picked", exception.getMessage());
+        assertEquals("Cannot pick event card", exception.getMessage());
     }
 }

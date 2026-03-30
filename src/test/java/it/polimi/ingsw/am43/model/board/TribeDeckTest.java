@@ -2,20 +2,39 @@ package it.polimi.ingsw.am43.model.board;
 
 import it.polimi.ingsw.am43.model.cards.Artist;
 import it.polimi.ingsw.am43.model.cards.Card;
+import it.polimi.ingsw.am43.model.cards.Gatherer;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TribeDeckTest {
-    private TribeDeck tribeDeck= new TribeDeck(1, new ArrayList<Card>());
+    private TribeDeck deck;
     @Test
     void draw() {
-        ArrayList<Card> deck = new ArrayList<>();
-        deck.add(new Artist(1, 1));
-        tribeDeck = new TribeDeck(1, deck);
-        assertEquals(Artist.class, tribeDeck.draw().getClass());
+        List<Card> cards = new ArrayList<>();
+        cards.add(new Artist(1, 1));
+        cards.add(new Artist(2, 1));
+        cards.add(new Gatherer(1, 1));
+        cards.add(new Artist(2, 1));
+        cards.add(new Artist(3, 1));
+        deck = new TribeDeck(1, cards);
+        assertEquals(1, deck.draw().getEra());
+        assertEquals(1, deck.draw().getEra());
+        assertEquals(2, deck.draw().getEra());
+        assertEquals(2, deck.draw().getEra());
+        assertEquals(3, deck.draw().getEra());
     }
 
+    @Test
+    void shouldBeEmpty() {
+        List<Card> cards = new ArrayList<>();
+        cards.add(new Artist(1, 1));
+        deck = new TribeDeck(1, cards);
+        deck.draw();
+        assertTrue(deck.isEmpty());
+    }
 }

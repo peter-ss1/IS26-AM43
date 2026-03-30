@@ -1,27 +1,31 @@
 package it.polimi.ingsw.am43.model.board;
 
-import java.util.*;
+import it.polimi.ingsw.am43.model.cards.Building;
 
-import it.polimi.ingsw.am43.model.cards.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class BuildingDeck {
 
-    private final Map<Integer, ArrayList<Building>> decksByEra;
+    private final Map<Integer, List<Building>> decksByEra;
 
-    public BuildingDeck(int seed, Map<Integer, ArrayList<Building>> buildingDeck) {
+    public BuildingDeck(int seed, Map<Integer, List<Building>> buildingDeck, List<Integer> numBuildings) {
         this.decksByEra = buildingDeck;
-        this.shuffle(seed);
+        this.shuffleAndSelect(seed, numBuildings);
     }
 
-    public ArrayList<Building> revealEra(int era){
+    public List<Building> revealEra(int era) {
         return this.decksByEra.remove(era);
     }
 
-
-    private void shuffle(int seed){ // to convert in long
+    private void shuffleAndSelect(int seed, List<Integer> numBuildings) {
         Random rSeed = new Random(seed);
-        for (Integer i: this.decksByEra.keySet()) {
-            Collections.shuffle(this.decksByEra.get(i),rSeed);
+        int i = 0;
+        for (List<Building> eraList : decksByEra.values()) {
+            Collections.shuffle(eraList, rSeed);
+            eraList.subList(numBuildings.get(i++), eraList.size()).clear();
         }
     }
 

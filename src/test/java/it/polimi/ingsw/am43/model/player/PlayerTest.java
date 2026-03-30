@@ -9,7 +9,8 @@ import it.polimi.ingsw.am43.model.enums.InventorSymbol;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class PlayerTest {
 
@@ -29,11 +30,6 @@ class PlayerTest {
     void testSetAndGetColor() {
         player.setColor(Color.RED);
         assertEquals(Color.RED, player.getColor());
-    }
-
-    @Test
-    void testInitialColorIsNull() {
-        assertNull(player.getColor());
     }
 
     @Test

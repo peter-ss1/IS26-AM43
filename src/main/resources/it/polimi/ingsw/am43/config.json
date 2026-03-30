@@ -810,7 +810,7 @@
           "id": 114,
           "era": 3,
           "cost": 0,
-          "prestigePoints": 25,
+          "prestigePoints": 0,
           "classBuilding": "FINAL",
           "effect": {
             "classEvent": "finalBonusPoints"
