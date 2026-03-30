@@ -28,4 +28,8 @@ public class TribeDeck {
     public boolean isEmpty() {
         return this.deck.isEmpty();
     }
+
+    public boolean isEmpty() {
+        return this.deck.isEmpty();
+    }
 }
