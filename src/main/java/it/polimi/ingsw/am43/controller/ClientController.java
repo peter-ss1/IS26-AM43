@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am43.controller;
 
-import it.polimi.ingsw.am43.model.client.ClientModel;
+import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.network.VirtualServer;
 import it.polimi.ingsw.am43.network.command.game.GameCommand;
@@ -29,7 +29,7 @@ public class ClientController {
     }
 
     public void pickCard(int id, String nickname) {
-        remoteModel.sendCommand(new GameCommand.PickCardCommand(id, nickname));
+        remoteModel.sendCommand(new GameCommand.PickCardCommand(this.localModel.getLobbyId(), id, nickname));
     }
 
     public void showError(Error error) {

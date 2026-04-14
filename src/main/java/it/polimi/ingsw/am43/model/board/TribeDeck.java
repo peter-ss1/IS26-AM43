@@ -9,7 +9,7 @@ import java.util.*;
 public class TribeDeck {
     private final List<Card> deck;
 
-    public TribeDeck(int seed, ArrayList<Card> deck){
+    public TribeDeck(int seed, List<Card> deck){
         this.deck= deck;
         this.shuffle(seed);
     }

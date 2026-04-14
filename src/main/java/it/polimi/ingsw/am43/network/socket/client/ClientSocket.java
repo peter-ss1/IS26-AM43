@@ -2,7 +2,10 @@ package it.polimi.ingsw.am43.network.socket.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.polimi.ingsw.am43.network.Update;
+import it.polimi.ingsw.am43.client.ClientModel;
+import it.polimi.ingsw.am43.network.message.Message;
+import it.polimi.ingsw.am43.network.message.error.Error;
+import it.polimi.ingsw.am43.network.message.update.Update;
 import it.polimi.ingsw.am43.network.socket.server.VirtualClientSocket;
 
 import java.io.BufferedReader;
@@ -34,20 +37,25 @@ public class ClientSocket implements VirtualClientSocket {
     }
 
     private void runVirtualServer() throws IOException {
-        String jsonUpdate;
-        Update update;
-        while ((jsonUpdate = input.readLine()) != null) {
+        String jsonMessage;
+        Message message;
+        while ((jsonMessage = input.readLine()) != null) {
             try{
-                update=mapper.readValue(jsonUpdate,Update.class);
-                this.sendUpdate(update);
+                message =mapper.readValue(jsonMessage,Update.class);
+                this.sendMessage((Update) message);
             } catch (JsonProcessingException e) {e.printStackTrace();}
         }
 
     }
 
-
     @Override
-    public void sendUpdate(Update update){
+    public void sendMessage(Update update){
         this.model.update(update);
     }
+
+    @Override
+    public void sendMessage(Error error) {
+
+    }
+
 }

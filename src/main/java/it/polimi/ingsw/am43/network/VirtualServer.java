@@ -1,8 +1,10 @@
 package it.polimi.ingsw.am43.network;
 
-import it.polimi.ingsw.am43.network.command.Command;
+import it.polimi.ingsw.am43.network.command.game.GameCommand;
+import it.polimi.ingsw.am43.network.command.server.ServerCommand;
 
 public interface VirtualServer {
-    public void connect();
-    public void sendCommand(Command command);
+    void connect();
+    void sendCommand(ServerCommand command);
+    void sendCommand(GameCommand command);
 }

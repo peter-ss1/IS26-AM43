@@ -1,6 +1,7 @@
-package it.polimi.ingsw.am43.model.client;
+package it.polimi.ingsw.am43.client;
 
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.network.message.update.Update;
 
 import java.util.List;
 import java.util.Map;
@@ -77,5 +78,9 @@ public class ClientModel {
 
     public void addLobbies(Map<Integer, Integer> lobbies) {
         this.lobbies.putAll(lobbies);
+    }
+
+    public void update(Update update) {
+
     }
 }

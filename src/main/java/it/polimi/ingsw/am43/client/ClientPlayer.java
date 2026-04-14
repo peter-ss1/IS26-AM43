@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43.model.client;
+package it.polimi.ingsw.am43.client;
 
 import it.polimi.ingsw.am43.model.enums.Color;
 

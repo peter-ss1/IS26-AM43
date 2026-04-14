@@ -21,7 +21,8 @@ public abstract class GameCommand extends Command {
     public static class PickCardCommand extends GameCommand {
         private final int id;
         private final String nickname;
-        public PickCardCommand(int id, String nickname) {
+        public PickCardCommand(int lobbyId, int id, String nickname) {
+            super(lobbyId);
             this.id = id;
             this.nickname = nickname;
         }

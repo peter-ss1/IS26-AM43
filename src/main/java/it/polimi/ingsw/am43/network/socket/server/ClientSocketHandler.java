@@ -2,8 +2,12 @@ package it.polimi.ingsw.am43.network.socket.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.polimi.ingsw.am43.network.Command;
-import it.polimi.ingsw.am43.network.Update;
+import it.polimi.ingsw.am43.controller.ServerController;
+import it.polimi.ingsw.am43.network.command.Command;
+import it.polimi.ingsw.am43.network.command.server.ServerCommand;
+import it.polimi.ingsw.am43.network.message.Message;
+import it.polimi.ingsw.am43.network.message.error.Error;
+import it.polimi.ingsw.am43.network.message.update.Update;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,7 +22,7 @@ public class ClientSocketHandler implements VirtualClientSocket {
     final ObjectMapper mapper;
 
     public ClientSocketHandler(ServerController controller, ServerSocket server, BufferedReader input, PrintWriter output) {
-        this.controller = controller;
+        this.serverController = controller;
         this.server = server;
         this.input = input;
         this.output = output;
@@ -37,7 +41,7 @@ public class ClientSocketHandler implements VirtualClientSocket {
         }
     }
 
-    public void sendUpdate(Update update){
+    public void sendMessage(Message update){
         try {
             String jsonUpdate = mapper.writeValueAsString(update);
             output.println(jsonUpdate);
@@ -45,6 +49,16 @@ public class ClientSocketHandler implements VirtualClientSocket {
     }
 
     public void sendCommand(Command command){
-        this.serverController.sendCommand(command);
+        this.serverController.addToQueue((ServerCommand) command);
+    }
+
+    @Override
+    public void sendMessage(Update update) {
+
+    }
+
+    @Override
+    public void sendMessage(Error error) {
+
     }
 }

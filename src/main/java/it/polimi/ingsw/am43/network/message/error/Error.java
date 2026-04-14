@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am43.network.message.error;
 
 import it.polimi.ingsw.am43.controller.ClientController;
-import it.polimi.ingsw.am43.model.client.ClientModel;
+import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.network.message.Message;
 
 public abstract class Error extends Message {
