@@ -1,0 +1,22 @@
+package it.polimi.ingsw.am43.model.board;
+
+import it.polimi.ingsw.am43.model.cards.Card;
+import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.player.Player;
+
+public interface ModelInterface {
+
+    int getNumPlayers();
+
+    void addPlayer(String nickname, Color color);
+
+    void placeTotemOnTrack(Player player, int position);
+
+    Player getPlayerByName(String name);
+
+    Card getCardById(int id);
+
+    void pickCard(Card card, Player player);
+
+    void endCurrentTurn(Player player);
+}

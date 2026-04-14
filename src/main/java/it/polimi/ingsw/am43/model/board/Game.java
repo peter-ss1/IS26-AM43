@@ -11,8 +11,7 @@ import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.*;
 
-public class Game {
-
+public class Game implements ModelInterface {
     private final List<Color> availableColors;
     private final List<Player> players;
     private final int numPlayers;
@@ -98,7 +97,7 @@ public class Game {
         this.currPlayer = this.board.getNextPlayerInOrderQueue();
     }
 
-    public Player getPlayerByName(String name) throws IllegalArgumentException {
+    public Player getPlayerByName(String name) {
         return players.stream().filter(p -> p.getNickname().equals(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("Player is not registered in the game"));
     }
 
@@ -107,7 +106,7 @@ public class Game {
         return this.idToCard.get(id);
     }
 
-    public void pickCard(Card card, Player player) throws IllegalArgumentException {
+    public void pickCard(Card card, Player player) {
         if (!this.board.containsCard(card)) throw new IllegalArgumentException("Card is not on the board");
         if (!this.players.contains(player))
             throw new IllegalArgumentException(("Player is not registered in the game"));
