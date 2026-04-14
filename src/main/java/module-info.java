@@ -3,7 +3,7 @@ module it.polimi.ingsw.am43 {
     requires javafx.fxml;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
-    requires java.management.rmi;
+    requires java.logging;
 
     opens it.polimi.ingsw.am43 to javafx.fxml;
     exports it.polimi.ingsw.am43.model.player;
