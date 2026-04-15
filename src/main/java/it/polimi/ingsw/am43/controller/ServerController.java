@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class ServerController {
     public final Map<Integer, GameController> lobbies;
     public final List<VirtualClient> clients;
-    public final BlockingQueue<Command> commandQueue;
+    public final BlockingQueue<ServerCommand> commandQueue;
 
     public ServerController() {
         this.lobbies = new HashMap<>();
@@ -26,8 +26,8 @@ public class ServerController {
         new Thread(this::executor).start();
     }
 
-    public void addToQueue(ServerCommand command) {
-        commandQueue.offer(command);
+    public void addToQueue(ServerCommand serverCommand) {
+        commandQueue.offer(serverCommand);
     }
 
     public void addToQueue(GameCommand command) {

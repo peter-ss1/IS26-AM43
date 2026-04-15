@@ -3,21 +3,22 @@ package it.polimi.ingsw.am43.network.socket.server;
 import it.polimi.ingsw.am43.controller.ServerController;
 
 import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ServerSocket{
+public class SocketServer{
 
     final ServerSocket listenSocket;
     final ServerController controller;
 
-    public ServerSocket(ServerSocket listenSocket) {
+    public SocketServer(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
         this.controller = new ServerController();
     }
 
     private void runServer() throws IOException {
         Socket clientSocket = null;
-        /*while ((clientSocket = this.listenSocket.accept()) != null) {
+        while ((clientSocket = this.listenSocket.accept()) != null) {
             InputStreamReader socketRx = new InputStreamReader(clientSocket.getInputStream());
             OutputStreamWriter socketTx = new OutputStreamWriter(clientSocket.getOutputStream());
 
@@ -28,6 +29,7 @@ public class ServerSocket{
                     new PrintWriter(socketTx)
             );
 
+
             new Thread(() -> {
                 try {
                     handler.runVirtualView();
@@ -35,6 +37,6 @@ public class ServerSocket{
                     throw new RuntimeException(e);
                 }
             }).start();
-        }*/
+        }
     }
 }
