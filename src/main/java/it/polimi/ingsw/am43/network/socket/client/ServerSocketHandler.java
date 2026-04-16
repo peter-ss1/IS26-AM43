@@ -4,25 +4,32 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.BufferedWriter;
 import java.io.PrintWriter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am43.network.command.Command;
 import it.polimi.ingsw.am43.network.command.game.GameCommand;
 import it.polimi.ingsw.am43.network.command.server.ServerCommand;
+import it.polimi.ingsw.am43.network.socket.CommandPackageJSON;
+import it.polimi.ingsw.am43.network.socket.UtilsJSON;
 
-public class ServerSocketHandler{
+public class ServerSocketHandler implements VirtualServerSocket{
     final private PrintWriter output;
-    final private ObjectMapper mapper;
 
 
     public ServerSocketHandler(BufferedWriter output) {
         this.output = new PrintWriter(output);
-        this.mapper= new ObjectMapper();
     }
 
-    public void sendCommand(Command command) {
+    public void sendCommand(ServerCommand serverCommand) {
         try {
-            String jsonCommand = mapper.writeValueAsString(command);
-            output.println(jsonCommand);
+            String commandPackage = UtilsJSON.mapper.writeValueAsString(new CommandPackageJSON(serverCommand));
+            output.println(commandPackage);
         }catch (JsonProcessingException e){throw new RuntimeException(e.getMessage());}
     }
+
+    public void sendCommand(GameCommand gameCommand) {
+        try {
+            String commandPackage = UtilsJSON.mapper.writeValueAsString(new CommandPackageJSON(gameCommand));
+            output.println(commandPackage);
+        }catch (JsonProcessingException e){throw new RuntimeException(e.getMessage());}
+    }
+
 }
