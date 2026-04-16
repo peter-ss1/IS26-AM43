@@ -21,6 +21,7 @@ public abstract class GameCommand extends Command {
     public static class PickCardCommand extends GameCommand {
         private final int id;
         private final String nickname;
+
         public PickCardCommand(int lobbyId, int id, String nickname) {
             super(lobbyId);
             this.id = id;
@@ -30,6 +31,36 @@ public abstract class GameCommand extends Command {
         @Override
         public void execute(GameController controller) {
             controller.pickCard(this.id, this.nickname);
+        }
+    }
+
+    public static class PlaceTotemCommand extends GameCommand {
+        private final int position;
+        private final String nickname;
+
+        public PlaceTotemCommand(int lobbyId, int position, String nickname) {
+            super(lobbyId);
+            this.position = position;
+            this.nickname = nickname;
+        }
+
+        @Override
+        public void execute(GameController controller) {
+            controller.placeTotem(position, nickname);
+        }
+    }
+
+    public static class EndTurnCommand extends GameCommand {
+        private final String nickname;
+
+        public EndTurnCommand(int lobbyId, String nickname) {
+            super(lobbyId);
+            this.nickname = nickname;
+        }
+
+        @Override
+        public void execute(GameController controller) {
+            controller.endTurn(nickname);
         }
     }
 }
