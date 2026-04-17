@@ -6,29 +6,27 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class SocketServer{
+public class SocketServer {
 
     final ServerSocket listenSocket;
     final ServerController controller;
 
-    public SocketServer(ServerSocket listenSocket) {
-        this.listenSocket = listenSocket;
-        this.controller = new ServerController();
+    public SocketServer(int port, ServerController controller) throws IOException {
+        this.listenSocket = new ServerSocket(port);
+        this.controller = controller;
     }
 
-    private void runServer() throws IOException {
-        Socket clientSocket = null;
+    public void runServer() throws IOException {
+        Socket clientSocket;
         while ((clientSocket = this.listenSocket.accept()) != null) {
             InputStreamReader socketRx = new InputStreamReader(clientSocket.getInputStream());
             OutputStreamWriter socketTx = new OutputStreamWriter(clientSocket.getOutputStream());
 
             ClientSocketHandler handler = new ClientSocketHandler(
                     this.controller,
-                    this,
                     new BufferedReader(socketRx),
                     new PrintWriter(socketTx)
             );
-
 
             new Thread(() -> {
                 try {
@@ -37,6 +35,8 @@ public class SocketServer{
                     throw new RuntimeException(e);
                 }
             }).start();
+
+            System.out.println("client connected");
         }
     }
 }

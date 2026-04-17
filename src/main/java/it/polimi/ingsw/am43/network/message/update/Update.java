@@ -1,10 +1,13 @@
 package it.polimi.ingsw.am43.network.message.update;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import it.polimi.ingsw.am43.client.ClientModel;
+import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.network.message.Message;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -14,13 +17,13 @@ public abstract class Update extends Message {
     }
 
     public static class AvailableLobbiesUpdate extends Update {
-        private final Map<Integer, Integer> lobbies;
+        private final List<LobbyInfo> lobbies;
 
-        public AvailableLobbiesUpdate(Map<Integer, Integer> lobbies) {
+        public AvailableLobbiesUpdate(List<LobbyInfo> lobbies) {
             this.lobbies = lobbies;
         }
 
-        public Map<Integer, Integer> getLobbies() {
+        public  List<LobbyInfo> getLobbies() {
             return lobbies;
         }
 
@@ -51,7 +54,7 @@ public abstract class Update extends Message {
         @Override
         public void execute(ClientModel model) {
             model.setLobbyId(lobbyId);
-            model.addLobbies(Map.of(lobbyId, expectedPlayers));
+            model.addLobby(new LobbyInfo(lobbyId, expectedPlayers, 1));
         }
     }
 
@@ -81,7 +84,7 @@ public abstract class Update extends Message {
         @Override
         public void execute(ClientModel model) {
             model.setLobbyId(lobbyId);
-            model.addLobbies(Map.of(lobbyId, expectedPlayers));
+            model.addLobby(new LobbyInfo(lobbyId, expectedPlayers, currentPlayers));
         }
     }
 
@@ -220,6 +223,24 @@ public abstract class Update extends Message {
 
         @Override
         public void execute(ClientModel model) {
+        }
+    }
+
+    public static class StringUpdate extends Update {
+        private final String message;
+        public StringUpdate(String message) {
+            super();
+            this.message = message;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.showString(message);
+        }
+
+        @Override
+        public void execute(ClientModel model) {
+
         }
     }
 }

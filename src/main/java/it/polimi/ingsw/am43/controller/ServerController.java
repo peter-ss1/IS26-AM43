@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.controller;
 
+import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.network.VirtualClient;
@@ -9,10 +10,13 @@ import it.polimi.ingsw.am43.network.command.server.ServerCommand;
 import it.polimi.ingsw.am43.network.message.error.Error;
 import it.polimi.ingsw.am43.network.message.update.Update;
 
-import java.util.*;
+import java.rmi.RemoteException;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
 
 /**
  * Global server-side controller.
@@ -20,34 +24,36 @@ import java.util.stream.Collectors;
  * or to a specific GameController.
  */
 public class ServerController {
-    private final Map<Integer, GameController> lobbies;
-    private final List<VirtualClient> clients;
+    private final ConcurrentMap<UUID, ClientInfo> clients;
+    private final ConcurrentMap<Integer, GameController> lobbies;
     private final BlockingQueue<Command> commandQueue;
     private int nextLobbyId;
-    private final Map<UUID, GameController> playerControllers;
 
     public ServerController() {
-        this.lobbies = new HashMap<>();
-        this.clients = new ArrayList<>();
+        this.clients = new ConcurrentHashMap<>();
+        this.lobbies = new ConcurrentHashMap<>();
         this.commandQueue = new LinkedBlockingQueue<>();
-        this.playerControllers = new HashMap<>();
         this.nextLobbyId = 1;
         new Thread(this::executor).start();
     }
 
-    public Map<Integer, GameController> getLobbies() {
-        return lobbies;
-    }
-
-    public List<VirtualClient> getClients() {
-        return clients;
+    public void register(UUID playerId, VirtualClient client) {
+        if (this.clients.containsKey(playerId)) {
+            //TODO: reconnection logic
+        } else {
+            this.clients.put(playerId, new ClientInfo(client, ClientState.CHOOSING, 0));
+        }
     }
 
     public void addToQueue(ServerCommand command) {
         if (command == null) {
             throw new IllegalArgumentException("Command cannot be null");
         }
-        commandQueue.offer(command);
+        try {
+            commandQueue.put(command);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void addToQueue(GameCommand command) {
@@ -55,7 +61,7 @@ public class ServerController {
             throw new IllegalArgumentException("Command cannot be null");
         }
 
-        GameController lobbyController = playerControllers.get(command.getPlayerId());
+        GameController lobbyController = lobbies.get(clients.get(command.getPlayerId()).getLobbyId());
         if (lobbyController == null) {
             throw new IllegalArgumentException("Player " + command.getPlayerId() + " is not registered in any lobby");
         }
@@ -63,7 +69,7 @@ public class ServerController {
         lobbyController.addToQueue(command);
     }
 
-    public void registerPlayerController(UUID playerId, GameController controller) {
+    /*public void registerPlayerController(UUID playerId, GameController controller) {
         if (playerId == null) {
             throw new IllegalArgumentException("Player id cannot be null");
         }
@@ -74,8 +80,8 @@ public class ServerController {
     }
 
     public GameController getControllerByPlayerId(UUID playerId) {
-        return playerControllers.get(playerId);
-    }
+        return lobbies.get(clients.get(playerId).getLobbyId());
+    }*/
 
     private void executor() {
         while (true) {
@@ -87,33 +93,29 @@ public class ServerController {
                 return;
             } catch (RuntimeException e) {
                 e.printStackTrace();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
-    public void addClient(VirtualClient client) {
-        if (client == null) {
-            throw new IllegalArgumentException("Client cannot be null");
-        }
-        clients.add(client);
-    }
-
-    public void sendLobbies(VirtualClient client) {
-        if (client == null) {
+    public void sendLobbies(UUID playerId) {
+        if (playerId == null) {
             throw new IllegalArgumentException("Client cannot be null");
         }
 
-        Map<Integer, Integer> availableLobbies = lobbies.entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> entry.getValue().getNumPlayers()
-                ));
+        List<LobbyInfo> availableLobbies = lobbies.values().stream()
+                .map(game -> new LobbyInfo(game.getLobbyId(), game.getNumPlayers(), game.getCurrentPlayers()))
+                .toList();
 
-        client.sendMessage(new Update.AvailableLobbiesUpdate(availableLobbies));
+        try {
+            clients.get(playerId).getClient().sendMessage(new Update.AvailableLobbiesUpdate(availableLobbies));
+        } catch (java.rmi.RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public int createLobby(String nickname, Color color, int numPlayers) {
+    public void createLobby(UUID playerID, String nickname, Color color, int numPlayers) {
         if (nickname == null || nickname.isBlank()) {
             throw new IllegalArgumentException("Nickname cannot be null or blank");
         }
@@ -126,16 +128,20 @@ public class ServerController {
 
         int lobbyId = nextLobbyId++;
         Game game = new Game(numPlayers, nickname, color);
-        GameController gameController = new GameController(this, game);
+        GameController gameController = new GameController(this, game, lobbyId, clients.get(playerID).getClient(), nickname);
         lobbies.put(lobbyId, gameController);
-        return lobbyId;
+        try {
+            clients.get(playerID).getClient().sendMessage(new Update.LobbyCreatedUpdate(lobbyId, numPlayers));
+        } catch (java.rmi.RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean containsLobby(int lobbyId) {
         return lobbies.containsKey(lobbyId);
     }
 
-    public GameController getLobbyController(int lobbyId) {
+    /*public GameController getLobbyController(int lobbyId) {
         return lobbies.get(lobbyId);
     }
 
@@ -145,32 +151,47 @@ public class ServerController {
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Controller is not registered"));
-    }
+    }*/
 
-    public void registerLobbyCreator(VirtualClient client, int lobbyId, String nickname) {
+    /*public void registerLobbyCreator(VirtualClient client, int lobbyId, String nickname) {
         if (!containsLobby(lobbyId)) {
             client.sendMessage(new Error.LobbyNotFoundError(lobbyId));
             return;
         }
 
         lobbies.get(lobbyId).registerExistingPlayer(client, nickname);
-    }
-
-    public void joinLobby(VirtualClient client, int lobbyId) {
+    }*/
+    //TODO: make it a game command
+    public void joinLobby(UUID playerID, int lobbyId) {
         if (!containsLobby(lobbyId)) {
-            client.sendMessage(new Error.LobbyNotFoundError(lobbyId));
+            try {
+                clients.get(playerID).getClient().sendMessage(new Error.LobbyNotFoundError(lobbyId));
+            } catch (java.rmi.RemoteException e) {
+                throw new RuntimeException(e);
+            }
             return;
         }
 
-        GameController gameController = getLobbyController(lobbyId);
-        client.sendMessage(new Update.LobbyJoinedUpdate(
-                lobbyId,
-                gameController.getNumPlayers(),
-                gameController.getCurrentPlayers()
-        ));
+        GameController gameController = lobbies.get(lobbyId);
+        gameController.addClient(clients.get(playerID).getClient());
+        try {
+            clients.get(playerID).getClient().sendMessage(new Update.LobbyJoinedUpdate(
+                    lobbyId,
+                    gameController.getNumPlayers(),
+                    gameController.getCurrentPlayers()
+            ));
+        } catch (java.rmi.RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void addPlayerToLobby(VirtualClient client, int lobbyId, String nickname, Color color) {
+    public void sendString(UUID playerId, String message) throws RemoteException {
+        System.out.println(message + "from " + playerId);
+        this.clients.get(playerId).getClient().sendMessage(new Update.StringUpdate(message));
+
+    }
+
+    /*public void addPlayerToLobby(VirtualClient client, int lobbyId, String nickname, Color color) {
         if (!containsLobby(lobbyId)) {
             client.sendMessage(new Error.LobbyNotFoundError(lobbyId));
             return;
@@ -183,5 +204,7 @@ public class ServerController {
         if (client != null) {
             client.sendMessage(new Error.GenericServerError(message));
         }
-    }
+    }*/
+
+
 }

@@ -4,7 +4,14 @@ module it.polimi.ingsw.am43 {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
     requires java.logging;
+    requires java.rmi;
 
+
+    exports it.polimi.ingsw.am43.network to java.rmi;
+    exports it.polimi.ingsw.am43.network.message;
+    exports it.polimi.ingsw.am43.network.command;
+    exports it.polimi.ingsw.am43.network.rmi;
+    opens it.polimi.ingsw.am43.network to java.rmi;
     opens it.polimi.ingsw.am43 to javafx.fxml;
     exports it.polimi.ingsw.am43.model.player;
     exports it.polimi.ingsw.am43.model.cards;

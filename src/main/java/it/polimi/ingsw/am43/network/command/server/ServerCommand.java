@@ -8,10 +8,17 @@ import it.polimi.ingsw.am43.network.command.Command;
 import it.polimi.ingsw.am43.network.message.error.Error;
 import it.polimi.ingsw.am43.network.message.update.Update;
 
+import java.rmi.RemoteException;
+import java.util.UUID;
+
 /**
  * Base class for commands handled by the ServerController.
  */
 public abstract class ServerCommand extends Command {
+
+    protected ServerCommand(UUID playerId) {
+        super(playerId);
+    }
 
     @Override
     public void execute(GameController gameController) {
@@ -19,22 +26,14 @@ public abstract class ServerCommand extends Command {
     }
 
     public static class FetchLobbiesCommand extends ServerCommand {
-        private final VirtualClient requester;
 
-        public FetchLobbiesCommand() {
-            this.requester = null;
-        }
-
-        public FetchLobbiesCommand(VirtualClient requester) {
-            this.requester = requester;
+        public FetchLobbiesCommand(UUID playerId) {
+            super(playerId);
         }
 
         @Override
         public void execute(ServerController serverController) {
-            if (requester == null) {
-                return;
-            }
-            serverController.sendLobbies(requester);
+            serverController.sendLobbies(this.getPlayerId());
         }
     }
 
@@ -42,59 +41,66 @@ public abstract class ServerCommand extends Command {
         private final String nickname;
         private final Color color;
         private final int numPlayers;
-        private final VirtualClient requester;
 
-        public CreateLobbyCommand(String nickname, Color color, int numPlayers) {
-            this(nickname, color, numPlayers, null);
-        }
-
-        public CreateLobbyCommand(String nickname, Color color, int numPlayers, VirtualClient requester) {
+        public CreateLobbyCommand(UUID playerId, String nickname, Color color, int numPlayers) {
+            super(playerId);
             this.nickname = nickname;
             this.color = color;
             this.numPlayers = numPlayers;
-            this.requester = requester;
         }
 
         @Override
         public void execute(ServerController controller) {
-            try {
-                int lobbyId = controller.createLobby(nickname, color, numPlayers);
-
+            controller.createLobby(this.getPlayerId(), nickname, color, numPlayers);
+/*
                 if (requester != null) {
-                    requester.sendMessage(new Update.LobbyCreatedUpdate(lobbyId, numPlayers));
                     controller.registerLobbyCreator(requester, lobbyId, nickname);
                 }
             } catch (RuntimeException e) {
                 if (requester != null) {
                     requester.sendMessage(new Error.GenericServerError(e.getMessage()));
                 }
-            }
+            }*/
         }
     }
 
     public static class PickLobbyCommand extends ServerCommand {
         private final int lobbyId;
-        private final VirtualClient requester;
 
-        public PickLobbyCommand(int lobbyId) {
-            this(lobbyId, null);
-        }
-
-        public PickLobbyCommand(int lobbyId, VirtualClient requester) {
+        public PickLobbyCommand(UUID playerId, int lobbyId) {
+            super(playerId);
             this.lobbyId = lobbyId;
-            this.requester = requester;
         }
 
         @Override
         public void execute(ServerController serverController) {
-            if (requester == null) {
-                return;
-            }
-            serverController.joinLobby(requester, lobbyId);
+            serverController.joinLobby(this.getPlayerId(), lobbyId);
         }
     }
 
-    public static class AddPlayerCommand extends ServerCommand {
+    public static class RegisterCommand extends ServerCommand {
+        public RegisterCommand(UUID playerId) {
+            super(playerId);
+        }
+
+        @Override
+        public void execute(ServerController serverController) {
+        }
+    }
+
+    public static class StringCommand extends ServerCommand {
+        private final String message;
+        public StringCommand(UUID playerId, String message) {
+            super(playerId);
+            this.message = message;
+        }
+        @Override
+        public void execute(ServerController serverController) throws RemoteException {
+            serverController.sendString(getPlayerId(), message);
+        }
+    }
+
+    /*public static class AddPlayerCommand extends ServerCommand {
         private final int lobbyId;
         private final String nickname;
         private final Color color;
@@ -118,5 +124,5 @@ public abstract class ServerCommand extends Command {
             }
             serverController.addPlayerToLobby(requester, lobbyId, nickname, color);
         }
-    }
+    }*/
 }

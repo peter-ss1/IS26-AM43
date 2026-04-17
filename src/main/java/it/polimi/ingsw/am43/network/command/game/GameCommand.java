@@ -4,20 +4,17 @@ import it.polimi.ingsw.am43.controller.GameController;
 import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.network.command.Command;
 
+import java.rmi.RemoteException;
 import java.util.UUID;
 
 public abstract class GameCommand extends Command {
-    private final UUID playerId;
 
     protected GameCommand(UUID playerId) {
-        this.playerId = playerId;
+        super(playerId);
     }
 
     @Override
-    public void execute(ServerController serverController) {}
-
-    public UUID getPlayerId() {
-        return playerId;
+    public void execute(ServerController serverController) {
     }
 
     public static class PickCardCommand extends GameCommand {
@@ -31,7 +28,7 @@ public abstract class GameCommand extends Command {
         }
 
         @Override
-        public void execute(GameController controller) {
+        public void execute(GameController controller) throws RemoteException {
             controller.pickCard(this.id, this.nickname);
         }
     }
@@ -47,7 +44,7 @@ public abstract class GameCommand extends Command {
         }
 
         @Override
-        public void execute(GameController controller) {
+        public void execute(GameController controller) throws RemoteException {
             controller.placeTotem(position, nickname);
         }
     }
@@ -61,7 +58,7 @@ public abstract class GameCommand extends Command {
         }
 
         @Override
-        public void execute(GameController controller) {
+        public void execute(GameController controller) throws RemoteException {
             controller.endTurn(nickname);
         }
     }

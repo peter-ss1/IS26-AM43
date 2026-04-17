@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.BufferedWriter;
 import java.io.PrintWriter;
-import it.polimi.ingsw.am43.network.command.Command;
+import java.rmi.RemoteException;
+
 import it.polimi.ingsw.am43.network.command.game.GameCommand;
 import it.polimi.ingsw.am43.network.command.server.ServerCommand;
 import it.polimi.ingsw.am43.network.socket.CommandPackageJSON;
@@ -18,14 +19,14 @@ public class ServerSocketHandler implements VirtualServerSocket{
         this.output = new PrintWriter(output);
     }
 
-    public void sendCommand(ServerCommand serverCommand) {
+    public void sendCommand(ServerCommand serverCommand) throws RemoteException {
         try {
             String commandPackage = UtilsJSON.mapper.writeValueAsString(new CommandPackageJSON(serverCommand));
             output.println(commandPackage);
         }catch (JsonProcessingException e){throw new RuntimeException(e.getMessage());}
     }
 
-    public void sendCommand(GameCommand gameCommand) {
+    public void sendCommand(GameCommand gameCommand) throws RemoteException {
         try {
             String commandPackage = UtilsJSON.mapper.writeValueAsString(new CommandPackageJSON(gameCommand));
             output.println(commandPackage);

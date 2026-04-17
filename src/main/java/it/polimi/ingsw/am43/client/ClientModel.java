@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ClientModel {
-    private final Map<Integer, Integer> lobbies;
+    private final List<LobbyInfo> lobbies;
     private int lobbyId;
     private final List<Color> availableColors;
     private ClientPlayer ownPlayer;
@@ -21,7 +21,7 @@ public class ClientModel {
     private int currentEra;
     private boolean gameStarted;
 
-    public ClientModel(Map<Integer, Integer> lobbies,
+    public ClientModel(List<LobbyInfo> lobbies,
                        int lobbyId,
                        List<Color> availableColors,
                        ClientPlayer ownPlayer,
@@ -31,7 +31,7 @@ public class ClientModel {
                        List<Color> orderQueue,
                        List<Optional<Color>> offerTrack,
                        int currentEra) {
-        this.lobbies = (lobbies == null) ? new HashMap<>() : new HashMap<>(lobbies);
+        this.lobbies = (lobbies == null) ? new ArrayList<>() : new ArrayList<>(lobbies);
         this.lobbyId = lobbyId;
         this.availableColors = (availableColors == null) ? new ArrayList<>() : new ArrayList<>(availableColors);
         this.ownPlayer = ownPlayer;
@@ -142,13 +142,13 @@ public class ClientModel {
         this.gameStarted = gameStarted;
     }
 
-    public Map<Integer, Integer> getLobbies() {
-        return new HashMap<>(lobbies);
+    public List<LobbyInfo> getLobbies() {
+        return new ArrayList<>(lobbies);
     }
 
-    public void addLobbies(Map<Integer, Integer> lobbies) {
+    public void addLobbies(List<LobbyInfo> lobbies) {
         if (lobbies != null) {
-            this.lobbies.putAll(lobbies);
+            this.lobbies.addAll(lobbies);
         }
     }
 
@@ -209,5 +209,9 @@ public class ClientModel {
         }
 
         orderQueue.add(color);
+    }
+
+    public void addLobby(LobbyInfo lobbyInfo) {
+        this.lobbies.add(lobbyInfo);
     }
 }
