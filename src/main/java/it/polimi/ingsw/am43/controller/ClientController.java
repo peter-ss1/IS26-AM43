@@ -8,16 +8,27 @@ import it.polimi.ingsw.am43.network.command.server.ServerCommand;
 import it.polimi.ingsw.am43.network.message.error.Error;
 import it.polimi.ingsw.am43.network.message.update.Update;
 
+import java.util.UUID;
+
 public class ClientController {
     private ClientModel localModel;
     private VirtualServer remoteModel;
     private Error lastError;
+    private UUID playerId;
 
     public ClientController(ClientModel localModel, VirtualServer remoteModel) {
         this.localModel = localModel;
         this.remoteModel = remoteModel;
         this.lastError = null;
+        this.playerId = null;
+    }
 
+    public UUID getPlayerId() {
+        return playerId;
+    }
+
+    public void setPlayerId(UUID playerId) {
+        this.playerId = playerId;
     }
 
     public ClientModel getLocalModel() {
@@ -82,13 +93,17 @@ public class ClientController {
         if (localModel == null) {
             throw new IllegalStateException("Local model is not set");
         }
-        remoteModel.sendCommand(new GameCommand.PickCardCommand(localModel.getLobbyId(), id, nickname));
+        if (playerId == null) {
+            throw new IllegalStateException("Player id is not set");
+        }
+        remoteModel.sendCommand(new GameCommand.PickCardCommand(playerId, id, nickname));
     }
 
     public void handleUpdate(Update update) {
         if (update == null) {
             throw new IllegalArgumentException("Update cannot be null");
         }
+        update.execute(this);
         if (localModel != null) {
             update.execute(localModel);
         }
@@ -105,7 +120,10 @@ public class ClientController {
         if (localModel == null) {
             throw new IllegalStateException("Local model is not set");
         }
-        remoteModel.sendCommand(new GameCommand.PlaceTotemCommand(localModel.getLobbyId(), position, nickname));
+        if (playerId == null) {
+            throw new IllegalStateException("Player id is not set");
+        }
+        remoteModel.sendCommand(new GameCommand.PlaceTotemCommand(playerId, position, nickname));
     }
 
     public void endTurn(String nickname) {
@@ -115,8 +133,9 @@ public class ClientController {
         if (localModel == null) {
             throw new IllegalStateException("Local model is not set");
         }
-        remoteModel.sendCommand(new GameCommand.EndTurnCommand(localModel.getLobbyId(), nickname));
+        if (playerId == null) {
+            throw new IllegalStateException("Player id is not set");
+        }
+        remoteModel.sendCommand(new GameCommand.EndTurnCommand(playerId, nickname));
     }
-
-
 }

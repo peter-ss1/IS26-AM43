@@ -96,11 +96,19 @@ public class GameController {
             client.sendMessage(new Error.GenericServerError("Nickname cannot be null or blank"));
             return;
         }
+
+        UUID playerId = getPlayerIdByNickname(nickname);
+
         if (!containsNickname(nickname)) {
-            UUID playerId = UUID.randomUUID();
+            playerId = UUID.randomUUID();
             clients.put(nickname, client);
             playerIdsToNicknames.put(playerId, nickname);
             nicknamesToPlayerIds.put(nickname, playerId);
+            serverController.registerPlayerController(playerId, this);
+        }
+
+        if (playerId != null) {
+            client.sendMessage(new Update.PlayerIdentityUpdate(playerId));
         }
 
         client.sendMessage(new Update.PlayerAddedUpdate(nickname, model.getPlayerByName(nickname).getColor()));
@@ -147,7 +155,9 @@ public class GameController {
             this.clients.put(nickname, client);
             this.playerIdsToNicknames.put(playerId, nickname);
             this.nicknamesToPlayerIds.put(nickname, playerId);
+            this.serverController.registerPlayerController(playerId, this);
 
+            client.sendMessage(new Update.PlayerIdentityUpdate(playerId));
             broadcast(new Update.PlayerAddedUpdate(nickname, color));
             broadcast(new Update.LobbyJoinedUpdate(getLobbyId(), getNumPlayers(), getCurrentPlayers()));
 

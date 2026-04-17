@@ -4,26 +4,28 @@ import it.polimi.ingsw.am43.controller.GameController;
 import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.network.command.Command;
 
-public abstract class GameCommand extends Command {
-    private final int lobbyId;
+import java.util.UUID;
 
-    protected GameCommand(int lobbyId) {
-        this.lobbyId = lobbyId;
+public abstract class GameCommand extends Command {
+    private final UUID playerId;
+
+    protected GameCommand(UUID playerId) {
+        this.playerId = playerId;
     }
 
     @Override
     public void execute(ServerController serverController) {}
 
-    public int getLobbyId() {
-        return lobbyId;
+    public UUID getPlayerId() {
+        return playerId;
     }
 
     public static class PickCardCommand extends GameCommand {
         private final int id;
         private final String nickname;
 
-        public PickCardCommand(int lobbyId, int id, String nickname) {
-            super(lobbyId);
+        public PickCardCommand(UUID playerId, int id, String nickname) {
+            super(playerId);
             this.id = id;
             this.nickname = nickname;
         }
@@ -38,8 +40,8 @@ public abstract class GameCommand extends Command {
         private final int position;
         private final String nickname;
 
-        public PlaceTotemCommand(int lobbyId, int position, String nickname) {
-            super(lobbyId);
+        public PlaceTotemCommand(UUID playerId, int position, String nickname) {
+            super(playerId);
             this.position = position;
             this.nickname = nickname;
         }
@@ -53,8 +55,8 @@ public abstract class GameCommand extends Command {
     public static class EndTurnCommand extends GameCommand {
         private final String nickname;
 
-        public EndTurnCommand(int lobbyId, String nickname) {
-            super(lobbyId);
+        public EndTurnCommand(UUID playerId, String nickname) {
+            super(playerId);
             this.nickname = nickname;
         }
 

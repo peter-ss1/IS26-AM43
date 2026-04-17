@@ -6,11 +6,11 @@ import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.network.message.Message;
 
 import java.util.Map;
+import java.util.UUID;
 
 public abstract class Update extends Message {
     @Override
     public void execute(ClientController controller) {
-        controller.handleUpdate(this);
     }
 
     public static class AvailableLobbiesUpdate extends Update {
@@ -199,6 +199,27 @@ public abstract class Update extends Message {
         @Override
         public void execute(ClientModel model) {
             model.endTurn(nickname);
+        }
+    }
+
+    public static class PlayerIdentityUpdate extends Update {
+        private final UUID playerId;
+
+        public PlayerIdentityUpdate(UUID playerId) {
+            this.playerId = playerId;
+        }
+
+        public UUID getPlayerId() {
+            return playerId;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.setPlayerId(playerId);
+        }
+
+        @Override
+        public void execute(ClientModel model) {
         }
     }
 }

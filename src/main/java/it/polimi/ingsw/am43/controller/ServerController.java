@@ -9,10 +9,7 @@ import it.polimi.ingsw.am43.network.command.server.ServerCommand;
 import it.polimi.ingsw.am43.network.message.error.Error;
 import it.polimi.ingsw.am43.network.message.update.Update;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
@@ -27,11 +24,13 @@ public class ServerController {
     private final List<VirtualClient> clients;
     private final BlockingQueue<Command> commandQueue;
     private int nextLobbyId;
+    private final Map<UUID, GameController> playerControllers;
 
     public ServerController() {
         this.lobbies = new HashMap<>();
         this.clients = new ArrayList<>();
         this.commandQueue = new LinkedBlockingQueue<>();
+        this.playerControllers = new HashMap<>();
         this.nextLobbyId = 1;
         new Thread(this::executor).start();
     }
@@ -56,12 +55,26 @@ public class ServerController {
             throw new IllegalArgumentException("Command cannot be null");
         }
 
-        GameController lobbyController = lobbies.get(command.getLobbyId());
+        GameController lobbyController = playerControllers.get(command.getPlayerId());
         if (lobbyController == null) {
-            throw new IllegalArgumentException("Lobby " + command.getLobbyId() + " does not exist");
+            throw new IllegalArgumentException("Player " + command.getPlayerId() + " is not registered in any lobby");
         }
 
         lobbyController.addToQueue(command);
+    }
+
+    public void registerPlayerController(UUID playerId, GameController controller) {
+        if (playerId == null) {
+            throw new IllegalArgumentException("Player id cannot be null");
+        }
+        if (controller == null) {
+            throw new IllegalArgumentException("Controller cannot be null");
+        }
+        playerControllers.put(playerId, controller);
+    }
+
+    public GameController getControllerByPlayerId(UUID playerId) {
+        return playerControllers.get(playerId);
     }
 
     private void executor() {
