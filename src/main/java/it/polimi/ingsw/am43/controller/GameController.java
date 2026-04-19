@@ -7,8 +7,8 @@ import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationExceptio
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
 import it.polimi.ingsw.am43.network.VirtualClient;
 import it.polimi.ingsw.am43.network.command.Command;
-import it.polimi.ingsw.am43.network.message.error.Error;
-import it.polimi.ingsw.am43.network.message.update.Update;
+import it.polimi.ingsw.am43.network.message.Error;
+import it.polimi.ingsw.am43.network.message.Update;
 
 import java.rmi.RemoteException;
 import java.util.UUID;
@@ -20,16 +20,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class GameController {
     private final ServerController serverController;
     private final ModelInterface model;
-    private final ConcurrentMap<String, VirtualClient> clients;
+    private final ConcurrentMap<UUID, String> clients;
     private final BlockingQueue<Command> commandQueue;
     private final int lobbyId;
     private boolean gameStarted;
 
-    public GameController(ServerController serverController, ModelInterface model, int lobbyId, VirtualClient client, String nickname) {
+    public GameController(ServerController serverController, ModelInterface model, int lobbyId, String nickname, UUID playerID) {
         this.serverController = serverController;
         this.model = model;
         this.clients = new ConcurrentHashMap<>();
-        this.clients.put(nickname, client);
+        this.clients.put(playerID,nickname);
         this.commandQueue = new LinkedBlockingQueue<>();
         this.lobbyId = lobbyId;
         this.gameStarted = false;
@@ -58,15 +58,7 @@ public class GameController {
         }
     }
 
-    public boolean containsNickname(String nickname) {
-        return clients.containsKey(nickname);
-    }
 
-    public boolean containsColor(Color color) {
-        return clients.keySet().stream()
-                .map(model::getPlayerByName)
-                .anyMatch(player -> player.getColor().equals(color));
-    }
 
     public int getNumPlayers() {
         return this.model.getNumPlayers();
@@ -76,127 +68,23 @@ public class GameController {
         return this.clients.size();
     }
 
-    /*public void registerExistingPlayer(VirtualClient client, String nickname) {
-        if (client == null) {
-            throw new IllegalArgumentException("Client cannot be null");
-        }
-        if (nickname == null || nickname.isBlank()) {
-            client.sendMessage(new Error.GenericServerError("Nickname cannot be null or blank"));
-            return;
-        }
-
-        UUID playerId = getPlayerIdByNickname(nickname);
-
-        if (!containsNickname(nickname)) {
-            playerId = UUID.randomUUID();
-            clients.put(nickname, client);
-            playerIdsToNicknames.put(playerId, nickname);
-            nicknamesToPlayerIds.put(nickname, playerId);
-            serverController.registerPlayerController(playerId, this);
-        }
-
-        if (playerId != null) {
-            client.sendMessage(new Update.PlayerIdentityUpdate(playerId));
-        }
-
-        client.sendMessage(new Update.PlayerAddedUpdate(nickname, model.getPlayerByName(nickname).getColor()));
-        broadcast(new Update.LobbyJoinedUpdate(getLobbyId(), getNumPlayers(), getCurrentPlayers()));
-
-        if (getCurrentPlayers() == getNumPlayers() && !gameStarted) {
-            startGame();
-        }
-    }*/
-
-    public void addPlayer(VirtualClient client, String nickname, Color color) throws RemoteException {
-        if (client == null) {
-            throw new IllegalArgumentException("Client cannot be null");
-        }
-        if (nickname == null || nickname.isBlank()) {
-            try {
-                client.sendMessage(new Error.GenericServerError("Nickname cannot be null or blank"));
-            } catch (java.rmi.RemoteException e) {
-                throw new RuntimeException(e);
-            }
-            return;
-        }
-        if (color == null) {
-            try {
-                client.sendMessage(new Error.GenericServerError("Color cannot be null"));
-            } catch (java.rmi.RemoteException e) {
-                throw new RuntimeException(e);
-            }
-            return;
-        }
-        if (gameStarted) {
-            try {
-                client.sendMessage(new Error.GameAlreadyStartedError());
-            } catch (java.rmi.RemoteException e) {
-                throw new RuntimeException(e);
-            }
-            return;
-        }
-        if (getCurrentPlayers() >= getNumPlayers()) {
-            try {
-                client.sendMessage(new Error.FullLobbyError());
-            } catch (java.rmi.RemoteException e) {
-                throw new RuntimeException(e);
-            }
-            return;
-        }
-        if (containsNickname(nickname)) {
-            try {
-                client.sendMessage(new Error.NicknameAlreadyUsedInLobbyError(nickname));
-            } catch (java.rmi.RemoteException e) {
-                throw new RuntimeException(e);
-            }
-            return;
-        }
-        if (containsColor(color)) {
-            try {
-                client.sendMessage(new Error.ColorAlreadyUsedError(color));
-            } catch (java.rmi.RemoteException e) {
-                throw new RuntimeException(e);
-            }
-            return;
-        }
-
-        try {
-            this.model.addPlayer(nickname, color);
-            UUID playerId = UUID.randomUUID();
-
-            this.clients.put(nickname, client);
-
-            client.sendMessage(new Update.PlayerIdentityUpdate(playerId));
-            broadcast(new Update.PlayerAddedUpdate(nickname, color));
-            broadcast(new Update.LobbyJoinedUpdate(getLobbyId(), getNumPlayers(), getCurrentPlayers()));
-
-            if (getCurrentPlayers() == getNumPlayers() && !gameStarted) {
-                startGame();
-            }
-        } catch (IllegalPlayerInitializationException e) {
-            client.sendMessage(new Error.GenericServerError(e.getMessage()));
-        } catch (RuntimeException e) {
-            client.sendMessage(new Error.GenericServerError(e.getMessage()));
-        } catch (java.rmi.RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void startGame() {
         this.gameStarted = true;
         broadcast(new Update.GameStartedUpdate(getLobbyId()));
     }
 
-    public void pickCard(int id, String nickname) throws RemoteException {
+    public void pickCard(int id, UUID playerID) throws RemoteException {
         try {
+            String nickname=this.clients.get(playerID);
             this.model.pickCard(this.model.getCardById(id), this.model.getPlayerByName(nickname));
-            broadcast(new Update.CardPickedUpdate(nickname, id));
+            this.broadcast(new Update.CardPickedUpdate(nickname, id));
         } catch (IllegalMoveException e) {
-            this.clients.get(nickname).sendMessage(new Error.IllegalMoveError(e.getMessage()));
+            this.serverController.sendMessage(playerID,new Error.IllegalMoveError(e.getMessage()));
         } catch (OutOfTurnException e) {
-            this.clients.get(nickname).sendMessage(new Error.IllegalMoveError(e.getMessage()));
+            this.serverController.sendMessage(playerID,new Error.IllegalMoveError(e.getMessage()));
         } catch (IllegalArgumentException | IllegalStateException e) {
-            this.clients.get(nickname).sendMessage(new Error.GenericServerError(e.getMessage()));
+            this.serverController.sendMessage(playerID,new Error.GenericServerError(e.getMessage()));
         }
     }
 
@@ -205,42 +93,64 @@ public class GameController {
     }
 
     public void broadcast(Update update) {
-        for (VirtualClient client : clients.values()) {
+        for (UUID id : this.clients.keySet()) {
             try {
-                client.sendMessage(update);
+                this.serverController.sendMessage(id,update);
             } catch (java.rmi.RemoteException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    public void placeTotem(int position, String nickname) throws RemoteException {
+    public void placeTotem(int position, UUID playerID) throws RemoteException {
         try {
+            String nickname=this.clients.get(playerID);
             this.model.placeTotemOnTrack(this.model.getPlayerByName(nickname), position);
             broadcast(new Update.TotemPlacedUpdate(nickname, position));
         } catch (OutOfTurnException e) {
-            this.clients.get(nickname).sendMessage(new Error.OutOfTurnError(e.getMessage()));
+            this.serverController.sendMessage(playerID,new Error.OutOfTurnError(e.getMessage()));
         } catch (IllegalStateException e) {
-            this.clients.get(nickname).sendMessage(new Error.WrongPhaseError(e.getMessage()));
+            this.serverController.sendMessage(playerID,new Error.WrongPhaseError(e.getMessage()));
         } catch (IllegalArgumentException e) {
-            this.clients.get(nickname).sendMessage(new Error.InvalidTotemPositionError(position, e.getMessage()));
+            this.serverController.sendMessage(playerID,new Error.InvalidTotemPositionError(position, e.getMessage()));
         }
     }
 
-    public void endTurn(String nickname) throws RemoteException {
+    public void endTurn(UUID playerID) throws RemoteException {
         try {
+            String nickname= this.clients.get(playerID);
             this.model.endCurrentTurn(this.model.getPlayerByName(nickname));
-            broadcast(new Update.TurnEndedUpdate(nickname));
+            this.broadcast(new Update.TurnEndedUpdate(nickname));
         } catch (OutOfTurnException e) {
-            this.clients.get(nickname).sendMessage(new Error.OutOfTurnError(e.getMessage()));
+            this.serverController.sendMessage(playerID,new Error.OutOfTurnError(e.getMessage()));
         } catch (IllegalStateException e) {
-            this.clients.get(nickname).sendMessage(new Error.WrongPhaseError(e.getMessage()));
+            this.serverController.sendMessage(playerID,new Error.WrongPhaseError(e.getMessage()));
         } catch (IllegalArgumentException e) {
-            this.clients.get(nickname).sendMessage(new Error.CannotEndTurnError(e.getMessage()));
+            this.serverController.sendMessage(playerID,new Error.CannotEndTurnError(e.getMessage()));
         }
     }
-
-    public void addClient(VirtualClient client) {
-        this.clients.put("", client);
+    //TODO syncronise methods
+    public void joinLobby(UUID playerID) throws RemoteException{
+        if(gameStarted){
+            this.serverController.sendMessage(playerID,new Error.GameAlreadyStartedError());
+            return;
+        }
+        if(this.clients.size()>=this.model.getNumPlayers())
+            this.serverController.sendMessage(playerID,new Error.FullLobbyError());
+        this.clients.put(playerID,"-");
     }
+    public void joinGame(UUID playerID, String nickname, Color color)throws IllegalArgumentException, RemoteException{
+        if(!this.clients.get(playerID).equals("-")) throw new IllegalArgumentException("player already in game");
+        if(!this.model.getAvailableColors().contains(color)){
+            this.serverController.sendMessage(playerID,new Error.ColorAlreadyUsedError(color));
+            return;
+        }
+        if(this.clients.containsValue(nickname)){
+            this.serverController.sendMessage(playerID,new Error.NicknameAlreadyUsedInLobbyError(nickname));
+            return;
+        }
+        this.model.addPlayer(nickname,color);
+        this.clients.replace(playerID,"-",nickname);
+    }
+
 }

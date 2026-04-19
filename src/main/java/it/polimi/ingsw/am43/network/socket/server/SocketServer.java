@@ -25,7 +25,7 @@ public class SocketServer {
             ClientSocketHandler handler = new ClientSocketHandler(
                     this.controller,
                     new BufferedReader(socketRx),
-                    new PrintWriter(socketTx)
+                    new PrintWriter(socketTx,true)
             );
 
             new Thread(() -> {

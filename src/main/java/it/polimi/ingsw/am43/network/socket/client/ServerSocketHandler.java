@@ -6,8 +6,8 @@ import java.io.BufferedWriter;
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
 
-import it.polimi.ingsw.am43.network.command.game.GameCommand;
-import it.polimi.ingsw.am43.network.command.server.ServerCommand;
+import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.socket.CommandPackageJSON;
 import it.polimi.ingsw.am43.network.socket.UtilsJSON;
 
@@ -16,12 +16,13 @@ public class ServerSocketHandler implements VirtualServerSocket{
 
 
     public ServerSocketHandler(BufferedWriter output) {
-        this.output = new PrintWriter(output);
+        this.output = new PrintWriter(output,true);
     }
 
     public void sendCommand(ServerCommand serverCommand) throws RemoteException {
         try {
             String commandPackage = UtilsJSON.mapper.writeValueAsString(new CommandPackageJSON(serverCommand));
+            System.out.println(commandPackage);
             output.println(commandPackage);
         }catch (JsonProcessingException e){throw new RuntimeException(e.getMessage());}
     }

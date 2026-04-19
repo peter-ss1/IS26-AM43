@@ -3,8 +3,8 @@ package it.polimi.ingsw.am43.network.socket.server;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.network.command.Destination;
-import it.polimi.ingsw.am43.network.command.game.GameCommand;
-import it.polimi.ingsw.am43.network.command.server.ServerCommand;
+import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Message;
 import it.polimi.ingsw.am43.network.socket.CommandPackageJSON;
 import it.polimi.ingsw.am43.network.socket.UtilsJSON;
@@ -30,22 +30,28 @@ public class ClientSocketHandler implements VirtualClientSocket {
     public void runVirtualView() throws IOException {
         String inputData;
         CommandPackageJSON packageJSON;
-
-        if ((inputData = this.input.readLine()) == null) return;
+        System.out.println("ok1");
+        inputData = this.input.readLine();
+        System.out.println("ok2");
         try {
+            System.out.println("ok3");
             packageJSON = UtilsJSON.mapper.readValue(inputData, CommandPackageJSON.class);
             UUID playerId = UtilsJSON.mapper.treeToValue(packageJSON.getCommandJson(), ServerCommand.class).getPlayerId();
             this.serverController.register(playerId, this);
+            System.out.println("ok");
         } catch (JsonProcessingException e) {
-            System.err.println("Handshake failed");
+            System.out.println("Handshake failed");
+            e.printStackTrace();
             return;
         }
 
         while ((inputData = this.input.readLine()) != null) {
             try {
+                System.out.println("ok");
                 packageJSON = UtilsJSON.mapper.readValue(inputData, CommandPackageJSON.class);
                 switch (packageJSON.getDestination()) {
                     case Destination.SERVER:
+                        System.out.println(packageJSON.getCommandJson());
                         this.serverController.addToQueue(UtilsJSON.mapper.treeToValue(packageJSON.getCommandJson(), ServerCommand.class));
                         break;
                     case Destination.GAME:
@@ -58,9 +64,9 @@ public class ClientSocketHandler implements VirtualClientSocket {
         }
     }
 
-    public void sendMessage(Message update) throws RemoteException {
+    public void sendMessage(Message message) throws RemoteException {
         try {
-            String jsonUpdate = UtilsJSON.mapper.writeValueAsString(update);
+            String jsonUpdate = UtilsJSON.mapper.writeValueAsString(message);
             output.println(jsonUpdate);
         } catch (JsonProcessingException e) {
             System.out.println("Parsing error:" + e.getMessage());

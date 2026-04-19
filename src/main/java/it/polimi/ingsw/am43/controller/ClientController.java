@@ -4,13 +4,14 @@ import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.network.VirtualServer;
-import it.polimi.ingsw.am43.network.command.game.GameCommand;
-import it.polimi.ingsw.am43.network.command.server.ServerCommand;
+import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Message;
-import it.polimi.ingsw.am43.network.message.error.Error;
-import it.polimi.ingsw.am43.network.message.update.Update;
+import it.polimi.ingsw.am43.network.message.Error;
+import it.polimi.ingsw.am43.network.message.Update;
 import it.polimi.ingsw.am43.network.rmi.ClientRMI;
 import it.polimi.ingsw.am43.network.rmi.VirtualServerRMI;
+import it.polimi.ingsw.am43.network.socket.client.ServerSocketHandler;
 import it.polimi.ingsw.am43.network.socket.client.SocketClient;
 
 import java.io.*;
@@ -112,8 +113,8 @@ public class ClientController {
 
             InputStreamReader socketRx = new InputStreamReader(serverSocket.getInputStream());
             OutputStreamWriter socketTx = new OutputStreamWriter(serverSocket.getOutputStream());
-
-            new SocketClient(new BufferedReader(socketRx), new BufferedWriter(socketTx), this).run();
+            this.remoteModel= new ServerSocketHandler(new BufferedWriter(socketTx));
+            new SocketClient(new BufferedReader(socketRx),this).run();
             this.remoteModel.sendCommand(new ServerCommand.RegisterCommand(this.playerId));
         }
     }
@@ -155,7 +156,7 @@ public class ClientController {
         remoteModel.sendCommand(new ServerCommand.AddPlayerCommand(this.playerId, lobbyId, nickname, color));
     }*/
 
-    public void pickCard(int id, String nickname) {
+    public void pickCard(int id) {
         if (remoteModel == null) {
             throw new IllegalStateException("Remote model is not set");
         }
@@ -166,7 +167,7 @@ public class ClientController {
             throw new IllegalStateException("Player id is not set");
         }
         try {
-            remoteModel.sendCommand(new GameCommand.PickCardCommand(playerId, id, nickname));
+            remoteModel.sendCommand(new GameCommand.PickCardCommand(this.playerId, id));
         } catch (java.rmi.RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -186,7 +187,7 @@ public class ClientController {
         this.lastError = error;
     }
 
-    public void placeTotem(int position, String nickname) {
+    public void placeTotem(int position) {
         if (remoteModel == null) {
             throw new IllegalStateException("Remote model is not set");
         }
@@ -197,13 +198,13 @@ public class ClientController {
             throw new IllegalStateException("Player id is not set");
         }
         try {
-            remoteModel.sendCommand(new GameCommand.PlaceTotemCommand(playerId, position, nickname));
+            remoteModel.sendCommand(new GameCommand.PlaceTotemCommand(this.playerId, position));
         } catch (java.rmi.RemoteException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void endTurn(String nickname) {
+    public void endTurn() {
         if (remoteModel == null) {
             throw new IllegalStateException("Remote model is not set");
         }
@@ -214,7 +215,7 @@ public class ClientController {
             throw new IllegalStateException("Player id is not set");
         }
         try {
-            remoteModel.sendCommand(new GameCommand.EndTurnCommand(playerId, nickname));
+            remoteModel.sendCommand(new GameCommand.EndTurnCommand(this.playerId));
         } catch (java.rmi.RemoteException e) {
             throw new RuntimeException(e);
         }

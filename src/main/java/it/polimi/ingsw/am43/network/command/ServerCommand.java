@@ -1,19 +1,31 @@
-package it.polimi.ingsw.am43.network.command.server;
+package it.polimi.ingsw.am43.network.command;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am43.controller.GameController;
 import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.VirtualClient;
-import it.polimi.ingsw.am43.network.command.Command;
-import it.polimi.ingsw.am43.network.message.error.Error;
-import it.polimi.ingsw.am43.network.message.update.Update;
 
 import java.rmi.RemoteException;
 import java.util.UUID;
+import it.polimi.ingsw.am43.network.command.ServerCommand.*;
 
 /**
  * Base class for commands handled by the ServerController.
  */
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "commandType"
+)
+
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = RegisterCommand.class, name = "registerCommand"),
+        @JsonSubTypes.Type(value = StringCommand.class, name = "stringCommand")
+})
+
 public abstract class ServerCommand extends Command {
 
     protected ServerCommand(UUID playerId) {
@@ -27,7 +39,7 @@ public abstract class ServerCommand extends Command {
 
     public static class FetchLobbiesCommand extends ServerCommand {
 
-        public FetchLobbiesCommand(UUID playerId) {
+        public FetchLobbiesCommand(@JsonProperty("playerID")UUID playerId) {
             super(playerId);
         }
 
@@ -38,11 +50,14 @@ public abstract class ServerCommand extends Command {
     }
 
     public static class CreateLobbyCommand extends ServerCommand {
+        @JsonProperty("nickname")
         private final String nickname;
+        @JsonProperty("color")
         private final Color color;
+        @JsonProperty("numPlayer")
         private final int numPlayers;
 
-        public CreateLobbyCommand(UUID playerId, String nickname, Color color, int numPlayers) {
+        public CreateLobbyCommand(@JsonProperty("playerId")UUID playerId,@JsonProperty("nickname") String nickname,@JsonProperty("color") Color color,@JsonProperty("numPlayer") int numPlayers) {
             super(playerId);
             this.nickname = nickname;
             this.color = color;
@@ -51,35 +66,27 @@ public abstract class ServerCommand extends Command {
 
         @Override
         public void execute(ServerController controller) {
-            controller.createLobby(this.getPlayerId(), nickname, color, numPlayers);
-/*
-                if (requester != null) {
-                    controller.registerLobbyCreator(requester, lobbyId, nickname);
-                }
-            } catch (RuntimeException e) {
-                if (requester != null) {
-                    requester.sendMessage(new Error.GenericServerError(e.getMessage()));
-                }
-            }*/
+            controller.createLobby(this.playerId, this.nickname, this.color, this.numPlayers);
         }
     }
 
     public static class PickLobbyCommand extends ServerCommand {
+        @JsonProperty("lobbyId")
         private final int lobbyId;
 
-        public PickLobbyCommand(UUID playerId, int lobbyId) {
+        public PickLobbyCommand(@JsonProperty("playerId")UUID playerId,@JsonProperty("lobbyId") int lobbyId) {
             super(playerId);
             this.lobbyId = lobbyId;
         }
 
         @Override
         public void execute(ServerController serverController) {
-            serverController.joinLobby(this.getPlayerId(), lobbyId);
+            serverController.joinLobby(this.playerId, this.lobbyId);
         }
     }
 
     public static class RegisterCommand extends ServerCommand {
-        public RegisterCommand(UUID playerId) {
+        public RegisterCommand(@JsonProperty("playerId")UUID playerId) {
             super(playerId);
         }
 
@@ -89,8 +96,11 @@ public abstract class ServerCommand extends Command {
     }
 
     public static class StringCommand extends ServerCommand {
+
+        @JsonProperty("message")
         private final String message;
-        public StringCommand(UUID playerId, String message) {
+
+        public StringCommand(@JsonProperty("playerId")UUID playerId,@JsonProperty("message") String message) {
             super(playerId);
             this.message = message;
         }
@@ -100,29 +110,5 @@ public abstract class ServerCommand extends Command {
         }
     }
 
-    /*public static class AddPlayerCommand extends ServerCommand {
-        private final int lobbyId;
-        private final String nickname;
-        private final Color color;
-        private final VirtualClient requester;
 
-        public AddPlayerCommand(int lobbyId, String nickname, Color color) {
-            this(lobbyId, nickname, color, null);
-        }
-
-        public AddPlayerCommand(int lobbyId, String nickname, Color color, VirtualClient requester) {
-            this.lobbyId = lobbyId;
-            this.nickname = nickname;
-            this.color = color;
-            this.requester = requester;
-        }
-
-        @Override
-        public void execute(ServerController serverController) {
-            if (requester == null) {
-                return;
-            }
-            serverController.addPlayerToLobby(requester, lobbyId, nickname, color);
-        }
-    }*/
 }

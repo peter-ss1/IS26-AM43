@@ -4,6 +4,8 @@ import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 
+import java.util.List;
+
 public interface ModelInterface {
 
     int getNumPlayers();
@@ -19,4 +21,6 @@ public interface ModelInterface {
     void pickCard(Card card, Player player);
 
     void endCurrentTurn(Player player);
+
+    List<Color> getAvailableColors();
 }

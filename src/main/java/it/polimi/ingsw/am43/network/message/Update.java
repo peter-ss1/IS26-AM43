@@ -1,15 +1,26 @@
-package it.polimi.ingsw.am43.network.message.update;
+package it.polimi.ingsw.am43.network.message;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.message.Message;
+import it.polimi.ingsw.am43.network.command.ServerCommand;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "messageType"
+)
+
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Update.StringUpdate.class, name = "stringUpdate"),
+})
 
 public abstract class Update extends Message {
     @Override
@@ -227,8 +238,10 @@ public abstract class Update extends Message {
     }
 
     public static class StringUpdate extends Update {
+
+        @JsonProperty("message")
         private final String message;
-        public StringUpdate(String message) {
+        public StringUpdate(@JsonProperty("message")String message) {
             super();
             this.message = message;
         }

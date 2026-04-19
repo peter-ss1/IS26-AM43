@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am43.network.rmi;
 
 import it.polimi.ingsw.am43.controller.ServerController;
-import it.polimi.ingsw.am43.network.command.game.GameCommand;
-import it.polimi.ingsw.am43.network.command.server.ServerCommand;
+import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.ServerCommand;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;

@@ -18,6 +18,9 @@ module it.polimi.ingsw.am43 {
     opens it.polimi.ingsw.am43.model.cards to javafx.fxml, com.fasterxml.jackson.databind;
     exports it.polimi.ingsw.am43.model.board;
     opens it.polimi.ingsw.am43.model.board to javafx.fxml;
+    opens it.polimi.ingsw.am43.network.socket to com.fasterxml.jackson.databind;
+    opens it.polimi.ingsw.am43.network.command to com.fasterxml.jackson.databind;
+    opens it.polimi.ingsw.am43.network.message to com.fasterxml.jackson.databind;
 
     opens it.polimi.ingsw.am43.model.utils.DTOs to com.fasterxml.jackson.databind;
 

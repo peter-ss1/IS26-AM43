@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.network.command;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am43.controller.GameController;
 import it.polimi.ingsw.am43.controller.ServerController;
 
@@ -8,7 +9,7 @@ import java.rmi.RemoteException;
 import java.util.UUID;
 
 public abstract class Command implements Serializable {
-    private final UUID playerId;
+    protected final UUID playerId;
 
     protected Command(UUID playerId) {
         this.playerId = playerId;

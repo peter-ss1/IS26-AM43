@@ -5,10 +5,11 @@ import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.network.VirtualClient;
 import it.polimi.ingsw.am43.network.command.Command;
-import it.polimi.ingsw.am43.network.command.game.GameCommand;
-import it.polimi.ingsw.am43.network.command.server.ServerCommand;
-import it.polimi.ingsw.am43.network.message.error.Error;
-import it.polimi.ingsw.am43.network.message.update.Update;
+import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.ServerCommand;
+import it.polimi.ingsw.am43.network.message.Error;
+import it.polimi.ingsw.am43.network.message.Message;
+import it.polimi.ingsw.am43.network.message.Update;
 
 import java.rmi.RemoteException;
 import java.util.List;
@@ -69,19 +70,6 @@ public class ServerController {
         lobbyController.addToQueue(command);
     }
 
-    /*public void registerPlayerController(UUID playerId, GameController controller) {
-        if (playerId == null) {
-            throw new IllegalArgumentException("Player id cannot be null");
-        }
-        if (controller == null) {
-            throw new IllegalArgumentException("Controller cannot be null");
-        }
-        playerControllers.put(playerId, controller);
-    }
-
-    public GameController getControllerByPlayerId(UUID playerId) {
-        return lobbies.get(clients.get(playerId).getLobbyId());
-    }*/
 
     private void executor() {
         while (true) {
@@ -128,7 +116,7 @@ public class ServerController {
 
         int lobbyId = nextLobbyId++;
         Game game = new Game(numPlayers, nickname, color);
-        GameController gameController = new GameController(this, game, lobbyId, clients.get(playerID).getClient(), nickname);
+        GameController gameController = new GameController(this, game, lobbyId, nickname,playerID);
         lobbies.put(lobbyId, gameController);
         try {
             clients.get(playerID).getClient().sendMessage(new Update.LobbyCreatedUpdate(lobbyId, numPlayers));
@@ -137,33 +125,11 @@ public class ServerController {
         }
     }
 
-    public boolean containsLobby(int lobbyId) {
-        return lobbies.containsKey(lobbyId);
-    }
 
-    /*public GameController getLobbyController(int lobbyId) {
-        return lobbies.get(lobbyId);
-    }
 
-    public int getLobbyIdByController(GameController controller) {
-        return lobbies.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(controller))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Controller is not registered"));
-    }*/
-
-    /*public void registerLobbyCreator(VirtualClient client, int lobbyId, String nickname) {
-        if (!containsLobby(lobbyId)) {
-            client.sendMessage(new Error.LobbyNotFoundError(lobbyId));
-            return;
-        }
-
-        lobbies.get(lobbyId).registerExistingPlayer(client, nickname);
-    }*/
     //TODO: make it a game command
-    public void joinLobby(UUID playerID, int lobbyId) {
-        if (!containsLobby(lobbyId)) {
+    public void joinLobby(UUID playerID, int lobbyId){
+        if (!this.lobbies.containsKey(lobbyId)) {
             try {
                 clients.get(playerID).getClient().sendMessage(new Error.LobbyNotFoundError(lobbyId));
             } catch (java.rmi.RemoteException e) {
@@ -171,9 +137,12 @@ public class ServerController {
             }
             return;
         }
-
         GameController gameController = lobbies.get(lobbyId);
-        gameController.addClient(clients.get(playerID).getClient());
+        try{
+            gameController.joinLobby(playerID);
+        }catch (RemoteException e){throw new RuntimeException(e);}
+        clients.get(playerID).setLobbyId(lobbyId);
+        clients.get(playerID).setState(ClientState.PLAYING);
         try {
             clients.get(playerID).getClient().sendMessage(new Update.LobbyJoinedUpdate(
                     lobbyId,
@@ -185,26 +154,20 @@ public class ServerController {
         }
     }
 
+    //TODO remove
     public void sendString(UUID playerId, String message) throws RemoteException {
         System.out.println(message + "from " + playerId);
         this.clients.get(playerId).getClient().sendMessage(new Update.StringUpdate(message));
 
     }
 
-    /*public void addPlayerToLobby(VirtualClient client, int lobbyId, String nickname, Color color) {
-        if (!containsLobby(lobbyId)) {
-            client.sendMessage(new Error.LobbyNotFoundError(lobbyId));
-            return;
-        }
-
-        lobbies.get(lobbyId).addPlayer(client, nickname, color);
+    private VirtualClient getClientByID(UUID playerID) throws IllegalArgumentException{
+        if (!this.clients.containsKey(playerID)) throw new IllegalArgumentException("player not registered");
+        return this.clients.get(playerID).getClient();
     }
-
-    public void notifyError(VirtualClient client, String message) {
-        if (client != null) {
-            client.sendMessage(new Error.GenericServerError(message));
-        }
-    }*/
+    public void sendMessage(UUID playerID, Message message) throws RemoteException{
+        this.getClientByID(playerID).sendMessage(message);
+    }
 
 
 }

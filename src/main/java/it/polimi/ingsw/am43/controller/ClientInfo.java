@@ -4,7 +4,7 @@ import it.polimi.ingsw.am43.network.VirtualClient;
 
 public class ClientInfo {
     private final VirtualClient client;
-    private final ClientState state;
+    private ClientState state;
     private int lobbyId;
 
     public ClientInfo(VirtualClient client, ClientState state, int lobbyId) {
@@ -19,6 +19,9 @@ public class ClientInfo {
 
     public ClientState getState() {
         return state;
+    }
+    public void setState(ClientState clientState){
+        this.state=clientState;
     }
 
     public int getLobbyId() {
