@@ -30,8 +30,6 @@ public enum GamePhase {
             game.setIdCard(loader.loadIdToCardMap());
             game.setPhase(GamePhase.OFFER_TRACK_SELECTION);
         }
-
-        ;
     },
     OFFER_TRACK_SELECTION {
         @Override
@@ -81,6 +79,7 @@ public enum GamePhase {
             game.getPhase().resolvePhase(game, board);
         }
     },
+
     FINAL_COUNT {
         @Override
         public void resolvePhase(Game game, Board board) {
@@ -91,6 +90,4 @@ public enum GamePhase {
 
     public void resolvePhase(Game game, Board board) throws RuntimeException {
     }
-
-    ;
 }
