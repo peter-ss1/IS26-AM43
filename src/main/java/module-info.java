@@ -5,6 +5,7 @@ module it.polimi.ingsw.am43 {
     requires com.fasterxml.jackson.databind;
     requires java.logging;
     requires java.rmi;
+    requires java.desktop;
 
 
     exports it.polimi.ingsw.am43.network to java.rmi;
@@ -21,6 +22,7 @@ module it.polimi.ingsw.am43 {
     opens it.polimi.ingsw.am43.network.socket to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.am43.network.command to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.am43.network.message to com.fasterxml.jackson.databind;
+    opens it.polimi.ingsw.am43.client to com.fasterxml.jackson.databind;
 
     opens it.polimi.ingsw.am43.model.utils.DTOs to com.fasterxml.jackson.databind;
 

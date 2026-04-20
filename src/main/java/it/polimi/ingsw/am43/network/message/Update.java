@@ -2,123 +2,105 @@ package it.polimi.ingsw.am43.network.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import it.polimi.ingsw.am43.client.ClientModel;
+import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.command.ServerCommand;
 
 import java.util.List;
-import java.util.UUID;
-
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "messageType"
-)
 
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Update.StringUpdate.class, name = "stringUpdate"),
+        @JsonSubTypes.Type(value = Update.AvailableLobbiesUpdate.class, name = "availableLobbiesUpdate"),
+        @JsonSubTypes.Type(value = Update.LobbyCreatedUpdate.class, name = "lobbyCreatedUpdate"),
+        @JsonSubTypes.Type(value = Update.LobbyJoinedUpdate.class, name = "lobbyJoinedUpdate"),
+        @JsonSubTypes.Type(value = Update.NewLobbyUpdate.class, name = "newLobbyUpdate"),
+        @JsonSubTypes.Type(value = Update.GameJoinedUpdate.class, name = "gameJoinedUpdate"),
+        @JsonSubTypes.Type(value = Update.PlayerAddedUpdate.class, name = "playerAddedUpdate"),
+        @JsonSubTypes.Type(value = Update.GameStartedUpdate.class, name = "gameStaredUpdate"),
 })
 
 public abstract class Update extends Message {
-    @Override
-    public void execute(ClientController controller) {
-    }
 
     public static class AvailableLobbiesUpdate extends Update {
+        @JsonProperty("lobbies")
         private final List<LobbyInfo> lobbies;
 
-        public AvailableLobbiesUpdate(List<LobbyInfo> lobbies) {
+        public AvailableLobbiesUpdate(@JsonProperty("lobbies") List<LobbyInfo> lobbies) {
             this.lobbies = lobbies;
         }
 
-        public  List<LobbyInfo> getLobbies() {
-            return lobbies;
-        }
-
         @Override
-        public void execute(ClientModel model) {
-            model.clearLobbies();
-            model.addLobbies(this.lobbies);
+        public void execute(ClientController controller) {
+            controller.getLocalModel().refreshLobbies(this.lobbies);
         }
     }
 
     public static class LobbyCreatedUpdate extends Update {
-        private final int lobbyId;
-        private final int expectedPlayers;
-
-        public LobbyCreatedUpdate(int lobbyId, int expectedPlayers) {
-            this.lobbyId = lobbyId;
-            this.expectedPlayers = expectedPlayers;
-        }
-
-        public int getLobbyId() {
-            return lobbyId;
-        }
-
-        public int getExpectedPlayers() {
-            return expectedPlayers;
-        }
-
-        @Override
-        public void execute(ClientModel model) {
-            model.setLobbyId(lobbyId);
-            model.addLobby(new LobbyInfo(lobbyId, expectedPlayers, 1));
-        }
-    }
-
-    public static class LobbyJoinedUpdate extends Update {
-        private final int lobbyId;
-        private final int expectedPlayers;
-        private final int currentPlayers;
-
-        public LobbyJoinedUpdate(int lobbyId, int expectedPlayers, int currentPlayers) {
-            this.lobbyId = lobbyId;
-            this.expectedPlayers = expectedPlayers;
-            this.currentPlayers = currentPlayers;
-        }
-
-        public int getLobbyId() {
-            return lobbyId;
-        }
-
-        public int getExpectedPlayers() {
-            return expectedPlayers;
-        }
-
-        public int getCurrentPlayers() {
-            return currentPlayers;
-        }
-
-        @Override
-        public void execute(ClientModel model) {
-            model.setLobbyId(lobbyId);
-            model.addLobby(new LobbyInfo(lobbyId, expectedPlayers, currentPlayers));
-        }
-    }
-
-    public static class PlayerAddedUpdate extends Update {
+        @JsonProperty("lobby")
+        private final LobbyInfo lobby;
+        @JsonProperty("nickname")
         private final String nickname;
+        @JsonProperty("color")
         private final Color color;
 
-        public PlayerAddedUpdate(String nickname, Color color) {
+        public LobbyCreatedUpdate(@JsonProperty("lobby") LobbyInfo lobbyInfo, @JsonProperty("nickname") String nickname, @JsonProperty("color") Color color) {
+            this.lobby = lobbyInfo;
             this.nickname = nickname;
             this.color = color;
         }
 
-        public String getNickname() {
-            return nickname;
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().setOwnPlayer(new ClientPlayer(this.nickname, this.color));
+            controller.getLocalModel().setOwnLobby(this.lobby);
         }
+    }
 
-        public Color getColor() {
-            return color;
+    public static class LobbyJoinedUpdate extends Update {
+        @JsonProperty("lobby")
+        private final LobbyInfo lobby;
+
+        public LobbyJoinedUpdate(@JsonProperty("lobby") LobbyInfo lobby) {
+            this.lobby = lobby;
         }
 
         @Override
-        public void execute(ClientModel model) {
-            model.addOrUpdatePlayer(nickname, color);
+        public void execute(ClientController controller) {
+            controller.getLocalModel().setOwnLobby(this.lobby);
+        }
+    }
+
+    public static class GameJoinedUpdate extends Update {
+        @JsonProperty("nickname")
+        private final String nickname;
+        @JsonProperty("color")
+        private final Color color;
+
+        public GameJoinedUpdate(@JsonProperty("nickname") String nickname,@JsonProperty("color") Color color) {
+            this.nickname = nickname;
+            this.color = color;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().setOwnPlayer(new ClientPlayer(nickname, color));
+        }
+    }
+
+    public static class PlayerAddedUpdate extends Update {
+        @JsonProperty("nickname")
+        private final String nickname;
+        @JsonProperty("color")
+        private final Color color;
+
+        public PlayerAddedUpdate(@JsonProperty("nickname") String nickname,@JsonProperty("color") Color color) {
+            this.nickname = nickname;
+            this.color = color;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().addPlayer(nickname, color);
         }
     }
 
@@ -140,39 +122,21 @@ public abstract class Update extends Message {
         }
 
         @Override
-        public void execute(ClientModel model) {
-            if (model.getTopRowCards().contains(cardId)) {
-                var top = model.getTopRowCards();
+        public void execute(ClientController controller) {
+            if (controller.getLocalModel().getTopRowCards().contains(cardId)) {
+                var top = controller.getLocalModel().getTopRowCards();
                 top.remove(Integer.valueOf(cardId));
-                model.setTopRowCards(top);
-            } else if (model.getBottomRowCards().contains(cardId)) {
-                var bottom = model.getBottomRowCards();
+                controller.getLocalModel().setTopRowCards(top);
+            } else if (controller.getLocalModel().getBottomRowCards().contains(cardId)) {
+                var bottom = controller.getLocalModel().getBottomRowCards();
                 bottom.remove(Integer.valueOf(cardId));
-                model.setBottomRowCards(bottom);
+                controller.getLocalModel().setBottomRowCards(bottom);
             }
 
-            var player = model.getPlayerByNickname(nickname);
+            var player = controller.getLocalModel().getPlayerByNickname(nickname);
             if (player != null) {
                 player.updateTribe(cardId);
             }
-        }
-    }
-
-    public static class GameStartedUpdate extends Update {
-        private final int lobbyId;
-
-        public GameStartedUpdate(int lobbyId) {
-            this.lobbyId = lobbyId;
-        }
-
-        public int getLobbyId() {
-            return lobbyId;
-        }
-
-        @Override
-        public void execute(ClientModel model) {
-            model.setLobbyId(lobbyId);
-            model.setGameStarted(true);
         }
     }
 
@@ -194,8 +158,8 @@ public abstract class Update extends Message {
         }
 
         @Override
-        public void execute(ClientModel model) {
-            model.placeTotem(nickname, position);
+        public void execute(ClientController controller) {
+            controller.getLocalModel().placeTotem(nickname, position);
         }
     }
 
@@ -211,49 +175,39 @@ public abstract class Update extends Message {
         }
 
         @Override
-        public void execute(ClientModel model) {
-            model.endTurn(nickname);
+        public void execute(ClientController controller) {
+            controller.getLocalModel().endTurn(nickname);
         }
     }
 
-    public static class PlayerIdentityUpdate extends Update {
-        private final UUID playerId;
+    public static class NewLobbyUpdate extends Message {
+        @JsonProperty("lobby")
+        private final LobbyInfo lobby;
 
-        public PlayerIdentityUpdate(UUID playerId) {
-            this.playerId = playerId;
-        }
-
-        public UUID getPlayerId() {
-            return playerId;
+        public NewLobbyUpdate(@JsonProperty("lobby") LobbyInfo lobbyInfo) {
+            this.lobby = lobbyInfo;
         }
 
         @Override
         public void execute(ClientController controller) {
-            controller.setPlayerId(playerId);
-        }
-
-        @Override
-        public void execute(ClientModel model) {
+            controller.getLocalModel().addLobby(lobby);
         }
     }
 
-    public static class StringUpdate extends Update {
+    public static class GameStartedUpdate extends Update {
+        @JsonProperty("nickname")
+        private final String firstPlayerNickname;
+        @JsonProperty("cards")
+        private final List<Integer> visibleIds;
 
-        @JsonProperty("message")
-        private final String message;
-        public StringUpdate(@JsonProperty("message")String message) {
-            super();
-            this.message = message;
+        public GameStartedUpdate(@JsonProperty("nickname") String nickname,@JsonProperty("cards") List<Integer> visibleIds) {
+            this.firstPlayerNickname = nickname;
+            this.visibleIds = visibleIds;
         }
 
         @Override
         public void execute(ClientController controller) {
-            controller.showString(message);
-        }
-
-        @Override
-        public void execute(ClientModel model) {
-
+            controller.getLocalModel().startGame(firstPlayerNickname, visibleIds);
         }
     }
 }

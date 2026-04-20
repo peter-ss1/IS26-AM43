@@ -1,25 +1,43 @@
 package it.polimi.ingsw.am43.client;
 
+import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class ClientModel {
-    private final List<LobbyInfo> lobbies;
-    private int lobbyId;
-    private final List<Color> availableColors;
+    private List<LobbyInfo> lobbies;
+    private LobbyInfo ownLobby;
+    private List<Color> availableColors;
     private ClientPlayer ownPlayer;
-    private final List<ClientPlayer> players;
-    private final List<Integer> topRowCards;
-    private final List<Integer> bottomRowCards;
-    private final List<Color> orderQueue;
-    private final List<Optional<Color>> offerTrack;
+    private List<ClientPlayer> otherPlayers;
+    private List<Integer> topRowCards;
+    private List<Integer> bottomRowCards;
+    private List<Color> orderQueue;
+    private List<Optional<Color>> offerTrack;
     private int currentEra;
     private boolean gameStarted;
+    private String currPlayerNickname;
+
+    private UI ui;
+
+    public ClientModel(UI ui) {
+        this.lobbies = new ArrayList<>();
+        this.ownLobby = new LobbyInfo(0, 0, 0);
+        this.availableColors = new ArrayList<>();
+        this.ownPlayer = null;
+        this.otherPlayers = new ArrayList<>();
+        this.topRowCards = new ArrayList<>();
+        this.bottomRowCards = new ArrayList<>();
+        this.orderQueue = new ArrayList<>();
+        this.offerTrack = new ArrayList<>();
+        this.currentEra = 0;
+        this.gameStarted = false;
+        this.ui = ui;
+        this.currPlayerNickname = "";
+    }
 
     public ClientModel(List<LobbyInfo> lobbies,
                        int lobbyId,
@@ -32,10 +50,10 @@ public class ClientModel {
                        List<Optional<Color>> offerTrack,
                        int currentEra) {
         this.lobbies = (lobbies == null) ? new ArrayList<>() : new ArrayList<>(lobbies);
-        this.lobbyId = lobbyId;
+        this.ownLobby = new LobbyInfo(lobbyId, 0, 0);
         this.availableColors = (availableColors == null) ? new ArrayList<>() : new ArrayList<>(availableColors);
         this.ownPlayer = ownPlayer;
-        this.players = (players == null) ? new ArrayList<>() : new ArrayList<>(players);
+        this.otherPlayers = (players == null) ? new ArrayList<>() : new ArrayList<>(players);
         this.topRowCards = (topRowCards == null) ? new ArrayList<>() : new ArrayList<>(topRowCards);
         this.bottomRowCards = (bottomRowCards == null) ? new ArrayList<>() : new ArrayList<>(bottomRowCards);
         this.orderQueue = (orderQueue == null) ? new ArrayList<>() : new ArrayList<>(orderQueue);
@@ -44,12 +62,19 @@ public class ClientModel {
         this.gameStarted = false;
     }
 
-    public int getLobbyId() {
-        return lobbyId;
+    public void refreshLobbies(List<LobbyInfo> lobbies) {
+        this.lobbies.clear();
+        this.lobbies.addAll(lobbies);
+        this.ui.lobbyUpdate();
     }
 
-    public void setLobbyId(int lobbyId) {
-        this.lobbyId = lobbyId;
+    public LobbyInfo getOwnLobby() {
+        return ownLobby;
+    }
+
+    public void setOwnLobby(LobbyInfo ownLobby) {
+        this.ownLobby = ownLobby;
+        ui.enterLobby();
     }
 
     public List<Color> getAvailableColors() {
@@ -69,16 +94,17 @@ public class ClientModel {
 
     public void setOwnPlayer(ClientPlayer ownPlayer) {
         this.ownPlayer = ownPlayer;
+        this.ui.showPlayer();
     }
 
-    public List<ClientPlayer> getPlayers() {
-        return new ArrayList<>(players);
+    public List<ClientPlayer> getOtherPlayers() {
+        return new ArrayList<>(otherPlayers);
     }
 
-    public void setPlayers(List<ClientPlayer> players) {
-        this.players.clear();
-        if (players != null) {
-            this.players.addAll(players);
+    public void setOtherPlayers(List<ClientPlayer> otherPlayers) {
+        this.otherPlayers.clear();
+        if (otherPlayers != null) {
+            this.otherPlayers.addAll(otherPlayers);
         }
     }
 
@@ -152,27 +178,21 @@ public class ClientModel {
         }
     }
 
-    public void clearLobbies() {
-        this.lobbies.clear();
-    }
-
     public boolean containsPlayer(String nickname) {
-        return this.players.stream().anyMatch(player -> player.getNickname().equals(nickname));
+        return this.otherPlayers.stream().anyMatch(player -> player.getNickname().equals(nickname));
     }
 
     public ClientPlayer getPlayerByNickname(String nickname) {
-        return this.players.stream()
+        return this.otherPlayers.stream()
                 .filter(player -> player.getNickname().equals(nickname))
                 .findFirst()
                 .orElse(null);
     }
 
-    public void addOrUpdatePlayer(String nickname, Color color) {
-        ClientPlayer player = getPlayerByNickname(nickname);
-        if (player == null) {
-            this.players.add(new ClientPlayer(nickname, color, 0, 0, new ArrayList<>()));
-        } else {
-            player.setColor(color);
+    public void addPlayer(String nickname, Color color) {
+        if (!this.ownPlayer.getNickname().equals(nickname)) {
+            this.otherPlayers.add(new ClientPlayer(nickname, color));
+            this.ui.showNewPlayer();
         }
     }
 
@@ -212,6 +232,22 @@ public class ClientModel {
     }
 
     public void addLobby(LobbyInfo lobbyInfo) {
-        this.lobbies.add(lobbyInfo);
+        this.lobbies.removeIf(l -> l.getLobbyId() == lobbyInfo.getLobbyId());
+        if (lobbyInfo.getNumPlayers() != lobbyInfo.getCurrentPlayers()) {
+            this.lobbies.add(lobbyInfo);
+        }
+        this.ui.lobbyUpdate();
+    }
+
+    public void startGame(String firstPlayerNickname, List<Integer> visibleIds) {
+        this.gameStarted = true;
+        this.currPlayerNickname = firstPlayerNickname;
+        this.topRowCards = visibleIds.subList(0, visibleIds.size()/2);
+        this.bottomRowCards = visibleIds.subList(visibleIds.size()/2, visibleIds.size()-1);
+        this.ui.showStartedGame();
+    }
+
+    public String getCurrentPlayerNickname() {
+        return this.currPlayerNickname;
     }
 }

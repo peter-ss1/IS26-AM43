@@ -1,4 +1,7 @@
 package it.polimi.ingsw.am43.model.utils;
 
-public class GameObserver {
+import it.polimi.ingsw.am43.network.message.Update;
+
+public interface GameObserver {
+    void broadcast(Update update);
 }

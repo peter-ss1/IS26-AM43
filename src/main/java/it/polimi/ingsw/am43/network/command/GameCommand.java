@@ -1,13 +1,23 @@
 package it.polimi.ingsw.am43.network.command;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am43.controller.GameController;
 import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.model.enums.Color;
 
 import java.rmi.RemoteException;
 import java.util.UUID;
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "commandType"
+)
 
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = GameCommand.PickNameColorCommand.class, name = "pickNameColorCommand"),
+})
 public abstract class GameCommand extends Command {
 
     protected GameCommand(UUID playerId) {
@@ -15,14 +25,14 @@ public abstract class GameCommand extends Command {
     }
 
     @Override
-    public void execute(ServerController serverController) {
+    public void execute(ServerController serverController) throws RemoteException {
     }
 
     public static class PickCardCommand extends GameCommand {
         @JsonProperty("cardID")
         private final int id;
 
-        public PickCardCommand(@JsonProperty("playerID")UUID playerId,@JsonProperty("cardID") int id) {
+        public PickCardCommand(@JsonProperty("playerID") UUID playerId, @JsonProperty("cardID") int id) throws RemoteException {
             super(playerId);
             this.id = id;
         }
@@ -37,7 +47,7 @@ public abstract class GameCommand extends Command {
         @JsonProperty("position")
         private final int position;
 
-        public PlaceTotemCommand(@JsonProperty("playerID")UUID playerId,@JsonProperty("position") int position) {
+        public PlaceTotemCommand(@JsonProperty("playerID") UUID playerId, @JsonProperty("position") int position) {
             super(playerId);
             this.position = position;
         }
@@ -50,7 +60,7 @@ public abstract class GameCommand extends Command {
 
     public static class EndTurnCommand extends GameCommand {
 
-        public EndTurnCommand(@JsonProperty("playerID")UUID playerId) {
+        public EndTurnCommand(@JsonProperty("playerID") UUID playerId) {
             super(playerId);
         }
 
@@ -60,23 +70,22 @@ public abstract class GameCommand extends Command {
         }
     }
 
-    public static class PickNameColorCommand extends GameCommand{
+    public static class PickNameColorCommand extends GameCommand {
         @JsonProperty("nickname")
         private final String nickname;
         @JsonProperty("color")
         private final Color color;
 
-        public PickNameColorCommand(@JsonProperty("playerID")UUID playerID,@JsonProperty("nickname") String nickname,@JsonProperty("color") Color color){
+        public PickNameColorCommand(@JsonProperty("playerID") UUID playerID, @JsonProperty("nickname") String nickname, @JsonProperty("color") Color color) {
             super(playerID);
-            this.nickname=nickname;
-            this.color=color;
+            this.nickname = nickname;
+            this.color = color;
         }
 
         @Override
-        public void execute(GameController controller) throws RemoteException{
-            controller.joinGame(this.playerId,this.nickname,this.color);
+        public void execute(GameController controller) throws RemoteException {
+            controller.joinGame(this.playerId, this.nickname, this.color);
         }
-
 
 
     }

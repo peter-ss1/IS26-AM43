@@ -4,10 +4,10 @@ import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
-import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
-import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
-import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
+import it.polimi.ingsw.am43.model.exceptions.*;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 
 import java.util.*;
 
@@ -18,8 +18,8 @@ public class Game implements ModelInterface {
     private Player currPlayer;
     private GamePhase phase;
     private Board board;
-    public Map<Integer, Card> idToCard;
-
+    private final Map<Integer, Card> idToCard;
+    private GameObserver observer;
 
     public Game(int np, String nk, Color color) {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
@@ -28,6 +28,10 @@ public class Game implements ModelInterface {
         this.players = new ArrayList<>();
         this.addPlayer(nk, color);
         this.idToCard = new HashMap<>();
+    }
+
+    public void setObserver(GameObserver observer) {
+        this.observer = observer;
     }
 
     public ArrayList<Color> getAvailableColors() {
@@ -51,12 +55,13 @@ public class Game implements ModelInterface {
         if (!phase.equals(GamePhase.PREPARATION))
             throw new IllegalStateException("Cannot add player when phase is " + phase);
         if (this.players.stream().anyMatch(p -> p.getNickname().equals(nickname)))
-            throw new IllegalPlayerInitializationException("Nickname is already in use");
+            throw new InvalidNicknameException("Nickname is already in use");
         if (!this.availableColors.remove(color))
-            throw new IllegalPlayerInitializationException("Color is already in use");
+            throw new InvalidColorException("Color is already in use");
         this.players.add(new Player(nickname, color));
         if (this.players.size() == numPlayers) {
             this.getPhase().resolvePhase(this, this.board);
+            if (this.observer!= null) this.observer.broadcast(new Update.GameStartedUpdate(this.currPlayer.getNickname(), this.getVisibleIds()));
         }
     }
 
@@ -151,9 +156,9 @@ public class Game implements ModelInterface {
 
     }
 
-    /*public List<Integer> getVisibleIds() {
+    public List<Integer> getVisibleIds() {
         List<Integer> ids = new ArrayList<>(this.idToCard.keySet());
         return ids.stream().filter(id -> this.board.containsCard(this.getCardById(id))).toList();
-    }*/
+    }
 
 }

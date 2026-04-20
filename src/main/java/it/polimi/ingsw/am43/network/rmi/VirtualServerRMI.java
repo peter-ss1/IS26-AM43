@@ -7,6 +7,6 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.UUID;
 
-public interface VirtualServerRMI extends Remote, VirtualServer {
+public interface VirtualServerRMI extends VirtualServer {
     void connect(UUID playerId, VirtualClientRmi client) throws RemoteException;
 }

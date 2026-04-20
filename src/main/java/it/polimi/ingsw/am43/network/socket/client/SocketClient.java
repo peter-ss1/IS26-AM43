@@ -34,7 +34,7 @@ public class SocketClient {
         Message message;
         while ((jsonMessage = input.readLine()) != null) {
             try {
-                message = UtilsJSON.mapper.readValue(jsonMessage, Update.class);
+                message = UtilsJSON.mapper.readValue(jsonMessage, Message.class);
                 this.clientController.addToQueue(message);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();

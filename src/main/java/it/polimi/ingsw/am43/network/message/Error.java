@@ -16,12 +16,7 @@ public abstract class Error extends Message {
     }
 
     @Override
-    public void execute(ClientModel model) {
-    }
-
-    @Override
     public void execute(ClientController controller) {
-        controller.showError(this);
     }
 
     public static class IllegalMoveError extends Error {
@@ -117,6 +112,12 @@ public abstract class Error extends Message {
     public static class CannotEndTurnError extends Error {
         public CannotEndTurnError(String message) {
             super(message);
+        }
+    }
+
+    public static class InvalidNameError extends Error {
+        public InvalidNameError(String invalidName) {
+            super(invalidName);
         }
     }
 }

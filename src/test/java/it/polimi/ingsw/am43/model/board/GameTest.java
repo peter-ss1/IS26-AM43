@@ -6,9 +6,7 @@ import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
-import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
-import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
-import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
+import it.polimi.ingsw.am43.model.exceptions.*;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.*;
 
@@ -29,8 +27,8 @@ class GameTest {
     void gameInitTest() {
         game = new Game(2, "pippo", Color.BLACK);
         assertEquals(GamePhase.PREPARATION, game.getPhase());
-        assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("pippo", Color.WHITE));
-        assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("jonny", Color.BLACK));
+        assertThrows(InvalidNicknameException.class, () -> game.addPlayer("pippo", Color.WHITE));
+        assertThrows(InvalidColorException.class, () -> game.addPlayer("jonny", Color.BLACK));
         game.addPlayer("jonny", Color.RED);
         assertFalse(game.getAvailableColors().contains(Color.RED) || game.getAvailableColors().contains(Color.BLACK));
         assert game.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION);

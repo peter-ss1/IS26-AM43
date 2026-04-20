@@ -2,6 +2,7 @@ package it.polimi.ingsw.am43.client;
 
 import it.polimi.ingsw.am43.model.enums.Color;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClientPlayer {
@@ -17,6 +18,14 @@ public class ClientPlayer {
         this.food = food;
         this.prestigePoints = prestigePoints;
         this.tribe = tribe;
+    }
+
+    public ClientPlayer(String nickname, Color color) {
+        this.nickname = nickname;
+        this.color = color;
+        this.food = 0;
+        this.prestigePoints = 0;
+        this.tribe = new ArrayList<>();
     }
 
     public String getNickname() {
