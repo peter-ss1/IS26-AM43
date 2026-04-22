@@ -100,7 +100,7 @@ public abstract class Update extends Message {
 
         @Override
         public void execute(ClientController controller) {
-            controller.getLocalModel().addPlayer(nickname, color);
+            controller.getLocalModel().addOtherPlayer(nickname, color);
         }
     }
 

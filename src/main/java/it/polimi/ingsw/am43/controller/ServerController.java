@@ -43,6 +43,7 @@ public class ServerController {
             //TODO: reconnection logic
         } else {
             this.clients.put(playerId, new ClientInfo(client, ClientState.CHOOSING, 0));
+            System.out.println("client connected");
         }
     }
 

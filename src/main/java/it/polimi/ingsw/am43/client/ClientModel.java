@@ -189,7 +189,7 @@ public class ClientModel {
                 .orElse(null);
     }
 
-    public void addPlayer(String nickname, Color color) {
+    public void addOtherPlayer(String nickname, Color color) {
         if (!this.ownPlayer.getNickname().equals(nickname)) {
             this.otherPlayers.add(new ClientPlayer(nickname, color));
             this.ui.showNewPlayer();

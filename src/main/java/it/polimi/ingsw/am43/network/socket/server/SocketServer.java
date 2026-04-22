@@ -35,8 +35,6 @@ public class SocketServer {
                     throw new RuntimeException(e);
                 }
             }).start();
-
-            System.out.println("client connected");
         }
     }
 }
