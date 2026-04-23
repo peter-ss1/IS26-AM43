@@ -55,30 +55,19 @@ public class ClientController {
         return this.localModel;
     }
 
-    public void chooseConnectionType(boolean rmi) throws IOException {
+    public void chooseConnectionType(String serverIp, boolean rmi) throws IOException, NotBoundException {
         if (rmi) {
-            try {
-                Registry registry = LocateRegistry.getRegistry(InetAddress.getLocalHost().getHostAddress(), 1099);
-                this.server = (VirtualServerRMI) registry.lookup("MesosServer");
-                ((VirtualServerRMI) this.server).connect(this.playerId, new ClientRMI(this));
-                this.ui.showMessage("Successfully connected to server via RMI.");
-            } catch (NotBoundException e) {
-                this.ui.showMessage("Error: Could not connect to server via RMI.");
-            }
+            Registry registry = LocateRegistry.getRegistry(serverIp, 1099);
+            this.server = (VirtualServerRMI) registry.lookup("MesosServer");
+            ((VirtualServerRMI) this.server).connect(this.playerId, new ClientRMI(this));
         } else {
             Socket serverSocket;
-            try {
-                serverSocket = new Socket(InetAddress.getLocalHost().getHostAddress(), 8080);
-            } catch (IOException e) {
-                this.ui.showMessage("Error: Could not connect to server via Socket.");
-                return;
-            }
+            serverSocket = new Socket(serverIp, 8080);
             InputStreamReader socketRx = new InputStreamReader(serverSocket.getInputStream());
             OutputStreamWriter socketTx = new OutputStreamWriter(serverSocket.getOutputStream());
             this.server = new ServerSocketHandler(new BufferedWriter(socketTx));
             new SocketClient(new BufferedReader(socketRx), this).run();
             this.server.sendCommand(new ServerCommand.RegisterCommand(this.playerId));
-            this.ui.showMessage("Successfully connected to server via Socket.");
         }
     }
 

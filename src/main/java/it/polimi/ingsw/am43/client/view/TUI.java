@@ -5,15 +5,18 @@ import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Scanner;
 
-public class TUI implements UI {
+public class TUI implements UI, Runnable {
     private final ClientController controller;
     private ViewState state;
     private final ClientModel localModel;
     private boolean initialScene = true;
     private final Scanner scanner;
+    private boolean running;
+
 
     public TUI(Scanner scanner) {
         this.localModel = new ClientModel(this);
@@ -22,25 +25,77 @@ public class TUI implements UI {
         this.scanner = scanner;
     }
 
-    public void run() throws RemoteException {
-        System.out.println("Choose Connection Type: [1] RMI -- [2] SOCKET");
-        String connectionChoice = "";
-        while (!connectionChoice.equalsIgnoreCase("1") || !connectionChoice.equalsIgnoreCase("2")) {
+    @Override
+    public void run() {
+        /*System.out.println(
+                "┌─────────────────┐\n" +
+                        "│\u001B[48;5;160m\u001B[37m\u001B[1m HUNTING         \u001B[0m│\n" +
+                        "│                 │\n" +
+                        "│ \u001B[1m Saber-Tooth    \u001B[0m│\n" +
+                        "│  Value: 12      │\n" +
+                        "│                 │\n" +
+                        "│ \u001B[2m         ERA II \u001B[0m│\n" +
+                        "└─────────────────┘"
+        );  */
+        this.titleScreen();
+        this.setUpClient();
+    }
+
+    private void handleInput(String line) {
+    }
+
+    public void titleScreen() {
+        System.out.println(" ██████   ██████ ██████████  █████████     ███████     █████████ \n" +
+                "░░██████ ██████ ░░███░░░░░█ ███░░░░░███  ███░░░░░███  ███░░░░░███\n" +
+                " ░███░█████░███  ░███  █ ░ ░███    ░░░  ███     ░░███░███    ░░░ \n" +
+                " ░███░░███ ░███  ░██████   ░░█████████ ░███      ░███░░█████████ \n" +
+                " ░███ ░░░  ░███  ░███░░█    ░░░░░░░░███░███      ░███ ░░░░░░░░███\n" +
+                " ░███      ░███  ░███ ░   █ ███    ░███░░███     ███  ███    ░███\n" +
+                " █████     █████ ██████████░░█████████  ░░░███████░  ░░█████████ \n" +
+                "░░░░░     ░░░░░ ░░░░░░░░░░  ░░░░░░░░░     ░░░░░░░     ░░░░░░░░░  \n" +
+                "                                                                 \n" +
+                "                                                                 \n" +
+                "                                                                 ");
+    }
+
+    public void setUpClient() {
+        String serverIP;
+        while (true) {
+            System.out.println("Enter Server IP [press enter for localhost]:");
             System.out.print("> ");
-            connectionChoice = scanner.nextLine().trim();
-            if (connectionChoice.equals("1") || connectionChoice.equals("2")) {
-                try {
-                    controller.chooseConnectionType(connectionChoice.equals("1"));
-                    break;
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                serverIP = "localhost";
+                break;
+            } else if (input.matches("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
+                serverIP = input;
+                break;
             } else {
-                System.out.println("Invalid choice.");
+                System.out.println("Invalid IP. Please use X.X.X.X or default.");
             }
         }
-        this.state = ViewState.LOBBY_CHOICE;
-        this.controller.refreshLobbies();
+
+        while (true) {
+            System.out.println("\nChoose Connection Type: [1] RMI -- [2] SOCKET");
+            System.out.print("> ");
+            String choice = scanner.nextLine().trim();
+
+            if (choice.equals("1") || choice.equals("2")) {
+                try {
+                    boolean isRmi = choice.equals("1");
+                    controller.chooseConnectionType(serverIP, isRmi);
+
+                    System.out.println("Connected to " + serverIP + " via " + (isRmi ? "RMI." : "SOCKET."));
+                    break;
+                } catch (IOException | NotBoundException e) {
+                    System.out.println("Could not reach server at " + serverIP + ": " + e.getMessage());
+                    System.out.println("Try again.");
+                }
+            } else {
+                System.out.println("Invalid choice. Please enter 1 or 2.");
+            }
+        }
     }
 
 
@@ -119,7 +174,9 @@ public class TUI implements UI {
     @Override
     public void showNewPlayer() {
         System.out.println("Players in lobby: ");
-        this.localModel.getOtherPlayers().forEach((otherPlayer) -> {System.out.println(otherPlayer.getNickname() + ": " + otherPlayer.getColor().name());});
+        this.localModel.getOtherPlayers().forEach((otherPlayer) -> {
+            System.out.println(otherPlayer.getNickname() + ": " + otherPlayer.getColor().name());
+        });
     }
 
     @Override
