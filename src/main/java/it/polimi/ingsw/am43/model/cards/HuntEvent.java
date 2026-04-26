@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
 
@@ -24,5 +25,22 @@ public class HuntEvent extends Event {
     @Override
     public void triggerBuilding(EventBuilding building, Player player) {
         building.reactToEvent(player, this);
+    }
+    @Override
+    public String toString() {
+        return "Evento Caccia (Era " + getEra() + ") - Ottieni cibo e PV in base al numero dei tuoi Cacciatori attivi.";
+    }
+
+    @Override
+    public String[] getASCII() {
+        String[] lines = new String[7];
+        lines[0] = "┌─────────────┐";
+        lines[1] = "│" + TextFormat.PURPLE + TextFormat.BOLD + " EV. CACCIA  " + TextFormat.RESET + "│";
+        lines[2] = "├─────────────┤";
+        lines[3] = "│ Era: " + getEra() + "      │";
+        lines[4] = "│             │";
+        lines[5] = "│             │";
+        lines[6] = "└─────────────┘";
+        return lines;
     }
 }

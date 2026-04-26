@@ -2,11 +2,16 @@ package it.polimi.ingsw.am43.client.view;
 
 import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.controller.ClientController;
+import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Scanner;
+
+import it.polimi.ingsw.am43.model.utils.GameLoader;
+import java.util.Map;
 
 public class TUI implements UI {
     private final ClientController controller;
@@ -14,13 +19,25 @@ public class TUI implements UI {
     private final ClientModel localModel;
     private boolean initialScene = true;
     private final Scanner scanner;
+    private Map<Integer, Card> cardRegistry;
 
     public TUI(Scanner scanner) {
         this.localModel = new ClientModel(this);
         this.controller = new ClientController(this, this.localModel);
         this.state = ViewState.CONNECTION;
         this.scanner = scanner;
+
+        // INIZIALIZZA IL DIZIONARIO DELLE CARTE
+        try {
+            GameLoader loader = new GameLoader("/it/polimi/ingsw/am43/config.json");
+            loader.loadTribeDeck();
+            loader.loadBuildingDeck();
+            this.cardRegistry = loader.loadIdToCardMap();
+        } catch (Exception e) {
+            System.out.println("Errore nel caricamento delle carte: " + e.getMessage());
+        }
     }
+
 
     public void run() throws RemoteException {
         System.out.println("Choose Connection Type: [1] RMI -- [2] SOCKET");
@@ -125,8 +142,55 @@ public class TUI implements UI {
     @Override
     public void showStartedGame() {
         this.state = ViewState.IN_GAME;
+        System.out.println("\n==================================================");
         System.out.println("Game Started : First player is " + this.localModel.getCurrentPlayerNickname());
-        System.out.println("Top row contains " + this.localModel.getTopRowCards());
-        System.out.println("Bottom row contains " + this.localModel.getBottomRowCards());
+        System.out.println("==================================================\n");
+
+        System.out.println("Top row:");
+        // Chiama il metodo per affiancare le carte
+        printCardsRow(this.localModel.getTopRowCards());
+
+        System.out.println("\nBottom row:");
+        printCardsRow(this.localModel.getBottomRowCards());
+    }
+    public void printCards(List<Card> cards) {
+        if (cards.isEmpty()) return;
+
+
+        int height = 7;
+
+        for (int i = 0; i < height; i++) {
+            StringBuilder line = new StringBuilder();
+            for (Card card : cards) {
+
+                line.append(card.getASCII()[i]).append("  ");
+            }
+            System.out.println(line.toString());
+        }
+    }
+
+
+    private void printCardsRow(java.util.List<Integer> cardIds) {
+        if (cardIds == null || cardIds.isEmpty()) {
+            System.out.println("Fila vuota.");
+            return;
+        }
+
+        int height = 7; //altezza carte
+
+        for (int i = 0; i < height; i++) {
+            StringBuilder line = new StringBuilder();
+
+            for (Integer id : cardIds) {
+
+                Card card = this.cardRegistry.get(id);
+
+                if (card != null) {
+
+                    line.append(card.getASCII()[i]).append("  ");
+                }
+            }
+            System.out.println(line.toString());
+        }
     }
 }
