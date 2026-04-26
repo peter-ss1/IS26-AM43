@@ -1,11 +1,14 @@
 package it.polimi.ingsw.am43.network.message;
 
-import it.polimi.ingsw.am43.client.ClientModel;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 
+@JsonSubTypes({@JsonSubTypes.Type(value = Error.LobbyCreationError.class, name = "lobbyCreationError"),
+})
+
 public abstract class Error extends Message {
-    private final String message;
+    protected final String message;
 
     protected Error(String message) {
         this.message = message;
@@ -17,6 +20,7 @@ public abstract class Error extends Message {
 
     @Override
     public void execute(ClientController controller) {
+        controller.getView().showError(this.message);
     }
 
     public static class IllegalMoveError extends Error {
@@ -28,6 +32,11 @@ public abstract class Error extends Message {
     public static class GenericServerError extends Error {
         public GenericServerError(String message) {
             super(message);
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getView().showError("Server could not perform command due to: " + this.message);
         }
     }
 
@@ -98,9 +107,7 @@ public abstract class Error extends Message {
         private final int position;
 
         public InvalidTotemPositionError(int position, String message) {
-            super(message == null || message.isBlank()
-                    ? "Invalid totem position: " + position
-                    : message);
+            super(message == null || message.isBlank() ? "Invalid totem position: " + position : message);
             this.position = position;
         }
 
@@ -115,9 +122,36 @@ public abstract class Error extends Message {
         }
     }
 
-    public static class InvalidNameError extends Error {
-        public InvalidNameError(String invalidName) {
-            super(invalidName);
+    public static class LobbyCreationError extends Error {
+        public LobbyCreationError(String message) {
+            super(message);
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getView().handleLobbyChoiceError(this.message, true);
+        }
+    }
+
+    public static class LobbyJoinError extends Error {
+        public LobbyJoinError(String message) {
+            super(message);
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getView().handleLobbyChoiceError(this.message, false);
+        }
+    }
+
+    public static class InvalidPlayerError extends Error {
+        public InvalidPlayerError(String message) {
+            super(message);
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getView().handleLobbyJoinError(this.message);
         }
     }
 }

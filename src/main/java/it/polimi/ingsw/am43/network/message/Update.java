@@ -2,21 +2,27 @@ package it.polimi.ingsw.am43.network.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
+import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.enums.GamePhase;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Update.AvailableLobbiesUpdate.class, name = "availableLobbiesUpdate"),
+        @JsonSubTypes.Type(value = Update.AvailableLobbiesUpdate.class, name = "showAvailableLobbies"),
         @JsonSubTypes.Type(value = Update.LobbyCreatedUpdate.class, name = "lobbyCreatedUpdate"),
         @JsonSubTypes.Type(value = Update.LobbyJoinedUpdate.class, name = "lobbyJoinedUpdate"),
         @JsonSubTypes.Type(value = Update.NewLobbyUpdate.class, name = "newLobbyUpdate"),
         @JsonSubTypes.Type(value = Update.GameJoinedUpdate.class, name = "gameJoinedUpdate"),
         @JsonSubTypes.Type(value = Update.PlayerAddedUpdate.class, name = "playerAddedUpdate"),
-        @JsonSubTypes.Type(value = Update.GameStartedUpdate.class, name = "gameStaredUpdate"),
+        @JsonSubTypes.Type(value = Update.GameStartedUpdate.class, name = "gameStartedUpdate"),
+        @JsonSubTypes.Type(value = Update.NewPhaseUpdate.class, name = "newPhaseUpdate")
 })
 
 public abstract class Update extends Message {
@@ -59,13 +65,17 @@ public abstract class Update extends Message {
     public static class LobbyJoinedUpdate extends Update {
         @JsonProperty("lobby")
         private final LobbyInfo lobby;
+        @JsonProperty("players")
+        private final List<ClientPlayer> players;
 
-        public LobbyJoinedUpdate(@JsonProperty("lobby") LobbyInfo lobby) {
+        public LobbyJoinedUpdate(@JsonProperty("lobby") LobbyInfo lobby, @JsonProperty("players") List<ClientPlayer> players) {
             this.lobby = lobby;
+            this.players = players;
         }
 
         @Override
         public void execute(ClientController controller) {
+            controller.getLocalModel().setOtherPlayers(this.players);
             controller.getLocalModel().setOwnLobby(this.lobby);
         }
     }
@@ -76,7 +86,7 @@ public abstract class Update extends Message {
         @JsonProperty("color")
         private final Color color;
 
-        public GameJoinedUpdate(@JsonProperty("nickname") String nickname,@JsonProperty("color") Color color) {
+        public GameJoinedUpdate(@JsonProperty("nickname") String nickname, @JsonProperty("color") Color color) {
             this.nickname = nickname;
             this.color = color;
         }
@@ -93,14 +103,14 @@ public abstract class Update extends Message {
         @JsonProperty("color")
         private final Color color;
 
-        public PlayerAddedUpdate(@JsonProperty("nickname") String nickname,@JsonProperty("color") Color color) {
+        public PlayerAddedUpdate(@JsonProperty("nickname") String nickname, @JsonProperty("color") Color color) {
             this.nickname = nickname;
             this.color = color;
         }
 
         @Override
         public void execute(ClientController controller) {
-            controller.getLocalModel().addOtherPlayer(nickname, color);
+            controller.getLocalModel().addPlayer(nickname, color);
         }
     }
 
@@ -195,19 +205,60 @@ public abstract class Update extends Message {
     }
 
     public static class GameStartedUpdate extends Update {
-        @JsonProperty("nickname")
-        private final String firstPlayerNickname;
-        @JsonProperty("cards")
-        private final List<Integer> visibleIds;
+        @JsonProperty("initialFood")
+        private final Map<String, Integer> initialFood;
+        @JsonProperty("currPlayer")
+        private final String currentPlayerNickname;
+        @JsonProperty("topRow")
+        private final List<Integer> topRowCards;
+        @JsonProperty("bottomRow")
+        private final List<Integer> bottomRowCards;
+        @JsonProperty("orderQueue")
+        private final List<Color> orderQueue;
+        @JsonProperty("offerTrack")
+        private final List<OfferTrackElement> offerTrack;
 
-        public GameStartedUpdate(@JsonProperty("nickname") String nickname,@JsonProperty("cards") List<Integer> visibleIds) {
-            this.firstPlayerNickname = nickname;
-            this.visibleIds = visibleIds;
+        public GameStartedUpdate(@JsonProperty("initialFood") Map<String, Integer> initialFood, @JsonProperty("currPlayer") String currentPlayerNickname,
+                                 @JsonProperty("topRow") List<Integer> topRowCards, @JsonProperty("bottomRow") List<Integer> bottomRowCards,
+                                 @JsonProperty("orderQueue") List<Color> orderQueue, @JsonProperty("offerTrack") List<OfferTrackElement> offerTrack) {
+            this.initialFood = initialFood;
+            this.currentPlayerNickname = currentPlayerNickname;
+            this.topRowCards = topRowCards;
+            this.bottomRowCards = bottomRowCards;
+            this.orderQueue = orderQueue;
+            this.offerTrack = offerTrack;
         }
 
         @Override
         public void execute(ClientController controller) {
-            controller.getLocalModel().startGame(firstPlayerNickname, visibleIds);
+            controller.getLocalModel().startGame(initialFood, currentPlayerNickname, topRowCards, bottomRowCards, orderQueue, offerTrack);
+        }
+    }
+
+    public static class NewPhaseUpdate extends Update {
+        @JsonProperty("phase")
+        private final GamePhase phase;
+
+        public NewPhaseUpdate(@JsonProperty("phase") GamePhase phase) {
+            this.phase = phase;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().setPhase(phase);
+        }
+    }
+
+    public static class CurrentPlayerUpdate extends Update {
+        private final String nickname;
+
+        public CurrentPlayerUpdate(String nickname) {
+            this.nickname = nickname;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().setCurrentPlayer(this.nickname);
         }
     }
 }

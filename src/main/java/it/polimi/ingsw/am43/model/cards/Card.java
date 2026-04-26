@@ -31,4 +31,16 @@ public abstract class Card {
     public abstract boolean isContainedInRow(Row row);
     public abstract void removeFromRow(Row row);
 
+    public String[] getAscii() {
+        return new String[] {
+                "┌───────────────┐",
+                "│               │",
+                "│               │",
+                "│     EMPTY     │",
+                "│     SLOT      │",
+                "│               │",
+                "│               │",
+                "└───────────────┘"
+        };
+    }
 }

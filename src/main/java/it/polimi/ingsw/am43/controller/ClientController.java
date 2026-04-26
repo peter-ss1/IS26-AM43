@@ -145,4 +145,8 @@ public class ClientController {
             throw new RuntimeException(e);
         }
     }
+
+    public UI getView() {
+        return this.ui;
+    }
 }

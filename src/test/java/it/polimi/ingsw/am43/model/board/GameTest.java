@@ -8,11 +8,14 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.exceptions.*;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,13 +25,20 @@ class GameTest {
     private Game game;
     private Player player1;
     private Player player2;
+    private class fakeObserver implements GameObserver {
 
+        @Override
+        public void broadcast(Update update) {
+
+        }
+    }
     @BeforeAll
     void gameInitTest() {
         game = new Game(2, "pippo", Color.BLACK);
+        game.setObserver(new fakeObserver());
         assertEquals(GamePhase.PREPARATION, game.getPhase());
-        assertThrows(InvalidNicknameException.class, () -> game.addPlayer("pippo", Color.WHITE));
-        assertThrows(InvalidColorException.class, () -> game.addPlayer("jonny", Color.BLACK));
+        assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("pippo", Color.WHITE));
+        assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("jonny", Color.BLACK));
         game.addPlayer("jonny", Color.RED);
         assertFalse(game.getAvailableColors().contains(Color.RED) || game.getAvailableColors().contains(Color.BLACK));
         assert game.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION);

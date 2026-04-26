@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.board;
 
+import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.*;
@@ -51,5 +52,9 @@ public class OrderQueue {
 
     public boolean isFull() {
         return this.playerOrder.size() == this.foodModifiers.size();
+    }
+
+    public List<Color> getColorOrder() {
+        return this.playerOrder.stream().map(Player::getColor).toList();
     }
 }

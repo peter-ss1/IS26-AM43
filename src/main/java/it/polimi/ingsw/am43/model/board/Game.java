@@ -55,13 +55,14 @@ public class Game implements ModelInterface {
         if (!phase.equals(GamePhase.PREPARATION))
             throw new IllegalStateException("Cannot add player when phase is " + phase);
         if (this.players.stream().anyMatch(p -> p.getNickname().equals(nickname)))
-            throw new InvalidNicknameException("Nickname is already in use");
+            throw new IllegalPlayerInitializationException("Nickname is already in use");
         if (!this.availableColors.remove(color))
-            throw new InvalidColorException("Color is already in use");
+            throw new IllegalPlayerInitializationException("Color is already in use");
         this.players.add(new Player(nickname, color));
+        if (this.observer != null) this.observer.broadcast(new Update.PlayerAddedUpdate(nickname, color));
         if (this.players.size() == numPlayers) {
             this.getPhase().resolvePhase(this, this.board);
-            if (this.observer!= null) this.observer.broadcast(new Update.GameStartedUpdate(this.currPlayer.getNickname(), this.getVisibleIds()));
+            if (this.observer!= null) this.board.buildGameStartedUpdate(this.observer, this.players, this.currPlayer.getNickname());
         }
     }
 
@@ -77,6 +78,7 @@ public class Game implements ModelInterface {
         if (!this.players.contains(player))
             throw new IllegalArgumentException(("Player is not registered in the game"));
         this.currPlayer = player;
+        this.observer.broadcast(new Update.CurrentPlayerUpdate(this.currPlayer.getNickname()));
     }
 
     public GamePhase getPhase() {
@@ -85,6 +87,7 @@ public class Game implements ModelInterface {
 
     public void setPhase(GamePhase phase) {
         this.phase = phase;
+        this.observer.broadcast(new Update.NewPhaseUpdate(this.phase));
     }
 
     public void placeTotemOnTrack(Player player, int position) {
@@ -99,7 +102,7 @@ public class Game implements ModelInterface {
             this.getPhase().resolvePhase(this, this.board);
             return;
         }
-        this.currPlayer = this.board.getNextPlayerInOrderQueue();
+        this.setCurrPlayer(this.board.getNextPlayerInOrderQueue());
     }
 
     public Player getPlayerByName(String name) {

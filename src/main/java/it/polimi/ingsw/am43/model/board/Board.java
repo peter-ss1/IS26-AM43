@@ -1,14 +1,19 @@
 package it.polimi.ingsw.am43.model.board;
 
+import it.polimi.ingsw.am43.client.ClientModel;
+import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Board {
 
@@ -45,7 +50,7 @@ public class Board {
             this.tribeDeck.draw().addToRow(this.topRow);
         }
         for (Building building : this.buildingDeck.revealEra(1)) {
-            building.addToRow(this.bottomRow);
+            building.addToRow(this.topRow);
         }
     }
 
@@ -209,5 +214,16 @@ public class Board {
 
     public boolean hasFoodBonus() {
         return turnOrder.getLastFoodGiven()>0;
+    }
+
+    public void buildGameStartedUpdate(GameObserver observer, List<Player> players, String nickname) {
+        observer.broadcast(new Update.GameStartedUpdate(
+                players.stream().collect(Collectors.toMap(Player::getNickname, Player::getFood)),
+                nickname,
+                this.topRow.getIds(),
+                this.bottomRow.getIds(),
+                this.turnOrder.getColorOrder(),
+                this.offerTrack.stream().map(card -> new OfferTrackElement(card.getActions() ,card.getPlayer().map(Player::getColor).orElse(null))).toList()
+        ));
     }
 }

@@ -23,7 +23,7 @@ public class GameLoader {
     private final String pathConfig;
     private final Map<Integer,Card> idToCard;
 
-    public  GameLoader(String pathConfig){
+    public GameLoader(String pathConfig){
         this.mapper=new ObjectMapper();
         this.pathConfig= pathConfig;
         this.idToCard=new HashMap<>();

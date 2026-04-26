@@ -1,17 +1,21 @@
 package it.polimi.ingsw.am43.client.view;
 
-import java.rmi.RemoteException;
-
 public interface UI {
     void showMessage(String message);
 
-    void lobbyUpdate();
+    void showAvailableLobbies();
 
     void enterLobby();
 
-    void showPlayer();
-
     void showNewPlayer();
 
-    void showStartedGame();
+    void showGameStart();
+
+    void handleLobbyChoiceError(String message, boolean creation);
+
+    void handleLobbyJoinError(String message);
+
+    void showError(String s);
+
+    void showNewCurrPlayer();
 }

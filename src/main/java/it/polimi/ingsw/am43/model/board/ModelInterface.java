@@ -26,4 +26,6 @@ public interface ModelInterface {
     List<Color> getAvailableColors();
 
     void setObserver(GameObserver observer);
+
+    List<Player> getPlayers();
 }
