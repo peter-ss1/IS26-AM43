@@ -26,6 +26,8 @@ public class GameController implements GameObserver {
     private final int lobbyId;
     private boolean gameStarted;
 
+
+
     public GameController(ServerController serverController, ModelInterface model, int lobbyId, String nickname, UUID playerID) {
         this.serverController = serverController;
         this.model = model;
