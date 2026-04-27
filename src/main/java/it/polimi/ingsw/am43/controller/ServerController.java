@@ -101,6 +101,8 @@ public class ServerController {
         Game game = new Game(numPlayers, nickname, color);
         GameController gameController = new GameController(this, game, lobbyId, nickname, playerID);
         lobbies.put(lobbyId, gameController);
+        clients.get(playerID).setLobbyId(lobbyId);
+        clients.get(playerID).setState(ClientState.PLAYING);
         clients.get(playerID).getClient().sendMessage(new Update.LobbyCreatedUpdate(new LobbyInfo(lobbyId, numPlayers, 1), nickname, color));
         for (Map.Entry<UUID, ClientInfo> entry : clients.entrySet()) {
             if (entry.getValue().getState().equals(ClientState.CHOOSING)) {

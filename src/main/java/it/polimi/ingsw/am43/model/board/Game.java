@@ -98,6 +98,7 @@ public class Game implements ModelInterface {
         if (!player.equals(this.currPlayer)) throw new OutOfTurnException("Cannot place totem in other player's turn");
         this.board.setPlayerOnTrack(player, position);
         this.board.popNextPlayerInOrderQueue();
+        this.observer.broadcast(new Update.TotemPlacedUpdate(player.getNickname(), position));
         if (this.board.isOrderQueueEmpty()) {
             this.getPhase().resolvePhase(this, this.board);
             return;
@@ -124,6 +125,7 @@ public class Game implements ModelInterface {
         if (player.getAvailableActions().isEmpty()) throw new IllegalMoveException("Cannot pick another card");
         if (!player.getAvailableActions().contains(this.board.getCardPosition(card)))
             throw new IllegalMoveException("Cannot pick card in wrong row");
+        this.observer.broadcast(new Update.CardPickedUpdate(player.getNickname(), card.getId()));
         card.pick(player);
         player.removeAvailableAction(this.board.getCardPosition(card));
         this.board.removeCard(card);
@@ -143,15 +145,17 @@ public class Game implements ModelInterface {
         }
         if (board.checkEndTurnCondition(player)) {
             board.returnPlayerToOrderQueue(player);
+            this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             player.getTribe().activateTimedBuilding(this, player, this.board);
             board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,
                     () -> this.phase.resolvePhase(this, this.board));
-        } else throw new IllegalArgumentException("Available actions remaining");
+        } else throw new IllegalMoveException("Available actions remaining");
     }
 
     public void resolveOffer(Player player) {
         if (player.getAvailableActions().isEmpty() || board.isOfferResolved(player)) {
             board.returnPlayerToOrderQueue(player);
+            this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             player.getTribe().activateTimedBuilding(this, player, this.board);
             board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,
                     () -> this.phase.resolvePhase(this, this.board));

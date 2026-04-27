@@ -15,8 +15,8 @@ public class ClientModel {
     private final List<LobbyInfo> lobbies;
     private ClientPlayer ownPlayer;
     private final List<ClientPlayer> otherPlayers;
-    private List<Integer> topRowCards;
-    private List<Integer> bottomRowCards;
+    private final List<Integer> topRowCards;
+    private final List<Integer> bottomRowCards;
     private final List<Color> orderQueue;
     private final Map<Integer, Card> idToCard;
     private final List<OfferTrackElement> offerTrack;
@@ -24,6 +24,7 @@ public class ClientModel {
     private int currentEra;
     private String currPlayerNickname;
     private final UI ui;
+    private boolean validating;
 
     public ClientModel(UI ui) {
         GameLoader loader = new GameLoader("/it/polimi/ingsw/am43/config.json");
@@ -46,6 +47,7 @@ public class ClientModel {
         this.currentEra = 0;
         this.ui = ui;
         this.currPlayerNickname = "";
+        this.validating = false;
     }
 
     public void refreshLobbies(List<LobbyInfo> lobbies) {
@@ -163,7 +165,7 @@ public class ClientModel {
     }
 
     public ClientPlayer getPlayerByNickname(String nickname) {
-        return this.otherPlayers.stream()
+        return this.getAllPlayers().stream()
                 .filter(player -> player.getNickname().equals(nickname))
                 .findFirst()
                 .orElse(null);
@@ -181,34 +183,17 @@ public class ClientModel {
         if (player == null) {
             return;
         }
-
-        Color color = player.getColor();
-
-        while (offerTrack.size() <= position) {
-            //offerTrack.add(Optional.empty());
-        }
-
-        //offerTrack.set(position, Optional.ofNullable(color));
-        orderQueue.remove(color);
+        this.orderQueue.remove(player.getColor());
+        this.offerTrack.get(position).setColor(player.getColor());
+        this.ui.showTotemPlaced(player.getNickname(), position);
+        this.validating = false;
     }
 
     public void endTurn(String nickname) {
-        ClientPlayer player = getPlayerByNickname(nickname);
-        if (player == null || player.getColor() == null) {
-            return;
-        }
-
-        Color color = player.getColor();
-
-        for (int i = 0; i < offerTrack.size(); i++) {
-            OfferTrackElement slot = offerTrack.get(i);
-            /*if (slot.isPresent() && slot.get().equals(color)) {
-                offerTrack.set(i, Optional.empty());
-                break;
-            }*/
-        }
-
-        orderQueue.add(color);
+        Color color = getPlayerByNickname(nickname).getColor();
+        this.offerTrack.stream().filter(o -> o.getColor() != null && o.getColor().equals(color)).findFirst().ifPresent(o -> {o.setColor(null);});
+        this.orderQueue.add(color);
+        this.validating = false;
     }
 
     public void addLobby(LobbyInfo lobbyInfo) {
@@ -264,10 +249,44 @@ public class ClientModel {
         this.currentEra = 1;
         this.getAllPlayers().forEach(player -> {player.setFood(initialFood.get(player.getNickname()));});
         this.currPlayerNickname = currentPlayerNickname;
-        this.topRowCards = topRowCards;
-        this.bottomRowCards = bottomRowCards;
+        this.topRowCards.addAll(topRowCards);
+        this.bottomRowCards.addAll(bottomRowCards);
         this.orderQueue.addAll(orderQueue);
         this.offerTrack.addAll(offerTrack);
         this.ui.showGameStart();
+    }
+
+    public int getIdByPos(String row, int pos) {
+        if (row.equalsIgnoreCase("top")) {
+            return topRowCards.get(pos);
+        } else return bottomRowCards.get(pos);
+    }
+
+    public boolean isValidating() {
+        return this.validating;
+    }
+
+    public boolean isOwnTurn() {
+        return this.ownPlayer.getNickname().equals(this.currPlayerNickname);
+    }
+
+    public boolean isPlayer(String part) {
+        return  this.getAllPlayers().stream().anyMatch(player -> player.getNickname().equalsIgnoreCase(part));
+    }
+
+    public void startValidation() {
+        this.validating = true;
+    }
+
+    public void stopValidation() {
+        this.validating = false;
+    }
+
+    public void pickCard(String nickname, int cardId) {
+        this.getPlayerByNickname(nickname).updateTribe(cardId);
+        this.topRowCards.remove((Integer) cardId);
+        this.bottomRowCards.remove((Integer) cardId);
+        this.ui.showCardPicked(nickname, cardId);
+        this.validating = false;
     }
 }

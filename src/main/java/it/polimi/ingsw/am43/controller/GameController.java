@@ -83,11 +83,14 @@ public class GameController implements GameObserver {
         try {
             String nickname = this.clients.get(playerID);
             this.model.pickCard(this.model.getCardById(id), this.model.getPlayerByName(nickname));
-            this.broadcast(new Update.CardPickedUpdate(nickname, id));
-        } catch (IllegalMoveException | OutOfTurnException e) {
+        } catch (IllegalMoveException e) {
             this.serverController.sendMessage(playerID, new Error.IllegalMoveError(e.getMessage()));
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             this.serverController.sendMessage(playerID, new Error.GenericServerError(e.getMessage()));
+        } catch (IllegalStateException e)  {
+            this.serverController.sendMessage(playerID, new Error.WrongPhaseError(e.getMessage()));
+        } catch (OutOfTurnException e) {
+            this.serverController.sendMessage(playerID, new Error.OutOfTurnError(e.getMessage()));
         }
     }
 
@@ -95,13 +98,14 @@ public class GameController implements GameObserver {
         try {
             String nickname = this.clients.get(playerID);
             this.model.placeTotemOnTrack(this.model.getPlayerByName(nickname), position);
-            broadcast(new Update.TotemPlacedUpdate(nickname, position));
         } catch (OutOfTurnException e) {
             this.serverController.sendMessage(playerID, new Error.OutOfTurnError(e.getMessage()));
         } catch (IllegalStateException e) {
             this.serverController.sendMessage(playerID, new Error.WrongPhaseError(e.getMessage()));
         } catch (IllegalArgumentException e) {
             this.serverController.sendMessage(playerID, new Error.InvalidTotemPositionError(position, e.getMessage()));
+        } catch (IllegalMoveException e) {
+            this.serverController.sendMessage(playerID, new Error.IllegalMoveError(e.getMessage()));
         }
     }
 

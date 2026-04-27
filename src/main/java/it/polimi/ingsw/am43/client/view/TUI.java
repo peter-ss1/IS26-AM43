@@ -6,6 +6,7 @@ import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.enums.GamePhase;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;
@@ -20,7 +21,6 @@ public class TUI implements UI, Runnable {
     private final ClientController controller;
     private ViewState state;
     private final ClientModel localModel;
-    private boolean initialScene = true;
     private final Scanner scanner;
     private final Object printLock;
 
@@ -310,6 +310,168 @@ public class TUI implements UI, Runnable {
         this.state = ViewState.IN_GAME;
         this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
         this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
+        new Thread(this::gameLoopInput).start();
+    }
+
+    private void gameLoopInput() {
+        while (true) {
+            synchronized (this.printLock) {
+                System.out.print("\nPlease enter a command [type 'help' to show command list]: ");
+            }
+            String input = scanner.nextLine().trim();
+            synchronized (printLock) {
+                if (input.isEmpty()) continue;
+                String[] parts = input.split("\\s+");
+
+                switch (parts[0].toLowerCase()) {
+                    case "pick" -> handlePickCard(parts);
+                    case "place" -> handlePlaceTotem(parts);
+                    case "end" -> handleEndTurn(parts);
+                    case "show" -> handleShowCommands(parts);
+                    case "help" -> printHelp();
+                    default -> System.out.println("Unknown command. Type 'help' to show command list.");
+                }
+            }
+        }
+    }
+
+    private void printHelp() {
+        synchronized (this.printLock) {
+            System.out.println("\n" + "=".repeat(20) + " MESOS COMMAND LIST " + "=".repeat(20));
+
+            System.out.println(BUILD_GOLD + "GAMEPLAY COMMANDS:" + RESET);
+            printCommand("place <position>", "Place your totem on the specified offer track card.");
+            printCommand("pick <row> <position>", "Take the card at the given position from the board. (e.g. pick top 3)");
+            printCommand("end", "Finish your current actions and pass the turn.");
+
+            System.out.println("\n" + BUILD_GOLD + "VISUALIZATION COMMANDS:" + RESET);
+            printCommand("show board", "Display the main board");
+            printCommand("show scoreboard", "Show players points, food, and current turn order.");
+            printCommand("show tribe <nickname>", "View the cards collected by you or another player.");
+
+            System.out.println("\n" + BUILD_GOLD + "SYSTEM:" + RESET);
+            printCommand("help", "Show this list of commands.");
+
+            System.out.println("=".repeat(60) + "\n");
+        }
+    }
+
+    private void printCommand(String syntax, String description) {
+        System.out.printf("  " + INFO_CYAN + "%-20s" + RESET + " : %s\n", syntax, description);
+    }
+
+    private void handlePickCard(String[] parts) {
+        synchronized (printLock) {
+            if (this.localModel.isValidating()) {
+                System.out.println("Last command is still being processed.");
+                return;
+            }
+            if (!this.localModel.isOwnTurn()) {
+                System.out.println("Please wait for your turn.");
+                return;
+            }
+            if (this.localModel.getPhase() != GamePhase.ACTION_RESOLUTION) {
+                System.out.println("You are not allowed to perform this action in this phase.");
+                return;
+            }
+            if (parts.length < 3 || (!parts[1].equalsIgnoreCase("top") && !parts[1].equalsIgnoreCase("bottom"))) {
+                System.out.println("Invalid request. Format is: pick <row> <position>");
+                return;
+            }
+        }
+        try {
+            this.controller.pickCard(this.localModel.getIdByPos(parts[1], Integer.parseInt(parts[2])));
+        } catch (NumberFormatException e) {
+            synchronized (this.printLock) {
+                System.out.println("Invalid request. Format is: pick <row> <position>");
+            }
+        }
+    }
+
+    private void handlePlaceTotem(String[] parts) {
+        synchronized (printLock) {
+            if (this.localModel.isValidating()) {
+                System.out.println("Last command is still being processed.");
+                return;
+            }
+            if (!this.localModel.isOwnTurn()) {
+                System.out.println("Please wait for your turn.");
+                return;
+            }
+            if (this.localModel.getPhase() != GamePhase.OFFER_TRACK_SELECTION) {
+                System.out.println("You are not allowed to perform this action in this phase.");
+                return;
+            }
+            if (parts.length < 2) {
+                System.out.println("Invalid request. Format is: place <position>");
+                return;
+            }
+        }
+        try {
+            this.controller.placeTotem(Integer.parseInt(parts[1]));
+        } catch (NumberFormatException e) {
+            synchronized (this.printLock) {
+                System.out.println("Invalid request. Format is: place <position>");
+            }
+        }
+    }
+
+    private void handleEndTurn(String[] parts) {
+        synchronized (printLock) {
+            if (this.localModel.isValidating()) {
+                System.out.println("Last command is still being processed.");
+                return;
+            }
+            if (!this.localModel.isOwnTurn()) {
+                System.out.println("Please wait for your turn.");
+                return;
+            }
+            if (this.localModel.getPhase() != GamePhase.ACTION_RESOLUTION) {
+                System.out.println("You are not allowed to perform this action in this phase.");
+                return;
+            }
+        }
+        this.controller.endTurn();
+    }
+
+    private void handleShowCommands(String[] parts) {
+        synchronized (printLock) {
+            if (parts.length < 2) {
+                System.out.println("Invalid request. Format is: show <board|scoreboard|tribe>");
+                return;
+            }
+        }
+        switch (parts[1].toLowerCase()) {
+            case "board" ->
+                    this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
+            case "scoreboard" ->
+                    this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+            case "tribe" -> {
+                if (parts.length < 3) {
+                    synchronized (this.printLock) {
+                        System.out.println("Invalid request. Format is: show tribe <nickname>");
+                    }
+                } else if (!this.localModel.isPlayer(parts[2])) {
+                    synchronized (this.printLock) {
+                        System.out.println("Invalid request. Format is: show tribe <nickname>");
+                    }
+                } else {
+                    this.printPlayerTribe(this.localModel.getPlayerByNickname(parts[2]));
+                }
+            }
+            default -> {
+                synchronized (this.printLock) {
+                    System.out.println("Invalid request. Format is: show <board|scoreboard|tribe>");
+                }
+            }
+        }
+    }
+
+    private void printPlayerTribe(ClientPlayer player) {
+        synchronized (this.printLock) {
+            System.out.println("Player " + player.getNickname() + " has " + player.getFood() + " food and " + player.getPrestigePoints() + " prestige points.");
+            printCardsSideBySide(player.getTribe());
+        }
     }
 
     public void printBoard(List<Integer> topRowCards, List<Integer> bottomRowCards, List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
@@ -405,13 +567,47 @@ public class TUI implements UI, Runnable {
     public void showError(String message) {
         synchronized (this.printLock) {
             System.out.println(ERROR + message + RESET);
+            this.localModel.stopValidation();
         }
     }
 
     @Override
     public void showNewCurrPlayer() {
         synchronized (this.printLock) {
-            System.out.println("Current player is " + this.localModel.getCurrentPlayerNickname());
+            System.out.print("\r\033[K");
+            if (this.localModel.isOwnTurn()) {
+                System.out.println("It's now your turn!");
+                this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
+            } else {
+                System.out.println("Current player is now " + this.localModel.getCurrentPlayerNickname());
+            }
+            System.out.print("Please enter a command [type 'help' to show command list]: ");
+        }
+    }
+
+    @Override
+    public void showTotemPlaced(String nickname, int position) {
+        synchronized (this.printLock) {
+            System.out.print("\r\033[K");
+            if (this.localModel.isOwnTurn()) {
+                System.out.println("You placed the totem in position " + position);
+            } else {
+                System.out.println(nickname + "'s totem placed in position " + position);
+            }
+            System.out.print("Please enter a command [type 'help' to show command list]: ");
+        }
+    }
+
+    @Override
+    public void showCardPicked(String nickname, int cardId) {
+        synchronized (this.printLock) {
+            System.out.print("\r\033[K");
+            if (this.localModel.isOwnTurn()) {
+                System.out.println("You picked a card.");
+            } else {
+                System.out.println(nickname + "picked a card " + cardId);
+            }
+            System.out.print("Please enter a command [type 'help' to show command list]: ");
         }
     }
 }

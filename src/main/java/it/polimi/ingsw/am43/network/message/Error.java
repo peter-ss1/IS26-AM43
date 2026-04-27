@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 
-@JsonSubTypes({@JsonSubTypes.Type(value = Error.LobbyCreationError.class, name = "lobbyCreationError"),
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Error.LobbyCreationError.class, name = "lobbyCreationError"),
+        @JsonSubTypes.Type(value = Error.OutOfTurnError.class, name = "outOfTurnError"),
+        @JsonSubTypes.Type(value = Error.WrongPhaseError.class, name = "wrongPhaseError"),
+        @JsonSubTypes.Type(value = Error.IllegalMoveError.class, name = "illegalMoveError"),
 })
 
 public abstract class Error extends Message {
@@ -26,6 +30,11 @@ public abstract class Error extends Message {
     public static class IllegalMoveError extends Error {
         public IllegalMoveError(String message) {
             super(message);
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getView().showError("The action could not be performed because:" + this.message);
         }
     }
 

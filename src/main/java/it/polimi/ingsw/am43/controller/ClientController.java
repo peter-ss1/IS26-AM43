@@ -98,6 +98,7 @@ public class ClientController {
             throw new IllegalStateException("Player id is not set");
         }
         try {
+            this.localModel.startValidation();
             server.sendCommand(new GameCommand.PickCardCommand(this.playerId, id));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
@@ -115,6 +116,7 @@ public class ClientController {
             throw new IllegalStateException("Player id is not set");
         }
         try {
+            this.localModel.startValidation();
             server.sendCommand(new GameCommand.PlaceTotemCommand(this.playerId, position));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
@@ -132,6 +134,7 @@ public class ClientController {
             throw new IllegalStateException("Player id is not set");
         }
         try {
+            this.localModel.startValidation();
             server.sendCommand(new GameCommand.EndTurnCommand(this.playerId));
         } catch (RemoteException e) {
             throw new RuntimeException(e);

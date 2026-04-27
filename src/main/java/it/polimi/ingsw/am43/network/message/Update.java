@@ -22,7 +22,11 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = Update.GameJoinedUpdate.class, name = "gameJoinedUpdate"),
         @JsonSubTypes.Type(value = Update.PlayerAddedUpdate.class, name = "playerAddedUpdate"),
         @JsonSubTypes.Type(value = Update.GameStartedUpdate.class, name = "gameStartedUpdate"),
-        @JsonSubTypes.Type(value = Update.NewPhaseUpdate.class, name = "newPhaseUpdate")
+        @JsonSubTypes.Type(value = Update.NewPhaseUpdate.class, name = "newPhaseUpdate"),
+        @JsonSubTypes.Type(value = Update.CurrentPlayerUpdate.class, name = "currentPlayerUpdate"),
+        @JsonSubTypes.Type(value = Update.TotemPlacedUpdate.class, name = "totemPlacedUpdate"),
+        @JsonSubTypes.Type(value = Update.CardPickedUpdate.class, name = "cardPickedUpdate"),
+        @JsonSubTypes.Type(value = Update.TurnEndedUpdate.class, name = "turnEndedUpdate"),
 })
 
 public abstract class Update extends Message {
@@ -115,56 +119,31 @@ public abstract class Update extends Message {
     }
 
     public static class CardPickedUpdate extends Update {
+        @JsonProperty("nickname")
         private final String nickname;
+        @JsonProperty("cardId")
         private final int cardId;
 
-        public CardPickedUpdate(String nickname, int cardId) {
+        public CardPickedUpdate(@JsonProperty("nickname") String nickname, @JsonProperty("cardId") int cardId) {
             this.nickname = nickname;
             this.cardId = cardId;
         }
 
-        public String getNickname() {
-            return nickname;
-        }
-
-        public int getCardId() {
-            return cardId;
-        }
-
         @Override
         public void execute(ClientController controller) {
-            if (controller.getLocalModel().getTopRowCards().contains(cardId)) {
-                var top = controller.getLocalModel().getTopRowCards();
-                top.remove(Integer.valueOf(cardId));
-                controller.getLocalModel().setTopRowCards(top);
-            } else if (controller.getLocalModel().getBottomRowCards().contains(cardId)) {
-                var bottom = controller.getLocalModel().getBottomRowCards();
-                bottom.remove(Integer.valueOf(cardId));
-                controller.getLocalModel().setBottomRowCards(bottom);
-            }
-
-            var player = controller.getLocalModel().getPlayerByNickname(nickname);
-            if (player != null) {
-                player.updateTribe(cardId);
-            }
+            controller.getLocalModel().pickCard(this.nickname, this.cardId);
         }
     }
 
     public static class TotemPlacedUpdate extends Update {
+        @JsonProperty("nickname")
         private final String nickname;
+        @JsonProperty("position")
         private final int position;
 
-        public TotemPlacedUpdate(String nickname, int position) {
+        public TotemPlacedUpdate(@JsonProperty("nickname") String nickname,@JsonProperty("position") int position) {
             this.nickname = nickname;
             this.position = position;
-        }
-
-        public String getNickname() {
-            return nickname;
-        }
-
-        public int getPosition() {
-            return position;
         }
 
         @Override
@@ -174,14 +153,11 @@ public abstract class Update extends Message {
     }
 
     public static class TurnEndedUpdate extends Update {
+        @JsonProperty("nickname")
         private final String nickname;
 
-        public TurnEndedUpdate(String nickname) {
+        public TurnEndedUpdate(@JsonProperty("nickname") String nickname) {
             this.nickname = nickname;
-        }
-
-        public String getNickname() {
-            return nickname;
         }
 
         @Override
@@ -250,9 +226,10 @@ public abstract class Update extends Message {
     }
 
     public static class CurrentPlayerUpdate extends Update {
+        @JsonProperty("nickname")
         private final String nickname;
 
-        public CurrentPlayerUpdate(String nickname) {
+        public CurrentPlayerUpdate(@JsonProperty("nickname") String nickname) {
             this.nickname = nickname;
         }
 

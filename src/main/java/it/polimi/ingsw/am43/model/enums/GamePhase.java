@@ -39,9 +39,7 @@ public enum GamePhase {
                         game.setCurrPlayer(player);
                         game.resolveOffer(player);
                     },
-                    () -> {
-                        game.getPhase().resolvePhase(game, board);
-                    });
+                    () -> game.getPhase().resolvePhase(game, board));
         }
     },
     ACTION_RESOLUTION {
