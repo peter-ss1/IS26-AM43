@@ -9,13 +9,13 @@ import java.io.Serializable;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
-        property = "messageType"
+        property = "dataServerToClientType"
 )
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Update.class, name = "updateType"),
         @JsonSubTypes.Type(value = Error.class, name = "errorType"),
 })
-public abstract class Message implements Serializable {
+public sealed abstract class Message extends DataServerToClient permits Error, Update {
     public abstract void execute(ClientController controller);
 }

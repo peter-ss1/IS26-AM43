@@ -2,6 +2,7 @@ package it.polimi.ingsw.am43.network.rmi;
 
 import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.Ping;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 
 import java.rmi.RemoteException;
@@ -29,5 +30,9 @@ public class ServerRMI extends UnicastRemoteObject implements VirtualServerRMI {
     @Override
     public void sendCommand(GameCommand command) throws RemoteException {
         this.controller.addToQueue(command);
+    }
+
+    public void ping(UUID id) throws RemoteException{
+        this.controller.updataLastPong(id);
     }
 }

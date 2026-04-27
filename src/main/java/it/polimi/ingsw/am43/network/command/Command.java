@@ -8,15 +8,10 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.UUID;
 
-public abstract class Command implements Serializable {
-    protected final UUID playerId;
+public abstract sealed class Command extends DataClientToServer permits GameCommand, ServerCommand {
 
     protected Command(UUID playerId) {
-        this.playerId = playerId;
-    }
-
-    public UUID getPlayerId() {
-        return playerId;
+        super(playerId);
     }
 
     public abstract void execute(ServerController serverController) throws RemoteException;

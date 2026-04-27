@@ -2,12 +2,19 @@ package it.polimi.ingsw.am43.network.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 
 import java.util.List;
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "dataServerToClientType"
+)
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Update.AvailableLobbiesUpdate.class, name = "availableLobbiesUpdate"),
@@ -19,7 +26,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = Update.GameStartedUpdate.class, name = "gameStaredUpdate"),
 })
 
-public abstract class Update extends Message {
+public non-sealed abstract class Update extends Message {
 
     public static class AvailableLobbiesUpdate extends Update {
         @JsonProperty("lobbies")
@@ -180,7 +187,7 @@ public abstract class Update extends Message {
         }
     }
 
-    public static class NewLobbyUpdate extends Message {
+    public static class NewLobbyUpdate extends Update {
         @JsonProperty("lobby")
         private final LobbyInfo lobby;
 

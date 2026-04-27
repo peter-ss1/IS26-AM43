@@ -2,67 +2,91 @@ package it.polimi.ingsw.am43.network.socket.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.ingsw.am43.controller.ServerController;
-import it.polimi.ingsw.am43.network.VirtualClient;
-import it.polimi.ingsw.am43.network.command.Destination;
-import it.polimi.ingsw.am43.network.command.GameCommand;
-import it.polimi.ingsw.am43.network.command.ServerCommand;
+import it.polimi.ingsw.am43.network.command.*;
 import it.polimi.ingsw.am43.network.message.Message;
-import it.polimi.ingsw.am43.network.socket.CommandPackageJSON;
+import it.polimi.ingsw.am43.network.message.Pong;
 import it.polimi.ingsw.am43.network.socket.UtilsJSON;
+import it.polimi.ingsw.am43.network.socket.VirtualClientSocket;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.Socket;
 import java.rmi.RemoteException;
 import java.util.UUID;
 
-public class ClientSocketHandler implements VirtualClient {
+public class ClientSocketHandler implements VirtualClientSocket {
 
     final ServerController serverController;
     final BufferedReader input;
     final PrintWriter output;
+    final Socket socket;
+    final Thread loop;
 
-    public ClientSocketHandler(ServerController controller, BufferedReader input, PrintWriter output) {
+    public ClientSocketHandler(ServerController controller, Socket socket) throws IOException {
         this.serverController = controller;
-        this.input = input;
-        this.output = output;
+        this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()),true);
+        this.socket=socket;
+        this.loop= new Thread(this::runVirtualView);
     }
 
-    public void runVirtualView() throws IOException {
+    public void stop() throws IOException{
+        this.socket.close();  // check
+        this.loop.interrupt();
+    }
+    public void runVirtualView(){
         String inputData;
-        CommandPackageJSON packageJSON;
-        inputData = this.input.readLine();
-        try {
-            packageJSON = UtilsJSON.mapper.readValue(inputData, CommandPackageJSON.class);
-            UUID playerId = UtilsJSON.mapper.treeToValue(packageJSON.getCommandJson(), ServerCommand.class).getPlayerId();
-            this.serverController.register(playerId, this);
-        } catch (JsonProcessingException e) {
-            System.out.println("Handshake failed");
-            e.printStackTrace();
-            return;
+        DataClientToServer data;
+        try{
+            inputData = this.input.readLine();
+            try {
+                data = UtilsJSON.mapper.readValue(inputData, ServerCommand.RegisterCommand.class);
+                UUID playerId = data.getPlayerId();
+                this.serverController.register(playerId, this);
+            } catch (JsonProcessingException e) {
+                System.out.println("Handshake failed");
+                e.printStackTrace();
+                return;
+            }
+
+            while ((inputData = this.input.readLine()) != null) {
+                try {
+                    data = UtilsJSON.mapper.readValue(inputData, DataClientToServer.class);
+                    switch (data) {
+                        case Ping ping:
+                            this.serverController.updateLastPing(ping.getPlayerId());
+                            this.pong();
+                            break;
+                        case GameCommand gameCommand:
+                            this.serverController.addToQueue(gameCommand);
+                            break;
+                        case ServerCommand serverCommand:
+                            this.serverController.addToQueue(serverCommand);
+                            break;
+                    }
+                } catch (JsonProcessingException e) {
+                    System.out.println("Parsing error:" + e.getMessage());
+                }
+            }
+        }catch (IOException e){
+            //TODO implement
+            //this.serverController.disconnect(this);
         }
 
-        while ((inputData = this.input.readLine()) != null) {
-            try {
-                packageJSON = UtilsJSON.mapper.readValue(inputData, CommandPackageJSON.class);
-                switch (packageJSON.getDestination()) {
-                    case Destination.SERVER:
-                        this.serverController.addToQueue(UtilsJSON.mapper.treeToValue(packageJSON.getCommandJson(), ServerCommand.class));
-                        break;
-                    case Destination.GAME:
-                        this.serverController.addToQueue(UtilsJSON.mapper.treeToValue(packageJSON.getCommandJson(), GameCommand.class));
-                        break;
-                }
-            } catch (JsonProcessingException e) {
-                System.out.println("Parsing error:" + e.getMessage());
-            }
-        }
     }
 
-    public void sendMessage(Message message) throws RemoteException {
+    public void sendMessage(Message message) {
         try {
             String jsonMessage = UtilsJSON.mapper.writeValueAsString(message);
             output.println(jsonMessage);
+        } catch (JsonProcessingException e) {
+            System.out.println("Parsing error:" + e.getMessage());
+        }
+    }
+
+    private void pong(){
+        try {
+            String jsonPong = UtilsJSON.mapper.writeValueAsString(new Pong());
+            output.println(jsonPong);
         } catch (JsonProcessingException e) {
             System.out.println("Parsing error:" + e.getMessage());
         }

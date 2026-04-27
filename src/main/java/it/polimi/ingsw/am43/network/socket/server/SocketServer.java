@@ -19,22 +19,12 @@ public class SocketServer {
     public void runServer() throws IOException {
         Socket clientSocket;
         while ((clientSocket = this.listenSocket.accept()) != null) {
-            InputStreamReader socketRx = new InputStreamReader(clientSocket.getInputStream());
-            OutputStreamWriter socketTx = new OutputStreamWriter(clientSocket.getOutputStream());
 
             ClientSocketHandler handler = new ClientSocketHandler(
                     this.controller,
-                    new BufferedReader(socketRx),
-                    new PrintWriter(socketTx,true)
+                    clientSocket
             );
-
-            new Thread(() -> {
-                try {
-                    handler.runVirtualView();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }).start();
+            handler.run();
         }
     }
 }

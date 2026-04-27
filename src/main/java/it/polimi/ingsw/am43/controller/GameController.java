@@ -155,4 +155,8 @@ public class GameController implements GameObserver {
         }
     }
 
+    public void disconnect(UUID id){
+        //TODO implement
+    }
+
 }

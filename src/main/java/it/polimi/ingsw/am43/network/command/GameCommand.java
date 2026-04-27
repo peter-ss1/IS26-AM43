@@ -12,13 +12,13 @@ import java.util.UUID;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
-        property = "commandType"
+        property = "dataClientToServerType"
 )
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = GameCommand.PickNameColorCommand.class, name = "pickNameColorCommand"),
 })
-public abstract class GameCommand extends Command {
+public non-sealed abstract class GameCommand extends Command {
 
     protected GameCommand(UUID playerId) {
         super(playerId);

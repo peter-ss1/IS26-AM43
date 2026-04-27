@@ -17,7 +17,7 @@ import java.util.UUID;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
-        property = "commandType"
+        property = "dataClientToServerType"
 )
 
 @JsonSubTypes({
@@ -27,7 +27,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = RegisterCommand.class, name = "registerCommand"),
 })
 
-public abstract class ServerCommand extends Command {
+public non-sealed abstract class ServerCommand extends Command {
 
     protected ServerCommand(UUID playerId) {
         super(playerId);

@@ -3,14 +3,15 @@ package it.polimi.ingsw.am43.controller;
 import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.network.ServerConnection;
 import it.polimi.ingsw.am43.network.VirtualServer;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Message;
 import it.polimi.ingsw.am43.network.rmi.ClientRMI;
+import it.polimi.ingsw.am43.network.rmi.ServerRMIConnection;
 import it.polimi.ingsw.am43.network.rmi.VirtualServerRMI;
-import it.polimi.ingsw.am43.network.socket.client.ServerSocketHandler;
-import it.polimi.ingsw.am43.network.socket.client.SocketClient;
+import it.polimi.ingsw.am43.network.socket.client.SocketServerConnection;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -24,7 +25,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ClientController {
+
     private VirtualServer server;
+    private ServerConnection serverConnection;
     private final UI ui;
     private final ClientModel localModel;
     private final BlockingQueue<Message> messageQueue;
@@ -59,8 +62,7 @@ public class ClientController {
         if (rmi) {
             try {
                 Registry registry = LocateRegistry.getRegistry(InetAddress.getLocalHost().getHostAddress(), 1099);
-                this.server = (VirtualServerRMI) registry.lookup("MesosServer");
-                ((VirtualServerRMI) this.server).connect(this.playerId, new ClientRMI(this));
+                this.serverConnection = new ServerRMIConnection((VirtualServerRMI) registry.lookup("MesosServer"), this);
                 this.ui.showMessage("Successfully connected to server via RMI.");
             } catch (NotBoundException e) {
                 this.ui.showMessage("Error: Could not connect to server via RMI.");
@@ -73,13 +75,15 @@ public class ClientController {
                 this.ui.showMessage("Error: Could not connect to server via Socket.");
                 return;
             }
-            InputStreamReader socketRx = new InputStreamReader(serverSocket.getInputStream());
-            OutputStreamWriter socketTx = new OutputStreamWriter(serverSocket.getOutputStream());
-            this.server = new ServerSocketHandler(new BufferedWriter(socketTx));
-            new SocketClient(new BufferedReader(socketRx), this).run();
-            this.server.sendCommand(new ServerCommand.RegisterCommand(this.playerId));
+            this.serverConnection=new SocketServerConnection(serverSocket,this);
             this.ui.showMessage("Successfully connected to server via Socket.");
         }
+        this.serverConnection.connect(this.playerId);
+        this.server=this.serverConnection.getRemote();
+    }
+
+    public void disconnect(){
+
     }
 
     public void refreshLobbies() throws RemoteException {

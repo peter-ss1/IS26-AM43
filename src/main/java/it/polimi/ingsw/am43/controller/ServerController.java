@@ -6,6 +6,7 @@ import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.network.VirtualClient;
 import it.polimi.ingsw.am43.network.command.Command;
 import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.Ping;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Message;
@@ -36,6 +37,7 @@ public class ServerController {
         this.lobbies = new ConcurrentHashMap<>();
         this.commandQueue = new LinkedBlockingQueue<>();
         new Thread(this::executor).start();
+        new Thread(this::reaper).start();
     }
 
     public void register(UUID playerId, VirtualClient client) {
@@ -62,7 +64,6 @@ public class ServerController {
         }
         lobbyController.addToQueue(command);
     }
-
 
     private void executor() {
         while (true) {
@@ -130,5 +131,31 @@ public class ServerController {
         this.getClientByID(playerID).sendMessage(message);
     }
 
+    public void reaper(){
+        long now;
+        ClientInfo clientInfo;
+        while(true){
+            for(UUID id : this.clients.keySet()){
+                now=System.currentTimeMillis();
+                clientInfo=this.clients.get(id);
+                if(clientInfo.getState()!=ClientState.DISCONNECTED){
+                    if (now-clientInfo.getLastSeen()>8000) {
+                        if (clientInfo.getState() == ClientState.PLAYING && clientInfo.getLobbyId() != 0) {
+                            this.lobbies.get(clientInfo.getLobbyId()).disconnect(id);
+                        }
+                        clientInfo.setState(ClientState.DISCONNECTED);
+                    }
+                    //TODO implement removal logic
+                }
+            }
+        }
+    }
+
+    public void updateLastPing(UUID id){
+        this.clients.get(id).updateLastPing();
+    }
+    public long getLastPing(UUID id){
+        return this.clients.get(id).getLastPing();
+    }
 
 }
