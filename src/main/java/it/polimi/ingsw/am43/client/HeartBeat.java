@@ -1,6 +1,9 @@
 package it.polimi.ingsw.am43.client;
 
 import it.polimi.ingsw.am43.network.PersistentServerConnection;
+import it.polimi.ingsw.am43.network.command.Ping;
+
+import java.util.UUID;
 
 public class HeartBeat{
     private final PersistentServerConnection connection;
@@ -8,7 +11,7 @@ public class HeartBeat{
     private Thread loop;
 
 
-    public HeartBeat(PersistentServerConnection connection){
+    public HeartBeat(PersistentServerConnection connection, UUID id){
         this.connection=connection;
         this.active= false;
     }

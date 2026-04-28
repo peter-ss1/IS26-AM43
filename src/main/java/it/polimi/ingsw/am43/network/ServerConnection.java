@@ -5,6 +5,6 @@ import java.util.UUID;
 
 public interface ServerConnection {
     public VirtualServer getRemote();
-    void connect(UUID id) throws RemoteException;
+    void connect() throws RemoteException;
     void disconnect();
 }

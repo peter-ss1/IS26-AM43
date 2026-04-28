@@ -8,7 +8,6 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class ClientRMI extends UnicastRemoteObject implements VirtualClientRmi {
     private final ClientController controller;
-    private volatile long lastPing;
 
     public ClientRMI(ClientController controller) throws RemoteException {
         super();

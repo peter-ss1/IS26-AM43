@@ -6,6 +6,6 @@ import java.util.UUID;
 public interface PersistentServerConnection extends ServerConnection {
     long getLastPong();
     void updateLastPong();
-    void ping(UUID id) throws RemoteException;
+    void ping() throws RemoteException;
     void notifyDisconnection();
 }

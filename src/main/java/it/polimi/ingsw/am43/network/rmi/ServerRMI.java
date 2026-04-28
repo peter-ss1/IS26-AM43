@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am43.network.rmi;
 
 import it.polimi.ingsw.am43.controller.ServerController;
+import it.polimi.ingsw.am43.network.ClientsConnectionManager;
+import it.polimi.ingsw.am43.network.MultiPersistentClientConnection;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.Ping;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
@@ -19,7 +21,7 @@ public class ServerRMI extends UnicastRemoteObject implements VirtualServerRMI {
 
     @Override
     public void connect(UUID playerID, VirtualClientRmi client) throws RemoteException {
-        this.controller.register(playerID, client);
+        this.controller.register(playerID, new ClientRMIConnection(client,this.controller));
     }
 
     @Override
@@ -33,6 +35,6 @@ public class ServerRMI extends UnicastRemoteObject implements VirtualServerRMI {
     }
 
     public void ping(UUID id) throws RemoteException{
-        this.controller.updataLastPong(id);
+        //this.connectionManager.updateLastPing(id);
     }
 }

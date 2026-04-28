@@ -2,29 +2,30 @@ package it.polimi.ingsw.am43.network.socket.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.ingsw.am43.controller.ServerController;
-import it.polimi.ingsw.am43.network.command.*;
-import it.polimi.ingsw.am43.network.message.Message;
-import it.polimi.ingsw.am43.network.message.Pong;
+import it.polimi.ingsw.am43.network.SinglePersistentClientConnection;
+import it.polimi.ingsw.am43.network.VirtualClient;
+import it.polimi.ingsw.am43.network.command.DataClientToServer;
+import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.Ping;
+import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.socket.UtilsJSON;
-import it.polimi.ingsw.am43.network.socket.VirtualClientSocket;
 
 import java.io.*;
 import java.net.Socket;
-import java.rmi.RemoteException;
 import java.util.UUID;
 
-public class ClientSocketHandler implements VirtualClientSocket {
-
+public class SocketClientConnection implements SinglePersistentClientConnection {
     final ServerController serverController;
     final BufferedReader input;
-    final PrintWriter output;
+    final SocketClientHandler remote;
     final Socket socket;
     final Thread loop;
+    private volatile long lastPing;
 
-    public ClientSocketHandler(ServerController controller, Socket socket) throws IOException {
+    public SocketClientConnection(ServerController controller, Socket socket) throws IOException {
         this.serverController = controller;
         this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()),true);
+        this.remote=new SocketClientHandler(socket);
         this.socket=socket;
         this.loop= new Thread(this::runVirtualView);
     }
@@ -53,8 +54,8 @@ public class ClientSocketHandler implements VirtualClientSocket {
                     data = UtilsJSON.mapper.readValue(inputData, DataClientToServer.class);
                     switch (data) {
                         case Ping ping:
-                            this.serverController.updateLastPing(ping.getPlayerId());
-                            this.pong();
+                            this.updateLastPing();
+                            this.remote.pong();
                             break;
                         case GameCommand gameCommand:
                             this.serverController.addToQueue(gameCommand);
@@ -74,22 +75,20 @@ public class ClientSocketHandler implements VirtualClientSocket {
 
     }
 
-    public void sendMessage(Message message) {
-        try {
-            String jsonMessage = UtilsJSON.mapper.writeValueAsString(message);
-            output.println(jsonMessage);
-        } catch (JsonProcessingException e) {
-            System.out.println("Parsing error:" + e.getMessage());
-        }
+    public VirtualClient getRemote(){
+        return this.remote;
+    }
+    public void disconnect(){
+
     }
 
-    private void pong(){
-        try {
-            String jsonPong = UtilsJSON.mapper.writeValueAsString(new Pong());
-            output.println(jsonPong);
-        } catch (JsonProcessingException e) {
-            System.out.println("Parsing error:" + e.getMessage());
-        }
+    public long getLastPing() {
+        return lastPing;
     }
+    public void updateLastPing(){
+        this.lastPing=System.currentTimeMillis();
+    }
+    public void notifyDisconnection(){
 
+    }
 }

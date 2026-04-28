@@ -21,19 +21,20 @@ public class ServerRMIConnection implements PersistentServerConnection {
 
     public VirtualServerRMI remote;
     private volatile long lastPong;
-    private final HeartBeat heartBeat;
+    private HeartBeat heartBeat;
+    private final UUID playerID;
     private final ClientController clientController;
 
-    public ServerRMIConnection(VirtualServerRMI remote,ClientController clientController) {
+    public ServerRMIConnection(VirtualServerRMI remote,ClientController clientController,UUID id) {
         this.remote=remote;
         this.clientController=clientController;
+        this.playerID=id;
         this.lastPong=System.currentTimeMillis();
-        this.heartBeat= new HeartBeat(this);
-
+        this.heartBeat= new HeartBeat(this,id);
     }
 
-    public void connect(UUID id) throws RemoteException{
-        this.remote.connect(id, new ClientRMI(this.clientController));
+    public void connect() throws RemoteException{
+        this.remote.connect(this.playerID, new ClientRMI(this.clientController));
         this.heartBeat.start();
     }
     public void disconnect(){
@@ -42,8 +43,8 @@ public class ServerRMIConnection implements PersistentServerConnection {
     public VirtualServer getRemote(){
         return this.remote;
     }
-    public void ping(UUID id)throws RemoteException {
-        this.remote.ping(id);
+    public void ping()throws RemoteException {
+        this.remote.ping(this.playerID);
         this.updateLastPong();
     }
     public long getLastPong(){

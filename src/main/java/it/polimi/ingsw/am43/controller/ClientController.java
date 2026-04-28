@@ -58,11 +58,12 @@ public class ClientController {
         return this.localModel;
     }
 
+
     public void chooseConnectionType(boolean rmi) throws IOException {
         if (rmi) {
             try {
                 Registry registry = LocateRegistry.getRegistry(InetAddress.getLocalHost().getHostAddress(), 1099);
-                this.serverConnection = new ServerRMIConnection((VirtualServerRMI) registry.lookup("MesosServer"), this);
+                this.serverConnection = new ServerRMIConnection((VirtualServerRMI) registry.lookup("MesosServer"), this, this.playerId);
                 this.ui.showMessage("Successfully connected to server via RMI.");
             } catch (NotBoundException e) {
                 this.ui.showMessage("Error: Could not connect to server via RMI.");
@@ -75,10 +76,10 @@ public class ClientController {
                 this.ui.showMessage("Error: Could not connect to server via Socket.");
                 return;
             }
-            this.serverConnection=new SocketServerConnection(serverSocket,this);
+            this.serverConnection=new SocketServerConnection(serverSocket,this, this.playerId);
             this.ui.showMessage("Successfully connected to server via Socket.");
         }
-        this.serverConnection.connect(this.playerId);
+        this.serverConnection.connect();
         this.server=this.serverConnection.getRemote();
     }
 

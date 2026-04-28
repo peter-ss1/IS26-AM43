@@ -18,13 +18,9 @@ public class SocketServer {
 
     public void runServer() throws IOException {
         Socket clientSocket;
+        SocketClientConnection connection;
         while ((clientSocket = this.listenSocket.accept()) != null) {
-
-            ClientSocketHandler handler = new ClientSocketHandler(
-                    this.controller,
-                    clientSocket
-            );
-            handler.run();
+            connection=new SocketClientConnection(this.controller,clientSocket);//TODO register here
         }
     }
 }
