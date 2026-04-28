@@ -1,20 +1,19 @@
 package it.polimi.ingsw.am43.network;
 
-import it.polimi.ingsw.am43.controller.ClientInfo;
-import it.polimi.ingsw.am43.controller.ClientState;
-
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class ClientsConnectionManager implements MultiPersistentClientConnection{
 
-    private ConcurrentMap<UUID,SinglePersistentClientConnection> connections;
-    private Thread reaperLoop;
+    private final ConcurrentMap<UUID,SinglePersistentClientConnection> connections;
+    private final Reaper reaper;
 
     public ClientsConnectionManager(){
         this.connections= new ConcurrentHashMap<>();
-        this.reaperLoop=new Thread(this::reaper);
+        this.reaper=new Reaper(this);
+        this.reaper.start();
     }
 
     public VirtualClient getRemote(UUID id) throws IllegalArgumentException{
@@ -30,6 +29,10 @@ public class ClientsConnectionManager implements MultiPersistentClientConnection
     public void disconnect(UUID id){
 
     };
+    public Set<UUID> getIds() {
+        return this.connections.keySet();
+    }
+
     public long getLastPing(UUID id){
         return this.connections.get(id).getLastPing();
     };
@@ -39,25 +42,6 @@ public class ClientsConnectionManager implements MultiPersistentClientConnection
     public void notifyDisconnection(){
 
     };
-
-    public void reaper(){
-        long now;
-        SinglePersistentClientConnection clientConnection;
-        while(true){
-            for(UUID id : this.connections.keySet()){
-                now=System.currentTimeMillis();
-                clientConnection=this.connections.get(id);
-                if (now - clientConnection.getLastPing() > 10000) {
-                    this.disconnect(id);//TODO implement removal logic
-                }
-            }
-            try {
-                Thread.sleep(3000);
-            }catch (InterruptedException e){
-                break;
-            }
-        }
-    }
 
 }
 //TODO implement all exceptions

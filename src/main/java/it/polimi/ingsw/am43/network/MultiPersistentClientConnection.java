@@ -6,4 +6,5 @@ public interface MultiPersistentClientConnection extends MultiClientConnection {
     long getLastPing(UUID id);
     void updateLastPing(UUID id);
     void notifyDisconnection();
+
 }

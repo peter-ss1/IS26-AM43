@@ -3,6 +3,7 @@ package it.polimi.ingsw.am43.client;
 import it.polimi.ingsw.am43.network.PersistentServerConnection;
 import it.polimi.ingsw.am43.network.command.Ping;
 
+import java.rmi.RemoteException;
 import java.util.UUID;
 
 public class HeartBeat{
@@ -11,14 +12,16 @@ public class HeartBeat{
     private Thread loop;
 
 
-    public HeartBeat(PersistentServerConnection connection, UUID id){
+    public HeartBeat(PersistentServerConnection connection){
         this.connection=connection;
         this.active= false;
+        this.loop=new Thread(this::runLoop);
     }
 
 
     public void start(){
-        this.loop=new Thread(this::runLoop);
+        this.active=true;
+        this.loop.start();
     }
     public void stop(){
         this.active=false;
@@ -37,7 +40,7 @@ public class HeartBeat{
                 }
             }catch (Exception e){
                 this.active=false;
-                this.connection.disconnect();
+                this.connection.notifyDisconnection();
             }
         }
     }

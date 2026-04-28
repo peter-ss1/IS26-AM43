@@ -2,6 +2,7 @@ package it.polimi.ingsw.am43.main;
 
 import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.network.ClientsConnectionManager;
+import it.polimi.ingsw.am43.network.MultiPersistentClientConnection;
 import it.polimi.ingsw.am43.network.VirtualServer;
 import it.polimi.ingsw.am43.network.rmi.ServerRMI;
 import it.polimi.ingsw.am43.network.rmi.VirtualServerRMI;
@@ -21,7 +22,8 @@ public class ServerMain {
     private static final int RMI_PORT = 1099;
 
     static void main() {
-        ServerController controller = new ServerController();
+        MultiPersistentClientConnection connectionManager = new ClientsConnectionManager();
+        ServerController controller = new ServerController(connectionManager);
 
         try {
             System.out.println("Server IP Address: " + InetAddress.getLocalHost().getHostAddress());
@@ -40,7 +42,7 @@ public class ServerMain {
         }).start();
 
         try {
-            ServerRMI serverRMI = new ServerRMI(controller);
+            ServerRMI serverRMI = new ServerRMI(controller,connectionManager);
             Registry registry;
             try {
                 registry = LocateRegistry.createRegistry(RMI_PORT);

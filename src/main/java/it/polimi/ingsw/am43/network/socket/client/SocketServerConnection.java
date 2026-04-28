@@ -34,12 +34,13 @@ public class SocketServerConnection implements PersistentServerConnection {
         this.clientController=clientController;
         this.playerId=id;
         this.lastPong=System.currentTimeMillis();
-        this.heartBeat= new HeartBeat(this,id);
+        this.heartBeat= new HeartBeat(this);
         this.listener=new Thread(this::runListener);
     }
 
     public void connect(){
         this.remote.sendCommand(new ServerCommand.RegisterCommand(this.playerId));
+        this.listener.start();
         this.heartBeat.start();
     }
     public void disconnect(){

@@ -3,9 +3,7 @@ package it.polimi.ingsw.am43.controller;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.ClientsConnectionManager;
-import it.polimi.ingsw.am43.network.SinglePersistentClientConnection;
-import it.polimi.ingsw.am43.network.VirtualClient;
+import it.polimi.ingsw.am43.network.*;
 import it.polimi.ingsw.am43.network.command.Command;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.Ping;
@@ -30,13 +28,13 @@ import java.util.concurrent.LinkedBlockingQueue;
  * or to a specific GameController.
  */
 public class ServerController {
-    private final ClientsConnectionManager connectionManager;
+    private final MultiClientConnection connectionManager;
     private final ConcurrentMap<UUID, ClientInfo> clients;
     private final ConcurrentMap<Integer, GameController> lobbies;
     private final BlockingQueue<Command> commandQueue;
 
-    public ServerController() {
-        this.connectionManager= new ClientsConnectionManager();
+    public ServerController(MultiClientConnection clientConnections) {
+        this.connectionManager= clientConnections;
         this.clients = new ConcurrentHashMap<>();
         this.lobbies = new ConcurrentHashMap<>();
         this.commandQueue = new LinkedBlockingQueue<>();
@@ -46,6 +44,7 @@ public class ServerController {
     public void register(UUID playerId, SinglePersistentClientConnection connection) {
         if (this.clients.containsKey(playerId)) {
             //TODO: reconnection logic
+            System.out.println(playerId.toString());
         } else {
             this.clients.put(playerId, new ClientInfo(ClientState.CHOOSING, 0));
             this.connectionManager.register(playerId, connection);//TODO check for race

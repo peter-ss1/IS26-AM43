@@ -13,10 +13,12 @@ import java.util.UUID;
 
 public class ServerRMI extends UnicastRemoteObject implements VirtualServerRMI {
     private final ServerController controller;
+    private final MultiPersistentClientConnection connectionManager;
 
-    public ServerRMI(ServerController controller) throws RemoteException {
+    public ServerRMI(ServerController controller, MultiPersistentClientConnection connectionManager) throws RemoteException {
         super();
         this.controller = controller;
+        this.connectionManager = connectionManager;
     }
 
     @Override
@@ -35,6 +37,6 @@ public class ServerRMI extends UnicastRemoteObject implements VirtualServerRMI {
     }
 
     public void ping(UUID id) throws RemoteException{
-        //this.connectionManager.updateLastPing(id);
+        this.connectionManager.updateLastPing(id);
     }
 }

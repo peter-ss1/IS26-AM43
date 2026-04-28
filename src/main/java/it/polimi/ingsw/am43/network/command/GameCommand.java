@@ -9,11 +9,6 @@ import it.polimi.ingsw.am43.model.enums.Color;
 
 import java.rmi.RemoteException;
 import java.util.UUID;
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "dataClientToServerType"
-)
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = GameCommand.PickNameColorCommand.class, name = "pickNameColorCommand"),
@@ -29,10 +24,10 @@ public non-sealed abstract class GameCommand extends Command {
     }
 
     public static class PickCardCommand extends GameCommand {
-        @JsonProperty("cardID")
+        @JsonProperty("cardId")
         private final int id;
 
-        public PickCardCommand(@JsonProperty("playerID") UUID playerId, @JsonProperty("cardID") int id) throws RemoteException {
+        public PickCardCommand(@JsonProperty("playerId") UUID playerId, @JsonProperty("cardId") int id) throws RemoteException {
             super(playerId);
             this.id = id;
         }
@@ -47,7 +42,7 @@ public non-sealed abstract class GameCommand extends Command {
         @JsonProperty("position")
         private final int position;
 
-        public PlaceTotemCommand(@JsonProperty("playerID") UUID playerId, @JsonProperty("position") int position) {
+        public PlaceTotemCommand(@JsonProperty("playerId") UUID playerId, @JsonProperty("position") int position) {
             super(playerId);
             this.position = position;
         }
@@ -60,7 +55,7 @@ public non-sealed abstract class GameCommand extends Command {
 
     public static class EndTurnCommand extends GameCommand {
 
-        public EndTurnCommand(@JsonProperty("playerID") UUID playerId) {
+        public EndTurnCommand(@JsonProperty("playerId") UUID playerId) {
             super(playerId);
         }
 
@@ -76,7 +71,7 @@ public non-sealed abstract class GameCommand extends Command {
         @JsonProperty("color")
         private final Color color;
 
-        public PickNameColorCommand(@JsonProperty("playerID") UUID playerID, @JsonProperty("nickname") String nickname, @JsonProperty("color") Color color) {
+        public PickNameColorCommand(@JsonProperty("playerId") UUID playerID, @JsonProperty("nickname") String nickname, @JsonProperty("color") Color color) {
             super(playerID);
             this.nickname = nickname;
             this.color = color;

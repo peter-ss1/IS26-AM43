@@ -30,7 +30,7 @@ public class ServerRMIConnection implements PersistentServerConnection {
         this.clientController=clientController;
         this.playerID=id;
         this.lastPong=System.currentTimeMillis();
-        this.heartBeat= new HeartBeat(this,id);
+        this.heartBeat= new HeartBeat(this);
     }
 
     public void connect() throws RemoteException{

@@ -79,8 +79,8 @@ public class ClientController {
             this.serverConnection=new SocketServerConnection(serverSocket,this, this.playerId);
             this.ui.showMessage("Successfully connected to server via Socket.");
         }
-        this.serverConnection.connect();
         this.server=this.serverConnection.getRemote();
+        this.serverConnection.connect();
     }
 
     public void disconnect(){

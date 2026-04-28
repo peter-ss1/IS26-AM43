@@ -28,6 +28,7 @@ public class SocketClientConnection implements SinglePersistentClientConnection 
         this.remote=new SocketClientHandler(socket);
         this.socket=socket;
         this.loop= new Thread(this::runVirtualView);
+        this.loop.start();
     }
 
     public void stop() throws IOException{

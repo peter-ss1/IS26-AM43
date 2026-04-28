@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.network.command;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -14,17 +15,11 @@ import java.util.UUID;
  * Base class for commands handled by the ServerController.
  */
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "dataClientToServerType"
-)
-
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ServerCommand.FetchLobbiesCommand.class, name = "fetchLobbiesCommand"),
         @JsonSubTypes.Type(value = ServerCommand.CreateLobbyCommand.class, name = "createLobbyCommand"),
         @JsonSubTypes.Type(value = ServerCommand.PickLobbyCommand.class, name = "pickLobbyCommand"),
-        @JsonSubTypes.Type(value = RegisterCommand.class, name = "registerCommand"),
+        @JsonSubTypes.Type(value = ServerCommand.RegisterCommand.class, name = "registerCommand"),
 })
 
 public non-sealed abstract class ServerCommand extends Command {
@@ -39,8 +34,8 @@ public non-sealed abstract class ServerCommand extends Command {
     }
 
     public static class FetchLobbiesCommand extends ServerCommand {
-
-        public FetchLobbiesCommand(@JsonProperty("playerID") UUID playerId) {
+        @JsonCreator
+        public FetchLobbiesCommand(@JsonProperty("playerId") UUID playerId) {
             super(playerId);
         }
 
