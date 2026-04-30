@@ -12,5 +12,4 @@ public interface VirtualServer extends Remote {
 
     void sendCommand(ServerCommand command) throws RemoteException;
     void sendCommand(GameCommand command) throws RemoteException;
-    void ping(UUID id) throws RemoteException;
 }

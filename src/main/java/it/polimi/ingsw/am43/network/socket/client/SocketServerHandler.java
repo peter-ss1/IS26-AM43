@@ -8,14 +8,17 @@ import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.socket.UtilsJSON;
 import it.polimi.ingsw.am43.network.socket.VirtualServerSocket;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.UUID;
 
 public class SocketServerHandler implements VirtualServerSocket {
     private final PrintWriter output;
 
-    public SocketServerHandler(PrintWriter output){
-        this.output=output;
+    public SocketServerHandler(Socket socket)throws IOException {
+        this.output=new PrintWriter(new OutputStreamWriter(socket.getOutputStream()),true);
     }
 
     public void sendCommand(ServerCommand serverCommand){
@@ -39,3 +42,4 @@ public class SocketServerHandler implements VirtualServerSocket {
         }catch (JsonProcessingException e){throw new RuntimeException(e.getMessage());}
     }
 }
+

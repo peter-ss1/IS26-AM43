@@ -4,14 +4,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
 public class Reaper{
-    private MultiPersistentClientConnection connections;
+    private final MultiPersistentClientConnection connections;
     private volatile boolean active;
-    private Thread loop;
+    private final Thread loop;
 
     public Reaper(MultiPersistentClientConnection clientConnection){
         this.connections=clientConnection;
         this.active=false;
-        this.loop= new Thread(this::run);
+        this.loop= new Thread(this::runLoop);
     }
 
     public void start(){
@@ -23,7 +23,7 @@ public class Reaper{
         this.loop.interrupt();
     }
 
-    private void run(){
+    private void runLoop(){
         long now;
         while(this.active){
             for(UUID id : this.connections.getIds()){
@@ -35,7 +35,7 @@ public class Reaper{
             try {
                 Thread.sleep(3000);
             }catch (InterruptedException e){
-                break;
+                continue;
             }
         }
     }

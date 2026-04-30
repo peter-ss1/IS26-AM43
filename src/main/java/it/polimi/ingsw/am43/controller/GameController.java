@@ -54,7 +54,7 @@ public class GameController implements GameObserver {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
-            } catch (RuntimeException | RemoteException e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
         }
@@ -74,15 +74,11 @@ public class GameController implements GameObserver {
     @Override
     public void broadcast(Update update) {
         for (UUID id : this.clients.keySet()) {
-            try {
-                this.serverController.sendMessage(id, update);
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
+            this.serverController.sendMessage(id, update);
         }
     }
 
-    public void pickCard(int id, UUID playerID) throws RemoteException {
+    public void pickCard(int id, UUID playerID){
         try {
             String nickname = this.clients.get(playerID);
             this.model.pickCard(this.model.getCardById(id), this.model.getPlayerByName(nickname));
@@ -94,7 +90,7 @@ public class GameController implements GameObserver {
         }
     }
 
-    public void placeTotem(int position, UUID playerID) throws RemoteException {
+    public void placeTotem(int position, UUID playerID){
         try {
             String nickname = this.clients.get(playerID);
             this.model.placeTotemOnTrack(this.model.getPlayerByName(nickname), position);
@@ -108,7 +104,7 @@ public class GameController implements GameObserver {
         }
     }
 
-    public void endTurn(UUID playerID) throws RemoteException {
+    public void endTurn(UUID playerID){
         try {
             String nickname = this.clients.get(playerID);
             this.model.endCurrentTurn(this.model.getPlayerByName(nickname));
@@ -123,7 +119,7 @@ public class GameController implements GameObserver {
     }
 
     //TODO synchronise methods
-    public boolean joinLobby(UUID playerID) throws RemoteException {
+    public boolean joinLobby(UUID playerID){
         if (gameStarted) {
             this.serverController.sendMessage(playerID, new Error.GameAlreadyStartedError());
             return false;
@@ -136,7 +132,7 @@ public class GameController implements GameObserver {
         return true;
     }
 
-    public void joinGame(UUID playerID, String nickname, Color color) throws RemoteException {
+    public void joinGame(UUID playerID, String nickname, Color color){
         if (!this.clients.get(playerID).equals("-")) {
             this.serverController.sendMessage(playerID, new Error.GenericServerError("Player already in game"));
             return;

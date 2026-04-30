@@ -4,6 +4,8 @@ import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 
+import java.util.UUID;
+
 public non-sealed abstract class Error extends Message {
     private final String message;
 

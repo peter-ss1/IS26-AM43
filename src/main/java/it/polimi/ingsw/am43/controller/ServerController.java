@@ -41,7 +41,7 @@ public class ServerController {
         new Thread(this::executor).start();
     }
 
-    public void register(UUID playerId, SinglePersistentClientConnection connection) {
+    public void register(UUID playerId, ServerBidirectionalConnection connection) {
         if (this.clients.containsKey(playerId)) {
             //TODO: reconnection logic
             System.out.println(playerId.toString());
@@ -51,14 +51,13 @@ public class ServerController {
             System.out.println("client connected");
         }
     }
-    private VirtualClient getClientByID(UUID playerID){
+    private ClientConnection getClientByID(UUID playerID) throws IllegalArgumentException{
         try {
-            return this.connectionManager.getRemote(playerID);
+            return this.connectionManager.getConnection(playerID);
         } catch (IllegalArgumentException e) {
             //sendmessage
-            return null;
+            throw e;
         }
-
     }
 
     public void addToQueue(ServerCommand command) {
@@ -80,20 +79,20 @@ public class ServerController {
             try {
                 Command command = commandQueue.take();
                 command.execute(this);
-            } catch (RemoteException | InterruptedException e) {
+            } catch ( InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    public void fetchLobbies(UUID playerId) throws RemoteException {
+    public void fetchLobbies(UUID playerId){
         List<LobbyInfo> availableLobbies = lobbies.values().stream()
                 .map(game -> new LobbyInfo(game.getLobbyId(), game.getNumPlayers(), game.getCurrentPlayers()))
                 .filter(lobbyInfo -> lobbyInfo.getNumPlayers() != lobbyInfo.getCurrentPlayers())
                 .toList();
         this.getClientByID(playerId).sendMessage(new Update.AvailableLobbiesUpdate(availableLobbies));
     }
-    public void createLobby(UUID playerID, String nickname, Color color, int numPlayers) throws RemoteException {
+    public void createLobby(UUID playerID, String nickname, Color color, int numPlayers){
         if (nickname.isBlank()) {
             this.getClientByID(playerID).sendMessage(new Error.InvalidNameError("Invalid Name"));
         }
@@ -112,7 +111,7 @@ public class ServerController {
             }
         }
     }
-    public void joinLobby(UUID playerID, int lobbyId) throws RemoteException {
+    public void joinLobby(UUID playerID, int lobbyId) {
         if (!this.lobbies.containsKey(lobbyId)) {
             this.getClientByID(playerID).sendMessage(new Error.LobbyNotFoundError(lobbyId));
             return;
@@ -131,7 +130,7 @@ public class ServerController {
     }
 
 
-    public void sendMessage(UUID playerID, Message message) throws RemoteException {
+    public void sendMessage(UUID playerID, Message message) {
         this.getClientByID(playerID).sendMessage(message);
     }
 

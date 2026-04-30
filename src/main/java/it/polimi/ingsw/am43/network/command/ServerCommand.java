@@ -8,6 +8,8 @@ import it.polimi.ingsw.am43.controller.GameController;
 import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.network.command.ServerCommand.RegisterCommand;
+import it.polimi.ingsw.am43.utils.Task;
+
 import java.rmi.RemoteException;
 import java.util.UUID;
 
@@ -22,14 +24,14 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = ServerCommand.RegisterCommand.class, name = "registerCommand"),
 })
 
-public non-sealed abstract class ServerCommand extends Command {
+public non-sealed abstract class ServerCommand extends Command implements Task<ServerController> {
 
     protected ServerCommand(UUID playerId) {
         super(playerId);
     }
 
     @Override
-    public void execute(GameController gameController) throws RemoteException {
+    public void execute(GameController gameController){
         // Server commands are not meant to be executed by GameController.
     }
 
@@ -40,7 +42,7 @@ public non-sealed abstract class ServerCommand extends Command {
         }
 
         @Override
-        public void execute(ServerController serverController) throws RemoteException {
+        public void execute(ServerController serverController){
             serverController.fetchLobbies(this.playerId);
         }
     }
@@ -61,7 +63,7 @@ public non-sealed abstract class ServerCommand extends Command {
         }
 
         @Override
-        public void execute(ServerController controller) throws RemoteException {
+        public void execute(ServerController controller){
             controller.createLobby(this.playerId, this.nickname, this.color, this.numPlayers);
         }
     }
@@ -76,7 +78,7 @@ public non-sealed abstract class ServerCommand extends Command {
         }
 
         @Override
-        public void execute(ServerController serverController) throws RemoteException {
+        public void execute(ServerController serverController){
             serverController.joinLobby(this.playerId, this.lobbyId);
         }
     }

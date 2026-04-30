@@ -29,4 +29,6 @@ module it.polimi.ingsw.am43 {
     exports it.polimi.ingsw.am43.model.enums;
 
     opens it.polimi.ingsw.am43.model.player to org.junit.platform.commons;
+    exports it.polimi.ingsw.am43.utils to java.rmi;
+    opens it.polimi.ingsw.am43.utils to java.rmi;
 }

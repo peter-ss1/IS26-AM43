@@ -6,6 +6,7 @@ import it.polimi.ingsw.am43.network.command.Command;
 import it.polimi.ingsw.am43.network.command.Ping;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

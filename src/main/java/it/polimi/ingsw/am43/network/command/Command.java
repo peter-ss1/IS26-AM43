@@ -21,6 +21,6 @@ public abstract sealed class Command extends DataClientToServer permits GameComm
         super(playerId);
     }
 
-    public abstract void execute(ServerController serverController) throws RemoteException;
-    public abstract void execute(GameController gameController) throws RemoteException;
+    public abstract void execute(ServerController serverController);
+    public abstract void execute(GameController gameController);
 }
