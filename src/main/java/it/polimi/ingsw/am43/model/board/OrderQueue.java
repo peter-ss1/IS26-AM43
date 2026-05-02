@@ -2,6 +2,8 @@ package it.polimi.ingsw.am43.model.board;
 
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 
 import java.util.*;
 
@@ -30,12 +32,17 @@ public class OrderQueue {
         return this.foodModifiers.get(playerOrder.size()-1);
     }
 
-    public void append(Player player) {
+    public void append(GameObserver observer, Player player) {
         this.playerOrder.offer(player);
-        if (player.getFood() + this.foodModifiers.get(playerOrder.size() - 1) >= 0)
-            player.alterFood(this.foodModifiers.get(playerOrder.size() - 1));
-        else
+        int modifier = this.foodModifiers.get(playerOrder.size()-1);
+        if (modifier != 0 && player.getFood() + modifier >= 0) {
+            player.alterFood(modifier);
+            observer.broadcast(new Update.OrderModifierUpdate(player.getNickname(), modifier, false));
+        }
+        else {
             player.alterPrestigePoints(-2);
+            observer.broadcast(new Update.OrderModifierUpdate(player.getNickname(), -2, true));
+        }
     }
 
     public Player peek() {

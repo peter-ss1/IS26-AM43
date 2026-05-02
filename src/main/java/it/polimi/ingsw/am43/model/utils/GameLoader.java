@@ -1,47 +1,49 @@
 package it.polimi.ingsw.am43.model.utils;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am43.model.board.OfferTrackCard;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
-import it.polimi.ingsw.am43.model.cards.Card.*;
-import it.polimi.ingsw.am43.model.cards.TribeCard;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.utils.DTOs.BuildingDeckCardDTO;
 import it.polimi.ingsw.am43.model.utils.DTOs.TribeDeckCardDTO;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GameLoader {
 
     private final ObjectMapper mapper;
     private final String pathConfig;
-    private final Map<Integer,Card> idToCard;
+    private final Map<Integer, Card> idToCard;
 
-    public GameLoader(String pathConfig){
-        this.mapper=new ObjectMapper();
-        this.pathConfig= pathConfig;
-        this.idToCard=new HashMap<>();
+    //TODO make path a constant
+    public GameLoader(String pathConfig) {
+        this.mapper = new ObjectMapper();
+        this.pathConfig = pathConfig;
+        this.idToCard = new HashMap<>();
     }
 
-    public ArrayList<Integer> loadFoodModifiers(int numPlayers) throws IOException, IndexOutOfBoundsException{
-         InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
-         if (inputStream == null) throw new IOException("path json error");
-         JsonNode orderQueueNode= mapper.readTree(inputStream).path("board").path("orderQueue");
+    public ArrayList<Integer> loadFoodModifiers(int numPlayers) throws IOException, IndexOutOfBoundsException {
+        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
+        if (inputStream == null) throw new IOException("path json error");
+        JsonNode orderQueueNode = mapper.readTree(inputStream).path("board").path("orderQueue");
 
-         Map<Integer, ArrayList<Integer>> valueMap = mapper.convertValue(
-                 orderQueueNode,
-                 new TypeReference<Map<Integer, ArrayList<Integer>>>() {}
-         );
+        Map<Integer, ArrayList<Integer>> valueMap = mapper.convertValue(
+                orderQueueNode,
+                new TypeReference<Map<Integer, ArrayList<Integer>>>() {
+                }
+        );
         return valueMap.get(numPlayers);
     }
 
-    public ArrayList<Card> loadTribeDeck()throws IOException, IllegalArgumentException{
+    public ArrayList<Card> loadTribeDeck() throws IOException, IllegalArgumentException {
         InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode tribeDeckNode = mapper.readTree(inputStream).path("board").path("tribeDeck");
@@ -49,89 +51,92 @@ public class GameLoader {
 
         List<TribeDeckCardDTO> tribeDeckDTO = mapper.convertValue(
                 tribeDeckNode,
-                new TypeReference<ArrayList<TribeDeckCardDTO>>() {}
+                new TypeReference<ArrayList<TribeDeckCardDTO>>() {
+                }
         );
-        ArrayList<Card> tribeDeck= new ArrayList<Card>();
-        for(TribeDeckCardDTO tdo : tribeDeckDTO){
-            Card newCard= tdo.createCard();
+        ArrayList<Card> tribeDeck = new ArrayList<Card>();
+        for (TribeDeckCardDTO tdo : tribeDeckDTO) {
+            Card newCard = tdo.createCard();
             tribeDeck.add(newCard);
-            this.idToCard.put(newCard.getId(),newCard);
+            this.idToCard.put(newCard.getId(), newCard);
         }
         return tribeDeck;
     }
 
-    public Map<Integer, List<Building>> loadBuildingDeck()throws IOException, IllegalArgumentException{
+    public Map<Integer, List<Building>> loadBuildingDeck() throws IOException, IllegalArgumentException {
         InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode buildingDeckNode = mapper.readTree(inputStream).path("board").path("buildingDeck");
         if (buildingDeckNode == null) throw new IOException("node json error");
 
-        Map<Integer,List<BuildingDeckCardDTO>> buildingDeckTDO= mapper.convertValue(
+        Map<Integer, List<BuildingDeckCardDTO>> buildingDeckTDO = mapper.convertValue(
                 buildingDeckNode,
-                new TypeReference<Map<Integer, List<BuildingDeckCardDTO>>>() {}
+                new TypeReference<Map<Integer, List<BuildingDeckCardDTO>>>() {
+                }
         );
-        Map<Integer,List<Building>> buildingDeck = new HashMap<Integer, List<Building>>();
-        for(Integer i : buildingDeckTDO.keySet()){
-            buildingDeck.put(i,new ArrayList<Building>());
-            for (BuildingDeckCardDTO tdo : buildingDeckTDO.get(i)){
-                Building newBuilding= tdo.createBuilding();
+        Map<Integer, List<Building>> buildingDeck = new HashMap<Integer, List<Building>>();
+        for (Integer i : buildingDeckTDO.keySet()) {
+            buildingDeck.put(i, new ArrayList<Building>());
+            for (BuildingDeckCardDTO tdo : buildingDeckTDO.get(i)) {
+                Building newBuilding = tdo.createBuilding();
                 buildingDeck.get(i).add(newBuilding);
-                this.idToCard.put(newBuilding.getId(),newBuilding);
+                this.idToCard.put(newBuilding.getId(), newBuilding);
             }
         }
 
         return buildingDeck;
     }
 
-    public Map<Integer,Card> loadIdToCardMap(){
+    public Map<Integer, Card> loadIdToCardMap() {
         return new HashMap<>(this.idToCard);
     }
 
-    public ArrayList<OfferTrackCard> loadOfferTrackCard(int numPlayers) throws IOException, IllegalArgumentException{
+    public ArrayList<OfferTrackCard> loadOfferTrackCard(int numPlayers) throws IOException, IllegalArgumentException {
         InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode offerTrackNode = mapper.readTree(inputStream).path("board").path("offerTrack");
         if (offerTrackNode == null) throw new IOException("node json error");
 
-        ArrayList<ArrayList<OfferAction>> offerTrackBone= mapper.convertValue(
+        ArrayList<ArrayList<OfferAction>> offerTrackBone = mapper.convertValue(
                 offerTrackNode,
-                new TypeReference<ArrayList<ArrayList<OfferAction>>>() {}
+                new TypeReference<ArrayList<ArrayList<OfferAction>>>() {
+                }
         );
-        if(numPlayers<5){
+        if (numPlayers < 5) {
             offerTrackBone.removeFirst();
-            if(numPlayers<4){
+            if (numPlayers < 4) {
                 offerTrackBone.removeLast();
-                if(numPlayers<3)
+                if (numPlayers < 3)
                     offerTrackBone.remove(2);
             }
         }
 
         ArrayList<OfferTrackCard> offerTrack = new ArrayList<OfferTrackCard>();
-        for(ArrayList<OfferAction> actions: offerTrackBone){
+        for (ArrayList<OfferAction> actions : offerTrackBone) {
             offerTrack.add(new OfferTrackCard(actions));
         }
         return offerTrack;
     }
 
-    public Integer loadSeed()throws IOException{
+    public Integer loadSeed() throws IOException {
         InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode seedNode = mapper.readTree(inputStream).path("board").path("seed");
-        return  seedNode.asInt(1234);
+        return seedNode.asInt(1234);
     }
 
-    public ArrayList<Integer> loadNumBuildings(int numPlayers) throws IOException, IndexOutOfBoundsException{
+    public ArrayList<Integer> loadNumBuildings(int numPlayers) throws IOException, IndexOutOfBoundsException {
         InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode numBuildings = mapper.readTree(inputStream).path("board").path("numBuildingsByNumPlayers");
         if (numBuildings == null) throw new IOException("node json error");
-        Map<Integer,ArrayList<Integer>> map= mapper.convertValue(
+        Map<Integer, ArrayList<Integer>> map = mapper.convertValue(
                 numBuildings,
-                new TypeReference<Map<Integer, ArrayList<Integer>>>() {}
+                new TypeReference<Map<Integer, ArrayList<Integer>>>() {
+                }
         );
         return map.get(numPlayers);
     }
-
 
 
 }

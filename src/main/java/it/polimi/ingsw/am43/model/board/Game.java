@@ -4,7 +4,9 @@ import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
-import it.polimi.ingsw.am43.model.exceptions.*;
+import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
+import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
+import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
@@ -51,7 +53,14 @@ public class Game implements ModelInterface {
         return new ArrayList<>(this.players);
     }
 
+    @Override
+    public void startGame() {
+        this.getPhase().resolvePhase(this, this.board);
+        this.board.buildGameStartedUpdate(this.observer, this.players, this.currPlayer.getNickname());
+    }
+
     public void addPlayer(String nickname, Color color) {
+        if (this.numPlayers == this.players.size()) throw new IllegalArgumentException("Game is already full");
         if (!phase.equals(GamePhase.PREPARATION))
             throw new IllegalStateException("Cannot add player when phase is " + phase);
         if (this.players.stream().anyMatch(p -> p.getNickname().equals(nickname)))
@@ -59,11 +68,6 @@ public class Game implements ModelInterface {
         if (!this.availableColors.remove(color))
             throw new IllegalPlayerInitializationException("Color is already in use");
         this.players.add(new Player(nickname, color));
-        if (this.observer != null) this.observer.broadcast(new Update.PlayerAddedUpdate(nickname, color));
-        if (this.players.size() == numPlayers) {
-            this.getPhase().resolvePhase(this, this.board);
-            if (this.observer!= null) this.board.buildGameStartedUpdate(this.observer, this.players, this.currPlayer.getNickname());
-        }
     }
 
     public int getNumPlayers() {
@@ -110,7 +114,7 @@ public class Game implements ModelInterface {
         return players.stream().filter(p -> p.getNickname().equals(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("Player is not registered in the game"));
     }
 
-    public Card getCardById(int id) {
+    public Card getCardById(int id) throws IllegalArgumentException {
         if (!this.idToCard.containsKey(id)) throw new IllegalArgumentException("Card is not registered in the game");
         return this.idToCard.get(id);
     }
@@ -125,8 +129,7 @@ public class Game implements ModelInterface {
         if (player.getAvailableActions().isEmpty()) throw new IllegalMoveException("Cannot pick another card");
         if (!player.getAvailableActions().contains(this.board.getCardPosition(card)))
             throw new IllegalMoveException("Cannot pick card in wrong row");
-        this.observer.broadcast(new Update.CardPickedUpdate(player.getNickname(), card.getId()));
-        card.pick(player);
+        card.pick(this.observer, player);
         player.removeAvailableAction(this.board.getCardPosition(card));
         this.board.removeCard(card);
         resolveOffer(player);
@@ -141,10 +144,11 @@ public class Game implements ModelInterface {
         if (!this.currPlayer.equals(player)) throw new OutOfTurnException("Cannot end turn in other player's turn");
         if (this.phase.equals(GamePhase.DRAW_FROM_TOP_BONUS_ACTION)) {
             this.phase.resolvePhase(this, this.board);
+            this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             return;
         }
         if (board.checkEndTurnCondition(player)) {
-            board.returnPlayerToOrderQueue(player);
+            board.returnPlayerToOrderQueue(this.observer, player);
             this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             player.getTribe().activateTimedBuilding(this, player, this.board);
             board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,
@@ -153,8 +157,8 @@ public class Game implements ModelInterface {
     }
 
     public void resolveOffer(Player player) {
-        if (player.getAvailableActions().isEmpty() || board.isOfferResolved(player)) {
-            board.returnPlayerToOrderQueue(player);
+        if (player.getAvailableActions().isEmpty() || board.isOfferResolved(this.observer, player)) {
+            board.returnPlayerToOrderQueue(this.observer, player);
             this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             player.getTribe().activateTimedBuilding(this, player, this.board);
             board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,
@@ -168,4 +172,7 @@ public class Game implements ModelInterface {
         return ids.stream().filter(id -> this.board.containsCard(this.getCardById(id))).toList();
     }
 
+    public GameObserver getObserver() {
+        return this.observer;
+    }
 }

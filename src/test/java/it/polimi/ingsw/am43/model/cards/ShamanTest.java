@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
@@ -21,7 +22,7 @@ public class ShamanTest {
         Player player = new Player("alice", Color.RED);
         Shaman shaman = new Shaman(1, 0, 2);
 
-        shaman.tribeEntranceEffect(player);
+        shaman.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(1, player.getTribe().getNumberByCharacterType(CharacterType.SHAMAN));
     }
@@ -31,7 +32,7 @@ public class ShamanTest {
         Player player = new Player("alice", Color.YELLOW);
         Shaman shaman = new Shaman(1, 0, 2);
 
-        shaman.tribeEntranceEffect(player);
+        shaman.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(2, player.getShamanStars());
     }
@@ -42,8 +43,8 @@ public class ShamanTest {
         Shaman firstShaman = new Shaman(1, 0, 1);
         Shaman secondShaman = new Shaman(1, 0,3);
 
-        firstShaman.tribeEntranceEffect(player);
-        secondShaman.tribeEntranceEffect(player);
+        firstShaman.tribeEntranceEffect(new MockObserver(), player);
+        secondShaman.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(2, player.getTribe().getNumberByCharacterType(CharacterType.SHAMAN));
         assertEquals(4, player.getShamanStars());

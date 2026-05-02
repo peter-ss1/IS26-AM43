@@ -78,7 +78,7 @@ public class ServerController {
     public void fetchLobbies(UUID playerId) throws RemoteException {
         List<LobbyInfo> availableLobbies = lobbies.values().stream()
                 .map(game -> new LobbyInfo(game.getLobbyId(), game.getNumPlayers(), game.getCurrentPlayers()))
-                .filter(lobbyInfo -> lobbyInfo.numPlayers() != lobbyInfo.currentPlayers())
+                .filter(lobbyInfo -> lobbyInfo.getNumPlayers() != lobbyInfo.getCurrentPlayers())
                 .toList();
         this.getClientByID(playerId).sendMessage(new Update.AvailableLobbiesUpdate(availableLobbies));
     }
@@ -121,10 +121,9 @@ public class ServerController {
             clients.get(playerID).getClient().sendMessage(new Error.LobbyJoinError("Lobby #" + lobbyId + " is already full."));
             return;
         }
-        gameController.joinLobby(playerID);
         clients.get(playerID).setLobbyId(lobbyId);
         clients.get(playerID).setState(ClientState.PLAYING);
-        clients.get(playerID).getClient().sendMessage(new Update.LobbyJoinedUpdate(new LobbyInfo(lobbyId, gameController.getNumPlayers(), gameController.getCurrentPlayers()), gameController.getPlayersInfo()));
+        gameController.joinLobby(playerID);
         for (Map.Entry<UUID, ClientInfo> entry : clients.entrySet()) {
             if (entry.getValue().getState().equals(ClientState.CHOOSING)) {
                 entry.getValue().getClient().sendMessage(new Update.NewLobbyUpdate(new LobbyInfo(lobbyId, gameController.getNumPlayers(), gameController.getCurrentPlayers())));

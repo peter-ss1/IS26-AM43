@@ -5,6 +5,7 @@ import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OfferTrackElement implements Serializable {
@@ -18,18 +19,8 @@ public class OfferTrackElement implements Serializable {
         this.color = color;
     }
 
-    public String[] prepareCard() {
-        return new String[] {
-                "┌───────────┐",
-                "│  OFFERTA  │",
-                "├───────────┤",
-                "│           │",
-                "│ " + color + " │",
-                "│           │",
-                "├───────────┤",
-                "│ " + offerActions + " │",
-                "└───────────┘"
-        };
+    public List<OfferAction> getOfferActions() {
+        return new ArrayList<>(offerActions);
     }
 
     public void setColor(Color color) {

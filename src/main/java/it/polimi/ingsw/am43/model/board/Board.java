@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.model.board;
 
-import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
@@ -56,7 +55,7 @@ public class Board {
 
     public int getCurrEra() { return this.currEra; }
 
-    public void setPlayerOnTrack(Player player, int position) {
+    public void setPlayerOnTrack(Player player, int position) throws IndexOutOfBoundsException, IllegalMoveException {
         if (position < 0 || position > this.offerTrack.size()) throw new IndexOutOfBoundsException("Invalid position");
         if (this.offerTrack.get(position).getPlayer().isPresent()) throw new IllegalMoveException("Cannot pick occupied tile");
         this.offerTrack.get(position).setPlayer(player);
@@ -114,13 +113,13 @@ public class Board {
         return card.isContainedInRow(this.topRow) || card.isContainedInRow(this.bottomRow);
     }
 
-    public void activateEvents(OfferAction row, List<Player> players) {
+    public void activateEvents(GameObserver observer, OfferAction row, List<Player> players) {
         switch (row) {
             case OfferAction.TOP:
-                this.topRow.activateEvents(players);
+                this.topRow.activateEvents(observer, players);
                 return;
             case OfferAction.BOTTOM:
-                this.bottomRow.activateEvents(players);
+                this.bottomRow.activateEvents(observer, players);
                 return;
             default:
                 throw new RuntimeException("error in activate events");
@@ -128,12 +127,12 @@ public class Board {
     }
 
     public void moveTopToBottomTribe() {
-        this.bottomRow.removeBuildings();
+        this.bottomRow.removeCharacters();
         this.bottomRow.removeEvents();
         this.bottomRow.addAllCharacters(this.topRow.getAllCharacters());
         this.bottomRow.addAllEvents(this.topRow.getAllEvents());
         this.topRow.removeCharacters();
-        this.bottomRow.removeEvents();
+        this.topRow.removeEvents();
     }
 
     public void moveTopToBottomBuildings() {
@@ -141,14 +140,14 @@ public class Board {
         this.topRow.removeBuildings();
     }
 
-    public void returnPlayerToOrderQueue(Player player) {
+    public void returnPlayerToOrderQueue(GameObserver observer , Player player) {
         for (OfferTrackCard otd : this.offerTrack) {
             if (otd.getPlayer().isPresent() && otd.getPlayer().get().equals(player)) {
                 otd.removePlayer();
                 break;
             }
         }
-        this.turnOrder.append(player);
+        this.turnOrder.append(observer, player);
     }
 
     public boolean isOrderQueueEmpty() {
@@ -174,7 +173,7 @@ public class Board {
         return true;
     }
 
-    public boolean isOfferResolved(Player player) {
+    public boolean isOfferResolved(GameObserver observer, Player player) {
         for (OfferAction action : player.getAvailableActions()) {
             switch (action) {
                 case TOP, BOTTOM:
@@ -182,6 +181,7 @@ public class Board {
                     break;
                 case FOOD:
                     player.alterFood(3);
+                    observer.broadcast(new Update.FoodOfferUpdate(player.getNickname()));
                     return true;
             }
         }
@@ -223,7 +223,11 @@ public class Board {
                 this.topRow.getIds(),
                 this.bottomRow.getIds(),
                 this.turnOrder.getColorOrder(),
-                this.offerTrack.stream().map(card -> new OfferTrackElement(card.getActions() ,card.getPlayer().map(Player::getColor).orElse(null))).toList()
+                this.offerTrack.stream().map(card -> new OfferTrackElement(card.getActions(), null)).toList()
         ));
+    }
+
+    public void buildNewRoundUpdate(GameObserver observer) {
+        observer.broadcast(new Update.NewRoundUpdate(this.currEra, this.topRow.getIds(), this.bottomRow.getIds()));
     }
 }

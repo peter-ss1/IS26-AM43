@@ -66,4 +66,12 @@ public class ClientPlayer implements Serializable {
     public void updateTribe(Integer id) {
         this.tribe.add(id);
     }
+
+    public void alterFood(int amount) {
+        this.food += amount;
+    }
+
+    public void alterPrestigePoints(int amount) {
+        this.prestigePoints += amount;
+    }
 }

@@ -1,10 +1,13 @@
 package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class RitualEvent extends Event {
@@ -32,9 +35,10 @@ public class RitualEvent extends Event {
     }
 
     @Override
-    public void affectPlayers(List<Player> players) {
+    public void affectPlayers(GameObserver observer, List<Player> players) {
         int minStars = players.getFirst().getShamanStars();
         int maxStars = minStars;
+        Map<String, Integer> effects = new HashMap<>();
         for (Player p : players) {
             int stars = p.getShamanStars();
             if (stars < minStars) {
@@ -54,17 +58,20 @@ public class RitualEvent extends Event {
         }
         for (Player p : this.losers) {
             p.alterPrestigePoints(malus);
+            effects.put(p.getNickname(), malus);
         }
         for (Player p : this.winners) {
             p.alterPrestigePoints(this.getEra() * 5);
+            effects.merge(p.getNickname(), this.getEra() * 5, Integer::sum);
         }
+        observer.broadcast(new Update.RitualEventEffectUpdate(effects));
         for (Player p : Stream.concat(losers.stream(), winners.stream()).distinct().toList()) {
-            p.getTribe().activateEventBuildings(this, p);
+            p.getTribe().activateEventBuildings(observer, this, p);
         }
     }
 
     @Override
-    public void triggerBuilding(EventBuilding building, Player player) {
-        building.reactToEvent(player, this);
+    public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
+        building.reactToEvent(observer, player, this);
     }
 }

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
@@ -22,7 +23,7 @@ public class HunterTest {
         Player player = new Player("alice", Color.BLACK);
         Hunter hunter = new Hunter(1, 0,false);
 
-        hunter.tribeEntranceEffect(player);
+        hunter.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(1, player.getTribe().getNumberByCharacterType(CharacterType.HUNTER));
     }
@@ -32,7 +33,7 @@ public class HunterTest {
         Player player = new Player("alice", Color.BLACK);
         Hunter hunter = new Hunter(1, 0,false);
 
-        hunter.tribeEntranceEffect(player);
+        hunter.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(0, player.getFood());
     }
@@ -42,7 +43,7 @@ public class HunterTest {
         Player player = new Player("alice", Color.BLACK);
         Hunter hunter = new Hunter(1, 0,true);
 
-        hunter.tribeEntranceEffect(player);
+        hunter.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(1, player.getTribe().getNumberByCharacterType(CharacterType.HUNTER));
         assertEquals(1, player.getFood());
@@ -54,8 +55,8 @@ public class HunterTest {
         Hunter firstHunter = new Hunter(1, 0,false);
         Hunter secondHunter = new Hunter(1, 0,true);
 
-        firstHunter.tribeEntranceEffect(player);
-        secondHunter.tribeEntranceEffect(player);
+        firstHunter.tribeEntranceEffect(new MockObserver(), player);
+        secondHunter.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(2, player.getTribe().getNumberByCharacterType(CharacterType.HUNTER));
         assertEquals(2, player.getFood());
@@ -67,8 +68,8 @@ public class HunterTest {
         Hunter firstHunter = new Hunter(1, 0,true);
         Hunter secondHunter = new Hunter(1, 0,true);
 
-        firstHunter.tribeEntranceEffect(player);   // +1
-        secondHunter.tribeEntranceEffect(player);  // +2
+        firstHunter.tribeEntranceEffect(new MockObserver(), player);   // +1
+        secondHunter.tribeEntranceEffect(new MockObserver(), player);  // +2
 
         assertEquals(2, player.getTribe().getNumberByCharacterType(CharacterType.HUNTER));
         assertEquals(3, player.getFood());

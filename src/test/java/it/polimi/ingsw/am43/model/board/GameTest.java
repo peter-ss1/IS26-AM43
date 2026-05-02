@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.board;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.cards.TimedBuilding;
 import it.polimi.ingsw.am43.model.cards.TimedEffect;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
@@ -25,17 +26,10 @@ class GameTest {
     private Game game;
     private Player player1;
     private Player player2;
-    private class fakeObserver implements GameObserver {
-
-        @Override
-        public void broadcast(Update update) {
-
-        }
-    }
     @BeforeAll
     void gameInitTest() {
         game = new Game(2, "pippo", Color.BLACK);
-        game.setObserver(new fakeObserver());
+        game.setObserver(new MockObserver());
         assertEquals(GamePhase.PREPARATION, game.getPhase());
         assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("pippo", Color.WHITE));
         assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("jonny", Color.BLACK));
@@ -92,7 +86,7 @@ class GameTest {
     void actionResolutionTest() throws RuntimeException {
         //System.out.println(game.getVisibleIds());
         assertThrows(IllegalArgumentException.class, () -> game.pickCard(game.getCardById(6), new Player("error", Color.WHITE)));
-        assertThrows(IllegalStateException.class, () -> game.addPlayer("pippo", Color.WHITE));
+        assertThrows(IllegalArgumentException.class, () -> game.addPlayer("pippo", Color.WHITE));
         assertThrows(IllegalStateException.class, () -> game.placeTotemOnTrack(player1, 3));
         this.game.pickCard(game.getCardById(6), player2);
         assertEquals(player2, game.getCurrPlayer());

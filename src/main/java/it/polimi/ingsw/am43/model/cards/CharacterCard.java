@@ -2,6 +2,8 @@ package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.model.board.Row;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 
 public abstract class CharacterCard extends TribeCard {
 
@@ -15,8 +17,9 @@ public abstract class CharacterCard extends TribeCard {
     }
 
     @Override
-    public void pick(Player player) {
-        this.tribeEntranceEffect(player);
+    public void pick(GameObserver observer, Player player) {
+        observer.broadcast(new Update.CardPickedUpdate(player.getNickname(), this.getId()));
+        this.tribeEntranceEffect(observer, player);
     }
 
     @Override

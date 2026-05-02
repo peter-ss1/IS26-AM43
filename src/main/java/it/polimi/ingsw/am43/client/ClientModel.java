@@ -1,13 +1,9 @@
 package it.polimi.ingsw.am43.client;
 
 import it.polimi.ingsw.am43.client.view.UI;
-import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
-import it.polimi.ingsw.am43.model.enums.OfferAction;
-import it.polimi.ingsw.am43.model.utils.GameLoader;
 
-import java.io.IOException;
 import java.util.*;
 
 public class ClientModel {
@@ -18,23 +14,15 @@ public class ClientModel {
     private final List<Integer> topRowCards;
     private final List<Integer> bottomRowCards;
     private final List<Color> orderQueue;
-    private final Map<Integer, Card> idToCard;
     private final List<OfferTrackElement> offerTrack;
     private GamePhase phase;
     private int currentEra;
     private String currPlayerNickname;
     private final UI ui;
     private boolean validating;
+    private final List<String> winners;
 
     public ClientModel(UI ui) {
-        GameLoader loader = new GameLoader("/it/polimi/ingsw/am43/config.json");
-        try {
-            loader.loadBuildingDeck();
-            loader.loadTribeDeck();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        this.idToCard = loader.loadIdToCardMap();
         this.lobbies = new ArrayList<>();
         this.ownLobby = new LobbyInfo(0, 0, 0);
         this.ownPlayer = null;
@@ -48,6 +36,7 @@ public class ClientModel {
         this.ui = ui;
         this.currPlayerNickname = "";
         this.validating = false;
+        this.winners = new ArrayList<>();
     }
 
     public void refreshLobbies(List<LobbyInfo> lobbies) {
@@ -57,7 +46,7 @@ public class ClientModel {
     }
 
     public int getNumPlayers() {
-        return otherPlayers.size()+1;
+        return otherPlayers.size() + 1;
     }
 
 
@@ -71,9 +60,6 @@ public class ClientModel {
                 .toList();
     }
 
-    public Card getCard(int id) {
-        return this.idToCard.get(id);
-    }
     public LobbyInfo getOwnLobby() {
         return ownLobby;
     }
@@ -166,7 +152,7 @@ public class ClientModel {
 
     public ClientPlayer getPlayerByNickname(String nickname) {
         return this.getAllPlayers().stream()
-                .filter(player -> player.getNickname().equals(nickname))
+                .filter(player -> player.getNickname().equalsIgnoreCase(nickname))
                 .findFirst()
                 .orElse(null);
     }
@@ -191,14 +177,16 @@ public class ClientModel {
 
     public void endTurn(String nickname) {
         Color color = getPlayerByNickname(nickname).getColor();
-        this.offerTrack.stream().filter(o -> o.getColor() != null && o.getColor().equals(color)).findFirst().ifPresent(o -> {o.setColor(null);});
+        this.offerTrack.stream().filter(o -> o.getColor() != null && o.getColor().equals(color)).findFirst().ifPresent(o -> {
+            o.setColor(null);
+        });
         this.orderQueue.add(color);
         this.validating = false;
     }
 
     public void addLobby(LobbyInfo lobbyInfo) {
-        this.lobbies.removeIf(l -> l.lobbyId() == lobbyInfo.lobbyId());
-        if (lobbyInfo.numPlayers() != lobbyInfo.currentPlayers()) {
+        this.lobbies.removeIf(l -> l.getLobbyId() == lobbyInfo.getLobbyId());
+        if (lobbyInfo.getNumPlayers() != lobbyInfo.getCurrentPlayers()) {
             this.lobbies.add(lobbyInfo);
         }
         this.ui.showAvailableLobbies();
@@ -224,11 +212,8 @@ public class ClientModel {
     }
 
     public void addPlayer(String nickname, Color color) {
-        if (this.ownPlayer == null) {
-            this.ownPlayer = new ClientPlayer(nickname, color);
-        } else {
+        if (this.ownPlayer == null || !this.ownPlayer.getNickname().equals(nickname))
             this.otherPlayers.add(new ClientPlayer(nickname, color));
-        }
         this.ui.showNewPlayer();
     }
 
@@ -247,7 +232,9 @@ public class ClientModel {
 
     public void startGame(Map<String, Integer> initialFood, String currentPlayerNickname, List<Integer> topRowCards, List<Integer> bottomRowCards, List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
         this.currentEra = 1;
-        this.getAllPlayers().forEach(player -> {player.setFood(initialFood.get(player.getNickname()));});
+        this.getAllPlayers().forEach(player -> {
+            player.setFood(initialFood.get(player.getNickname()));
+        });
         this.currPlayerNickname = currentPlayerNickname;
         this.topRowCards.addAll(topRowCards);
         this.bottomRowCards.addAll(bottomRowCards);
@@ -258,8 +245,12 @@ public class ClientModel {
 
     public int getIdByPos(String row, int pos) {
         if (row.equalsIgnoreCase("top")) {
+            if (pos < 0 || pos >= this.topRowCards.size()) throw new IllegalArgumentException("Invalid row position");
             return topRowCards.get(pos);
-        } else return bottomRowCards.get(pos);
+        } else {
+            if (pos < 0 || pos >= bottomRowCards.size()) throw new IllegalArgumentException("Invalid row position");
+            return bottomRowCards.get(pos);
+        }
     }
 
     public boolean isValidating() {
@@ -270,8 +261,8 @@ public class ClientModel {
         return this.ownPlayer.getNickname().equals(this.currPlayerNickname);
     }
 
-    public boolean isPlayer(String part) {
-        return  this.getAllPlayers().stream().anyMatch(player -> player.getNickname().equalsIgnoreCase(part));
+    public boolean isPlayer(String nickname) {
+        return this.getAllPlayers().stream().anyMatch(player -> player.getNickname().equalsIgnoreCase(nickname));
     }
 
     public void startValidation() {
@@ -288,5 +279,78 @@ public class ClientModel {
         this.bottomRowCards.remove((Integer) cardId);
         this.ui.showCardPicked(nickname, cardId);
         this.validating = false;
+    }
+
+    public void buyBuilding(String nickname, int cost) {
+        this.getPlayerByNickname(nickname).alterFood(-cost);
+        this.ui.showBuildingAcquisition(nickname, cost);
+    }
+
+    public void hunterEffect(String nickname, int food) {
+        this.getPlayerByNickname(nickname).alterFood(food);
+        this.ui.showHunterEffect(nickname, food);
+    }
+
+    public void applyBuildingEffect(String nickname, int bonus, String resource) {
+        if (resource.equalsIgnoreCase("food")) {
+            this.getPlayerByNickname(nickname).alterFood(bonus);
+        }
+        if (resource.equalsIgnoreCase("prestige points")) {
+            this.getPlayerByNickname(nickname).alterPrestigePoints(bonus);
+        }
+        this.ui.showBuildingEffect(nickname, bonus, resource);
+    }
+
+    public void applyHuntEventEffect(Map<String, List<Integer>> effects) {
+        effects.forEach((key, value) -> {
+            this.getPlayerByNickname(key).alterFood(value.getFirst());
+            this.getPlayerByNickname(key).alterPrestigePoints(value.getLast());
+        });
+        this.ui.showHuntEvent(effects);
+    }
+
+    public void applyPaintingEvent(Map<String, Integer> effects) {
+        effects.forEach((key, value) -> this.getPlayerByNickname(key).alterFood(value));
+        this.ui.showPaintingEvent(effects);
+    }
+
+    public void applySustenanceEventEffect(Map<String, List<Integer>> effects) {
+        effects.forEach((key, value) -> {
+            this.getPlayerByNickname(key).alterFood(value.getFirst());
+            this.getPlayerByNickname(key).alterPrestigePoints(value.getLast());
+        });
+        this.ui.showSustenanceEvent(effects);
+    }
+
+    public void applyRitualEvent(Map<String, Integer> effects) {
+        effects.forEach((key, value) -> this.getPlayerByNickname(key).alterPrestigePoints(value));
+        this.ui.showRitualEvent(effects);
+    }
+
+    public void endRound(int currEra, List<Integer> topRow, List<Integer> bottomRow) {
+        this.setTopRowCards(topRow);
+        this.setBottomRowCards(bottomRow);
+        this.currentEra = currEra;
+    }
+
+    public void endGame(List<String> winners) {
+        this.winners.addAll(winners);
+        this.ui.showGameEnd();
+    }
+
+    public List<String> getWinners() {
+        return new ArrayList<>(this.winners);
+    }
+
+    public void applyModifier(String nickname, int modifier, boolean prestige) {
+        if (prestige) {
+            this.getPlayerByNickname(nickname).alterPrestigePoints(modifier);
+        } else this.getPlayerByNickname(nickname).alterFood(modifier);
+        this.ui.showOrderModifier(nickname, modifier, prestige);
+    }
+
+    public void resolveFoodOffer(String nickname) {
+        this.getPlayerByNickname(nickname).alterFood(3);
+        this.ui.showFoodOffer(nickname);
     }
 }

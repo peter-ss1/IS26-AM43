@@ -2,13 +2,15 @@ package it.polimi.ingsw.am43.network.message;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import it.polimi.ingsw.am43.controller.ClientController;
-import it.polimi.ingsw.am43.model.enums.Color;
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Error.LobbyCreationError.class, name = "lobbyCreationError"),
         @JsonSubTypes.Type(value = Error.OutOfTurnError.class, name = "outOfTurnError"),
         @JsonSubTypes.Type(value = Error.WrongPhaseError.class, name = "wrongPhaseError"),
         @JsonSubTypes.Type(value = Error.IllegalMoveError.class, name = "illegalMoveError"),
+        @JsonSubTypes.Type(value = Error.LobbyJoinError.class, name = "lobbyJoinError"),
+        @JsonSubTypes.Type(value = Error.InvalidPlayerError.class, name = "invalidPlayerError"),
+        @JsonSubTypes.Type(value = Error.GenericServerError.class, name = "genericServerError"),
 })
 
 public abstract class Error extends Message {
@@ -24,7 +26,7 @@ public abstract class Error extends Message {
 
     @Override
     public void execute(ClientController controller) {
-        controller.getView().showError(this.message);
+        controller.getView().showGameError(this.message);
     }
 
     public static class IllegalMoveError extends Error {
@@ -34,7 +36,7 @@ public abstract class Error extends Message {
 
         @Override
         public void execute(ClientController controller) {
-            controller.getView().showError("The action could not be performed because:" + this.message);
+            controller.getView().showGameError("The action could not be performed because:" + this.message);
         }
     }
 
@@ -45,58 +47,7 @@ public abstract class Error extends Message {
 
         @Override
         public void execute(ClientController controller) {
-            controller.getView().showError("Server could not perform command due to: " + this.message);
-        }
-    }
-
-    public static class LobbyNotFoundError extends Error {
-        private final int lobbyId;
-
-        public LobbyNotFoundError(int lobbyId) {
-            super("Lobby not found: " + lobbyId);
-            this.lobbyId = lobbyId;
-        }
-
-        public int getLobbyId() {
-            return lobbyId;
-        }
-    }
-
-    public static class FullLobbyError extends Error {
-        public FullLobbyError() {
-            super("Lobby is full");
-        }
-    }
-
-    public static class NicknameAlreadyUsedInLobbyError extends Error {
-        private final String nickname;
-
-        public NicknameAlreadyUsedInLobbyError(String nickname) {
-            super("Nickname already used in this lobby: " + nickname);
-            this.nickname = nickname;
-        }
-
-        public String getNickname() {
-            return nickname;
-        }
-    }
-
-    public static class ColorAlreadyUsedError extends Error {
-        private final Color color;
-
-        public ColorAlreadyUsedError(Color color) {
-            super("Color already used in this lobby: " + color);
-            this.color = color;
-        }
-
-        public Color getColor() {
-            return color;
-        }
-    }
-
-    public static class GameAlreadyStartedError extends Error {
-        public GameAlreadyStartedError() {
-            super("Game already started");
+            controller.getView().showGameError("Server could not perform command due to: " + this.message);
         }
     }
 
@@ -108,25 +59,6 @@ public abstract class Error extends Message {
 
     public static class WrongPhaseError extends Error {
         public WrongPhaseError(String message) {
-            super(message);
-        }
-    }
-
-    public static class InvalidTotemPositionError extends Error {
-        private final int position;
-
-        public InvalidTotemPositionError(int position, String message) {
-            super(message == null || message.isBlank() ? "Invalid totem position: " + position : message);
-            this.position = position;
-        }
-
-        public int getPosition() {
-            return position;
-        }
-    }
-
-    public static class CannotEndTurnError extends Error {
-        public CannotEndTurnError(String message) {
             super(message);
         }
     }

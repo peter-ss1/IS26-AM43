@@ -3,6 +3,8 @@ package it.polimi.ingsw.am43.model.cards;
 import it.polimi.ingsw.am43.model.board.Row;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 
 public abstract class Building extends TribeCard {
     private final int cost;
@@ -28,9 +30,10 @@ public abstract class Building extends TribeCard {
     }
 
     @Override
-    public void pick(Player player) {
+    public void pick(GameObserver observer, Player player) {
         if (player.getFood() - player.getBuildingDiscount() < this.cost) throw new IllegalMoveException("Cannot pick building with insufficient food");
-        this.tribeEntranceEffect(player);
+        observer.broadcast(new Update.CardPickedUpdate(player.getNickname(), this.getId()));
+        this.tribeEntranceEffect(observer, player);
     }
 
     @Override
@@ -41,4 +44,5 @@ public abstract class Building extends TribeCard {
     public void removeFromRow(Row row) {
         row.removeCard(this);
     }
+
 }

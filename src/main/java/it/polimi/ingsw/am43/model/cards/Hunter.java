@@ -2,6 +2,8 @@ package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 
 public class Hunter extends CharacterCard {
     private final boolean active;
@@ -16,12 +18,13 @@ public class Hunter extends CharacterCard {
     }
 
     @Override
-    public void tribeEntranceEffect(Player player) {
+    public void tribeEntranceEffect(GameObserver observer, Player player) {
         player.getTribe().addCardToTribe(this);
-        if (!active) {
-            return;
+        if (active) {
+            int food = player.getTribe().getNumberByCharacterType(CharacterType.HUNTER);
+            player.alterFood(food);
+            observer.broadcast(new Update.HunterEffectUpdate(player.getNickname(), food));
         }
-        player.alterFood(player.getTribe().getNumberByCharacterType(CharacterType.HUNTER));
-        player.getTribe().activateTribeBuildings(player);
+        player.getTribe().activateTribeBuildings(observer, player);
     }
 }

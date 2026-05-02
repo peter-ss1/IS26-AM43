@@ -28,4 +28,6 @@ public interface ModelInterface {
     void setObserver(GameObserver observer);
 
     List<Player> getPlayers();
+
+    void startGame();
 }

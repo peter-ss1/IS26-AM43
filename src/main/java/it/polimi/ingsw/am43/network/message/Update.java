@@ -2,7 +2,6 @@ package it.polimi.ingsw.am43.network.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.client.OfferTrackElement;
@@ -12,7 +11,6 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Update.AvailableLobbiesUpdate.class, name = "showAvailableLobbies"),
@@ -27,6 +25,15 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = Update.TotemPlacedUpdate.class, name = "totemPlacedUpdate"),
         @JsonSubTypes.Type(value = Update.CardPickedUpdate.class, name = "cardPickedUpdate"),
         @JsonSubTypes.Type(value = Update.TurnEndedUpdate.class, name = "turnEndedUpdate"),
+        @JsonSubTypes.Type(value = Update.BuildingBoughtUpdate.class, name = "buildingBoughtUpdate"),
+        @JsonSubTypes.Type(value = Update.BuildingEffectUpdate.class, name = "buildingEffectUpdate"),
+        @JsonSubTypes.Type(value = Update.HunterEffectUpdate.class, name = "hunterEffectUpdate"),
+        @JsonSubTypes.Type(value = Update.HuntEventEffectUpdate.class, name = "huntEventEffectUpdate"),
+        @JsonSubTypes.Type(value = Update.PaintingEventEffectUpdate.class, name = "paintingEventEffectUpdate"),
+        @JsonSubTypes.Type(value = Update.SustenaceEventEffectUpdate.class, name = "sustenanceEventEffectUpdate"),
+        @JsonSubTypes.Type(value = Update.RitualEventEffectUpdate.class, name = "ritualEventEffectUpdate"),
+        @JsonSubTypes.Type(value = Update.GameOverUpdate.class, name = "gameOverUpdate"),
+        @JsonSubTypes.Type(value = Update.NewRoundUpdate.class, name = "newRoundUpdate"),
 })
 
 public abstract class Update extends Message {
@@ -141,7 +148,7 @@ public abstract class Update extends Message {
         @JsonProperty("position")
         private final int position;
 
-        public TotemPlacedUpdate(@JsonProperty("nickname") String nickname,@JsonProperty("position") int position) {
+        public TotemPlacedUpdate(@JsonProperty("nickname") String nickname, @JsonProperty("position") int position) {
             this.nickname = nickname;
             this.position = position;
         }
@@ -236,6 +243,194 @@ public abstract class Update extends Message {
         @Override
         public void execute(ClientController controller) {
             controller.getLocalModel().setCurrentPlayer(this.nickname);
+        }
+    }
+
+    public static class BuildingBoughtUpdate extends Update {
+        @JsonProperty("nickname")
+        private final String nickname;
+        @JsonProperty("cost")
+        private final int cost;
+
+        public BuildingBoughtUpdate(@JsonProperty("nickname") String nickname, @JsonProperty("cost") int cost) {
+            this.nickname = nickname;
+            this.cost = cost;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().buyBuilding(this.nickname, this.cost);
+        }
+    }
+
+    public static class HunterEffectUpdate extends Update {
+        @JsonProperty("nickname")
+        private final String nickname;
+        @JsonProperty("food")
+        private final int food;
+
+        public HunterEffectUpdate(@JsonProperty("nickname") String nickname, @JsonProperty("food") int food) {
+            this.nickname = nickname;
+            this.food = food;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().hunterEffect(this.nickname, this.food);
+        }
+    }
+
+    public static class BuildingEffectUpdate extends Update {
+        @JsonProperty("nickname")
+        private final String nickname;
+        @JsonProperty("bonus")
+        private final int bonus;
+        @JsonProperty("resource")
+        private final String resource;
+
+        public BuildingEffectUpdate(@JsonProperty("nickname") String nickname, @JsonProperty("bonus") int bonus, @JsonProperty("resource") String resource) {
+            this.nickname = nickname;
+            this.bonus = bonus;
+            this.resource = resource;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().applyBuildingEffect(nickname, bonus, resource);
+        }
+    }
+
+    public static class HuntEventEffectUpdate extends Update {
+        @JsonProperty("effects")
+        private final Map<String, List<Integer>> effects;
+
+        public HuntEventEffectUpdate(@JsonProperty("effects") Map<String, List<Integer>> effects) {
+            this.effects = effects;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().applyHuntEventEffect(effects);
+        }
+    }
+
+    public static class PaintingEventEffectUpdate extends Update {
+        @JsonProperty("effects")
+        private final Map<String, Integer> effects;
+
+        public PaintingEventEffectUpdate(@JsonProperty("effects") Map<String, Integer> effects) {
+            this.effects = effects;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().applyPaintingEvent(effects);
+        }
+    }
+
+    public static class SustenaceEventEffectUpdate extends Update {
+        @JsonProperty("effects")
+        private final Map<String, List<Integer>> effects;
+
+        public SustenaceEventEffectUpdate(@JsonProperty("effects") Map<String, List<Integer>> effects) {
+            this.effects = effects;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().applySustenanceEventEffect(effects);
+        }
+    }
+
+    public static class RitualEventEffectUpdate extends Update {
+        @JsonProperty("effects")
+        private final Map<String, Integer> effects;
+
+        public RitualEventEffectUpdate(@JsonProperty("effects") Map<String, Integer> effects) {
+            this.effects = effects;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().applyRitualEvent(effects);
+        }
+    }
+
+    public static class NewRoundUpdate extends Update {
+        @JsonProperty("currEra")
+        private final int currEra;
+        @JsonProperty("topRow")
+        private final List<Integer> topRow;
+        @JsonProperty("bottomRow")
+        private final List<Integer> bottomRow;
+
+        public NewRoundUpdate(@JsonProperty("currEra") int currEra, @JsonProperty("topRow") List<Integer> topRowIds, @JsonProperty("bottomRow") List<Integer> bottomRowIds) {
+            this.currEra = currEra;
+            this.topRow = topRowIds;
+            this.bottomRow = bottomRowIds;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().endRound(this.currEra, this.topRow, this.bottomRow);
+        }
+    }
+
+    public static class GameOverUpdate extends Update {
+        @JsonProperty("winners")
+        private final List<String> winners;
+
+        public GameOverUpdate(@JsonProperty("winners") List<String> winners) {
+            this.winners = winners;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().endGame(winners);
+        }
+    }
+
+    public static class NewLobbyJoin extends Update {
+        @JsonProperty("currentPlayers")
+        private final int currentPlayers;
+
+        public NewLobbyJoin(@JsonProperty("currentPlayers") int currentPlayers) {
+            this.currentPlayers = currentPlayers;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().getOwnLobby().setCurrentPlayers(this.currentPlayers);
+        }
+    }
+
+    public static class OrderModifierUpdate extends Update {
+        private final String nickname;
+        private final int modifier;
+        private final boolean prestige;
+
+        public OrderModifierUpdate(String nickname, int modifier, boolean prestige) {
+            this.nickname = nickname;
+            this.modifier = modifier;
+            this.prestige = prestige;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().applyModifier(this.nickname, this.modifier, this.prestige);
+        }
+    }
+
+    public static class FoodOfferUpdate extends Update {
+        private final String nickname;
+
+        public FoodOfferUpdate(String nickname) {
+            this.nickname = nickname;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().resolveFoodOffer(this.nickname);
         }
     }
 }

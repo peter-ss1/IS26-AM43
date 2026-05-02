@@ -71,20 +71,36 @@ public class ClientController {
         }
     }
 
-    public void refreshLobbies() throws RemoteException {
-        server.sendCommand(new ServerCommand.FetchLobbiesCommand(this.playerId));
+    public void refreshLobbies() {
+        try {
+            server.sendCommand(new ServerCommand.FetchLobbiesCommand(this.playerId));
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void createLobby(String nickname, Color color, int numPlayers) throws RemoteException {
-        server.sendCommand(new ServerCommand.CreateLobbyCommand(this.playerId, nickname, color, numPlayers));
+    public void createLobby(String nickname, Color color, int numPlayers) {
+        try {
+            server.sendCommand(new ServerCommand.CreateLobbyCommand(this.playerId, nickname, color, numPlayers));
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void joinLobby(int lobbyId) throws RemoteException {
-        server.sendCommand(new ServerCommand.PickLobbyCommand(this.playerId, lobbyId));
+    public void joinLobby(int lobbyId) {
+        try {
+            server.sendCommand(new ServerCommand.PickLobbyCommand(this.playerId, lobbyId));
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void joinGame(String nickname, Color color) throws RemoteException {
-        this.server.sendCommand(new GameCommand.PickNameColorCommand(this.playerId, nickname, color));
+    public void joinGame(String nickname, Color color) {
+        try {
+            this.server.sendCommand(new GameCommand.PickNameColorCommand(this.playerId, nickname, color));
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void pickCard(int id) {
