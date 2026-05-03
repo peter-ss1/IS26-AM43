@@ -11,6 +11,7 @@ module it.polimi.ingsw.am43 {
     exports it.polimi.ingsw.am43.network.message;
     exports it.polimi.ingsw.am43.network.command;
     exports it.polimi.ingsw.am43.network.rmi;
+    exports it.polimi.ingsw.am43.main to javafx.graphics;
     opens it.polimi.ingsw.am43.network to java.rmi;
     opens it.polimi.ingsw.am43 to javafx.fxml;
     exports it.polimi.ingsw.am43.model.player;
@@ -21,11 +22,12 @@ module it.polimi.ingsw.am43 {
     opens it.polimi.ingsw.am43.network.socket to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.am43.network.command to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.am43.network.message to com.fasterxml.jackson.databind;
-    opens it.polimi.ingsw.am43.client to com.fasterxml.jackson.databind;
+    opens it.polimi.ingsw.am43.client to com.fasterxml.jackson.databind, javafx.base;
 
     opens it.polimi.ingsw.am43.model.utils.DTOs to com.fasterxml.jackson.databind;
 
     exports it.polimi.ingsw.am43.model.enums;
 
     opens it.polimi.ingsw.am43.model.player to org.junit.platform.commons;
+    opens it.polimi.ingsw.am43.client.view.gui.SceneController to javafx.fxml;
 }

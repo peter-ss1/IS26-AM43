@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="470.0" prefWidth="986.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.SceneController.LobbyChoiceViewController">
+   <children>
+      <HBox layoutX="-22.0" layoutY="109.0" />
+      <VBox layoutX="562.0" layoutY="97.0" prefHeight="315.0" prefWidth="402.0" spacing="12.0">
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+         <children>
+            <Label text="Lobby Choice" />
+            <TableView fx:id="lobbiesTable" prefHeight="240.0">
+               <columns>
+                  <TableColumn fx:id="lobbyIdColumn" prefWidth="120.0" text="Lobby ID" />
+                  <TableColumn fx:id="currentPlayersColumn" prefWidth="120.0" text="Players" />
+                  <TableColumn fx:id="maxPlayersColumn" prefWidth="120.0" text="Max" />
+               </columns>
+            </TableView>
+            <HBox spacing="10.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#onRefreshClicked" text="Refresh" />
+                  <Button fx:id="joinSelectedLobbyButton" mnemonicParsing="false" onAction="#onJoinClicked" text="Join Selected Lobby" />
+               </children>
+            </HBox>
+            <Label style="-fx-text-fill: #c62828;" />
+         </children>
+      </VBox>
+      <VBox layoutX="50.0" layoutY="103.0" prefHeight="263.0" prefWidth="402.0" spacing="12.0">
+          <padding>
+              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+          </padding>
+      
+                      <HBox spacing="10.0" />
+      
+                      <Label text="Create Lobby" />
+          <GridPane hgap="10.0" vgap="8.0">
+              <children>
+                  <Label text="Nickname" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                  <TextField fx:id="nicknameField" promptText="3-12 alphanumeric" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+      
+                              <Label text="Color" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                  <ComboBox fx:id="colorCombo" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      
+                              <Label text="Num players" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                  <Spinner fx:id="numPlayersSpinner" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+              </children>
+            <columnConstraints>
+               <ColumnConstraints />
+               <ColumnConstraints />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
+          </GridPane>
+      
+                      <Button mnemonicParsing="false" onAction="#onCreateClicked" text="Create Lobby" />
+          <Label fx:id="errorLabel" style="-fx-text-fill: #c62828;" />
+      </VBox>
+   </children>
+</AnchorPane>

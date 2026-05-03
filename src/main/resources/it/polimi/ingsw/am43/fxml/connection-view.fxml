@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="12.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="it.polimi.ingsw.am43.client.view.gui.SceneController.ConnectionViewController">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
+
+    <Label text="Connect to Server"/>
+
+    <Label text="Server IP (empty = localhost)"/>
+    <TextField fx:id="ipField" promptText="127.0.0.1"/>
+
+    <Label text="Connection Type"/>
+    <HBox spacing="10.0">
+        <children>
+            <RadioButton fx:id="rmiRadio" selected="true" text="RMI">
+                <toggleGroup>
+                    <ToggleGroup fx:id="connectionTypeGroup"/>
+                </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="socketRadio" text="SOCKET" toggleGroup="$connectionTypeGroup"/>
+        </children>
+    </HBox>
+
+    <Button mnemonicParsing="false" onAction="#onConnectClicked" text="Connect"/>
+    <Label fx:id="errorLabel" style="-fx-text-fill: #c62828;"/>
+</VBox>

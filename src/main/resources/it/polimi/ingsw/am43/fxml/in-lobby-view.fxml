@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<SplitPane dividerPositions="0.5" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.SceneController.InLobbyViewController">
+   <items>
+      <VBox prefHeight="459.0" prefWidth="842.0" spacing="12.0">
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+         <children>
+            <Label text="In Lobby" />
+            <Label text="Lobby ID:" />
+             <Label fx:id="lobbyIdLabel" />
+            <Label text="Status:" />
+             <Label fx:id="lobbyStatusLabel" />
+            <Label />
+            <TableView fx:id="playersTable" prefHeight="240.0">
+               <columns>
+                  <TableColumn fx:id="nicknameColumn" prefWidth="183.20003509521484" text="Nickname" />
+                  <TableColumn fx:id="colorColumn" prefWidth="216.80001831054688" text="Color" />
+               </columns>
+            </TableView>
+            <Label style="-fx-text-fill: #c62828;" />
+         </children>
+      </VBox>
+      <VBox prefHeight="459.0" prefWidth="401.0" spacing="12.0">
+          <padding>
+              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+          </padding>
+      
+                      <Label fx:id="waitingLabel" />
+      
+                <Label fx:id="joinFormTitle" text="Join Game " />
+          <GridPane fx:id="joinFormGrid" hgap="10.0" vgap="8.0">
+              <children>
+                  <Label text="Nickname" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                  <TextField fx:id="nicknameField" promptText="3-12 alphanumeric" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                  <Label text="Color" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                  <ComboBox fx:id="colorCombo" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+              </children>
+            <columnConstraints>
+               <ColumnConstraints />
+               <ColumnConstraints />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
+          </GridPane>
+          <Button fx:id="joinGameButton" mnemonicParsing="false" onAction="#onJoinGameClicked" text="Join Game" />
+      
+                <Label fx:id="infoLabel" style="-fx-text-fill: #1b5e20;" />
+          <Label fx:id="errorLabel" style="-fx-text-fill: #c62828;" />
+      </VBox>
+   </items>
+</SplitPane>
