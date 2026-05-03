@@ -31,7 +31,7 @@ public abstract class Building extends TribeCard {
 
     @Override
     public void pick(GameObserver observer, Player player) {
-        if (player.getFood() - player.getBuildingDiscount() < this.cost) throw new IllegalMoveException("Cannot pick building with insufficient food");
+        if (player.getFood() < this.cost - player.getBuildingDiscount()) throw new IllegalMoveException("Cannot pick building with insufficient food");
         observer.broadcast(new Update.CardPickedUpdate(player.getNickname(), this.getId()));
         this.tribeEntranceEffect(observer, player);
     }

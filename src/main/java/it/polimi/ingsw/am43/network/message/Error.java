@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.network.message;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import it.polimi.ingsw.am43.controller.ClientController;
 
@@ -14,6 +15,7 @@ import it.polimi.ingsw.am43.controller.ClientController;
 })
 
 public abstract class Error extends Message {
+    @JsonProperty("message")
     protected final String message;
 
     protected Error(String message) {
@@ -30,18 +32,18 @@ public abstract class Error extends Message {
     }
 
     public static class IllegalMoveError extends Error {
-        public IllegalMoveError(String message) {
+        public IllegalMoveError(@JsonProperty("message") String message) {
             super(message);
         }
 
         @Override
         public void execute(ClientController controller) {
-            controller.getView().showGameError("The action could not be performed because:" + this.message);
+            controller.getView().showGameError("The command could not be performed because: " + this.message);
         }
     }
 
     public static class GenericServerError extends Error {
-        public GenericServerError(String message) {
+        public GenericServerError(@JsonProperty("message") String message) {
             super(message);
         }
 

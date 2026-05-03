@@ -22,8 +22,9 @@ public class GameLoader {
     private final ObjectMapper mapper;
     private final String pathConfig;
     private final Map<Integer, Card> idToCard;
-
+    //TODO remove seed
     //TODO make path a constant
+    //TODO generalize collection types
     public GameLoader(String pathConfig) {
         this.mapper = new ObjectMapper();
         this.pathConfig = pathConfig;
@@ -48,7 +49,7 @@ public class GameLoader {
         if (inputStream == null) throw new IOException("path json error");
         JsonNode tribeDeckNode = mapper.readTree(inputStream).path("board").path("tribeDeck");
         if (tribeDeckNode == null) throw new IOException("node json error");
-
+        //TODO filter excess cards
         List<TribeDeckCardDTO> tribeDeckDTO = mapper.convertValue(
                 tribeDeckNode,
                 new TypeReference<ArrayList<TribeDeckCardDTO>>() {

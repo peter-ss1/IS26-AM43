@@ -48,7 +48,7 @@ public interface EventEffect<T extends Event> {
             int numHunters = player.getTribe().getNumberByCharacterType(CharacterType.HUNTER);
             player.alterPrestigePoints(numHunters);
             player.alterFood(numHunters);
-            observer.broadcast(new Update.BuildingEffectUpdate(player.getNickname(), numHunters, "prestige points & food"));
+            if (numHunters != 0) observer.broadcast(new Update.BuildingEffectUpdate(player.getNickname(), numHunters, "prestige points & food"));
         }
     }
 
@@ -58,7 +58,7 @@ public interface EventEffect<T extends Event> {
         public void manifest(GameObserver observer, Player player, PaintingEvent event) {
             int numArtists = player.getTribe().getNumberByCharacterType(CharacterType.ARTIST);
             player.alterFood(numArtists);
-            observer.broadcast(new Update.BuildingEffectUpdate(player.getNickname(), numArtists, "food"));
+            if (numArtists != 0) observer.broadcast(new Update.BuildingEffectUpdate(player.getNickname(), numArtists, "food"));
         }
     }
 }

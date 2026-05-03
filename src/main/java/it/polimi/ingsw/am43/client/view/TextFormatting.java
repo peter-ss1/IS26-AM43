@@ -5,7 +5,10 @@ public final class TextFormatting {
 
     public static final String RESET = "\u001B[0m";
     public static final String BOLD  = "\u001B[1m";
-    public static final String DIM   = "\u001B[2m";
+    public static final String DIM   = "\u001B[38;5;240m";
+
+    public static final String MESOS = "\u001B[38;5;209m";
+    public static final String BOX = "\u001B[48;5;209m\u001B[30m\u001B[1m";
 
     public static final String TEAL   = "\u001B[38;5;37m";
     public static final String ORANGE = "\u001B[38;5;202m";
@@ -40,7 +43,7 @@ public final class TextFormatting {
     public static final String BG_BUILD  = "\u001B[48;5;214m";
     public static final String BG_BLUE   = "\u001B[48;5;25m";
 
-    public static final String WHITE = "\u001B[37m";
+    public static final String WHITE = "\u001B[38;5;255m";
     public static final String ERROR = "\u001B[1;31m";
 
 }

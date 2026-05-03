@@ -11,10 +11,8 @@ import it.polimi.ingsw.am43.model.enums.OfferAction;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.am43.client.view.TextFormatting.*;
 
@@ -23,6 +21,7 @@ public final class CardVisualizer {
     private static final Map<Integer, List<String>> idToASCII = new HashMap<>();
     private static final Map<Integer, String> idToIMG = new HashMap<>();
     private static Map<Integer, List<Integer>> orderQueueMap;
+    private static final Map<Integer, String> idToType = new HashMap<>();
 
     public static void loadAscii() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -31,9 +30,21 @@ public final class CardVisualizer {
         JsonNode root = mapper.readTree(is);
         JsonNode board = root.get("board");
 
-        board.get("characters").forEach(node -> idToASCII.put(node.get("id").asInt(), createCharacterASCII(node)));
-        board.get("events").forEach(node -> idToASCII.put(node.get("id").asInt(), createEventASCII(node)));
-        board.get("buildings").forEach(node -> idToASCII.put(node.get("id").asInt(), createBuildingASCII(node)));
+        board.get("characters").forEach(node -> {
+            int id = node.get("id").asInt();
+            idToASCII.put(id, createCharacterASCII(node));
+            idToType.put(id, node.get("type").asText());
+        });
+        board.get("events").forEach(node -> {
+            int id = node.get("id").asInt();
+            idToASCII.put(id, createEventASCII(node));
+            idToType.put(id, "EVENT");
+        });
+        board.get("buildings").forEach(node -> {
+            int id = node.get("id").asInt();
+            idToASCII.put(id, createBuildingASCII(node));
+            idToType.put(id, "BUILDING");
+        });
         orderQueueMap = mapper.convertValue(board.get("orderQueue"), new TypeReference<>() {
         });
     }
@@ -187,9 +198,11 @@ public final class CardVisualizer {
         return (char) ('A' + InventorSymbol.valueOf(symbol).ordinal());
     }
 
-    private static String centerLine(String word, String color, int width) {
-        int visibleLength = word.length();
+    public static String centerLine(String word, String color, int width) {
+        String visibleText = word.replaceAll("\u001B\\[[;\\d]*m", "");
+        int visibleLength = visibleText.length();
         int totalPadding = width - visibleLength;
+        if (totalPadding < 0) totalPadding = 0;
         int leftPadding = totalPadding / 2;
         int rightPadding = totalPadding - leftPadding;
         return " ".repeat(leftPadding) + color + word + RESET + " ".repeat(rightPadding);
@@ -306,4 +319,20 @@ public final class CardVisualizer {
         return bGColorCode;
     }
 
+    public static String getColorArrayString(List<Color> colors) {
+        StringJoiner joiner = new StringJoiner(", ");
+        for (Color color : colors) {
+            String coloredName = getASCIIColor(color) + color.name().toLowerCase() + RESET;
+            joiner.add(coloredName);
+        }
+        return joiner.toString();
+    }
+
+    public static Map<String, List<Integer>> divideTribe(List<Integer> ids) {
+        return ids.stream().collect(Collectors.groupingBy(CardVisualizer::getCharacterType));
+    }
+
+    private static String getCharacterType(int id) {
+        return idToType.get(id);
+    }
 }

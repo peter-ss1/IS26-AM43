@@ -34,6 +34,9 @@ import java.util.Map;
         @JsonSubTypes.Type(value = Update.RitualEventEffectUpdate.class, name = "ritualEventEffectUpdate"),
         @JsonSubTypes.Type(value = Update.GameOverUpdate.class, name = "gameOverUpdate"),
         @JsonSubTypes.Type(value = Update.NewRoundUpdate.class, name = "newRoundUpdate"),
+        @JsonSubTypes.Type(value = Update.NewLobbyJoinUpdate.class, name = "newLobbyJoinUpdate"),
+        @JsonSubTypes.Type(value = Update.OrderModifierUpdate.class, name = "orderModifierUpdate"),
+        @JsonSubTypes.Type(value = Update.FoodOfferUpdate.class, name = "foodOfferUpdate"),
 })
 
 public abstract class Update extends Message {
@@ -390,11 +393,11 @@ public abstract class Update extends Message {
         }
     }
 
-    public static class NewLobbyJoin extends Update {
+    public static class NewLobbyJoinUpdate extends Update {
         @JsonProperty("currentPlayers")
         private final int currentPlayers;
 
-        public NewLobbyJoin(@JsonProperty("currentPlayers") int currentPlayers) {
+        public NewLobbyJoinUpdate(@JsonProperty("currentPlayers") int currentPlayers) {
             this.currentPlayers = currentPlayers;
         }
 
@@ -405,11 +408,14 @@ public abstract class Update extends Message {
     }
 
     public static class OrderModifierUpdate extends Update {
+        @JsonProperty("nickname")
         private final String nickname;
+        @JsonProperty("modifier")
         private final int modifier;
+        @JsonProperty("prestige")
         private final boolean prestige;
 
-        public OrderModifierUpdate(String nickname, int modifier, boolean prestige) {
+        public OrderModifierUpdate(@JsonProperty("nickname") String nickname,@JsonProperty("modifier") int modifier,@JsonProperty("prestige") boolean prestige) {
             this.nickname = nickname;
             this.modifier = modifier;
             this.prestige = prestige;
@@ -422,9 +428,10 @@ public abstract class Update extends Message {
     }
 
     public static class FoodOfferUpdate extends Update {
+        @JsonProperty("nickname")
         private final String nickname;
 
-        public FoodOfferUpdate(String nickname) {
+        public FoodOfferUpdate(@JsonProperty("nickname") String nickname) {
             this.nickname = nickname;
         }
 

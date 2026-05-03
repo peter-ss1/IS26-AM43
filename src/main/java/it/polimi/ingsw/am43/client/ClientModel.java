@@ -152,7 +152,7 @@ public class ClientModel {
 
     public ClientPlayer getPlayerByNickname(String nickname) {
         return this.getAllPlayers().stream()
-                .filter(player -> player.getNickname().equalsIgnoreCase(nickname))
+                .filter(player -> player.getNickname().equals(nickname))
                 .findFirst()
                 .orElse(null);
     }
@@ -262,7 +262,7 @@ public class ClientModel {
     }
 
     public boolean isPlayer(String nickname) {
-        return this.getAllPlayers().stream().anyMatch(player -> player.getNickname().equalsIgnoreCase(nickname));
+        return this.getAllPlayers().stream().anyMatch(player -> player.getNickname().equals(nickname));
     }
 
     public void startValidation() {

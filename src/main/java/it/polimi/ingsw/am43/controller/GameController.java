@@ -132,7 +132,7 @@ public class GameController implements GameObserver {
     public void joinLobby(UUID playerID) throws RemoteException {
         this.clients.put(playerID, "-");
         this.serverController.sendMessage(playerID, new Update.LobbyJoinedUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers()), this.getPlayersInfo()));
-        this.broadcast(new Update.NewLobbyJoin(this.getCurrentPlayers()));
+        this.broadcast(new Update.NewLobbyJoinUpdate(this.getCurrentPlayers()));
     }
 
     public void joinGame(UUID playerID, String nickname, Color color) throws RemoteException {
