@@ -1,85 +1,90 @@
 package it.polimi.ingsw.am43.network.rmi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.ingsw.am43.client.HeartBeat;
-import it.polimi.ingsw.am43.controller.ClientController;
-import it.polimi.ingsw.am43.network.ClientConnection;
-import it.polimi.ingsw.am43.network.PersistentServerConnection;
-import it.polimi.ingsw.am43.network.VirtualServer;
+import it.polimi.ingsw.am43.network.message.MessageReceiver;
+import it.polimi.ingsw.am43.network.Connections.ServerConnectionUser;
+import it.polimi.ingsw.am43.network.Connections.PersistentServerConnection;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.*;
-import it.polimi.ingsw.am43.network.message.Error;
-import it.polimi.ingsw.am43.network.socket.UtilsJSON;
-import it.polimi.ingsw.am43.network.socket.client.SocketServerHandler;
 
-import java.io.*;
-import java.net.Socket;
+import java.net.InetAddress;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.UUID;
 
-public class ServerRMIConnection implements PersistentServerConnection, ClientConnection {
+public class ServerRMIConnection implements PersistentServerConnection, VirtualClientRmi  {
 
     public VirtualServerRMI remote;
     private volatile long lastPong;
     private HeartBeat heartBeat;
     private final UUID playerID;
-    private final ClientController clientController;
+    private final ServerConnectionUser connectionUser;
+    private final MessageReceiver messageReceiver;
+    private final int port;
+    private final String accessPointName;
 
-    public ServerRMIConnection(VirtualServerRMI remote,ClientController clientController,UUID id) {
-        this.remote=remote;
-        this.clientController=clientController;
+    public ServerRMIConnection(int port, String accessPointName, ServerConnectionUser connectionUser, MessageReceiver messageReceiver, UUID id) {
+        this.port=port;
+        this.accessPointName=accessPointName;
+        this.connectionUser=connectionUser;
+        this.messageReceiver=messageReceiver;
         this.playerID=id;
         this.lastPong=System.currentTimeMillis();
         this.heartBeat= new HeartBeat(this);
     }
 
-
-    @Override
+    public void open() throws Exception{
+        try {
+            Registry registry = LocateRegistry.getRegistry(InetAddress.getLocalHost().getHostAddress(), this.port);
+            VirtualServerAccessRMI accessRMI = (VirtualServerAccessRMI) registry.lookup(this.accessPointName);
+            VirtualClientRmi stub = (VirtualClientRmi) UnicastRemoteObject.exportObject(this,0);
+            this.remote=accessRMI.connect(this.playerID,stub);
+            System.out.println(this.remote);
+            this.heartBeat.start();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void close(){
+        this.heartBeat.stop();
+    }
     public void sendCommand(ServerCommand command){
         try {
             this.remote.sendCommand(command);
-        }catch (RemoteException e){this.notifyDisconnection();}
+        }catch (RemoteException e){this.disconnect();}
+        catch (NullPointerException e){System.out.println("connection not already established");}
     }
-    @Override
     public void sendCommand(GameCommand command){
         try {
             this.remote.sendCommand(command);
-        }catch (RemoteException e){this.notifyDisconnection();}
+        }catch (RemoteException e){this.disconnect();}
+        catch (NullPointerException e){System.out.println("connection not already established");}
     }
-    public void connect(){
-        try {
-            this.remote.connect(this.playerID, new ClientRMI(this));
-        }catch (RemoteException e){
-            throw new RuntimeException();//TODO customize
-        }
-        this.heartBeat.start();
-    }
-    public void closeServerConnection(){
-
-    }
-
-    public void sendMessage(Message message){
-        this.clientController.receiveMessage(message);
-    }
-
     public void ping(){
         try {
-            this.remote.ping(this.playerID);
+            this.remote.ping();
             this.updateLastPong();
         }catch (RemoteException e){
-            this.notifyDisconnection();
+            this.disconnect();
         }
     }
+
+    public void sendMessage(Message message) throws RemoteException{
+        this.messageReceiver.receiveMessage(message);
+    }
+
     public long getLastPong(){
         return this.lastPong;
     }
     public void updateLastPong(){
         this.lastPong=System.currentTimeMillis();
     }
-    public void notifyDisconnection(){
+    public void disconnect(){
         this.heartBeat.stop();
-        this.clientController.disconnect();
+        this.connectionUser.notifyDisconnection();
     }
 
 

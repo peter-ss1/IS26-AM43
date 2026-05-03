@@ -7,22 +7,21 @@ import it.polimi.ingsw.am43.model.exceptions.InvalidColorException;
 import it.polimi.ingsw.am43.model.exceptions.InvalidNicknameException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
-import it.polimi.ingsw.am43.network.command.Command;
+import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.GameCommandReceiver;
 import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Update;
+import it.polimi.ingsw.am43.utils.Executor;
 
-import java.rmi.RemoteException;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
-public class GameController implements GameObserver {
+public class GameController implements GameObserver, GameCommandReceiver {
     private final ServerController serverController;
     private final ModelInterface model;
     private final ConcurrentMap<UUID, String> clients;
-    private final BlockingQueue<Command> commandQueue;
+    private final Executor<GameController> executor;
     private final int lobbyId;
     private boolean gameStarted;
 
@@ -32,32 +31,14 @@ public class GameController implements GameObserver {
         this.model.setObserver(this);
         this.clients = new ConcurrentHashMap<>();
         this.clients.put(playerID, nickname);
-        this.commandQueue = new LinkedBlockingQueue<>();
+        this.executor=new Executor<>(this);
         this.lobbyId = lobbyId;
         this.gameStarted = false;
-        new Thread(this::executor).start();
+        this.executor.start();
     }
 
-    public void addToQueue(Command command) {
-        try {
-            commandQueue.put(command);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void executor() {
-        while (true) {
-            try {
-                Command command = commandQueue.take();
-                command.execute(this);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            } catch (RuntimeException e) {
-                e.printStackTrace();
-            }
-        }
+    public void receiveCommand(GameCommand command) {
+        this.executor.delegate(command);
     }
 
     public int getNumPlayers() {
@@ -71,7 +52,7 @@ public class GameController implements GameObserver {
     public int getLobbyId() {
         return this.lobbyId;
     }
-    @Override
+
     public void broadcast(Update update) {
         for (UUID id : this.clients.keySet()) {
             this.serverController.sendMessage(id, update);
@@ -151,8 +132,8 @@ public class GameController implements GameObserver {
         }
     }
 
-    public void disconnect(UUID id){
-        //TODO implement
+    public void notifyDisconnection(UUID id){
+        System.out.println("in game player disconnected");
     }
 
 }

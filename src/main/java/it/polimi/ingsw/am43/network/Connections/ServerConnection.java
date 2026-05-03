@@ -1,15 +1,13 @@
-package it.polimi.ingsw.am43.network;
+package it.polimi.ingsw.am43.network.Connections;
 
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 
-import java.rmi.RemoteException;
-import java.util.UUID;
-
-public interface ServerConnection extends VirtualServer{
+public interface ServerConnection{
 
     void sendCommand(GameCommand command);
     void sendCommand(ServerCommand command);
-    void connect();
-    void closeServerConnection();
+    void open() throws Exception;//TODO specify
+    void close();
+
 }

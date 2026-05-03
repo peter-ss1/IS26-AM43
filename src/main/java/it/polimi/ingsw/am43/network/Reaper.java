@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am43.network;
 
-import java.util.UUID;
-import java.util.concurrent.ConcurrentMap;
+import it.polimi.ingsw.am43.network.Connections.MultiPersistentClientConnection;
+import it.polimi.ingsw.am43.network.Connections.PersistentClientConnection;
 
 public class Reaper{
     private final MultiPersistentClientConnection connections;
@@ -26,10 +26,10 @@ public class Reaper{
     private void runLoop(){
         long now;
         while(this.active){
-            for(UUID id : this.connections.getIds()){
+            for(PersistentClientConnection connection : this.connections){
                 now=System.currentTimeMillis();
-                if (now - connections.getLastPing(id) > 10000) {
-                    this.connections.disconnect(id);//TODO implement removal logic
+                if (now - connection.getLastPing() > 10000) {
+                    connection.disconnect();//TODO implement removal logic
                 }
             }
             try {

@@ -16,11 +16,17 @@ import java.util.UUID;
 })
 
 public abstract sealed class Command extends DataClientToServer permits GameCommand, ServerCommand {
+    @JsonProperty("playerId")
+    protected final UUID playerId;
 
-    protected Command(UUID playerId) {
-        super(playerId);
+    protected Command(@JsonProperty("playerId")UUID playerId) {
+        this.playerId=playerId;
     }
 
     public abstract void execute(ServerController serverController);
     public abstract void execute(GameController gameController);
+
+    public UUID getPlayerId() {
+        return playerId;
+    }
 }

@@ -1,20 +1,14 @@
 package it.polimi.ingsw.am43.network.socket.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import it.polimi.ingsw.am43.controller.ClientController;
-import it.polimi.ingsw.am43.network.PersistentServerConnection;
 import it.polimi.ingsw.am43.network.message.DataServerToClient;
 import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Pong;
 import it.polimi.ingsw.am43.network.message.Update;
-import it.polimi.ingsw.am43.network.socket.UtilsJSON;
-import it.polimi.ingsw.am43.network.socket.VirtualClientSocket;
-import it.polimi.ingsw.am43.network.socket.server.SocketClientConnection;
+import it.polimi.ingsw.am43.utils.UtilsJSON;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.Socket;
 
 public class SocketServerListener {
     private final BufferedReader input;
@@ -22,8 +16,8 @@ public class SocketServerListener {
     private volatile boolean active;
     private final SocketServerConnection connection;
 
-    public SocketServerListener(SocketServerConnection connection, Socket socket ) throws IOException{
-        this.input=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    public SocketServerListener(SocketServerConnection connection, BufferedReader in) throws IOException{
+        this.input=in;
         this.connection=connection;
         this.loop=new Thread(this::runLoop);
         this.active=false;
@@ -61,7 +55,7 @@ public class SocketServerListener {
         }catch (IOException e){
             if (this.active){
                 this.active=false;
-                this.connection.notifyDisconnection();
+                this.connection.disconnect();
             }
         }
     }

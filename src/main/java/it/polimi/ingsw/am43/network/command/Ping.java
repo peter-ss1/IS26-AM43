@@ -8,8 +8,7 @@ import java.util.UUID;
 
 
 public final class Ping extends DataClientToServer {
-    public Ping(@JsonProperty("playerId") UUID id) {
-        super(id);
+    public Ping() {
     }
 }
 

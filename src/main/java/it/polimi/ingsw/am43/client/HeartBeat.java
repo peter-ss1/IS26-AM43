@@ -1,10 +1,6 @@
 package it.polimi.ingsw.am43.client;
 
-import it.polimi.ingsw.am43.network.PersistentServerConnection;
-import it.polimi.ingsw.am43.network.command.Ping;
-
-import java.rmi.RemoteException;
-import java.util.UUID;
+import it.polimi.ingsw.am43.network.Connections.PersistentServerConnection;
 
 public class HeartBeat{
     private final PersistentServerConnection connection;
@@ -40,7 +36,7 @@ public class HeartBeat{
                 }
             }catch (Exception e){
                 this.active=false;
-                this.connection.notifyDisconnection();
+                this.connection.disconnect();
             }
         }
     }

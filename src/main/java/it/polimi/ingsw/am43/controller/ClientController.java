@@ -3,24 +3,22 @@ package it.polimi.ingsw.am43.controller;
 import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.ServerConnection;
+import it.polimi.ingsw.am43.network.Connections.PersistentServerConnection;
+import it.polimi.ingsw.am43.network.Connections.ServerConnection;
+import it.polimi.ingsw.am43.network.Connections.ServerConnectionUser;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Message;
+import it.polimi.ingsw.am43.network.message.MessageReceiver;
 import it.polimi.ingsw.am43.network.rmi.ServerRMIConnection;
-import it.polimi.ingsw.am43.network.rmi.VirtualServerRMI;
 import it.polimi.ingsw.am43.network.socket.client.SocketServerConnection;
 import it.polimi.ingsw.am43.utils.Executor;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.rmi.NotBoundException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.UUID;
 
-public class ClientController {
+public class ClientController implements ServerConnectionUser, MessageReceiver {
 
     private ServerConnection serverConnection;
     private Executor<ClientController> messageExecutor;
@@ -42,36 +40,26 @@ public class ClientController {
     public ClientModel getLocalModel() {
         return this.localModel;
     }
-
     public void chooseConnectionType(boolean rmi) throws IOException {
+        PersistentServerConnection connection;
         if (rmi) {
-            try {
-                Registry registry = LocateRegistry.getRegistry(InetAddress.getLocalHost().getHostAddress(), 1099);
-                this.serverConnection = new ServerRMIConnection((VirtualServerRMI) registry.lookup("MesosServer"), this, this.playerId);
-                this.ui.showMessage("Successfully connected to server via RMI.");
-            } catch (NotBoundException e) {
-                this.ui.showMessage("Error: Could not connect to server via RMI.");
-            }
+            connection = new ServerRMIConnection(1099, "MesosServer", this, this, this.playerId);
         } else {
-            Socket serverSocket;
-            try {
-                serverSocket = new Socket(InetAddress.getLocalHost().getHostAddress(), 8080);
-            } catch (IOException e) {
-                this.ui.showMessage("Error: Could not connect to server via Socket.");
-                return;
-            }
-            this.serverConnection=new SocketServerConnection(serverSocket,this, this.playerId);
-            this.ui.showMessage("Successfully connected to server via Socket.");
+            connection = new SocketServerConnection(InetAddress.getLocalHost().getHostAddress(), 8080, this, this, playerId);
         }
-        this.serverConnection.connect();
+        try {
+            connection.open();
+        }catch (Exception e){
+            System.out.println("ko");
+        }
+        this.serverConnection=connection;
         this.messageExecutor.start();
         this.connected=true;
     }
 
     public void disconnect(){
-
+        this.serverConnection.close();
     }
-
     public void refreshLobbies() {
         this.serverConnection.sendCommand(new ServerCommand.FetchLobbiesCommand(this.playerId));
     }
@@ -126,6 +114,6 @@ public class ClientController {
     }
 
     public void notifyDisconnection(){
-
+        System.out.println("disconnected");
     }
 }

@@ -1,47 +1,51 @@
 package it.polimi.ingsw.am43.network.rmi;
 
-import it.polimi.ingsw.am43.controller.ServerController;
-import it.polimi.ingsw.am43.network.BidirectionalConnection;
-import it.polimi.ingsw.am43.network.ServerBidirectionalConnection;
-import it.polimi.ingsw.am43.network.ServerConnection;
-import it.polimi.ingsw.am43.network.SinglePersistentClientConnection;
-import it.polimi.ingsw.am43.network.VirtualClient;
+import it.polimi.ingsw.am43.network.Connections.ConnectionHandler;
+import it.polimi.ingsw.am43.network.Connections.PersistentClientConnection;
+
+import it.polimi.ingsw.am43.network.command.CommandReceiver;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Message;
 
 import java.rmi.RemoteException;
+import java.util.UUID;
 
 
-public class ClientRMIConnection implements ServerBidirectionalConnection, VirtualClientRmi {
+public class ClientRMIConnection implements PersistentClientConnection, VirtualServerRMI {
     private final VirtualClientRmi remote;
-    private final ServerController serverController;
+    private final CommandReceiver commandReceiver;
+    private final ConnectionHandler connectionHandler;
+    private  final UUID playerId;
     private volatile long lastPing;
 
-    public ClientRMIConnection(VirtualClientRmi clientRmi, ServerController serverController){
+    public ClientRMIConnection(UUID id, CommandReceiver commandReceiver, ConnectionHandler connectionHandler, VirtualClientRmi clientRmi){
+        this.commandReceiver=commandReceiver;
+        this.connectionHandler = connectionHandler;
+        this.playerId=id;
         this.remote=clientRmi;
-        this.serverController=serverController;
         this.lastPing=System.currentTimeMillis();
     }
 
-    public void sendCommand(GameCommand command){
-        this.serverController.addToQueue();
+    public void sendCommand(GameCommand command) throws RemoteException{
+        this.commandReceiver.receiveCommand(command);
     };
-    public void sendCommand(ServerCommand command){
-        this.serverController.addToQueue();
+    public void sendCommand(ServerCommand command) throws RemoteException{
+        this.commandReceiver.receiveCommand(command);
     };
-    public void connect(){
+    public void ping() throws RemoteException{
+        this.updateLastPing();
+    }
 
-    };
-    public void closeServerConnection(){
-
+    public void register(){
+        this.connectionHandler.connect(this.playerId,this);
     };
 
     public void sendMessage(Message message){
         try {
             this.remote.sendMessage(message);
         }catch (RemoteException e){
-            this.notifyDisconnection();
+            this.disconnect();
         }
 
     };
@@ -52,6 +56,7 @@ public class ClientRMIConnection implements ServerBidirectionalConnection, Virtu
     public void updateLastPing(){
         this.lastPing=System.currentTimeMillis();
     }
-    public void notifyDisconnection(){
+    public void disconnect(){
+        this.connectionHandler.disconnect(this.playerId);
     }
 }
