@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
@@ -36,5 +37,9 @@ public class HuntEvent extends Event {
     @Override
     public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
         building.reactToEvent(observer, player, this);
+    }
+    @Override
+    public String toString() {
+        return "Evento Caccia (Era " + getEra() + ") - Ottieni cibo e PV in base al numero dei tuoi Cacciatori attivi.";
     }
 }

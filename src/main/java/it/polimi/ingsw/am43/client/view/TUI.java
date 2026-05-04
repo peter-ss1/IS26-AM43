@@ -47,7 +47,7 @@ public class TUI implements UI, Runnable {
         boolean connected = false;
         while (!connected) {
             String serverIP;
-            System.out.println("Enter a Server IP [press enter for localhost]:");
+            System.out.println("Enter a Server IP " + DIM + "[press enter for localhost]" + RESET);
             while (true) {
                 System.out.print("> ");
                 String input = scanner.nextLine().trim();
@@ -63,7 +63,7 @@ public class TUI implements UI, Runnable {
                 }
             }
 
-            System.out.println("\nChoose Connection Type: [1] RMI -- [2] SOCKET");
+            System.out.println("Choose a connection: " + BOX + " 1 " + RESET + " RMI   " + MESOS + "◈" + RESET + "   " + BOX + " 2 " + RESET + " SOCKET");
             while (true) {
                 System.out.print("> ");
                 String choice = scanner.nextLine().trim();
@@ -73,7 +73,7 @@ public class TUI implements UI, Runnable {
                         boolean isRmi = choice.equals("1");
                         controller.chooseConnectionType(serverIP, isRmi);
 
-                        System.out.println("Successfully connected to " + serverIP + " via " + (isRmi ? "RMI." : "SOCKET."));
+                        System.out.println(MESOS + "Successfully connected to " + serverIP + " via " + (isRmi ? "RMI." : "SOCKET.") + RESET);
                         connected = true;
                         break;
                     } catch (IOException | NotBoundException e) {
@@ -97,7 +97,7 @@ public class TUI implements UI, Runnable {
     private void lobbyChoiceInput() {
         while (true) {
             synchronized (this.printLock) {
-                System.out.println("\n[1] Create new lobby  --  [2] Join existing lobby");
+                System.out.println(BOX + " 1 " + RESET + " Create a new lobby   " + MESOS + "◈" + RESET + "   " + BOX + " 2 " + RESET + " Join an existing lobby");
                 System.out.print("> ");
             }
             String input = this.scanner.nextLine().trim();
@@ -109,7 +109,7 @@ public class TUI implements UI, Runnable {
 
                 synchronized (this.printLock) {
                     while (nickname.isEmpty()) {
-                        System.out.print("Enter a nickname [3-12 alphanumeric]: ");
+                        System.out.print("Enter a nickname " + DIM + "[3-12 alphanumeric]" + RESET + ": ");
                         input = scanner.nextLine().trim();
                         if (input.matches("^[a-zA-Z0-9]{3,12}$")) {
                             nickname = input;
@@ -119,7 +119,7 @@ public class TUI implements UI, Runnable {
                     }
 
                     while (color == null) {
-                        System.out.print("Choose a color " + Arrays.toString(Color.values()) + ": ");
+                        System.out.print("Choose a color between " + CardVisualizer.getColorArrayString(Arrays.stream(Color.values()).toList()) + ": ");
                         input = scanner.nextLine().trim().toUpperCase();
                         try {
                             color = Color.valueOf(input);
@@ -129,7 +129,7 @@ public class TUI implements UI, Runnable {
                     }
 
                     while (numPlayers == 0) {
-                        System.out.print("Enter number of players [2-5]: ");
+                        System.out.print("Enter number of players " + DIM + "[2-5]" + RESET + ": ");
                         input = scanner.nextLine().trim();
                         if (input.matches("\\d+")) {
                             int val = Integer.parseInt(input);
@@ -155,7 +155,7 @@ public class TUI implements UI, Runnable {
                 int lobbyId = 0;
                 while (lobbyId == 0) {
                     synchronized (this.printLock) {
-                        System.out.println("Enter a lobby ID: ");
+                        System.out.println("Enter a lobby ID");
                         System.out.print("> ");
                     }
                     input = scanner.nextLine().trim();
@@ -176,7 +176,7 @@ public class TUI implements UI, Runnable {
                 return;
             } else {
                 synchronized (this.printLock) {
-                    this.printError("Please choose an action.");
+                    this.printError("Please choose an option.");
                 }
             }
         }
@@ -190,7 +190,7 @@ public class TUI implements UI, Runnable {
         while (!valid) {
             while (nickname.isEmpty() || !this.localModel.isNicknameAvailable(nickname)) {
                 synchronized (printLock) {
-                    System.out.println("Enter nickname (3-12 alphanumeric):");
+                    System.out.println("Enter nickname " + DIM + "[3-12 alphanumeric]" + RESET);
                     System.out.print("> ");
                 }
                 input = scanner.nextLine().trim();
@@ -207,7 +207,7 @@ public class TUI implements UI, Runnable {
 
             while (color == null || !this.localModel.isColorAvailable(color)) {
                 synchronized (printLock) {
-                    System.out.println("Choose color " + this.localModel.getAvailableColors() + ":");
+                    System.out.println("Choose a color between " + CardVisualizer.getColorArrayString(this.localModel.getAvailableColors()));
                     System.out.print("> ");
                 }
                 input = scanner.nextLine().trim().toUpperCase();
@@ -281,7 +281,7 @@ public class TUI implements UI, Runnable {
             return;
         }
         try {
-            this.controller.pickCard(this.localModel.getIdByPos(parts[1], Integer.parseInt(parts[2])));
+            this.controller.pickCard(this.localModel.getIdByPos(parts[1], Integer.parseInt(parts[2])-1));
         } catch (NumberFormatException e) {
             this.printError("Invalid request. Format is: pick <row> <position>");
         } catch (IllegalArgumentException e) {
@@ -308,13 +308,15 @@ public class TUI implements UI, Runnable {
         }
         try {
             int value = Integer.parseInt(parts[1]);
-            if (value < 0 || value > this.localModel.getOfferTrack().size()) {
+            if (value < 1 || value > this.localModel.getOfferTrack().size()) {
                 this.printError("Invalid request. Please enter a valid position.");
+                return;
             }
         } catch (NumberFormatException e) {
             this.printError("Invalid request. Format is: place <position>");
+            return;
         }
-        this.controller.placeTotem(Integer.parseInt(parts[1]));
+        this.controller.placeTotem(Integer.parseInt(parts[1])-1);
     }
 
     private void handleEndTurn() {
@@ -351,18 +353,18 @@ public class TUI implements UI, Runnable {
             System.out.print("\r\033[K");
             List<LobbyInfo> availableLobbies = this.localModel.getLobbies();
             if (availableLobbies.isEmpty()) {
-                System.out.println("There are no available lobbies. Create one!");
+                System.out.println(MESOS + "There are no available lobbies. Create one!" + RESET);
             } else {
-                System.out.println("┌──────────┬──────────────────┐");
-                System.out.println("│" + BG_BLUE + WHITE + BOLD + " LOBBY ID " + RESET + "│" + BG_BLUE + WHITE + BOLD + "     PLAYERS      " + RESET + "│");
-                System.out.println("├──────────┼──────────────────┤");
+                System.out.println("    ┌──────────┬──────────────────┐");
+                System.out.println("    │" + MESOS + BOLD + " LOBBY ID " + RESET + "│" + MESOS + BOLD + "     PLAYERS      " + RESET + "│");
+                System.out.println("    ├──────────┼──────────────────┤");
                 for (LobbyInfo lobby : availableLobbies) {
                     String players = String.format("%d / %d", lobby.getCurrentPlayers(), lobby.getNumPlayers());
-                    System.out.printf("│   %-7d│      %-12s│\n", lobby.getLobbyId(), players);
+                    System.out.printf("    │    %-6d│      %-12s│\n", lobby.getLobbyId(), players);
                 }
-                System.out.println("└──────────┴──────────────────┘");
+                System.out.println("    └──────────┴──────────────────┘");
             }
-            System.out.print("\n> ");
+            System.out.print("> ");
         }
     }
 
@@ -391,8 +393,7 @@ public class TUI implements UI, Runnable {
     public void showGameStart() {
         this.state = ViewState.IN_GAME;
         synchronized (printLock) {
-            this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
-            this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
+            this.printWelcome();
         }
         new Thread(this::gameLoopInput).start();
     }
@@ -400,7 +401,7 @@ public class TUI implements UI, Runnable {
     @Override
     public void handleLobbyChoiceError(String message, boolean creation) {
         synchronized (this.printLock) {
-            System.out.println("The lobby could not be " + (creation ? "created" : "joined") + " due to: " + message);
+            this.printError("The lobby could not be " + (creation ? "created" : "joined") + " due to: " + message);
         }
         this.lobbyChoiceStage();
     }
@@ -408,7 +409,7 @@ public class TUI implements UI, Runnable {
     @Override
     public void handleLobbyJoinError(String message) {
         synchronized (this.printLock) {
-            System.out.println("The lobby could not be joined due to: " + message);
+            this.printError("The lobby could not be joined due to: " + message);
         }
         new Thread(this::joinLobbyForm).start();
     }
@@ -417,7 +418,7 @@ public class TUI implements UI, Runnable {
     public void showGameError(String error) {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
-            System.out.println(ERROR + error + RESET);
+            this.printError(error);
             this.localModel.stopValidation();
             this.printGamePrompt();
         }
@@ -441,6 +442,7 @@ public class TUI implements UI, Runnable {
     public void showTotemPlaced(String nickname, int position) {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
+            position++;
             if (this.localModel.isOwnTurn()) {
                 System.out.println("You placed the totem in position " + position);
             } else {
@@ -456,9 +458,11 @@ public class TUI implements UI, Runnable {
             System.out.print("\r\033[K");
             if (this.localModel.isOwnTurn()) {
                 System.out.println("You picked a card.");
+                this.printCard(cardId);
                 this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
             } else {
-                System.out.println(nickname + "picked a card " + cardId);
+                System.out.println(nickname + "picked a card.");
+                this.printCard(cardId);
             }
             this.printGamePrompt();
         }
@@ -469,9 +473,9 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             if (this.localModel.isOwnTurn()) {
-                System.out.println("You bought a building for " + cost + " food.");
+                System.out.println("You paid " + cost + " food to buy the building.");
             } else {
-                System.out.println(nickname + "bought a building for " + cost + " food.");
+                System.out.println(nickname + "paid " + cost + " food to buy the building.");
             }
             this.printGamePrompt();
         }
@@ -556,9 +560,9 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             if (this.localModel.getOwnPlayer().getNickname().equals(nickname)) {
-                System.out.println("You " + (modifier>0? "received " : "lost ") + modifier + " " + (prestige ? "prestige points" : "food") + ".");
+                System.out.println("You " + (modifier > 0 ? "received " : "lost ") + modifier + " " + (prestige ? "prestige points" : "food") + ".");
             } else {
-                System.out.println(nickname + " " + (modifier>0? "received " : "lost ") + modifier + " " + (prestige ? "prestige points" : "food") + ".");
+                System.out.println(nickname + " " + (modifier > 0 ? "received " : "lost ") + modifier + " " + (prestige ? "prestige points" : "food") + ".");
             }
             this.printGamePrompt();
         }
@@ -578,7 +582,7 @@ public class TUI implements UI, Runnable {
     }
 
     private void titleScreen() {
-        System.out.println("""
+        System.out.println(MESOS + """
                 
                 
                  ██████   ██████ ██████████  █████████     ███████     █████████\s
@@ -591,7 +595,7 @@ public class TUI implements UI, Runnable {
                 ░░░░░     ░░░░░ ░░░░░░░░░░  ░░░░░░░░░     ░░░░░░░     ░░░░░░░░░ \s
                                                                                 \s
                                                                                 \s
-                                                                                \s""");
+                                                                                \s""" + RESET);
     }
 
     private void printError(String error) {
@@ -600,85 +604,135 @@ public class TUI implements UI, Runnable {
 
     private void printWelcome() {
         switch (this.state) {
-            case CONNECTION -> System.out.println("Welcome to Connect to Server");
-            case LOBBY_CHOICE -> System.out.println("Welcome to Lobby CHOICE");
-            case IN_LOBBY -> printLobbyInfo();
-            case IN_GAME -> System.out.println("Welcome to In Game");
+            case CONNECTION ->
+                    System.out.println(MESOS + " █▀▀ █▀▀ █▀█ █  █ █▀▀ █▀█   █▀▀ █▀█ █▀█ █▀█ █▀▀ █▀▀ ▀█▀ █ █▀█ █▀█\n" +
+                            " ▀▀█ █▀▀ █▀▄ ▀▄▄▀ █▀▀ █▀▄   █   █ █ █ █ █ █ █▀▀ █    █  █ █ █ █ █\n" +
+                            " ▀▀▀ ▀▀▀ ▀ ▀  ▀▀  ▀▀▀ ▀ ▀   ▀▀▀ ▀▀▀ ▀ ▀ ▀ ▀ ▀▀▀ ▀▀▀  ▀  ▀ ▀▀▀ ▀ ▀" + RESET);
+            case LOBBY_CHOICE ->
+                    System.out.println("\n\n" + MESOS + " █    █▀▀█ █▀▀█ █▀▀█ █ █    █▀▀ █  █ █▀▀█ ▀█▀ █▀▀ █▀▀\n" +
+                            " █    █  █ █▀▀▄ █▀▀▄ ▀▄▀    █   █▀▀█ █  █  █  █   █▀▀\n" +
+                            " █▄▄█ ▀▀▀▀ █▀▀  █▀▀   █     ▀▀▀ ▀  ▀ ▀▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀\n" + RESET);
+            case IN_LOBBY -> {
+                System.out.println("\n" + MESOS + " WELCOME TO YOUR LOBBY!" + RESET);
+                printLobbyInfo();
+            }
+            case IN_GAME -> {
+                System.out.println(MESOS +
+                        "                                               ╔══════════════════╗\n" +
+                        "═══════════════════════════════════════════════╣ WELCOME TO MESOS ╠═══════════════════════════════════════════════\n" +
+                        "                                               ╚══════════════════╝\n" +
+                        "Thousands of years ago, a new era was beginning for humankind...\n" +
+                        "The nomadic hunter-gatherers who had laboriously earned their place on Earth organized into small\n" +
+                        "groups, differentiating social roles, building the first settlements, and initiating a great revolution.\n" +
+                        BOLD + "Welcome to the Mesolithic!\n" + RESET + MESOS +
+                        "Step into the role of a tribal leader, carefully choose the tasks to entrust to the people joining your tribe,\n" +
+                        "construct specialized buildings, and prepare wisely for the events you will face, guiding your tribe to victory!\n" +
+                        "══════════════════════════════════════════════════════════════════════════════════════════════════════════════════" + RESET);
+                this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+                this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
+            }
         }
     }
 
     private void printGamePrompt() {
-        System.out.print("Please enter a command [type 'help' to show command list]: ");
+        System.out.print(MESOS + "Please enter a command [type 'help' to show command list]: " + RESET);
     }
 
     private void printLobbyInfo() {
         LobbyInfo lobby = this.localModel.getOwnLobby();
         String ownName = this.localModel.getOwnPlayer() == null ? "" : this.localModel.getOwnPlayer().getNickname();
-        System.out.println("┌──────────────────────────────────────────┐");
-        System.out.println("│                  LOBBY                   │");
-        System.out.printf("│ ID: %-5d | Status: %d/%-18d │\n",
+        System.out.println(" ┌────────────────────┐");
+        System.out.printf(" │ " + MESOS + "LOBBY #%-5d   %d/%d" + RESET + " │\n",
                 lobby.getLobbyId(), lobby.getCurrentPlayers(), lobby.getNumPlayers());
-        System.out.println("├──────────────────────┬───────────────────┤");
-        System.out.println("│ PLAYER NICKNAME      │ COLOR             │");
-        System.out.println("├──────────────────────┼───────────────────┤");
-
+        System.out.println(" ├────────────────────┤");
         List<ClientPlayer> allPlayers = this.localModel.getAllPlayers();
         if (allPlayers.isEmpty()) {
-            System.out.println("│ (Waiting for players to connect...)      │");
+            System.out.println(" └────────────────────┘");
         } else {
             for (ClientPlayer p : allPlayers) {
-                String displayName = p.getNickname();
-                if (displayName.equals(ownName)) {
-                    displayName += INFO_CYAN + " (YOU)" + RESET;
+                String displayName = CardVisualizer.getASCIIColor(p.getColor()) + p.getNickname() + RESET;
+                if (p.getNickname().equals(ownName)) {
+                    displayName += MESOS + " (YOU)" + RESET;
                 }
-                System.out.printf("│ %-29s│ %-18s│\n", displayName, p.getColor());
+                System.out.println(" │" + CardVisualizer.centerLine(displayName, RESET, 20) + "│");
             }
-            if (lobby.getCurrentPlayers() != lobby.getNumPlayers()) {
-                System.out.println("│ (Waiting for players to connect...)      │");
+            for (int i = allPlayers.size(); i < lobby.getCurrentPlayers(); i++) {
+                System.out.println(" │     "+ DIM + "choosing..." + RESET + "    │");
             }
+            System.out.println(" └────────────────────┘");
         }
-        System.out.println("└──────────────────────┴───────────────────┘");
+        if (lobby.getCurrentPlayers() != lobby.getNumPlayers()) {
+            System.out.println("Waiting for other players to connect...");
+        }
     }
 
     private void printHelp() {
         System.out.println("\n" + "=".repeat(20) + " MESOS COMMAND LIST " + "=".repeat(20));
 
-        System.out.println(BUILD_GOLD + "GAMEPLAY COMMANDS:" + RESET);
+        System.out.println( MESOS + "GAMEPLAY COMMANDS:" + RESET);
         printCommand("place <position>", "Place your totem on the specified offer track card.");
         printCommand("pick <row> <position>", "Take the card at the given position from the board. (e.g. pick top 3)");
         printCommand("end", "Finish your current actions and pass the turn.");
 
-        System.out.println("\n" + BUILD_GOLD + "VISUALIZATION COMMANDS:" + RESET);
+        System.out.println("\n"+ MESOS + "VISUALIZATION COMMANDS:" + RESET);
         printCommand("show board", "Display the main board");
         printCommand("show scoreboard", "Show players points, food, and current turn order.");
         printCommand("show tribe <nickname>", "View the cards collected by you or another player.");
-
-        System.out.println("\n" + BUILD_GOLD + "SYSTEM:" + RESET);
-        printCommand("help", "Show this list of commands.");
 
         System.out.println("=".repeat(60) + "\n");
     }
 
     private void printCommand(String syntax, String description) {
-        System.out.printf("  " + INFO_CYAN + "%-20s" + RESET + " : %s\n", syntax, description);
+        System.out.printf("  " + MESOS + "%-25s" + RESET + " : %s\n", syntax, description);
     }
 
     private void printPlayerTribe(ClientPlayer player) {
-        System.out.println("Player " + player.getNickname() + " has " + player.getFood() + " food and " + player.getPrestigePoints() + " prestige points.");
-        printCardsSideBySide(player.getTribe());
+        System.out.println(" ╔═════════════════════════╦═════════════╦═════════════════╗");
+        System.out.printf(" ║%s║ "+MESOS+"FOOD"+RESET+": %-6d║ "+MESOS+"PRESTIGE"+RESET+": %-6d║\n",
+                CardVisualizer.centerLine(player.getNickname() + "'s Tribe", CardVisualizer.getASCIIColor(player.getColor()), 25),
+                player.getFood(),
+                player.getPrestigePoints()
+        );
+        System.out.println(" ╚═════════════════════════╩═════════════╩═════════════════╝");
+        Map<String, List<Integer>> tribeMap = CardVisualizer.divideTribe(player.getTribe());
+        if (tribeMap.isEmpty()) {
+            System.out.println("This tribe is still empty.");
+            return;
+        }
+        for (List<Integer> l : tribeMap.values()) {
+            this.printRow(l);
+        }
     }
 
     public void printBoard(List<Integer> topRowCards, List<Integer> bottomRowCards, List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
-        System.out.println("\n" + "=".repeat(20) + " BOARD " + "=".repeat(20));
-        System.out.println("\n[ TOP ROW ]");
-        this.printCardsSideBySide(topRowCards);
+        System.out.println(MESOS +
+                "                                               ╔═══════════════╗\n" +
+                "═══════════════════════════════════════════════╣     BOARD     ╠═══════════════════════════════════════════════\n" +
+                "                                               ╚═══════════════╝\n" + RESET);
+        int cardWidth = CardVisualizer.getASCII(topRowCards.getFirst()).getFirst().length();
+        this.printIndexes(0, topRowCards.size(), cardWidth);
+        this.printRow(topRowCards);
 
+        this.printIndexes(2, 2 +offerTrack.size(), cardWidth);
         this.printCentralTrack(orderQueue, offerTrack);
 
-        System.out.println("\n[ BOTTOM ROW ]");
-        this.printCardsSideBySide(bottomRowCards);
+        this.printIndexes(0, bottomRowCards.size(), cardWidth);
+        this.printRow(bottomRowCards);
 
-        System.out.println("\n" + "=".repeat(56));
+        System.out.println(MESOS +"════════════════════════════════════════════════════════════════════════════════════════════════════════════" + RESET);
+    }
+
+    private void printIndexes(int startingPoint, int size, int cardWidth) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < startingPoint; i++) {
+            sb.append(" ".repeat(cardWidth + 2));
+        }
+        for (int i = 1; i <= (size - startingPoint); i++) {
+            String indexLabel = "[" + i + "]";
+            sb.append(CardVisualizer.centerLine(indexLabel, MESOS, cardWidth));
+            sb.append("  ");
+        }
+        System.out.println(sb);
     }
 
     private void printCentralTrack(List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
@@ -686,17 +740,22 @@ public class TUI implements UI, Runnable {
         centralCards.add(CardVisualizer.getEraASCII(this.localModel.getCurrentEra()));
         centralCards.add(CardVisualizer.getOrderQueueASCII(this.localModel.getNumPlayers(), orderQueue));
         offerTrack.forEach(o -> centralCards.add(CardVisualizer.getOfferTrackASCII(o)));
-        int cardHeight = centralCards.getFirst().size();
+        printSideBySide(centralCards);
+    }
+
+    private void printSideBySide(List<List<String>> cards) {
+        int cardHeight = cards.getFirst().size();
         for (int line = 0; line < cardHeight; line++) {
             StringBuilder sb = new StringBuilder();
-            for (List<String> cardLines : centralCards) {
+            for (List<String> cardLines : cards) {
                 sb.append(cardLines.get(line)).append("  ");
             }
             System.out.println(sb);
         }
+        System.out.println();
     }
 
-    private void printCardsSideBySide(List<Integer> ids) {
+    private void printRow(List<Integer> ids) {
         if (ids.isEmpty()) {
             System.out.println("No cards to display.");
             return;
@@ -704,32 +763,31 @@ public class TUI implements UI, Runnable {
         List<List<String>> allAscii = ids.stream()
                 .map(CardVisualizer::getASCII)
                 .toList();
-        int cardHeight = allAscii.getFirst().size();
-        for (int line = 0; line < cardHeight; line++) {
-            StringBuilder sb = new StringBuilder();
-            for (List<String> cardLines : allAscii) {
-                sb.append(cardLines.get(line)).append("  ");
-            }
-            System.out.println(sb);
-        }
+        printSideBySide(allAscii);
     }
 
     public void printScoreboard(List<ClientPlayer> players, String currentPlayer) {
-        System.out.println("\n┌───┬──────────────────────┬──────────┬──────────┬──────────┐");
-        System.out.println("│ # │ PLAYER               │ COLOR    │ FOOD     │ PRESTIGE │");
-        System.out.println("├───┼──────────────────────┼──────────┼──────────┼──────────┤");
-
-        for (int i = 0; i < this.localModel.getNumPlayers(); i++) {
-            ClientPlayer p = players.get(i);
-            String turnMarker = p.getNickname().equals(currentPlayer) ? BUILD_GOLD + "»" + RESET : " ";
-            System.out.printf("│ %s │ %-31s│ %-9s│ %-9s│ %-9s│\n",
+        System.out.println(" ╔═══╦════════════════════╦══════════╦══════════╗");
+        System.out.println(" ║ "+MESOS + "#" + RESET + " ║       " + MESOS + "PLAYER" +RESET + "       ║   " + MESOS + "FOOD" + RESET + "   ║ " + MESOS + "PRESTIGE" + RESET + " ║");
+        System.out.println(" ╠═══╬════════════════════╬══════════╬══════════╣");
+        for (ClientPlayer p : players) {
+            String turnMarker = p.getNickname().equals(currentPlayer) ? MESOS + "»" + RESET : " ";
+            System.out.printf(" ║ %s ║%s║    %-6d║    %-6d║\n",
                     turnMarker,
-                    p.getColor().getAnsiCode() + p.getNickname() + RESET,
-                    p.getColor().name(),
+                    CardVisualizer.centerLine(p.getNickname(), CardVisualizer.getASCIIColor(p.getColor()), 20),
                     p.getFood(),
                     p.getPrestigePoints()
             );
         }
-        System.out.println("└───┴──────────────────────┴──────────┴──────────┴──────────┘");
+        System.out.println(" ╚═══╩════════════════════╩══════════╩══════════╝");
+    }
+
+
+    private void printCard(int cardId) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : CardVisualizer.getASCII(cardId)) {
+            sb.append(s).append("\n");
+        }
+        System.out.println(sb);
     }
 }

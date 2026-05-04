@@ -35,7 +35,9 @@ class GameTest {
         assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("jonny", Color.BLACK));
         game.addPlayer("jonny", Color.RED);
         assertFalse(game.getAvailableColors().contains(Color.RED) || game.getAvailableColors().contains(Color.BLACK));
-        assert game.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION);
+        assertEquals(GamePhase.PREPARATION, game.getPhase());
+        game.startGame();
+        assertEquals(GamePhase.OFFER_TRACK_SELECTION, game.getPhase());
         assertEquals(2, game.getPlayers().size());
         List<String> namePlayers = new ArrayList<>();
         namePlayers.add("pippo");

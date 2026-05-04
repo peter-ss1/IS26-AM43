@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
@@ -26,5 +27,9 @@ public class TribeBuilding extends Building {
         int newBonus = this.bonus.calculateBonus(player);
         bonus.giveBonus(observer, player, newBonus - this.lastGivenBonus);
         this.lastGivenBonus = newBonus;
+    }
+    @Override
+    public String toString() {
+        return "Edificio Tribù (Costo: " + getCost() + " cibo, PV: " + getPrestigePoints() + ") - Fornisce bonus in base ai personaggi nella tua tribù.";
     }
 }

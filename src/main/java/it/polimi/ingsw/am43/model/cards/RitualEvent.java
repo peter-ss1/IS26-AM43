@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
@@ -73,5 +74,9 @@ public class RitualEvent extends Event {
     @Override
     public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
         building.reactToEvent(observer, player, this);
+    }
+    @Override
+    public String toString() {
+        return "Evento Rituale (Era " + getEra() + ") - Il giocatore con meno Stelle Sciamano subisce " + malus + " PV. Chi ne ha di più vince PV extra.";
     }
 }

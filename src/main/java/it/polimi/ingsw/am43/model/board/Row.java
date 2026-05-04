@@ -30,6 +30,7 @@ public class Row {
     }
 
     public void addCard(Event event) {
+        //TODO correct order
         this.events.addFirst(event);
     }
 
