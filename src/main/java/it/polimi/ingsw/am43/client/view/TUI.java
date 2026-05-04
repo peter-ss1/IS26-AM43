@@ -68,24 +68,16 @@ public class TUI implements UI {
                     String nickname = parts[0];
                     Color color = Color.valueOf(parts[1].toUpperCase());
                     int numPlayers = Integer.parseInt(parts[2]);
-                    try {
-                        this.controller.createLobby(nickname, color, numPlayers);
-                        initialScene = false;
-                        break;
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
+                    this.controller.createLobby(nickname, color, numPlayers);
+                    initialScene = false;
+                    break;
                 }
                 if (choice.equals("2")) {
                     System.out.print("Choose LobbyID: ");
                     String input = scanner.nextLine().trim();
-                    try {
-                        this.controller.joinLobby(Integer.parseInt(input));
-                        initialScene = false;
-                        break;
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
+                    this.controller.joinLobby(Integer.parseInt(input));
+                    initialScene = false;
+                    break;
                 } else {
                     System.out.println("Invalid choice.");
                 }
@@ -103,11 +95,7 @@ public class TUI implements UI {
             String[] parts = input.split("\\s+");
             String nickname = parts[0];
             Color color = Color.valueOf(parts[1].toUpperCase());
-            try {
-                this.controller.joinGame(nickname, color);
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
+            this.controller.joinGame(nickname, color);
         }
     }
 

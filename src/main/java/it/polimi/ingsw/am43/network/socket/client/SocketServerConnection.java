@@ -1,83 +1,82 @@
 package it.polimi.ingsw.am43.network.socket.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.ingsw.am43.client.HeartBeat;
-import it.polimi.ingsw.am43.controller.ClientController;
-import it.polimi.ingsw.am43.network.PersistentServerConnection;
-import it.polimi.ingsw.am43.network.VirtualServer;
+import it.polimi.ingsw.am43.network.Connections.PersistentServerConnection;
+
+import it.polimi.ingsw.am43.network.Connections.ServerConnectionUser;
+import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
-import it.polimi.ingsw.am43.network.message.DataServerToClient;
-import it.polimi.ingsw.am43.network.message.Error;
-import it.polimi.ingsw.am43.network.message.Pong;
-import it.polimi.ingsw.am43.network.message.Update;
-import it.polimi.ingsw.am43.network.socket.UtilsJSON;
-import it.polimi.ingsw.am43.network.socket.VirtualServerSocket;
+import it.polimi.ingsw.am43.network.message.*;
+import it.polimi.ingsw.am43.network.socket.VirtualClientSocket;
 
 import java.io.*;
 import java.net.Socket;
-import java.rmi.RemoteException;
 import java.util.UUID;
 
-public class SocketServerConnection implements PersistentServerConnection {
+public class SocketServerConnection implements PersistentServerConnection, VirtualClientSocket {
 
-    public SocketServerHandler remote;
-    private volatile long lastPong;
+    private final String ip;
+    private final int port;
     private final UUID playerId;
+    private final ServerConnectionUser connectionUser;
+    private final MessageReceiver messageReceiver;
     private final HeartBeat heartBeat;
-    private final ClientController clientController;
-    private final BufferedReader input;
-    private final Thread listener;
 
-    public SocketServerConnection(Socket socket, ClientController clientController, UUID id) throws IOException{
-        this.remote=new SocketServerHandler(new PrintWriter(new OutputStreamWriter(socket.getOutputStream()),true));
-        this.input= new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.clientController=clientController;
+    private  SocketServerListener listener;
+    private SocketServerHandler remote;
+    private  Socket socket;
+    private volatile long lastPong;
+
+    public SocketServerConnection(String ip, int port,ServerConnectionUser connectionUser, MessageReceiver messageReceiver, UUID id){
+        this.ip=ip;
+        this.port=port;
+        this.heartBeat= new HeartBeat(this);
+        this.connectionUser= connectionUser;
+        this.messageReceiver= messageReceiver;
         this.playerId=id;
         this.lastPong=System.currentTimeMillis();
-        this.heartBeat= new HeartBeat(this,id);
-        this.listener=new Thread(this::runListener);
     }
 
-    public void connect(){
-        this.remote.sendCommand(new ServerCommand.RegisterCommand(this.playerId));
-        this.heartBeat.start();
+    public void sendCommand(ServerCommand command) {
+        this.remote.sendCommand(command);
     }
-    public void disconnect(){
+    public void sendCommand(GameCommand command){
+        this.remote.sendCommand(command);
+    }
+    public void close(){
+        this.heartBeat.stop();
+        this.listener.stop();
+        try {
+            this.socket.close();
+        }catch (IOException e){System.out.println(e.getMessage());}
+    }
+    public void open() throws Exception{
+        try {
+            Socket socket = new Socket(ip, port);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            out.println(this.playerId.toString());
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String uuidString = in.readLine();
+            UUID playerId = UUID.fromString(uuidString);
+            if(!playerId.equals(this.playerId)) throw new Exception();//TODO exception
+            this.socket=socket;
+            this.remote = new SocketServerHandler(out);
+            this.listener = new SocketServerListener(this, in);
+            this.listener.start();
+            this.heartBeat.start();
+        }catch (Exception e){e.printStackTrace();}
+    }
 
+    public void sendMessage(Message message){
+        this.messageReceiver.receiveMessage(message);
     }
-    public VirtualServer getRemote(){
-        return this.remote;
+    public void pong(){
+        this.updateLastPong();
     }
 
-    public void runListener(){
-        String json;
-        DataServerToClient data;
-        try{
-            while ((json = input.readLine()) != null) {
-                try {
-                    data = UtilsJSON.mapper.readValue(json, DataServerToClient.class);
-                    switch (data) {
-                        case Pong pong:
-                            this.lastPong = System.currentTimeMillis();
-                            break;
-                        case Update update:
-                            this.clientController.addToQueue(update);
-                            break;
-                        case Error error:
-                            this.clientController.addToQueue(error);
-                            break;
-                    }
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-            }
-        }catch (IOException e){
-                //TODO implement
-            }
-    }
 
     public void ping(){
-        this.remote.ping(this.playerId);
+        this.remote.ping();
     }
     public long getLastPong(){
         return this.lastPong;
@@ -85,10 +84,9 @@ public class SocketServerConnection implements PersistentServerConnection {
     public void updateLastPong(){
         this.lastPong=System.currentTimeMillis();
     }
-    public void notifyDisconnection() {
-        this.heartBeat.stop();
-        this.clientController.disconnect();
+    public void disconnect() {
+        this.close();
+        this.connectionUser.notifyDisconnection();
     }
-
 
 }

@@ -3,108 +3,77 @@ package it.polimi.ingsw.am43.controller;
 import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.ServerConnection;
-import it.polimi.ingsw.am43.network.VirtualServer;
+import it.polimi.ingsw.am43.network.Connections.PersistentServerConnection;
+import it.polimi.ingsw.am43.network.Connections.ServerConnection;
+import it.polimi.ingsw.am43.network.Connections.ServerConnectionUser;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Message;
-import it.polimi.ingsw.am43.network.rmi.ClientRMI;
+import it.polimi.ingsw.am43.network.message.MessageReceiver;
 import it.polimi.ingsw.am43.network.rmi.ServerRMIConnection;
-import it.polimi.ingsw.am43.network.rmi.VirtualServerRMI;
 import it.polimi.ingsw.am43.network.socket.client.SocketServerConnection;
+import it.polimi.ingsw.am43.utils.Executor;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
-public class ClientController {
+public class ClientController implements ServerConnectionUser, MessageReceiver {
 
-    private VirtualServer server;
     private ServerConnection serverConnection;
+    private Executor<ClientController> messageExecutor;
     private final UI ui;
     private final ClientModel localModel;
-    private final BlockingQueue<Message> messageQueue;
+    private volatile boolean connected;
     private final UUID playerId;
 
     public ClientController(UI ui, ClientModel localModel) {
         this.ui = ui;
         this.localModel = localModel;
-        this.server = null;
+        this.serverConnection= null;
+        this.connected=false;
         this.playerId = UUID.randomUUID();
-        this.messageQueue = new LinkedBlockingQueue<>();
-        new Thread(this::executor).start();
+        this.messageExecutor=new Executor<>(this);
     }
 
-    private void executor() {
-        while (true) {
-            try {
-                Message message = messageQueue.take();
-                message.execute(this);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
-    }
 
     public ClientModel getLocalModel() {
         return this.localModel;
     }
-
-
     public void chooseConnectionType(boolean rmi) throws IOException {
+        PersistentServerConnection connection;
         if (rmi) {
-            try {
-                Registry registry = LocateRegistry.getRegistry(InetAddress.getLocalHost().getHostAddress(), 1099);
-                this.serverConnection = new ServerRMIConnection((VirtualServerRMI) registry.lookup("MesosServer"), this, this.playerId);
-                this.ui.showMessage("Successfully connected to server via RMI.");
-            } catch (NotBoundException e) {
-                this.ui.showMessage("Error: Could not connect to server via RMI.");
-            }
+            connection = new ServerRMIConnection(1099, "MesosServer", this, this, this.playerId);
         } else {
-            Socket serverSocket;
-            try {
-                serverSocket = new Socket(InetAddress.getLocalHost().getHostAddress(), 8080);
-            } catch (IOException e) {
-                this.ui.showMessage("Error: Could not connect to server via Socket.");
-                return;
-            }
-            this.serverConnection=new SocketServerConnection(serverSocket,this, this.playerId);
-            this.ui.showMessage("Successfully connected to server via Socket.");
+            connection = new SocketServerConnection(InetAddress.getLocalHost().getHostAddress(), 8080, this, this, playerId);
         }
-        this.serverConnection.connect();
-        this.server=this.serverConnection.getRemote();
+        try {
+            connection.open();
+        }catch (Exception e){
+            System.out.println("ko");
+        }
+        this.serverConnection=connection;
+        this.messageExecutor.start();
+        this.connected=true;
     }
 
     public void disconnect(){
-
+        this.serverConnection.close();
     }
-
-    public void refreshLobbies() throws RemoteException {
-        server.sendCommand(new ServerCommand.FetchLobbiesCommand(this.playerId));
+    public void refreshLobbies() {
+        this.serverConnection.sendCommand(new ServerCommand.FetchLobbiesCommand(this.playerId));
     }
-
-    public void createLobby(String nickname, Color color, int numPlayers) throws RemoteException {
-        server.sendCommand(new ServerCommand.CreateLobbyCommand(this.playerId, nickname, color, numPlayers));
+    public void createLobby(String nickname, Color color, int numPlayers){
+        this.serverConnection.sendCommand(new ServerCommand.CreateLobbyCommand(this.playerId, nickname, color, numPlayers));
     }
-
-    public void joinLobby(int lobbyId) throws RemoteException {
-        server.sendCommand(new ServerCommand.PickLobbyCommand(this.playerId, lobbyId));
+    public void joinLobby(int lobbyId){
+        this.serverConnection.sendCommand(new ServerCommand.PickLobbyCommand(this.playerId, lobbyId));
     }
-
-    public void joinGame(String nickname, Color color) throws RemoteException {
-        this.server.sendCommand(new GameCommand.PickNameColorCommand(this.playerId, nickname, color));
+    public void joinGame(String nickname, Color color){
+        this.serverConnection.sendCommand(new GameCommand.PickNameColorCommand(this.playerId, nickname, color));
     }
-
     public void pickCard(int id) {
-        if (server == null) {
+        if (this.serverConnection == null) {
             throw new IllegalStateException("Remote model is not set");
         }
         if (localModel == null) {
@@ -113,15 +82,10 @@ public class ClientController {
         if (playerId == null) {
             throw new IllegalStateException("Player id is not set");
         }
-        try {
-            server.sendCommand(new GameCommand.PickCardCommand(this.playerId, id));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        this.serverConnection.sendCommand(new GameCommand.PickCardCommand(this.playerId, id));
     }
-
     public void placeTotem(int position) {
-        if (server == null) {
+        if (this.serverConnection == null) {
             throw new IllegalStateException("Remote model is not set");
         }
         if (localModel == null) {
@@ -130,15 +94,10 @@ public class ClientController {
         if (playerId == null) {
             throw new IllegalStateException("Player id is not set");
         }
-        try {
-            server.sendCommand(new GameCommand.PlaceTotemCommand(this.playerId, position));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        this.serverConnection.sendCommand(new GameCommand.PlaceTotemCommand(this.playerId, position));
     }
-
     public void endTurn() {
-        if (server == null) {
+        if (this.serverConnection == null) {
             throw new IllegalStateException("Remote model is not set");
         }
         if (localModel == null) {
@@ -147,18 +106,14 @@ public class ClientController {
         if (playerId == null) {
             throw new IllegalStateException("Player id is not set");
         }
-        try {
-            server.sendCommand(new GameCommand.EndTurnCommand(this.playerId));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        this.serverConnection.sendCommand(new GameCommand.EndTurnCommand(this.playerId));
     }
 
-    public void addToQueue(Message message) {
-        try {
-            this.messageQueue.put(message);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    public void receiveMessage(Message message){
+        this.messageExecutor.delegate(message);
+    }
+
+    public void notifyDisconnection(){
+        System.out.println("disconnected");
     }
 }

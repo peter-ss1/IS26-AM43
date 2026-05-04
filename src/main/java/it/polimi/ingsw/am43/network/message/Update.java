@@ -10,11 +10,6 @@ import it.polimi.ingsw.am43.model.enums.Color;
 
 import java.util.List;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "dataServerToClientType"
-)
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Update.AvailableLobbiesUpdate.class, name = "availableLobbiesUpdate"),
