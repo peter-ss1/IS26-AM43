@@ -42,16 +42,4 @@ public class PaintingEvent extends Event {
         return "Evento Pittura (Era " + getEra() + ") - Ottieni PV in base al numero dei tuoi Artisti. Se ne hai meno dell'Era in corso, subisci un malus.";
     }
 
-    @Override
-    public String[] getASCII() {
-        String[] lines = new String[7];
-        lines[0] = "┌─────────────┐";
-        lines[1] = "│" + TextFormat.PURPLE + TextFormat.BOLD + " EV. PITTURA " + TextFormat.RESET + "│";
-        lines[2] = "├─────────────┤";
-        lines[3] = "│ Era: " + getEra() + "      │";
-        lines[4] = "│             │";
-        lines[5] = "│             │";
-        lines[6] = "└─────────────┘";
-        return lines;
-    }
 }

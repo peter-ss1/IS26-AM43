@@ -22,17 +22,5 @@ public class Shaman extends CharacterCard {
         player.alterShamanStars(shamanStars);
         player.getTribe().activateTribeBuildings(observer, player);
     }
-    @Override
-    public String[] getASCII() {
-        String[] lines = new String[7];
-        lines[0] = "┌─────────────┐";
-        lines[1] = "│" + TextFormat.YELLOW + TextFormat.BOLD + " SCIAMANO    " + TextFormat.RESET + "│";
-        lines[2] = "├─────────────┤";
-        lines[3] = "│ Era: " + getEra() + "      │";
-        lines[4] = "│ Stelle: " + shamanStars + "   │";
-        lines[5] = "│             │";
-        lines[6] = "└─────────────┘";
-        return lines;
-    }
 
 }

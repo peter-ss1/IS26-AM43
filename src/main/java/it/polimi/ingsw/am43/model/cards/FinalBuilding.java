@@ -28,16 +28,4 @@ public class FinalBuilding extends Building {
         return "Edificio Finale (Costo: " + getCost() + " cibo, PV: " + getPrestigePoints() + ") - Attiva il suo effetto alla fine della partita.";
     }
 
-    @Override
-    public String[] getASCII() {
-        String[] lines = new String[7];
-        lines[0] = "┌─────────────┐";
-        lines[1] = "│" + TextFormat.BLUE + TextFormat.BOLD + " EDIF. FINALE" + TextFormat.RESET + "│";
-        lines[2] = "├─────────────┤";
-        lines[3] = "│ Era: " + getEra() + "      │";
-        lines[4] = "│ Costo: " + getCost() + "    │";
-        lines[5] = "│ PP: " + getPrestigePoints() + "       │";
-        lines[6] = "└─────────────┘";
-        return lines;
-    }
 }

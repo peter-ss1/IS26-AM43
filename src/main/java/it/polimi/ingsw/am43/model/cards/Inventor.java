@@ -22,20 +22,5 @@ public class Inventor extends CharacterCard {
         player.getTribe().addCardToTribe(this);
         player.getTribe().activateTribeBuildings(observer, player);
     }
-    @Override
-    public String[] getASCII() {
-        String[] lines = new String[7];
-        lines[0] = "┌─────────────┐";
-        lines[1] = "│" + TextFormat.CYAN + TextFormat.BOLD + " INVENTORE   " + TextFormat.RESET + "│";
-        lines[2] = "├─────────────┤";
-        lines[3] = "│ Era: " + getEra() + "      │";
-
-        String sym = symbol.toString();
-        sym = sym.length() > 11 ? sym.substring(0, 11) : sym;
-        lines[4] = String.format("│ %-11s │", sym);
-        lines[5] = "│             │";
-        lines[6] = "└─────────────┘";
-        return lines;
-    }
 
 }

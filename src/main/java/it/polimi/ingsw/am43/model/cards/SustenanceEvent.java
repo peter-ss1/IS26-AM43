@@ -57,21 +57,9 @@ public class SustenanceEvent extends Event {
     public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
         building.reactToEvent(observer, player, this);
     }
+
     @Override
     public String toString() {
         return "Evento Sostentamento (Era " + getEra() + ") - Devi spendere cibo pari alla grandezza della tua tribù (meno gli sconti). Se non puoi, perdi PV.";
-    }
-
-    @Override
-    public String[] getASCII() {
-        String[] lines = new String[7];
-        lines[0] = "┌─────────────┐";
-        lines[1] = "│" + TextFormat.PURPLE + TextFormat.BOLD + " EV. SOSTENT." + TextFormat.RESET + "│";
-        lines[2] = "├─────────────┤";
-        lines[3] = "│ Era: " + getEra() + "      │";
-        lines[4] = "│             │";
-        lines[5] = "│             │";
-        lines[6] = "└─────────────┘";
-        return lines;
     }
 }

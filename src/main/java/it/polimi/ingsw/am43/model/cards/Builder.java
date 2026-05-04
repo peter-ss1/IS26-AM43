@@ -28,16 +28,4 @@ public class Builder extends CharacterCard {
         player.alterBuildingDiscount(buildingDiscount);
         player.getTribe().activateTribeBuildings(observer, player);
     }
-    @Override
-    public String[] getASCII() {
-        String[] lines = new String[7];
-        lines[0] = "┌─────────────┐";
-        lines[1] = "│" + TextFormat.CYAN + TextFormat.BOLD + " COSTRUTTORE " + TextFormat.RESET + "│";
-        lines[2] = "├─────────────┤";
-        lines[3] = "│ Era: " + getEra() + "      │";
-        lines[4] = "│ Sconto: " + buildingDiscount + "   │";
-        lines[5] = "│ PP: " + prestigePoints + "       │";
-        lines[6] = "└─────────────┘";
-        return lines;
-    }
 }

@@ -79,18 +79,4 @@ public class RitualEvent extends Event {
     public String toString() {
         return "Evento Rituale (Era " + getEra() + ") - Il giocatore con meno Stelle Sciamano subisce " + malus + " PV. Chi ne ha di più vince PV extra.";
     }
-
-    @Override
-    public String[] getASCII() {
-        String[] lines = new String[7];
-        lines[0] = "┌─────────────┐";
-        lines[1] = "│" + TextFormat.PURPLE + TextFormat.BOLD + " EV. RITUALE " + TextFormat.RESET + "│";
-        lines[2] = "├─────────────┤";
-        lines[3] = "│ Era: " + getEra() + "      │";
-        // Uso un pad per compensare il fatto che il malus può occupare 1 o 2 caratteri (es. -2)
-        lines[4] = String.format("│ Malus: %-4d │", malus);
-        lines[5] = "│             │";
-        lines[6] = "└─────────────┘";
-        return lines;
-    }
 }
