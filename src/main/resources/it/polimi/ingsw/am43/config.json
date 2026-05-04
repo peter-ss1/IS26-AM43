@@ -64,556 +64,652 @@
         "classTribe": "HUNTER",
         "era": 1,
         "id": 1,
-        "active": true
+        "active": true,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNTER",
         "era": 1,
         "id": 2,
-        "active": true
+        "active": true,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNTER",
         "era": 1,
         "id": 3,
-        "active": false
+        "active": false,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNTER",
         "era": 1,
         "id": 4,
-        "active": false
+        "active": false,
+        "minPlayer": 3
       },
       {
         "classTribe": "HUNTER",
         "era": 1,
         "id": 5,
-        "active": false
+        "active": false,
+        "minPlayer": 3
       },
       {
         "classTribe": "BUILDER",
         "era": 1,
         "id": 6,
         "buildingDiscount": 1,
-        "prestigePoint": 3
+        "prestigePoint": 3,
+        "minPlayer": 2
       },
       {
         "classTribe": "BUILDER",
         "era": 1,
         "id": 7,
         "buildingDiscount": 2,
-        "prestigePoint": 0
+        "prestigePoint": 0,
+        "minPlayer": 2
       },
       {
         "classTribe": "BUILDER",
         "era": 1,
         "id": 8,
         "buildingDiscount": 2,
-        "prestigePoint": 1
+        "prestigePoint": 1,
+        "minPlayer": 5
       },
       {
         "classTribe": "BUILDER",
         "era": 1,
         "id": 9,
         "buildingDiscount": 1,
-        "prestigePoint": 2
+        "prestigePoint": 2,
+        "minPlayer": 2
       },
       {
         "classTribe": "GATHERER",
         "era": 1,
-        "id": 10
+        "id": 10,
+        "minPlayer": 2
       },
       {
         "classTribe": "GATHERER",
         "era": 1,
-        "id": 11
+        "id": 11,
+        "minPlayer": 2
       },
       {
         "classTribe": "GATHERER",
         "era": 1,
-        "id": 12
+        "id": 12,
+        "minPlayer": 3
       },
       {
         "classTribe": "GATHERER",
         "era": 1,
-        "id": 13
+        "id": 13,
+        "minPlayer": 5
       },
       {
         "classTribe": "ARTIST",
         "era": 1,
-        "id": 14
+        "id": 14,
+        "minPlayer": 2
       },
       {
         "classTribe": "ARTIST",
         "era": 1,
-        "id": 15
+        "id": 15,
+        "minPlayer": 2
       },
       {
         "classTribe": "ARTIST",
         "era": 1,
-        "id": 16
+        "id": 16,
+        "minPlayer": 2
       },
       {
         "classTribe": "ARTIST",
         "era": 1,
-        "id": 17
+        "id": 17,
+        "minPlayer": 3
       },
       {
         "classTribe": "ARTIST",
         "era": 1,
-        "id": 18
+        "id": 18,
+        "minPlayer": 4
       },
       {
         "classTribe": "INVENTOR",
         "era": 1,
         "id": 19,
-        "symbol": "LEATHER"
+        "symbol": "LEATHER",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 1,
         "id": 20,
-        "symbol": "BOAT"
+        "symbol": "BOAT",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 1,
         "id": 21,
-        "symbol": "SPEARHEAD"
+        "symbol": "SPEARHEAD",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 1,
         "id": 22,
-        "symbol": "BREAD"
+        "symbol": "BREAD",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 1,
         "id": 23,
-        "symbol": "ROPE"
+        "symbol": "ROPE",
+        "minPlayer": 4
       },
       {
         "classTribe": "INVENTOR",
         "era": 1,
         "id": 24,
-        "symbol": "FLUTE"
+        "symbol": "FLUTE",
+        "minPlayer": 4
       },
       {
         "classTribe": "INVENTOR",
         "era": 1,
         "id": 25,
-        "symbol": "MORTAR"
+        "symbol": "MORTAR",
+        "minPlayer": 4
       },
       {
         "classTribe": "SHAMAN",
         "era": 1,
         "id": 26,
-        "shamansStars": 2
+        "shamansStars": 2,
+        "minPlayer": 5
       },
       {
         "classTribe": "SHAMAN",
         "era": 1,
         "id": 27,
-        "shamansStars": 2
+        "shamansStars": 2,
+        "minPlayer": 2
       },
       {
         "classTribe": "SHAMAN",
         "era": 1,
         "id": 28,
-        "shamansStars": 1
+        "shamansStars": 1,
+        "minPlayer": 2
       },
       {
         "classTribe": "SHAMAN",
         "era": 1,
         "id": 29,
-        "shamansStars": 1
+        "shamansStars": 1,
+        "minPlayer": 4
       },
       {
         "classTribe": "HUNTER",
         "era": 2,
         "id": 30,
-        "active": false
+        "active": false,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNTER",
         "era": 2,
         "id": 31,
-        "active": false
+        "active": false,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNTER",
         "era": 2,
         "id": 32,
-        "active": true
+        "active": true,
+        "minPlayer": 3
       },
       {
         "classTribe": "HUNTER",
         "era": 2,
         "id": 33,
-        "active": true
+        "active": true,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNTER",
         "era": 2,
         "id": 34,
-        "active": true
+        "active": true,
+        "minPlayer": 4
       },
       {
         "classTribe": "HUNTER",
         "era": 2,
         "id": 35,
-        "active": false
+        "active": false,
+        "minPlayer": 5
       },
       {
         "classTribe": "BUILDER",
         "era": 2,
         "id": 36,
         "buildingDiscount": 1,
-        "prestigePoint": 4
+        "prestigePoint": 4,
+        "minPlayer": 2
       },
       {
         "classTribe": "BUILDER",
         "era": 2,
         "id": 37,
         "buildingDiscount": 2,
-        "prestigePoint": 1
+        "prestigePoint": 1,
+        "minPlayer": 2
       },
       {
         "classTribe": "BUILDER",
         "era": 2,
         "id": 38,
         "buildingDiscount": 1,
-        "prestigePoint": 2
+        "prestigePoint": 2,
+        "minPlayer": 3
       },
       {
         "classTribe": "BUILDER",
         "era": 2,
         "id": 39,
         "buildingDiscount": 2,
-        "prestigePoint": 3
+        "prestigePoint": 3,
+        "minPlayer": 2
       },
       {
         "classTribe": "GATHERER",
         "era": 2,
-        "id": 40
+        "id": 40,
+        "minPlayer": 2
       },
       {
         "classTribe": "GATHERER",
         "era": 2,
-        "id": 41
+        "id": 41,
+        "minPlayer": 3
       },
       {
         "classTribe": "GATHERER",
         "era": 2,
-        "id": 42
+        "id": 42,
+        "minPlayer": 4
       },
       {
         "classTribe": "GATHERER",
         "era": 2,
-        "id": 43
+        "id": 43,
+        "minPlayer": 5
       },
       {
         "classTribe": "ARTIST",
         "era": 2,
-        "id": 44
+        "id": 44,
+        "minPlayer": 3
       },
       {
         "classTribe": "ARTIST",
         "era": 2,
-        "id": 45
+        "id": 45,
+        "minPlayer": 2
       },
       {
         "classTribe": "ARTIST",
         "era": 2,
-        "id": 46
+        "id": 46,
+        "minPlayer": 2
       },
       {
         "classTribe": "ARTIST",
         "era": 2,
-        "id": 47
+        "id": 47,
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 2,
         "id": 48,
-        "symbol": "FIGURINE"
+        "symbol": "FIGURINE",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 2,
         "id": 49,
-        "symbol": "HOOK"
+        "symbol": "HOOK",
+        "minPlayer": 4
       },
       {
         "classTribe": "INVENTOR",
         "era": 2,
         "id": 50,
-        "symbol": "ROPE"
+        "symbol": "ROPE",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 2,
         "id": 51,
-        "symbol": "FLUTE"
+        "symbol": "FLUTE",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 2,
         "id": 52,
-        "symbol": "MORTAR"
+        "symbol": "MORTAR",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 2,
         "id": 53,
-        "symbol": "LEATHER"
+        "symbol": "LEATHER",
+        "minPlayer": 2
       },
       {
         "classTribe": "SHAMAN",
         "era": 2,
         "id": 54,
-        "shamansStars": 2
+        "shamansStars": 2,
+        "minPlayer": 2
       },
       {
         "classTribe": "SHAMAN",
         "era": 2,
         "id": 55,
-        "shamansStars": 2
+        "shamansStars": 2,
+        "minPlayer": 2
       },
       {
         "classTribe": "SHAMAN",
         "era": 2,
         "id": 56,
-        "shamansStars": 1
+        "shamansStars": 1,
+        "minPlayer": 5
       },
       {
         "classTribe": "SHAMAN",
         "era": 2,
         "id": 57,
-        "shamansStars": 2
+        "shamansStars": 2,
+        "minPlayer": 5
       },
       {
         "classTribe": "HUNTER",
         "era": 3,
         "id": 58,
-        "active": true
+        "active": true,
+        "minPlayer": 5
       },
       {
         "classTribe": "HUNTER",
         "era": 3,
         "id": 59,
-        "active": false
+        "active": false,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNTER",
         "era": 3,
         "id": 60,
-        "active": false
+        "active": false,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNTER",
         "era": 3,
         "id": 61,
-        "active": true
+        "active": true,
+        "minPlayer": 2
       },
       {
         "classTribe": "BUILDER",
         "era": 3,
         "id": 62,
         "buildingDiscount": 1,
-        "prestigePoint": 5
+        "prestigePoint": 5,
+        "minPlayer": 2
       },
       {
         "classTribe": "BUILDER",
         "era": 3,
         "id": 63,
         "buildingDiscount": 2,
-        "prestigePoint": 3
+        "prestigePoint": 3,
+        "minPlayer": 2
       },
       {
         "classTribe": "BUILDER",
         "era": 3,
         "id": 64,
         "buildingDiscount": 1,
-        "prestigePoint": 4
+        "prestigePoint": 4,
+        "minPlayer": 5
       },
       {
         "classTribe": "BUILDER",
         "era": 3,
         "id": 65,
         "buildingDiscount": 2,
-        "prestigePoint": 2
+        "prestigePoint": 2,
+        "minPlayer": 2
       },
       {
         "classTribe": "GATHERER",
         "era": 3,
-        "id": 66
+        "id": 66,
+        "minPlayer": 5
       },
       {
         "classTribe": "GATHERER",
         "era": 3,
-        "id": 67
+        "id": 67,
+        "minPlayer": 4
       },
       {
         "classTribe": "GATHERER",
         "era": 3,
-        "id": 68
+        "id": 68,
+        "minPlayer": 2
       },
       {
         "classTribe": "ARTIST",
         "era": 3,
-        "id": 69
+        "id": 69,
+        "minPlayer": 5
       },
       {
         "classTribe": "ARTIST",
         "era": 3,
-        "id": 70
+        "id": 70,
+        "minPlayer": 2
       },
       {
         "classTribe": "ARTIST",
         "era": 3,
-        "id": 71
+        "id": 71,
+        "minPlayer": 2
       },
       {
         "classTribe": "ARTIST",
         "era": 3,
-        "id": 72
+        "id": 72,
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 3,
         "id": 73,
-        "symbol": "NECKLACE"
+        "symbol": "NECKLACE",
+        "minPlayer": 4
       },
       {
         "classTribe": "INVENTOR",
         "era": 3,
         "id": 74,
-        "symbol": "BOAT"
+        "symbol": "BOAT",
+        "minPlayer": 3
       },
       {
         "classTribe": "INVENTOR",
         "era": 3,
         "id": 75,
-        "symbol": "SPEARHEAD"
+        "symbol": "SPEARHEAD",
+        "minPlayer": 3
       },
       {
         "classTribe": "INVENTOR",
         "era": 3,
         "id": 76,
-        "symbol": "FIGURINE"
+        "symbol": "FIGURINE",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 3,
         "id": 77,
-        "symbol": "HOOK"
+        "symbol": "HOOK",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 3,
         "id": 78,
-        "symbol": "NECKLACE"
+        "symbol": "NECKLACE",
+        "minPlayer": 2
       },
       {
         "classTribe": "INVENTOR",
         "era": 3,
         "id": 79,
-        "symbol": "BREAD"
+        "symbol": "BREAD",
+        "minPlayer": 2
       },
       {
         "classTribe": "SHAMAN",
         "era": 3,
         "id": 80,
-        "shamansStars": 2
+        "shamansStars": 2,
+        "minPlayer": 3
       },
       {
         "classTribe": "SHAMAN",
         "era": 3,
         "id": 81,
-        "shamansStars": 3
+        "shamansStars": 3,
+        "minPlayer": 2
       },
       {
         "classTribe": "SHAMAN",
         "era": 3,
         "id": 82,
-        "shamansStars": 2
+        "shamansStars": 2,
+        "minPlayer": 2
       },
       {
         "classTribe": "SHAMAN",
         "era": 3,
         "id": 83,
-        "shamansStars": 3
+        "shamansStars": 3,
+        "minPlayer": 2
       },
       {
         "classTribe": "SHAMAN",
         "era": 3,
         "id": 84,
-        "shamansStars": 2
+        "shamansStars": 2,
+        "minPlayer": 4
       },
       {
         "classTribe": "HUNT",
         "era": 1,
-        "id": 85
+        "id": 85,
+        "minPlayer": 2
       },
       {
         "classTribe": "SUSTENANCE",
         "era": 1,
-        "id": 86
+        "id": 86,
+        "minPlayer": 2
       },
       {
         "classTribe": "RITUAL",
         "era": 1,
         "id": 87,
-        "malus": -3
+        "malus": -3,
+        "minPlayer": 2
       },
       {
         "classTribe": "PAINT",
         "era": 1,
-        "id": 88
+        "id": 88,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNT",
         "era": 2,
-        "id": 89
+        "id": 89,
+        "minPlayer": 2
       },
       {
         "classTribe": "SUSTENANCE",
         "era": 2,
-        "id": 90
+        "id": 90,
+        "minPlayer": 2
       },
       {
         "classTribe": "RITUAL",
         "era": 2,
         "id": 91,
-        "malus": -5
+        "malus": -5,
+        "minPlayer": 2
       },
       {
         "classTribe": "PAINT",
         "era": 2,
-        "id": 92
+        "id": 92,
+        "minPlayer": 2
       },
       {
         "classTribe": "HUNT",
         "era": 3,
-        "id": 93
+        "id": 93,
+        "minPlayer": 2
       },
       {
         "classTribe": "PAINT",
         "era": 3,
-        "id": 94
+        "id": 94,
+        "minPlayer": 2
       },
       {
         "classTribe": "SUSTENANCE",
         "era": 3,
-        "id": 95
+        "id": 95,
+        "minPlayer": 2
       },
       {
         "classTribe": "RITUAL",
         "era": 3,
         "id": 96,
-        "malus": -7
+        "malus": -7,
+        "minPlayer": 2
       }
     ],
     "buildingDeck": {
