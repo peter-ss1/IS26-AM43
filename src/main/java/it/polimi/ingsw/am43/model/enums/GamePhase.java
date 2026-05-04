@@ -4,9 +4,13 @@ import it.polimi.ingsw.am43.model.board.Board;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameLoader;
+import it.polimi.ingsw.am43.network.message.Update;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public enum GamePhase {
     PREPARATION {
@@ -39,9 +43,7 @@ public enum GamePhase {
                         game.setCurrPlayer(player);
                         game.resolveOffer(player);
                     },
-                    () -> {
-                        game.getPhase().resolvePhase(game, board);
-                    });
+                    () -> game.getPhase().resolvePhase(game, board));
         }
     },
     ACTION_RESOLUTION {
@@ -59,15 +61,16 @@ public enum GamePhase {
     ROUND_ENDING {
         @Override
         public void resolvePhase(Game game, Board board) {
-            board.activateEvents(OfferAction.BOTTOM, game.getPlayers());
+            board.activateEvents(game.getObserver(), OfferAction.BOTTOM, game.getPlayers());
             if (board.checkFinalRound()) {
-                board.activateEvents(OfferAction.TOP, game.getPlayers());
+                board.activateEvents(game.getObserver(), OfferAction.TOP, game.getPlayers());
                 game.setPhase(FINAL_COUNT);
                 game.getPhase().resolvePhase(game, board);
                 return;
             }
             board.moveTopToBottomTribe();
             board.replenishTopRow(game.getNumPlayers() + 4);
+            board.buildNewRoundUpdate(game.getObserver());
             game.setPhase(OFFER_TRACK_SELECTION);
             game.setCurrPlayer(board.getNextPlayerInOrderQueue());
         }
@@ -85,6 +88,11 @@ public enum GamePhase {
         public void resolvePhase(Game game, Board board) {
             game.getPlayers().forEach(Player::countFinalPoints);
             game.getPlayers().sort(Comparator.comparingInt(Player::getPrestigePoints).thenComparing(Player::getFood).reversed());
+            Player winner = game.getPlayers().getFirst();
+            List<String> winners = game.getPlayers().stream()
+                    .filter(p -> p.getPrestigePoints() == winner.getPrestigePoints() && p.getFood() == winner.getFood())
+                    .map(Player::getNickname).toList();
+            game.getObserver().broadcast(new Update.GameOverUpdate(winners));
         }
     };
 

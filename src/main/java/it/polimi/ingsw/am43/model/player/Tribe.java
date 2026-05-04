@@ -5,6 +5,7 @@ import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -121,16 +122,16 @@ public class Tribe {
     }
 
 
-    public void activateEventBuildings(Event event, Player player) {
+    public void activateEventBuildings(GameObserver observer, Event event, Player player) {
         for (EventBuilding eb : eventBuildings) {
-            event.triggerBuilding(eb, player);
+            event.triggerBuilding(observer, eb, player);
         }
     }
 
 
-    public void activateTribeBuildings(Player player) {
+    public void activateTribeBuildings(GameObserver observer, Player player) {
         for (TribeBuilding tb : tribeBuildings) {
-            tb.tribeBuildingEffect(player);
+            tb.tribeBuildingEffect(observer, player);
         }
     }
 

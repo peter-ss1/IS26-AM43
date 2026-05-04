@@ -28,7 +28,7 @@ public class OfferTrackCard {
 
     public void setPlayer(Player p) {
         this.player = p;
-        p.setAvailableActions(this.actions);
+        p.setAvailableActions(this.getActions());
     }
 
     public void removePlayer() {

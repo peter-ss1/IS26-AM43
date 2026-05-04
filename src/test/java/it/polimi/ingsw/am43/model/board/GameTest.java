@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.board;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.cards.TimedBuilding;
 import it.polimi.ingsw.am43.model.cards.TimedEffect;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
@@ -8,11 +9,14 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.exceptions.*;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,16 +26,18 @@ class GameTest {
     private Game game;
     private Player player1;
     private Player player2;
-
     @BeforeAll
     void gameInitTest() {
         game = new Game(2, "pippo", Color.BLACK);
+        game.setObserver(new MockObserver());
         assertEquals(GamePhase.PREPARATION, game.getPhase());
-        assertThrows(InvalidNicknameException.class, () -> game.addPlayer("pippo", Color.WHITE));
-        assertThrows(InvalidColorException.class, () -> game.addPlayer("jonny", Color.BLACK));
+        assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("pippo", Color.WHITE));
+        assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("jonny", Color.BLACK));
         game.addPlayer("jonny", Color.RED);
         assertFalse(game.getAvailableColors().contains(Color.RED) || game.getAvailableColors().contains(Color.BLACK));
-        assert game.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION);
+        assertEquals(GamePhase.PREPARATION, game.getPhase());
+        game.startGame();
+        assertEquals(GamePhase.OFFER_TRACK_SELECTION, game.getPhase());
         assertEquals(2, game.getPlayers().size());
         List<String> namePlayers = new ArrayList<>();
         namePlayers.add("pippo");
@@ -82,7 +88,7 @@ class GameTest {
     void actionResolutionTest() throws RuntimeException {
         //System.out.println(game.getVisibleIds());
         assertThrows(IllegalArgumentException.class, () -> game.pickCard(game.getCardById(6), new Player("error", Color.WHITE)));
-        assertThrows(IllegalStateException.class, () -> game.addPlayer("pippo", Color.WHITE));
+        assertThrows(IllegalArgumentException.class, () -> game.addPlayer("pippo", Color.WHITE));
         assertThrows(IllegalStateException.class, () -> game.placeTotemOnTrack(player1, 3));
         this.game.pickCard(game.getCardById(6), player2);
         assertEquals(player2, game.getCurrPlayer());

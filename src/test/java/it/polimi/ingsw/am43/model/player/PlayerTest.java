@@ -1,11 +1,14 @@
 package it.polimi.ingsw.am43.model.player;
 
+import it.polimi.ingsw.am43.model.MockObserver;
+import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.cards.Artist;
 import it.polimi.ingsw.am43.model.cards.Builder;
 import it.polimi.ingsw.am43.model.cards.FinalBuilding;
 import it.polimi.ingsw.am43.model.cards.Inventor;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class PlayerTest {
 
     private Player player;
+    private final GameObserver observer = new MockObserver();
 
     @BeforeEach
     void setUp() {
@@ -113,16 +117,16 @@ class PlayerTest {
 
     @Test
     void testCountFinalPointsBuilders() {
-        new Builder(1, 0, 0, 3).tribeEntranceEffect(player);
-        new Builder(1, 0, 0, 2).tribeEntranceEffect(player);
+        new Builder(1, 0, 0, 3).tribeEntranceEffect(observer, player);
+        new Builder(1, 0, 0, 2).tribeEntranceEffect(observer, player);
         player.countFinalPoints();
         assertEquals(5, player.getPrestigePoints());
     }
 
     @Test
     void testCountFinalPointsInventors() {
-        new Inventor(1, 0, InventorSymbol.BOAT).tribeEntranceEffect(player);
-        new Inventor(1, 0, InventorSymbol.HOOK).tribeEntranceEffect(player);
+        new Inventor(1, 0, InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
+        new Inventor(1, 0, InventorSymbol.HOOK).tribeEntranceEffect(observer, player);
         // 2 inventori x 2 simboli diversi = 4 PP
         player.countFinalPoints();
         assertEquals(4, player.getPrestigePoints());
@@ -130,8 +134,8 @@ class PlayerTest {
 
     @Test
     void testCountFinalPointsArtistsPairs() {
-        new Artist(1, 0).tribeEntranceEffect(player);
-        new Artist(1, 0).tribeEntranceEffect(player);
+        new Artist(1, 0).tribeEntranceEffect(observer, player);
+        new Artist(1, 0).tribeEntranceEffect(observer, player);
         // 2 artisti / 2 * 10 = 10 PP
         player.countFinalPoints();
         assertEquals(10, player.getPrestigePoints());
@@ -139,9 +143,9 @@ class PlayerTest {
 
     @Test
     void testCountFinalPointsArtistsOdd() {
-        new Artist(1,  0).tribeEntranceEffect(player);
-        new Artist(1, 0).tribeEntranceEffect(player);
-        new Artist(1, 0).tribeEntranceEffect(player);
+        new Artist(1,  0).tribeEntranceEffect(observer, player);
+        new Artist(1, 0).tribeEntranceEffect(observer, player);
+        new Artist(1, 0).tribeEntranceEffect(observer, player);
         // 3 artisti / 2 * 10 = 10 PP (1 artista non conta)
         player.countFinalPoints();
         assertEquals(10, player.getPrestigePoints());
@@ -150,7 +154,7 @@ class PlayerTest {
     @Test
     void testCountFinalPointsFinalBuilding() {
         TribeTest.CountingFinalEffect effect = new TribeTest.CountingFinalEffect();
-        new FinalBuilding(1, 0, 0, 5, effect).tribeEntranceEffect(player);
+        new FinalBuilding(1, 0, 0, 5, effect).tribeEntranceEffect(observer, player);
         player.countFinalPoints();
         // 5 PP base edificio + effetto chiamato
         assertEquals(5, player.getPrestigePoints());

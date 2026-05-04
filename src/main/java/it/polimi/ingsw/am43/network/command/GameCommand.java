@@ -17,6 +17,9 @@ import java.util.UUID;
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = GameCommand.PickNameColorCommand.class, name = "pickNameColorCommand"),
+        @JsonSubTypes.Type(value = GameCommand.PlaceTotemCommand.class, name = "placeTotemCommand"),
+        @JsonSubTypes.Type(value = GameCommand.PickCardCommand.class, name = "pickCardCommand"),
+        @JsonSubTypes.Type(value = GameCommand.EndTurnCommand.class, name = "endTurnCommand"),
 })
 public abstract class GameCommand extends Command {
 

@@ -2,6 +2,7 @@ package it.polimi.ingsw.am43.model.cards;
 
 import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
 
 public class Gatherer extends CharacterCard {
 
@@ -10,10 +11,10 @@ public class Gatherer extends CharacterCard {
     }
 
     @Override
-    public void tribeEntranceEffect(Player player) {
+    public void tribeEntranceEffect(GameObserver observer, Player player) {
         player.getTribe().addCardToTribe(this);
         player.alterSustenanceDiscount(3);
-        player.getTribe().activateTribeBuildings(player);
+        player.getTribe().activateTribeBuildings(observer, player);
     }
     @Override
     public String[] getASCII() {
