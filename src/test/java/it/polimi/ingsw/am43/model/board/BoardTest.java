@@ -26,17 +26,13 @@ class BoardTest {
         deckInit.put(1, buildings1);
         deckInit.put(2, buildings2);
         deckInit.put(3, buildings3);
-        List<Integer> buildingsInit = new ArrayList<>();
-        buildingsInit.add(1);
-        buildingsInit.add(2);
-        buildingsInit.add(3);
         List<Card> cards = new ArrayList<>();
         cards.add(new Artist(1, 1));
         cards.add(new Artist(2, 1));
         cards.add(new Gatherer(1, 1));
         cards.add(new Artist(2, 1));
         cards.add(new Artist(3, 1));
-        Board board = new Board(new ArrayList<>(), -4, 1, new ArrayList<>(), cards, deckInit, new ArrayList<>(), buildingsInit);
+        Board board = new Board(new ArrayList<>(), -4,  new ArrayList<>(), cards, deckInit, new ArrayList<>());
         board.replenishTopRow(3);
         assertEquals(2, board.getCurrEra());
     }

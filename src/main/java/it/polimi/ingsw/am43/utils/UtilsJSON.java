@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43.network.socket;
+package it.polimi.ingsw.am43.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

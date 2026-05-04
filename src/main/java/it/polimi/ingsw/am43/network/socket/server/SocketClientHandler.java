@@ -1,22 +1,18 @@
 package it.polimi.ingsw.am43.network.socket.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import it.polimi.ingsw.am43.controller.ServerController;
-import it.polimi.ingsw.am43.network.command.*;
 import it.polimi.ingsw.am43.network.message.Message;
 import it.polimi.ingsw.am43.network.message.Pong;
-import it.polimi.ingsw.am43.network.socket.UtilsJSON;
+import it.polimi.ingsw.am43.utils.UtilsJSON;
 import it.polimi.ingsw.am43.network.socket.VirtualClientSocket;
 
 import java.io.*;
-import java.net.Socket;
-import java.util.UUID;
 
 public class SocketClientHandler implements VirtualClientSocket {
     final PrintWriter output;
 
-    public SocketClientHandler( Socket socket) throws IOException {
-        this.output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()),true);
+    public SocketClientHandler(PrintWriter out){
+        this.output = out;
     }
 
     public void sendMessage(Message message) {

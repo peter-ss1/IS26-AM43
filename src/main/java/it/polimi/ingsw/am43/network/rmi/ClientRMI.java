@@ -7,16 +7,16 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 public class ClientRMI extends UnicastRemoteObject implements VirtualClientRmi {
-    private final ClientController controller;
+    private final ServerRMIConnection connection;
 
-    public ClientRMI(ClientController controller) throws RemoteException {
+    public ClientRMI(ServerRMIConnection connection) throws RemoteException {
         super();
-        this.controller = controller;
+        this.connection= connection;
     }
 
     @Override
     public void sendMessage(Message message) throws RemoteException {
-        this.controller.addToQueue(message);
+        this.connection.sendMessage(message);
     }
 
 }

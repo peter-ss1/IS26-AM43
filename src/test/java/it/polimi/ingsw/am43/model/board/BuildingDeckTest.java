@@ -37,11 +37,7 @@ class BuildingDeckTest {
         deckInit.put(1, buildings1);
         deckInit.put(2, buildings2);
         deckInit.put(3, buildings3);
-        List<Integer> buildingsInit = new ArrayList<>();
-        buildingsInit.add(1);
-        buildingsInit.add(2);
-        buildingsInit.add(3);
-        BuildingDeck deck = new BuildingDeck(1, deckInit, buildingsInit);
+        BuildingDeck deck = new BuildingDeck(deckInit);
         assertEquals(1, buildings1.size());
         assertEquals(2, buildings2.size());
         assertEquals(3, buildings3.size());

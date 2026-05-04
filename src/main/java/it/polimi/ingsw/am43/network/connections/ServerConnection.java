@@ -1,13 +1,13 @@
-package it.polimi.ingsw.am43.network.socket;
+package it.polimi.ingsw.am43.network.connections;
 
-import it.polimi.ingsw.am43.network.VirtualServer;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 
-import java.util.UUID;
+public interface ServerConnection{
 
-public interface VirtualServerSocket extends VirtualServer {
     void sendCommand(GameCommand command);
     void sendCommand(ServerCommand command);
-    public void ping();
+    void open() throws Exception;//TODO specify
+    void close();
+
 }

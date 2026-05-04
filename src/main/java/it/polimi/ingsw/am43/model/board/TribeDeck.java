@@ -9,19 +9,13 @@ import java.util.*;
 public class TribeDeck {
     private final List<Card> deck;
 
-    public TribeDeck(int seed, List<Card> deck){
+    public TribeDeck( List<Card> deck){
         this.deck= deck;
-        this.shuffle(seed);
     }
     public Card draw(){
         Card tb= deck.getFirst();
         deck.removeFirst();
         return tb;
-    }
-    private void shuffle(int seed) {//to convert to long
-        Random rSeed = new Random(seed);
-        Collections.shuffle(this.deck,rSeed);
-        this.deck.sort((a,b)-> Integer.compare(a.getEra(),b.getEra()));
     }
 
 

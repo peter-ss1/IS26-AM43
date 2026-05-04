@@ -38,8 +38,8 @@ public class Game implements ModelInterface {
         return new ArrayList<>(this.availableColors);
     }
 
-    public void initBoard(List<Player> players, int numPlayers, int seed, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack, List<Integer> numBuildings) throws RuntimeException {
-        this.board = new Board(players, numPlayers, seed, foodModifiers, tribeDeck, buildingDeck, offerTrack, numBuildings);
+    public void initBoard(List<Player> players, int numPlayers, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack) throws RuntimeException {
+        this.board = new Board(players, numPlayers, foodModifiers, tribeDeck, buildingDeck, offerTrack);
         this.currPlayer = this.board.getNextPlayerInOrderQueue();
     }
 

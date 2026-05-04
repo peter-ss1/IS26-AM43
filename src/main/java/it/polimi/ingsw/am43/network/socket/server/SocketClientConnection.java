@@ -1,94 +1,76 @@
 package it.polimi.ingsw.am43.network.socket.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import it.polimi.ingsw.am43.controller.ServerController;
-import it.polimi.ingsw.am43.network.SinglePersistentClientConnection;
-import it.polimi.ingsw.am43.network.VirtualClient;
-import it.polimi.ingsw.am43.network.command.DataClientToServer;
+
+import it.polimi.ingsw.am43.network.command.CommandReceiver;
+import it.polimi.ingsw.am43.network.connections.ConnectionHandler;
+
+import it.polimi.ingsw.am43.network.connections.PersistentClientConnection;
+
 import it.polimi.ingsw.am43.network.command.GameCommand;
-import it.polimi.ingsw.am43.network.command.Ping;
+
 import it.polimi.ingsw.am43.network.command.ServerCommand;
-import it.polimi.ingsw.am43.network.socket.UtilsJSON;
+import it.polimi.ingsw.am43.network.message.Message;
+
+import it.polimi.ingsw.am43.network.socket.VirtualServerSocket;
 
 import java.io.*;
 import java.net.Socket;
+
 import java.util.UUID;
 
-public class SocketClientConnection implements SinglePersistentClientConnection {
-    final ServerController serverController;
-    final BufferedReader input;
+public class SocketClientConnection implements VirtualServerSocket, PersistentClientConnection {
+
+    final CommandReceiver commandReceiver;
+    final ConnectionHandler connectionHandler;
     final SocketClientHandler remote;
+    final SocketClientListener listener;
     final Socket socket;
-    final Thread loop;
+    final UUID playerId;
     private volatile long lastPing;
 
-    public SocketClientConnection(ServerController controller, Socket socket) throws IOException {
-        this.serverController = controller;
-        this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.remote=new SocketClientHandler(socket);
+    public SocketClientConnection(UUID id, CommandReceiver commandReceiver, ConnectionHandler connectionHandler, Socket socket, BufferedReader in, PrintWriter out){
+
+        this.playerId=id;
+        this.commandReceiver=commandReceiver;
+        this.connectionHandler = connectionHandler;
+        this.listener = new SocketClientListener(this,in);
+        this.remote=new SocketClientHandler(out);
         this.socket=socket;
-        this.loop= new Thread(this::runVirtualView);
+        this.listener.start();
     }
 
-    public void stop() throws IOException{
-        this.socket.close();  // check
-        this.loop.interrupt();
-    }
-    public void runVirtualView(){
-        String inputData;
-        DataClientToServer data;
-        try{
-            inputData = this.input.readLine();
-            try {
-                data = UtilsJSON.mapper.readValue(inputData, ServerCommand.RegisterCommand.class);
-                UUID playerId = data.getPlayerId();
-                this.serverController.register(playerId, this);
-            } catch (JsonProcessingException e) {
-                System.out.println("Handshake failed");
-                e.printStackTrace();
-                return;
-            }
+    public void sendMessage(Message message){
+        this.remote.sendMessage(message);
+    };
 
-            while ((inputData = this.input.readLine()) != null) {
-                try {
-                    data = UtilsJSON.mapper.readValue(inputData, DataClientToServer.class);
-                    switch (data) {
-                        case Ping ping:
-                            this.updateLastPing();
-                            this.remote.pong();
-                            break;
-                        case GameCommand gameCommand:
-                            this.serverController.addToQueue(gameCommand);
-                            break;
-                        case ServerCommand serverCommand:
-                            this.serverController.addToQueue(serverCommand);
-                            break;
-                    }
-                } catch (JsonProcessingException e) {
-                    System.out.println("Parsing error:" + e.getMessage());
-                }
-            }
-        }catch (IOException e){
-            //TODO implement
-            //this.serverController.disconnect(this);
-        }
-
+    public void sendCommand(ServerCommand command){
+        this.commandReceiver.receiveCommand(command);
+    };
+    public void sendCommand(GameCommand command){
+        this.commandReceiver.receiveCommand(command);
+    };
+    public void ping(){
+        this.updateLastPing();
+        this.remote.pong();
     }
 
-    public VirtualClient getRemote(){
-        return this.remote;
-    }
-    public void disconnect(){
-
+    public void register(){
+        this.connectionHandler.connect(this.playerId,this);
     }
 
+    public void disconnect() {
+        try {
+            this.listener.stop();
+            this.socket.close();
+            this.connectionHandler.disconnect(this.playerId);
+            //TODO
+        }catch (IOException e){System.out.println(e.getMessage());}
+    }
     public long getLastPing() {
         return lastPing;
     }
     public void updateLastPing(){
         this.lastPing=System.currentTimeMillis();
     }
-    public void notifyDisconnection(){
 
-    }
 }

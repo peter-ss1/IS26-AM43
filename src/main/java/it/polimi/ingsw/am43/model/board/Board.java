@@ -20,10 +20,10 @@ public class Board {
     private final List<OfferTrackCard> offerTrack;
     private int currEra;
 
-    public Board(List<Player> players, int numPlayers, int seed, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack, List<Integer> numBuildings) throws RuntimeException {
+    public Board(List<Player> players, int numPlayers, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack) throws RuntimeException {
         this.turnOrder = new OrderQueue(players, foodModifiers);
-        this.tribeDeck = new TribeDeck(seed, tribeDeck);
-        this.buildingDeck = new BuildingDeck(seed, buildingDeck, numBuildings);
+        this.tribeDeck = new TribeDeck(tribeDeck);
+        this.buildingDeck = new BuildingDeck( buildingDeck);
         this.topRow = new Row();
         this.bottomRow = new Row();
         this.offerTrack = offerTrack;
