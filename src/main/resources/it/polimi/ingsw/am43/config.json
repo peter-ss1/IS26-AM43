@@ -905,7 +905,7 @@
         {
           "id": 114,
           "era": 3,
-          "cost": 0,
+          "cost": 10,
           "prestigePoints": 0,
           "classBuilding": "FINAL",
           "effect": {

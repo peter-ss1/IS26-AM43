@@ -1,13 +1,13 @@
 package it.polimi.ingsw.am43.model.board;
 
-import it.polimi.ingsw.am43.model.cards.Building;
-import it.polimi.ingsw.am43.model.cards.CharacterCard;
-import it.polimi.ingsw.am43.model.cards.Event;
-import it.polimi.ingsw.am43.model.cards.SustenanceEvent;
+import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Row {
 
@@ -30,6 +30,7 @@ public class Row {
     }
 
     public void addCard(Event event) {
+        //TODO correct order
         this.events.addFirst(event);
     }
 
@@ -101,8 +102,14 @@ public class Row {
         if (!this.events.remove(event)) throw new IllegalArgumentException("card not in row");
     }
 
-    public void activateEvents(List<Player> p) {
-        if (!this.events.isEmpty()) this.events.forEach(e -> e.affectPlayers(p));
+    public void activateEvents(GameObserver observer, List<Player> p) {
+        if (!this.events.isEmpty()) this.events.forEach(e -> e.affectPlayers(observer, p));
     }
 
+    public List<Integer> getIds() {
+        return Stream.of(this.events, this.characters, this.buildings)
+                .flatMap(Collection::stream)
+                .map(Card::getId)
+                .toList();
+    }
 }

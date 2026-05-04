@@ -7,9 +7,9 @@ import java.io.Serializable;
 public class LobbyInfo implements Serializable {
     private final int lobbyId;
     private final int numPlayers;
-    private final int currentPlayers;
+    private int currentPlayers;
 
-    public LobbyInfo(@JsonProperty("lobbyId") int lobbyId, @JsonProperty("numPlayers") int numPlayers, @JsonProperty("currentPlayers") int currentPlayers) {
+    public LobbyInfo(@JsonProperty("lobbyId") int lobbyId, @JsonProperty("getNumPlayers") int numPlayers, @JsonProperty("getCurrentPlayers") int currentPlayers) {
         this.lobbyId = lobbyId;
         this.numPlayers = numPlayers;
         this.currentPlayers = currentPlayers;
@@ -27,8 +27,8 @@ public class LobbyInfo implements Serializable {
         return currentPlayers;
     }
 
-    @Override
-    public String toString() {
-        return "ID: " + this.lobbyId + " - NUMERO GIOCATORI: " + this.numPlayers + " - ATTIVI: " + this.currentPlayers;
+    public void setCurrentPlayers(int currentPlayers) {
+        this.currentPlayers = currentPlayers;
     }
+
 }

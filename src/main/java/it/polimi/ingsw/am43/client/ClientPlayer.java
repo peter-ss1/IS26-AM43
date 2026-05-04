@@ -1,11 +1,14 @@
 package it.polimi.ingsw.am43.client;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.player.Player;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientPlayer {
+public class ClientPlayer implements Serializable {
     private final String nickname;
     private Color color;
     private int food;
@@ -20,7 +23,7 @@ public class ClientPlayer {
         this.tribe = tribe;
     }
 
-    public ClientPlayer(String nickname, Color color) {
+    public ClientPlayer(@JsonProperty("nickname") String nickname,@JsonProperty("color") Color color) {
         this.nickname = nickname;
         this.color = color;
         this.food = 0;
@@ -62,5 +65,13 @@ public class ClientPlayer {
 
     public void updateTribe(Integer id) {
         this.tribe.add(id);
+    }
+
+    public void alterFood(int amount) {
+        this.food += amount;
+    }
+
+    public void alterPrestigePoints(int amount) {
+        this.prestigePoints += amount;
     }
 }

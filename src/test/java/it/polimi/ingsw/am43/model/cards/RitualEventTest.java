@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ class RitualEventTest {
         p1.alterShamanStars(3);
         p3.alterShamanStars(4);
 
-        example.affectPlayers(players);
+        example.affectPlayers(new MockObserver(), players);
         assertEquals(0, p1.getPrestigePoints());
         assertEquals(-3, p2.getPrestigePoints());
         assertEquals(5, p3.getPrestigePoints());
@@ -43,8 +44,8 @@ class RitualEventTest {
 
         p1.getTribe().addCardToTribe(new RitualEventBuilding(1, 0, 0, 0, new EventEffect.NoLossInRitualEvent()));
         p1.getTribe().addCardToTribe(new RitualEventBuilding(1, 0, 0, 0, new EventEffect.DoubleWinInRitualEvent()));
-        example.triggerBuilding(new SustenanceEventBuilding(1, 0, 0, 0, (player, event) -> {player.alterFood(2);}), p1);
-        example.affectPlayers(players);
+        example.triggerBuilding(new MockObserver(), new SustenanceEventBuilding(1, 0, 0, 0, (observer, player, event) -> {player.alterFood(2);}), p1);
+        example.affectPlayers(new MockObserver(), players);
         assertEquals(10, p1.getPrestigePoints());
         assertEquals(2, p2.getPrestigePoints());
 

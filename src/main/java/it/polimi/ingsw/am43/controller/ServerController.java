@@ -78,17 +78,25 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         this.connectionManager.getConnection(playerId).sendMessage(new Update.AvailableLobbiesUpdate(availableLobbies));
     }
     public void createLobby(UUID playerId, String nickname, Color color, int numPlayers){
-        if (nickname.isBlank()) {
-            this.connectionManager.getConnection(playerId).sendMessage(new Error.InvalidNameError("Invalid Name"));
+        if (nickname.isBlank() || !nickname.matches("^[a-zA-Z0-9]{3,12}$")) {
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyCreationError("Invalid name"));
+            return;
+        }
+        if (color == null) {
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyCreationError("Invalid color"));
+            return;
         }
         if (numPlayers < 2 || numPlayers > 5) {
-            throw new IllegalArgumentException("Number of players must be between 2 and 5");
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyCreationError("Invalid number of players"));
+            return;
         }
 
         int lobbyId = lobbies.isEmpty() ? 1 : Collections.max(lobbies.keySet()) + 1;
         Game game = new Game(numPlayers, nickname, color);
         GameController gameController = new GameController(this, game, lobbyId, nickname, playerId);
-        lobbies.put(lobbyId, gameController);
+        this.lobbies.put(lobbyId, gameController);
+        this.clients.get(playerId).setLobbyId(lobbyId);
+        this.clients.get(playerId).setState(ClientState.PLAYING);
         this.connectionManager.getConnection(playerId).sendMessage(new Update.LobbyCreatedUpdate(new LobbyInfo(lobbyId, numPlayers, 1), nickname, color));
         for (Map.Entry<UUID, ClientInfo> entry : clients.entrySet()) {
             if (entry.getValue().getState().equals(ClientState.CHOOSING)) {
@@ -98,15 +106,17 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
     }
     public void joinLobby(UUID playerId, int lobbyId) {
         if (!this.lobbies.containsKey(lobbyId)) {
-            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyNotFoundError(lobbyId));
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyJoinError("Lobby #" + lobbyId + " could not be found."));
             return;
         }
         GameController gameController = lobbies.get(lobbyId);
-        if (gameController.joinLobby(playerId)) {
-            clients.get(playerId).setLobbyId(lobbyId);
-            clients.get(playerId).setState(ClientState.PLAYING);
-            this.connectionManager.getConnection(playerId).sendMessage(new Update.LobbyJoinedUpdate(new LobbyInfo(lobbyId, gameController.getNumPlayers(), gameController.getCurrentPlayers())));
-        }
+        if (gameController.getCurrentPlayers() >= gameController.getNumPlayers()) {
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyJoinError("Lobby #" + lobbyId + " is already full."));
+            return;
+        }//TODO think about it
+        this.clients.get(playerId).setLobbyId(lobbyId);
+        this.clients.get(playerId).setState(ClientState.PLAYING);
+        gameController.joinLobby(playerId);
         for (Map.Entry<UUID, ClientInfo> entry : clients.entrySet()) {
             if (entry.getValue().getState().equals(ClientState.CHOOSING)) {
                 this.connectionManager.getConnection(entry.getKey()).sendMessage(new Update.NewLobbyUpdate(new LobbyInfo(lobbyId, gameController.getNumPlayers(), gameController.getCurrentPlayers())));

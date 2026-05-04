@@ -1,10 +1,11 @@
 package it.polimi.ingsw.am43.controller;
 
+import it.polimi.ingsw.am43.client.ClientPlayer;
+import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.model.board.ModelInterface;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
-import it.polimi.ingsw.am43.model.exceptions.InvalidColorException;
-import it.polimi.ingsw.am43.model.exceptions.InvalidNicknameException;
+import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.command.GameCommand;
@@ -13,6 +14,7 @@ import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Update;
 import it.polimi.ingsw.am43.utils.Executor;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -23,7 +25,8 @@ public class GameController implements GameObserver, GameCommandReceiver {
     private final ConcurrentMap<UUID, String> clients;
     private final Executor<GameController> executor;
     private final int lobbyId;
-    private boolean gameStarted;
+
+
 
     public GameController(ServerController serverController, ModelInterface model, int lobbyId, String nickname, UUID playerID) {
         this.serverController = serverController;
@@ -33,7 +36,6 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.clients.put(playerID, nickname);
         this.executor=new Executor<>(this);
         this.lobbyId = lobbyId;
-        this.gameStarted = false;
         this.executor.start();
     }
 
@@ -63,11 +65,14 @@ public class GameController implements GameObserver, GameCommandReceiver {
         try {
             String nickname = this.clients.get(playerID);
             this.model.pickCard(this.model.getCardById(id), this.model.getPlayerByName(nickname));
-            this.broadcast(new Update.CardPickedUpdate(nickname, id));
-        } catch (IllegalMoveException | OutOfTurnException e) {
+        } catch (IllegalMoveException e) {
             this.serverController.sendMessage(playerID, new Error.IllegalMoveError(e.getMessage()));
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             this.serverController.sendMessage(playerID, new Error.GenericServerError(e.getMessage()));
+        } catch (IllegalStateException e) {
+            this.serverController.sendMessage(playerID, new Error.WrongPhaseError(e.getMessage()));
+        } catch (OutOfTurnException e) {
+            this.serverController.sendMessage(playerID, new Error.OutOfTurnError(e.getMessage()));
         }
     }
 
@@ -75,13 +80,14 @@ public class GameController implements GameObserver, GameCommandReceiver {
         try {
             String nickname = this.clients.get(playerID);
             this.model.placeTotemOnTrack(this.model.getPlayerByName(nickname), position);
-            broadcast(new Update.TotemPlacedUpdate(nickname, position));
         } catch (OutOfTurnException e) {
             this.serverController.sendMessage(playerID, new Error.OutOfTurnError(e.getMessage()));
         } catch (IllegalStateException e) {
             this.serverController.sendMessage(playerID, new Error.WrongPhaseError(e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            this.serverController.sendMessage(playerID, new Error.InvalidTotemPositionError(position, e.getMessage()));
+        } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+            this.serverController.sendMessage(playerID, new Error.GenericServerError(e.getMessage()));
+        } catch (IllegalMoveException e) {
+            this.serverController.sendMessage(playerID, new Error.IllegalMoveError(e.getMessage()));
         }
     }
 
@@ -95,22 +101,17 @@ public class GameController implements GameObserver, GameCommandReceiver {
         } catch (IllegalStateException e) {
             this.serverController.sendMessage(playerID, new Error.WrongPhaseError(e.getMessage()));
         } catch (IllegalArgumentException e) {
-            this.serverController.sendMessage(playerID, new Error.CannotEndTurnError(e.getMessage()));
+            this.serverController.sendMessage(playerID, new Error.GenericServerError(e.getMessage()));
+        } catch (IllegalMoveException e) {
+            this.serverController.sendMessage(playerID, new Error.IllegalMoveError(e.getMessage()));
         }
     }
 
     //TODO synchronise methods
-    public boolean joinLobby(UUID playerID){
-        if (gameStarted) {
-            this.serverController.sendMessage(playerID, new Error.GameAlreadyStartedError());
-            return false;
-        }
-        if (this.clients.size() >= this.model.getNumPlayers()) {
-            this.serverController.sendMessage(playerID, new Error.FullLobbyError());
-            return false;
-        }
+    public void joinLobby(UUID playerID){
         this.clients.put(playerID, "-");
-        return true;
+        this.serverController.sendMessage(playerID, new Update.LobbyJoinedUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers()), this.getPlayersInfo()));
+        this.broadcast(new Update.NewLobbyJoinUpdate(this.getCurrentPlayers()));
     }
 
     public void joinGame(UUID playerID, String nickname, Color color){
@@ -123,12 +124,13 @@ public class GameController implements GameObserver, GameCommandReceiver {
             this.clients.replace(playerID, "-", nickname);
             this.serverController.sendMessage(playerID, new Update.GameJoinedUpdate(nickname, color));
             this.broadcast(new Update.PlayerAddedUpdate(nickname, color));
+            if (this.clients.values().stream().noneMatch(n -> n.equals("-")) && this.getCurrentPlayers() == this.getNumPlayers()) this.model.startGame();
+        } catch (IllegalMoveException e) {
+            this.serverController.sendMessage(playerID, new Error.GenericServerError(e.getMessage()));
         } catch (IllegalStateException e) {
             this.serverController.sendMessage(playerID, new Error.WrongPhaseError(e.getMessage()));
-        } catch (InvalidColorException e) {
-            this.serverController.sendMessage(playerID, new Error.ColorAlreadyUsedError(color));
-        } catch (InvalidNicknameException e) {
-            this.serverController.sendMessage(playerID, new Error.NicknameAlreadyUsedInLobbyError(nickname));
+        } catch (IllegalPlayerInitializationException e) {
+            this.serverController.sendMessage(playerID, new Error.InvalidPlayerError(e.getMessage()));
         }
     }
 
@@ -136,4 +138,9 @@ public class GameController implements GameObserver, GameCommandReceiver {
         System.out.println("in game player disconnected");
     }
 
+    private List<ClientPlayer> getPlayersInfo() {
+        return this.model.getPlayers().stream()
+                .map(player -> new ClientPlayer(player.getNickname(), player.getColor()))
+                .toList();
+    }
 }

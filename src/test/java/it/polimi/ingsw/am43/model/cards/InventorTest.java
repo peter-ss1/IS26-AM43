@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
@@ -22,7 +23,7 @@ public class InventorTest {
         Player player = new Player("alice", Color.YELLOW);
         Inventor inventor = new Inventor(1, 0,InventorSymbol.FLUTE);
 
-        inventor.tribeEntranceEffect(player);
+        inventor.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(1, player.getTribe().getNumberByCharacterType(CharacterType.INVENTOR));
     }
@@ -32,7 +33,7 @@ public class InventorTest {
         Player player = new Player("alice",Color.YELLOW);
         Inventor inventor = new Inventor(1, 0, InventorSymbol.ROPE);
 
-        inventor.tribeEntranceEffect(player);
+        inventor.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(0, player.getFood());
         assertEquals(0, player.getBuildingDiscount());

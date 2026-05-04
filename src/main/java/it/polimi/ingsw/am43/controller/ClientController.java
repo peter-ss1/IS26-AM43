@@ -116,4 +116,8 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
     public void notifyDisconnection(){
         System.out.println("disconnected");
     }
+
+    public UI getView() {
+        return this.ui;
+    }
 }

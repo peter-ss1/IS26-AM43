@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
+import it.polimi.ingsw.am43.network.message.Update;
 
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
@@ -19,7 +21,7 @@ import it.polimi.ingsw.am43.model.player.Player;
 public interface TribeBonus {
     int calculateBonus(Player player);
 
-    void giveBonus(Player player, int bonus);
+    void giveBonus(GameObserver observer, Player player, int bonus);
 
     public static class FoodOnSet implements TribeBonus {
         @Override
@@ -28,8 +30,11 @@ public interface TribeBonus {
         }
 
         @Override
-        public void giveBonus(Player player, int bonus) {
+        public void giveBonus(GameObserver observer, Player player, int bonus) {
             player.alterFood(bonus);
+            if (bonus != 0) {
+                observer.broadcast(new Update.BuildingEffectUpdate(player.getNickname(), bonus, "food"));
+            }
         }
     }
 
@@ -50,8 +55,11 @@ public interface TribeBonus {
         }
 
         @Override
-        public void giveBonus(Player player, int bonus) {
+        public void giveBonus(GameObserver observer, Player player, int bonus) {
             player.alterSustenanceDiscount(bonus);
+            if (bonus != 0) {
+                observer.broadcast(new Update.BuildingEffectUpdate(player.getNickname(), bonus, "sustenance discount"));
+            }
         }
     }
 
@@ -62,8 +70,11 @@ public interface TribeBonus {
         }
 
         @Override
-        public void giveBonus(Player player, int bonus) {
+        public void giveBonus(GameObserver observer, Player player, int bonus) {
             player.alterFood(bonus);
+            if (bonus != 0) {
+                observer.broadcast(new Update.BuildingEffectUpdate(player.getNickname(), bonus, "food"));
+            }
         }
     }
 
@@ -74,8 +85,11 @@ public interface TribeBonus {
         }
 
         @Override
-        public void giveBonus(Player player, int bonus) {
+        public void giveBonus(GameObserver observer, Player player, int bonus) {
             player.alterShamanStars(bonus);
+            if (bonus != 0) {
+                observer.broadcast(new Update.BuildingEffectUpdate(player.getNickname(), bonus, "shaman stars"));
+            }
         }
     }
 }

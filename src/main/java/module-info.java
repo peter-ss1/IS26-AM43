@@ -7,7 +7,6 @@ module it.polimi.ingsw.am43 {
     requires java.rmi;
     requires java.desktop;
 
-
     exports it.polimi.ingsw.am43.network to java.rmi;
     exports it.polimi.ingsw.am43.network.message;
     exports it.polimi.ingsw.am43.network.command;

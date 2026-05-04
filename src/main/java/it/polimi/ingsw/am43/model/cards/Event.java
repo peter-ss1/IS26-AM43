@@ -4,6 +4,7 @@ import it.polimi.ingsw.am43.model.board.Row;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
 
 import java.util.List;
 
@@ -28,12 +29,12 @@ public abstract class Event extends Card {
         return OfferAction.TOP;
     }
 
-    public abstract void affectPlayers(List<Player> players);
+    public abstract void affectPlayers(GameObserver observer , List<Player> players);
 
-    public abstract void triggerBuilding(EventBuilding building, Player player);
+    public abstract void triggerBuilding(GameObserver observer, EventBuilding building, Player player);
 
     @Override
-    public void pick(Player player) {
+    public void pick(GameObserver observer, Player player) {
         throw new IllegalMoveException("Cannot pick event card");
     }
 
@@ -46,4 +47,5 @@ public abstract class Event extends Card {
     public void removeFromRow(Row row) {
         row.removeCard(this);
     }
+
 }
