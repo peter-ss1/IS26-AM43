@@ -2,6 +2,7 @@ package it.polimi.ingsw.am43.client.view.gui;
 
 import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.view.UI;
+import it.polimi.ingsw.am43.client.view.ViewState;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import javafx.application.Platform;
@@ -14,34 +15,32 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class GUI implements UI {
+    private final GuiApplication app;
     private final ClientModel localModel;
     private final ClientController controller;
-    private GuiNavigator navigator;
+    private final GuiNavigator navigator;
+    private ViewState state;
 
-    public GUI() {
+    public GUI(GuiApplication application, Stage stage) {
+        this.app = application;
         this.localModel = new ClientModel(this);
         this.controller = new ClientController(this, this.localModel);
-    }
-
-    public void initialize(Stage stage) {
-        this.navigator = new GuiNavigator(stage, this);
-        this.navigator.showConnectionView();
+        this.navigator = new GuiNavigator(stage, this, this.controller);
+        this.navigator.init();
+        this.state = ViewState.CONNECTION;
     }
 
     public ClientModel getLocalModel() {
         return localModel;
     }
 
-    public void connect(String serverIp, boolean rmi) throws IOException, NotBoundException {
-        connectAsync(serverIp, rmi, this::handleConnectionError);
-    }
-
     public void connectAsync(String serverIp, boolean rmi, Consumer<String> onError) {
         new Thread(() -> {
             try {
                 this.controller.chooseConnectionType(serverIp, rmi);
+                this.state = ViewState.LOBBY_CHOICE;
                 Platform.runLater(() -> {
-                    this.navigator.showLobbyChoiceView();
+                    this.navigator.showScene(ViewState.LOBBY_CHOICE);
                 });
                 this.controller.refreshLobbies();
             } catch (IOException | NotBoundException e) {
@@ -50,8 +49,12 @@ public class GUI implements UI {
         }).start();
     }
 
+    public void submitTask(Runnable task) {
+        this.app.runAsync(task);
+    }
+
     public void refreshLobbies() {
-        new Thread(() -> this.controller.refreshLobbies()).start();
+        new Thread(this.controller::refreshLobbies).start();
     }
 
     public void createLobby(String nickname, Color color, int numPlayers) {
@@ -66,86 +69,54 @@ public class GUI implements UI {
         new Thread(() -> this.controller.joinGame(nickname, color)).start();
     }
 
-    private void handleConnectionError(String message) {
-        if (navigator.getLobbyChoiceController() != null) {
-            navigator.getLobbyChoiceController().showError(message);
-            return;
-        }
-        if (navigator.getInLobbyController() != null) {
-            navigator.getInLobbyController().showError(message);
-            return;
-        }
-        System.err.println(message);
-    }
-
     @Override
     public void showAvailableLobbies() {
-        Platform.runLater(() -> {
-            if (navigator.getLobbyChoiceController() != null) {
-                navigator.getLobbyChoiceController().refreshFromModel();
-            }
-        });
+        if (this.state != ViewState.LOBBY_CHOICE) return;
+        Platform.runLater(() -> this.navigator.getCurrentScene().refreshFromModel());
     }
 
     @Override
     public void enterLobby() {
+        this.state = ViewState.IN_LOBBY;
         Platform.runLater(() -> {
-            this.navigator.showInLobbyView();
-            if (navigator.getInLobbyController() != null) {
-                navigator.getInLobbyController().refreshFromModel();
-            }
+            this.navigator.showScene(this.state);
+            this.navigator.getCurrentScene().refreshFromModel();
         });
     }
 
     @Override
     public void showNewPlayer() {
-        Platform.runLater(() -> {
-            if (navigator.getInLobbyController() != null) {
-                navigator.getInLobbyController().refreshFromModel();
-            }
-        });
+        if (this.state != ViewState.IN_LOBBY) return;
+        Platform.runLater(() -> navigator.getCurrentScene().refreshFromModel());
     }
 
     @Override
     public void showGameStart() {
+        //this.state = ViewState.IN_GAME;
         Platform.runLater(() -> {
-            if (navigator.getInLobbyController() != null) {
-                navigator.getInLobbyController().showInfo("Game started.");
-            }
+            //this.navigator.showScene(this.state);
+            this.navigator.getCurrentScene().showInfo("Game started.");
         });
     }
 
     @Override
     public void handleLobbyChoiceError(String message, boolean creation) {
+        this.state = ViewState.LOBBY_CHOICE;
         Platform.runLater(() -> {
-            this.navigator.showLobbyChoiceView();
-            if (navigator.getLobbyChoiceController() != null) {
+            this.navigator.showScene(this.state);
                 String operation = creation ? "creation" : "join";
-                navigator.getLobbyChoiceController().showError("Lobby " + operation + " failed: " + message);
-                navigator.getLobbyChoiceController().refreshFromModel();
-            }
+                this.navigator.getCurrentScene().showError("Lobby " + operation + " failed: " + message);
+                this.navigator.getCurrentScene().refreshFromModel();
         });
     }
 
     @Override
     public void handleLobbyJoinError(String message) {
-        Platform.runLater(() -> {
-            if (navigator.getInLobbyController() != null) {
-                navigator.getInLobbyController().showError("Cannot join game: " + message);
-            }
-        });
+        Platform.runLater(() -> navigator.getCurrentScene().showError("Cannot join game: " + message));
     }
 
     @Override
     public void showGameError(String error) {
-        Platform.runLater(() -> {
-            if (navigator.getInLobbyController() != null) {
-                navigator.getInLobbyController().showError(error);
-            }
-            if (navigator.getLobbyChoiceController() != null) {
-                navigator.getLobbyChoiceController().showError(error);
-            }
-        });
     }
 
     @Override

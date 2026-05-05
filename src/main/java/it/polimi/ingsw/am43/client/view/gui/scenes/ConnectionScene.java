@@ -1,13 +1,14 @@
-package it.polimi.ingsw.am43.client.view.gui.SceneController;
+package it.polimi.ingsw.am43.client.view.gui.scenes;
 
 import it.polimi.ingsw.am43.client.view.gui.GUI;
+import it.polimi.ingsw.am43.controller.ClientController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 
-public class ConnectionViewController {
+public class ConnectionScene extends CustomScene {
     @FXML
     private TextField ipField;
     @FXML
@@ -16,12 +17,6 @@ public class ConnectionViewController {
     private Label errorLabel;
     @FXML
     private Button connectButton;
-
-    private GUI gui;
-
-    public void setGui(GUI gui) {
-        this.gui = gui;
-    }
 
     @FXML
     private void onConnectClicked() {
@@ -53,7 +48,7 @@ public class ConnectionViewController {
         });
     }
 
-    private void showError(String message) {
+    public void showError(String message) {
         errorLabel.setText(message);
     }
 

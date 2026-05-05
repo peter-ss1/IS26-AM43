@@ -1,8 +1,11 @@
 package it.polimi.ingsw.am43.client.view.gui;
 
-import it.polimi.ingsw.am43.client.view.gui.SceneController.ConnectionViewController;
-import it.polimi.ingsw.am43.client.view.gui.SceneController.InLobbyViewController;
-import it.polimi.ingsw.am43.client.view.gui.SceneController.LobbyChoiceViewController;
+import it.polimi.ingsw.am43.client.view.ViewState;
+import it.polimi.ingsw.am43.client.view.gui.scenes.ConnectionScene;
+import it.polimi.ingsw.am43.client.view.gui.scenes.CustomScene;
+import it.polimi.ingsw.am43.client.view.gui.scenes.InLobbyScene;
+import it.polimi.ingsw.am43.client.view.gui.scenes.LobbyChoiceScene;
+import it.polimi.ingsw.am43.controller.ClientController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -10,78 +13,59 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import static it.polimi.ingsw.am43.client.view.gui.GuiSettings.CONNECTION_PATH;
+
 public class GuiNavigator {
     private final Stage stage;
     private final GUI gui;
+    private final ClientController controller;
 
-    private LobbyChoiceViewController lobbyChoiceController;
-    private InLobbyViewController inLobbyController;
+    private CustomScene currentScene;
 
-    public GuiNavigator(Stage stage, GUI gui) {
+    public GuiNavigator(Stage stage, GUI gui, ClientController controller) {
         this.stage = stage;
         this.gui = gui;
+        this.controller = controller;
     }
 
-    public void showConnectionView() {
-        FXMLLoader loader = buildLoader("/it/polimi/ingsw/am43/fxml/connection-view.fxml");
-        Scene scene = loadScene(loader);
-        ConnectionViewController controller = loader.getController();
-        controller.setGui(gui);
-        stage.setTitle("Mesos - Connection");
-        stage.setScene(scene);
-        stage.setMaximized(true);
-        stage.show();
-        stage.setMinWidth(900);
-        stage.setMinHeight(600);
+    public void init() {
+        FXMLLoader loader = this.buildLoader(CONNECTION_PATH);
+        Parent root = this.loadRoot(loader);
+        this.currentScene = loader.getController();
+        this.currentScene.setGui(this.gui);
+        this.currentScene.setController(this.controller);
+        Scene scene = new Scene(root, 1280, 720);
+        this.stage.setScene(scene);
+        this.stage.setTitle("Mesos");
+        this.stage.setResizable(false);
+        this.stage.centerOnScreen();
+        this.stage.show();
     }
 
-    public void showLobbyChoiceView() {
-        FXMLLoader loader = buildLoader("/it/polimi/ingsw/am43/fxml/lobby-choice-view.fxml");
-        Scene scene = loadScene(loader);
-        LobbyChoiceViewController controller = loader.getController();
-        controller.setGui(gui);
-        this.lobbyChoiceController = controller;
-        this.inLobbyController = null;
-        stage.setTitle("Mesos - Lobby Choice");
-        stage.setScene(scene);
-        stage.setMaximized(true);
-        stage.show();
-        controller.refreshFromModel();
-    }
-
-    public void showInLobbyView() {
-        FXMLLoader loader = buildLoader("/it/polimi/ingsw/am43/fxml/in-lobby-view.fxml");
-        Scene scene = loadScene(loader);
-        InLobbyViewController controller = loader.getController();
-        controller.setGui(gui);
-        this.inLobbyController = controller;
-        this.lobbyChoiceController = null;
-        stage.setTitle("Mesos - In Lobby");
-        stage.setScene(scene);
-        stage.setMaximized(true);
-        stage.show();
-        controller.refreshFromModel();
-    }
-
-    public LobbyChoiceViewController getLobbyChoiceController() {
-        return lobbyChoiceController;
-    }
-
-    public InLobbyViewController getInLobbyController() {
-        return inLobbyController;
+    private Parent loadRoot(FXMLLoader loader) {
+        try {
+            return loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load FXML file: " + e.getMessage());
+        } catch (NullPointerException e) {
+            throw new RuntimeException("FXML file not found. " + e.getMessage());
+        }
     }
 
     private FXMLLoader buildLoader(String resourcePath) {
         return new FXMLLoader(getClass().getResource(resourcePath));
     }
 
-    private Scene loadScene(FXMLLoader loader) {
-        Parent root;
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            throw new IllegalStateException("Unable to load FXML.", e);
-        }
-        return new Scene(root);
+    public void showScene(ViewState scene) {
+        FXMLLoader loader = this.buildLoader(GuiSettings.getPath(scene));
+        Parent root = this.loadRoot(loader);
+        this.currentScene = loader.getController();
+        this.currentScene.setGui(this.gui);
+        this.currentScene.setController(this.controller);
+        this.stage.getScene().setRoot(root);
+    }
+
+    public CustomScene getCurrentScene() {
+        return this.currentScene;
     }
 }

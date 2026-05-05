@@ -1,8 +1,9 @@
-package it.polimi.ingsw.am43.client.view.gui.SceneController;
+package it.polimi.ingsw.am43.client.view.gui.scenes;
 
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.client.view.gui.GUI;
+import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -16,7 +17,7 @@ import javafx.scene.layout.GridPane;
 
 import java.util.List;
 
-public class InLobbyViewController {
+public class InLobbyScene extends CustomScene {
     @FXML
     private Label lobbyIdLabel;
     @FXML
@@ -43,8 +44,6 @@ public class InLobbyViewController {
     private GridPane joinFormGrid;
     @FXML
     private javafx.scene.control.Button joinGameButton;
-
-    private GUI gui;
 
     @FXML
     private void initialize() {
@@ -125,7 +124,7 @@ public class InLobbyViewController {
             showError("Color already in use.");
             return;
         }
-        gui.joinGame(nickname, color);
+        this.gui.submitTask(() -> this.controller.joinGame(nickname, color));
         clearError();
         showInfo("Joining game...");
     }

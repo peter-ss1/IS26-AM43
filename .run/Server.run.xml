@@ -4,7 +4,7 @@
     <module name="am43" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="it.polimi.ingsw.am43.main.*" />
+        <option name="PATTERN" value="it.polimi.ingsw.am43.client.view.gui.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

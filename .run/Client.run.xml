@@ -2,9 +2,10 @@
   <configuration default="false" name="Client" type="Application" factoryName="Application" singleton="false">
     <option name="MAIN_CLASS_NAME" value="it.polimi.ingsw.am43.main.ClientMain" />
     <module name="am43" />
+    <option name="VM_PARAMETERS" value="--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --enable-native-access=javafx.graphics" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="it.polimi.ingsw.am43.main.*" />
+        <option name="PATTERN" value="it.polimi.ingsw.am43.client.view.gui.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

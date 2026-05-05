@@ -1,21 +1,14 @@
-package it.polimi.ingsw.am43.client.view.gui.SceneController;
+package it.polimi.ingsw.am43.client.view.gui.scenes;
 
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.client.view.gui.GUI;
 import it.polimi.ingsw.am43.model.enums.Color;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Button;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class LobbyChoiceViewController {
+public class LobbyChoiceScene extends CustomScene {
     @FXML
     private TableView<LobbyInfo> lobbiesTable;
     @FXML
@@ -36,8 +29,6 @@ public class LobbyChoiceViewController {
     private Label errorLabel;
     @FXML
     private Button joinSelectedLobbyButton;
-
-    private GUI gui;
 
     @FXML
     private void initialize() {
@@ -69,7 +60,7 @@ public class LobbyChoiceViewController {
             return;
         }
         showError("Refreshing lobbies...");
-        gui.refreshLobbies();
+        this.gui.submitTask(() -> this.controller.refreshLobbies());
     }
 
     @FXML
@@ -83,7 +74,7 @@ public class LobbyChoiceViewController {
             showError("Select a lobby.");
             return;
         }
-        gui.joinLobby(selectedLobby.getLobbyId());
+        this.gui.submitTask(() -> this.controller.joinLobby(selectedLobby.getLobbyId()));
         errorLabel.setText("");
     }
 
@@ -104,7 +95,7 @@ public class LobbyChoiceViewController {
             return;
         }
         int numPlayers = numPlayersSpinner.getValue();
-        gui.createLobby(nickname, color, numPlayers);
+        this.gui.submitTask(() -> this.controller.createLobby(nickname, color, numPlayers));
         errorLabel.setText("");
     }
 

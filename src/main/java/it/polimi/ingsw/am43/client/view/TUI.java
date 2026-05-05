@@ -253,7 +253,7 @@ public class TUI implements UI, Runnable {
                     case "show" -> handleShowCommands(parts);
                     case "help" -> printHelp();
                     default -> this.printError("Unknown command. Type 'help' to show command list.");
-                }
+                } //TODO RULES
             }
         }
     }
@@ -416,6 +416,7 @@ public class TUI implements UI, Runnable {
 
     @Override
     public void showGameError(String error) {
+        if (this.state != ViewState.IN_GAME) return;
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             this.printError(error);

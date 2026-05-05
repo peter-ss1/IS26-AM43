@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<SplitPane dividerPositions="0.5" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.SceneController.InLobbyViewController">
+<SplitPane dividerPositions="0.5" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.InLobbyScene">
    <items>
       <VBox prefHeight="459.0" prefWidth="842.0" spacing="12.0">
          <padding>

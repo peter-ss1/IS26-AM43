@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="470.0" prefWidth="986.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.SceneController.LobbyChoiceViewController">
+<AnchorPane prefHeight="470.0" prefWidth="986.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.LobbyChoiceScene">
    <children>
       <HBox layoutX="-22.0" layoutY="109.0" />
       <VBox layoutX="562.0" layoutY="97.0" prefHeight="315.0" prefWidth="402.0" spacing="12.0">
