@@ -177,4 +177,8 @@ public class Game implements ModelInterface, Serializable {
     public GameObserver getObserver() {
         return this.observer;
     }
+
+    public void restartGame() {
+        this.board.buildGameRestartedUpdate(this.observer, this.players, this.currPlayer.getNickname(), this.phase);
+    }
 }

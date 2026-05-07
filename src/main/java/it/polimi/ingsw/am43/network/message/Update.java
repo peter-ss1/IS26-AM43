@@ -10,6 +10,7 @@ import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -454,6 +455,48 @@ public non-sealed abstract class Update extends Message {
         @Override
         public void execute(ClientController controller) {
             controller.getLocalModel().resolveFoodOffer(this.nickname);
+        }
+    }
+
+    public static class ReconnectionLobbyUpdate extends Update {
+        private final List<String> reconnectedPlayers;
+        public ReconnectionLobbyUpdate(List<String> reconnectedPlayers) {
+            this.reconnectedPlayers = reconnectedPlayers;
+        }
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().updateReconnectedLobby(this.reconnectedPlayers);
+        }
+    }
+
+    public static class GameRestartedUpdate extends Update {
+        private final List<ClientPlayer> players;
+        @JsonProperty("currPlayer")
+        private final String currentPlayerNickname;
+        @JsonProperty("topRow")
+        private final List<Integer> topRowCards;
+        @JsonProperty("bottomRow")
+        private final List<Integer> bottomRowCards;
+        @JsonProperty("orderQueue")
+        private final List<Color> orderQueue;
+        @JsonProperty("offerTrack")
+        private final List<OfferTrackElement> offerTrack;
+        private final int era;
+        private final GamePhase phase;
+        public GameRestartedUpdate(List<ClientPlayer> players, String nickname, List<Integer> ids, List<Integer> ids1, List<Color> colorOrder, List<OfferTrackElement> list1, int currEra, GamePhase phase) {
+            this.players = players;
+            this.currentPlayerNickname = nickname;
+            this.topRowCards = ids;
+            this.bottomRowCards = ids1;
+            this.orderQueue = colorOrder;
+            this.era = currEra;
+            this.phase = phase;
+            this.offerTrack = list1;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().restartGame(this.players, this.currentPlayerNickname, this.topRowCards, this.bottomRowCards, this.era, this.phase, this.offerTrack, this.orderQueue);
         }
     }
 }

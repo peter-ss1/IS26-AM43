@@ -142,8 +142,11 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     //TODO remake
     public void rejoinLobby(UUID playerId){
-        this.serverController.sendMessage(playerId,new Error.GenericServerError("player reconnected"+this.clients.get(playerId)));
+        this.broadcast(new Update.ReconnectionLobbyUpdate(this.clients.values().stream().toList())); //TODO nickname dei ricononnessi
         System.out.println("reconnected to game");
+        if (false){ //TODO all users reconnected
+            this.model.restartGame();
+        }
     }
 
     public void joinGame(UUID playerID, String nickname, Color color){

@@ -58,7 +58,18 @@ public class TUI implements UI, Runnable {
                 System.out.println("Invalid answer");
             }
         }
+    }
 
+    @Override
+    public void showReconnectionLobby() {
+        this.state = ViewState.IN_LOBBY;
+        this.printReconnectionLobbyInfo();
+    }
+
+    private void printReconnectionLobbyInfo() {
+        synchronized (this.printLock) {
+            this.localModel.getAllPlayers().stream().filter(p -> !p.isDisconnected()).forEach(p -> System.out.println(p.getNickname()));
+        }
     }
 
     private void setUpClient() {

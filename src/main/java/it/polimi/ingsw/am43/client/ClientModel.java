@@ -10,7 +10,7 @@ public class ClientModel {
     private LobbyInfo ownLobby;
     private final List<LobbyInfo> lobbies;
     private ClientPlayer ownPlayer;
-    private final List<ClientPlayer> otherPlayers;
+    private List<ClientPlayer> otherPlayers;
     private final List<Integer> topRowCards;
     private final List<Integer> bottomRowCards;
     private final List<Color> orderQueue;
@@ -352,5 +352,29 @@ public class ClientModel {
     public void resolveFoodOffer(String nickname) {
         this.getPlayerByNickname(nickname).alterFood(3);
         this.ui.showFoodOffer(nickname);
+    }
+
+    public void updateReconnectedLobby(List<String> reconnectedPlayers) {
+        this.ownLobby.setCurrentPlayers(reconnectedPlayers.size());
+        this.getAllPlayers().stream().filter(player -> !reconnectedPlayers.contains(player.getNickname())).forEach(player -> player.setDisconnected(true));
+        this.ui.showReconnectionLobby();
+    }
+
+    public void restartGame(List<ClientPlayer> players, String currentPlayerNickname, List<Integer> topRowCards, List<Integer> bottomRowCards, int era, GamePhase phase, List<OfferTrackElement> offerTrack, List<Color> orderQueue) {
+        this.ownPlayer = players.stream().filter(player -> player.getNickname().equals(this.ownPlayer.getNickname())).toList().getFirst();
+        this.otherPlayers = players.stream().filter(player -> !player.getNickname().equals(this.ownPlayer.getNickname())).toList();
+        this.currentEra = era;
+        this.phase = phase;
+        this.topRowCards.clear();
+        this.topRowCards.addAll(topRowCards);
+        this.bottomRowCards.clear();
+        this.bottomRowCards.addAll(bottomRowCards);
+        this.offerTrack.clear();
+        this.offerTrack.addAll(offerTrack);
+        this.orderQueue.clear();
+        this.orderQueue.addAll(orderQueue);
+        this.validating = false;
+        this.currPlayerNickname = currentPlayerNickname;
+        this.ui.showGameStart();
     }
 }

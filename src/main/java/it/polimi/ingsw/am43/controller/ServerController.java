@@ -50,6 +50,7 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
             System.out.println("client connected");
         }
     }
+
     public void notifyDisconnection(UUID id){
         ClientInfo client;
         int lobby;

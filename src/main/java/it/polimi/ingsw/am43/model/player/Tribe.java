@@ -210,5 +210,18 @@ public class Tribe implements Serializable {
     }
 
 
-
+    public List<Integer> getIds() {
+        List<Integer> ids = new ArrayList<>();
+        this.hunters.forEach(h -> ids.add(h.getId()));
+        this.inventors.forEach(inv -> ids.add(inv.getId()));
+        this.builders.forEach(builder -> ids.add(builder.getId()));
+        this.gatherers.forEach(g -> ids.add(g.getId()));
+        this.artists.forEach(artist -> ids.add(artist.getId()));
+        this.shaman.forEach(shaman -> ids.add(shaman.getId()));
+        this.finalBuildings.forEach(builder -> ids.add(builder.getId()));
+        this.timedBuildings.forEach(builder -> ids.add(builder.getId()));
+        this.tribeBuildings.forEach(builder -> ids.add(builder.getId()));
+        this.eventBuildings.forEach(builder -> ids.add(builder.getId()));
+        return ids;
+    }
 }

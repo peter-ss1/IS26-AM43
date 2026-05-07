@@ -48,4 +48,5 @@ public interface UI {
     //refactor
     void askForRejoin();
 
+    void showReconnectionLobby();
 }

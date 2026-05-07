@@ -31,4 +31,6 @@ public interface ModelInterface extends Serializable {
     List<Player> getPlayers();
 
     void startGame();
+
+    void restartGame();
 }

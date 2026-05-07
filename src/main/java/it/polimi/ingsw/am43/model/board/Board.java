@@ -1,8 +1,10 @@
 package it.polimi.ingsw.am43.model.board;
 
+import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
+import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.player.Player;
@@ -28,7 +30,7 @@ public class Board implements Serializable {
     public Board(List<Player> players, int numPlayers, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack) throws RuntimeException {
         this.turnOrder = new OrderQueue(players, foodModifiers);
         this.tribeDeck = new TribeDeck(tribeDeck);
-        this.buildingDeck = new BuildingDeck( buildingDeck);
+        this.buildingDeck = new BuildingDeck(buildingDeck);
         this.topRow = new Row();
         this.bottomRow = new Row();
         this.offerTrack = offerTrack;
@@ -54,11 +56,14 @@ public class Board implements Serializable {
         }
     }
 
-    public int getCurrEra() { return this.currEra; }
+    public int getCurrEra() {
+        return this.currEra;
+    }
 
     public void setPlayerOnTrack(Player player, int position) throws IndexOutOfBoundsException, IllegalMoveException {
         if (position < 0 || position > this.offerTrack.size()) throw new IndexOutOfBoundsException("Invalid position");
-        if (this.offerTrack.get(position).getPlayer().isPresent()) throw new IllegalMoveException("Cannot pick occupied tile");
+        if (this.offerTrack.get(position).getPlayer().isPresent())
+            throw new IllegalMoveException("Cannot pick occupied tile");
         this.offerTrack.get(position).setPlayer(player);
     }
 
@@ -141,7 +146,7 @@ public class Board implements Serializable {
         this.topRow.removeBuildings();
     }
 
-    public void returnPlayerToOrderQueue(GameObserver observer , Player player) {
+    public void returnPlayerToOrderQueue(GameObserver observer, Player player) {
         for (OfferTrackCard otd : this.offerTrack) {
             if (otd.getPlayer().isPresent() && otd.getPlayer().get().equals(player)) {
                 otd.removePlayer();
@@ -200,12 +205,12 @@ public class Board implements Serializable {
     public boolean pickableCards(OfferAction row, Player player) {
         switch (row) {
             case TOP:
-                if (topRow.getAllCharacters().isEmpty() && topRow.getAllBuildings().isEmpty() && topRow.getAllBuildings().stream().noneMatch(building -> building.getCost()<(player.getFood() - player.getBuildingDiscount()))) {
+                if (topRow.getAllCharacters().isEmpty() && topRow.getAllBuildings().isEmpty() && topRow.getAllBuildings().stream().noneMatch(building -> building.getCost() < (player.getFood() - player.getBuildingDiscount()))) {
                     return false;
                 }
                 break;
             case BOTTOM:
-                if (bottomRow.getAllCharacters().isEmpty() && bottomRow.getAllBuildings().isEmpty() && bottomRow.getAllBuildings().stream().noneMatch(building -> building.getCost()<(player.getFood() - player.getBuildingDiscount()))) {
+                if (bottomRow.getAllCharacters().isEmpty() && bottomRow.getAllBuildings().isEmpty() && bottomRow.getAllBuildings().stream().noneMatch(building -> building.getCost() < (player.getFood() - player.getBuildingDiscount()))) {
                     return false;
                 }
                 break;
@@ -214,7 +219,7 @@ public class Board implements Serializable {
     }
 
     public boolean hasFoodBonus() {
-        return turnOrder.getLastFoodGiven()>0;
+        return turnOrder.getLastFoodGiven() > 0;
     }
 
     public void buildGameStartedUpdate(GameObserver observer, List<Player> players, String nickname) {
@@ -230,5 +235,23 @@ public class Board implements Serializable {
 
     public void buildNewRoundUpdate(GameObserver observer) {
         observer.broadcast(new Update.NewRoundUpdate(this.currEra, this.topRow.getIds(), this.bottomRow.getIds()));
+    }
+
+    public void buildGameRestartedUpdate(GameObserver observer, List<Player> players, String nickname, GamePhase phase) {
+        observer.broadcast(new Update.GameRestartedUpdate(
+                players.stream().map(p -> new ClientPlayer(
+                                p.getNickname(),
+                                p.getColor(),
+                                p.getPrestigePoints(),
+                                p.getTribe().getIds())).toList()
+                        ,
+                        nickname,
+                        this.topRow.getIds(),
+                        this.bottomRow.getIds(),
+                        this.turnOrder.getColorOrder(),
+                        this.offerTrack.stream().map(card -> new OfferTrackElement(card.getActions(), null)).toList(),
+                        this.currEra,
+                        phase
+                ));
     }
 }
