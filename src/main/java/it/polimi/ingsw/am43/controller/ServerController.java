@@ -42,8 +42,9 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
     public void notifyConnection(UUID playerId) {
         if (this.clients.containsKey(playerId)) {
             this.clients.get(playerId).setState(ClientState.CHOOSING);
-            //this.connectionManager.getConnection(playerId).sendMessage();//TODO ask for reconnect
-            System.out.println(playerId.toString());
+            if(this.clients.get(playerId).getLobbyId()!=0)
+                this.sendMessage(playerId,new Update.RejoinRequestUpdate());
+            System.out.println(playerId.toString() + "reconnected");
         } else {
             this.clients.put(playerId, new ClientInfo(ClientState.CHOOSING, 0));
             System.out.println("client connected");
@@ -60,6 +61,15 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
             System.out.println(id.toString()+"disconnected");
         }
 
+    }
+
+    public void recoverLobby(GameRecovery gameRecovery){
+        int lobbyId= gameRecovery.getLobbyId();
+        for (UUID id : gameRecovery.getClients().keySet()){
+            this.clients.put(id,new ClientInfo(ClientState.DISCONNECTED,lobbyId));
+        }
+        GameController gameController= new GameController(this, gameRecovery.getGame(), lobbyId,gameRecovery.getClients());
+        this.lobbies.put(lobbyId,gameController);
     }
 
     public void receiveCommand(ServerCommand command){
@@ -122,6 +132,18 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
                 this.connectionManager.getConnection(entry.getKey()).sendMessage(new Update.NewLobbyUpdate(new LobbyInfo(lobbyId, gameController.getNumPlayers(), gameController.getCurrentPlayers())));
             }
         }
+    }
+    public void rejoinLobby(UUID playerId, boolean answer){
+        if (!this.clients.containsKey(playerId)) {
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.GenericServerError("player not registered"));
+            return;
+        }
+        if(this.clients.get(playerId).getLobbyId()==0){
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.GenericServerError("player not in game"));
+            return;
+        }
+        this.clients.get(playerId).setState(ClientState.PLAYING);
+        this.lobbies.get(this.clients.get(playerId).getLobbyId()).rejoinLobby(playerId);
     }
 
     public void sendMessage(UUID playerId, Message message) {

@@ -7,6 +7,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EventEffect.NoLossInRitualEvent.class, name = "noLossRitual"),
@@ -16,7 +18,7 @@ import it.polimi.ingsw.am43.network.message.Update;
 })
 
 @FunctionalInterface
-public interface EventEffect<T extends Event> {
+public interface EventEffect<T extends Event> extends Serializable {
     void manifest(GameObserver observer, Player player, T event);
 
     public static class NoLossInRitualEvent implements EventEffect<RitualEvent> {

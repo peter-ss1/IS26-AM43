@@ -76,7 +76,7 @@ public class GameLoader {
         for (Integer i: buildingDeckTDO.keySet()){
             buildingDeck.put(i,new ArrayList<Building>());
             Collections.shuffle(buildingDeckTDO.get(i),new Random(seed));
-            buildingDeckTDO.get(i).subList(0,numBuildings.get(i-1));
+            buildingDeckTDO.get(i).subList(numBuildings.get(i-1),buildingDeckTDO.get(i).size()).clear();
             for (BuildingDeckCardDTO tdo : buildingDeckTDO.get(i)){
                 Building newBuilding= tdo.createBuilding();
                 buildingDeck.get(i).add(newBuilding);

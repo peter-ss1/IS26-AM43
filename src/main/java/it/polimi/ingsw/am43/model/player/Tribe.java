@@ -7,30 +7,31 @@ import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Tribe {
+public class Tribe implements Serializable {
 
 
     // Characters
 
-    private List<Hunter> hunters;
-    private List<Inventor> inventors;
-    private List<Builder> builders;
-    private List<Gatherer> gatherers;
-    private List<Artist> artists;
-    private List<Shaman> shaman;
+    private final List<Hunter> hunters;
+    private final List<Inventor> inventors;
+    private final List<Builder> builders;
+    private final List<Gatherer> gatherers;
+    private final List<Artist> artists;
+    private final List<Shaman> shaman;
 
 
     // Buildings
 
-    private List<FinalBuilding>  finalBuildings;
-    private List<EventBuilding>  eventBuildings;
-    private List<TribeBuilding>  tribeBuildings;
-    private List<TimedBuilding>  timedBuildings;
+    private final List<FinalBuilding>  finalBuildings;
+    private final List<EventBuilding>  eventBuildings;
+    private final List<TribeBuilding>  tribeBuildings;
+    private final List<TimedBuilding>  timedBuildings;
 
     public Tribe() {
         hunters=new ArrayList<>();

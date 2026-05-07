@@ -4,12 +4,13 @@ import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Row {
+public class Row implements Serializable {
 
     private final List<CharacterCard> characters;
     private final List<Building> buildings;

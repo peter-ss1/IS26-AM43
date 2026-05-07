@@ -21,7 +21,6 @@ public class ServerAccessRMI extends UnicastRemoteObject implements VirtualServe
         ClientRMIConnection connection= this.connectionFactory.createConnection(playerID,client);
         VirtualServerRMI stub = (VirtualServerRMI) UnicastRemoteObject.exportObject(connection,0);
         connection.register();
-        System.out.println("new RMI client connected");
         return stub;
     }
 }

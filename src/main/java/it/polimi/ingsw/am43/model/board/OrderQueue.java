@@ -5,9 +5,10 @@ import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class OrderQueue {
+public class OrderQueue implements Serializable {
 
     private final Queue<Player> playerOrder;
     private final List<Integer> foodModifiers;

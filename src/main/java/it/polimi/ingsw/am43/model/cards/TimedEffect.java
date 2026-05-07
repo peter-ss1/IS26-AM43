@@ -9,6 +9,7 @@ import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import java.util.List;
 
 
 @FunctionalInterface
-public interface TimedEffect {
+public interface TimedEffect extends Serializable {
     void manifest(Player player, Game game, Board board);
 
     public static class BonusTurnFood implements TimedEffect {

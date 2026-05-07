@@ -1,7 +1,12 @@
 package it.polimi.ingsw.am43.controller;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
+import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.board.ModelInterface;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
@@ -14,18 +19,20 @@ import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Update;
 import it.polimi.ingsw.am43.utils.Executor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class GameController implements GameObserver, GameCommandReceiver {
+
     private final ServerController serverController;
     private final ModelInterface model;
-    private final ConcurrentMap<UUID, String> clients;
+    private final ConcurrentHashMap<UUID, String> clients;
     private final Executor<GameController> executor;
     private final int lobbyId;
-
 
 
     public GameController(ServerController serverController, ModelInterface model, int lobbyId, String nickname, UUID playerID) {
@@ -39,12 +46,27 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.executor.start();
     }
 
+    // for recovery
+    public GameController(ServerController serverController, ModelInterface model, int lobbyId, ConcurrentMap<UUID,String> clients){
+        this.serverController = serverController;
+        this.model = model;
+        this.model.setObserver(this);
+        this.clients = new ConcurrentHashMap<>(clients);
+        this.executor=new Executor<>(this);
+        this.lobbyId = lobbyId;
+        this.executor.start();
+    }
+
     public void receiveCommand(GameCommand command) {
         this.executor.delegate(command);
     }
 
     public int getNumPlayers() {
         return this.model.getNumPlayers();
+    }
+
+    public Set<UUID> getPlayers(){
+        return this.clients.keySet();
     }
 
     public int getCurrentPlayers() {
@@ -62,6 +84,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     public void pickCard(int id, UUID playerID){
+        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
         try {
             String nickname = this.clients.get(playerID);
             this.model.pickCard(this.model.getCardById(id), this.model.getPlayerByName(nickname));
@@ -74,9 +97,11 @@ public class GameController implements GameObserver, GameCommandReceiver {
         } catch (OutOfTurnException e) {
             this.serverController.sendMessage(playerID, new Error.OutOfTurnError(e.getMessage()));
         }
+
     }
 
     public void placeTotem(int position, UUID playerID){
+        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
         try {
             String nickname = this.clients.get(playerID);
             this.model.placeTotemOnTrack(this.model.getPlayerByName(nickname), position);
@@ -92,6 +117,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     public void endTurn(UUID playerID){
+        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
         try {
             String nickname = this.clients.get(playerID);
             this.model.endCurrentTurn(this.model.getPlayerByName(nickname));
@@ -114,6 +140,12 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.broadcast(new Update.NewLobbyJoinUpdate(this.getCurrentPlayers()));
     }
 
+    //TODO remake
+    public void rejoinLobby(UUID playerId){
+        this.serverController.sendMessage(playerId,new Error.GenericServerError("player reconnected"+this.clients.get(playerId)));
+        System.out.println("reconnected to game");
+    }
+
     public void joinGame(UUID playerID, String nickname, Color color){
         if (!this.clients.get(playerID).equals("-")) {
             this.serverController.sendMessage(playerID, new Error.GenericServerError("Player already in game"));
@@ -124,7 +156,10 @@ public class GameController implements GameObserver, GameCommandReceiver {
             this.clients.replace(playerID, "-", nickname);
             this.serverController.sendMessage(playerID, new Update.GameJoinedUpdate(nickname, color));
             this.broadcast(new Update.PlayerAddedUpdate(nickname, color));
-            if (this.clients.values().stream().noneMatch(n -> n.equals("-")) && this.getCurrentPlayers() == this.getNumPlayers()) this.model.startGame();
+            if (this.clients.values().stream().noneMatch(n -> n.equals("-")) && this.getCurrentPlayers() == this.getNumPlayers()){
+                this.model.startGame();
+                PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
+            }
         } catch (IllegalMoveException e) {
             this.serverController.sendMessage(playerID, new Error.GenericServerError(e.getMessage()));
         } catch (IllegalStateException e) {

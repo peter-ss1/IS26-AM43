@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.board;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;
@@ -11,9 +12,10 @@ import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Game implements ModelInterface {
+public class Game implements ModelInterface, Serializable {
     private final List<Color> availableColors;
     private final List<Player> players;
     private final int numPlayers;
@@ -21,7 +23,7 @@ public class Game implements ModelInterface {
     private GamePhase phase;
     private Board board;
     private final Map<Integer, Card> idToCard;
-    private GameObserver observer;
+    private transient GameObserver observer;
 
     public Game(int np, String nk, Color color) {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));

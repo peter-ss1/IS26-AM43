@@ -9,12 +9,13 @@ import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class Board {
+public class Board implements Serializable {
 
     private final OrderQueue turnOrder;
     private final TribeDeck tribeDeck;

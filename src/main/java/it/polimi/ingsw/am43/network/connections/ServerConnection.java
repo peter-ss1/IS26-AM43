@@ -7,7 +7,7 @@ public interface ServerConnection{
 
     void sendCommand(GameCommand command);
     void sendCommand(ServerCommand command);
-    void open() throws Exception;//TODO specify
+    boolean open();//TODO specify
     void close();
 
 }

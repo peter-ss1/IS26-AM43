@@ -42,6 +42,25 @@ public class TUI implements UI, Runnable {
         this.lobbyChoiceStage();
     }
 
+    //TODO remake
+    public void askForRejoin(){
+        while (true){
+            System.out.println("Would you like to join beck the game?[Y/N]");
+            //String input = scanner.nextLine().trim();
+            String input= "Y";
+            if(input.equals("Y")){
+                this.controller.answerRejoin(true);
+                break;
+            } else if (input.equals("N")) {
+                this.controller.answerRejoin(false);
+                break;
+            }else {
+                System.out.println("Invalid answer");
+            }
+        }
+
+    }
+
     private void setUpClient() {
         this.printWelcome();
         boolean connected = false;
@@ -76,7 +95,7 @@ public class TUI implements UI, Runnable {
                         System.out.println(MESOS + "Successfully connected to " + serverIP + " via " + (isRmi ? "RMI." : "SOCKET.") + RESET);
                         connected = true;
                         break;
-                    } catch (IOException | NotBoundException e) {
+                    } catch (Exception e) {
                         this.printError("Could not reach server at " + serverIP + ".");
                         break;
                     }

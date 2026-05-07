@@ -39,9 +39,23 @@ import java.util.Map;
         @JsonSubTypes.Type(value = Update.NewLobbyJoinUpdate.class, name = "newLobbyJoinUpdate"),
         @JsonSubTypes.Type(value = Update.OrderModifierUpdate.class, name = "orderModifierUpdate"),
         @JsonSubTypes.Type(value = Update.FoodOfferUpdate.class, name = "foodOfferUpdate"),
+        @JsonSubTypes.Type(value = Update.RejoinRequestUpdate.class, name = "rejoinRequestUpdate"),
 })
 
 public non-sealed abstract class Update extends Message {
+
+
+
+    public static class RejoinRequestUpdate extends Update{
+        public RejoinRequestUpdate(){};
+        @Override
+        public void execute(ClientController controller){
+            controller.getView().askForRejoin();
+        }
+    }
+
+
+    
 
     public static class AvailableLobbiesUpdate extends Update {
         @JsonProperty("lobbies")

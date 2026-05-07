@@ -23,11 +23,13 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
     private final UUID playerID;
     private final ServerConnectionUser connectionUser;
     private final MessageReceiver messageReceiver;
+    private final String serverIp;
     private final int port;
     private final String accessPointName;
 
-    public ServerRMIConnection(int port, String accessPointName, ServerConnectionUser connectionUser, MessageReceiver messageReceiver, UUID id) {
+    public ServerRMIConnection(String serverIp, int port, String accessPointName, ServerConnectionUser connectionUser, MessageReceiver messageReceiver, UUID id) {
         this.port=port;
+        this.serverIp=serverIp;
         this.accessPointName=accessPointName;
         this.connectionUser=connectionUser;
         this.messageReceiver=messageReceiver;
@@ -36,17 +38,17 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
         this.heartBeat= new HeartBeat(this);
     }
 
-    public void open() throws Exception{
+    public boolean open(){
         try {
-            Registry registry = LocateRegistry.getRegistry(InetAddress.getLocalHost().getHostAddress(), this.port);
+            Registry registry = LocateRegistry.getRegistry(serverIp, this.port);
             VirtualServerAccessRMI accessRMI = (VirtualServerAccessRMI) registry.lookup(this.accessPointName);
             VirtualClientRmi stub = (VirtualClientRmi) UnicastRemoteObject.exportObject(this,0);
             this.remote=accessRMI.connect(this.playerID,stub);
-            System.out.println(this.remote);
-            this.heartBeat.start();
         }catch (Exception e){
-            e.printStackTrace();
+            return false;  //TODO refine
         }
+        this.heartBeat.start();
+        return true;
     }
     public void close(){
         this.heartBeat.stop();
@@ -68,7 +70,7 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
             this.remote.ping();
             this.updateLastPong();
         }catch (RemoteException e){
-            this.disconnect();
+            //this.disconnect();
         }
     }
 

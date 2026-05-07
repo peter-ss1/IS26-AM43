@@ -36,6 +36,7 @@ public class SocketClientConnection implements VirtualServerSocket, PersistentCl
         this.listener = new SocketClientListener(this,in);
         this.remote=new SocketClientHandler(out);
         this.socket=socket;
+        this.lastPing=System.currentTimeMillis();
         this.listener.start();
     }
 
