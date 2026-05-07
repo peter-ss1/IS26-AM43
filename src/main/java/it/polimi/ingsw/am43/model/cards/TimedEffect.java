@@ -7,7 +7,9 @@ import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,7 @@ import java.util.List;
 
 
 @FunctionalInterface
-public interface TimedEffect {
+public interface TimedEffect extends Serializable {
     void manifest(Player player, Game game, Board board);
 
     public static class BonusTurnFood implements TimedEffect {
@@ -29,6 +31,7 @@ public interface TimedEffect {
         public void manifest(Player player, Game game, Board board) {
             if (game.getPhase() == GamePhase.ACTION_RESOLUTION && player == game.getCurrPlayer() && !board.isOrderQueueFull() && board.hasFoodBonus()) {
                 player.alterFood(1);
+                game.getObserver().broadcast(new Update.BuildingEffectUpdate(player.getNickname(), 1, "food"));
             }
         }
     }
@@ -42,6 +45,7 @@ public interface TimedEffect {
                 List<OfferAction> bonusAction = new ArrayList<>();
                 bonusAction.add(OfferAction.TOP);
                 player.setAvailableActions(bonusAction);
+                game.getObserver().broadcast(new Update.BuildingEffectUpdate(player.getNickname(), 1, "additional action"));
                 game.setCurrPlayer(player);
                 if (!board.pickableCards(OfferAction.TOP, player)) {
                     game.getPhase().resolvePhase(game, board);

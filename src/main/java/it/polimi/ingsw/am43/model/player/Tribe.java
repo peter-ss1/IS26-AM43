@@ -5,31 +5,33 @@ import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Tribe {
+public class Tribe implements Serializable {
 
 
     // Characters
 
-    private List<Hunter> hunters;
-    private List<Inventor> inventors;
-    private List<Builder> builders;
-    private List<Gatherer> gatherers;
-    private List<Artist> artists;
-    private List<Shaman> shaman;
+    private final List<Hunter> hunters;
+    private final List<Inventor> inventors;
+    private final List<Builder> builders;
+    private final List<Gatherer> gatherers;
+    private final List<Artist> artists;
+    private final List<Shaman> shaman;
 
 
     // Buildings
 
-    private List<FinalBuilding>  finalBuildings;
-    private List<EventBuilding>  eventBuildings;
-    private List<TribeBuilding>  tribeBuildings;
-    private List<TimedBuilding>  timedBuildings;
+    private final List<FinalBuilding>  finalBuildings;
+    private final List<EventBuilding>  eventBuildings;
+    private final List<TribeBuilding>  tribeBuildings;
+    private final List<TimedBuilding>  timedBuildings;
 
     public Tribe() {
         hunters=new ArrayList<>();
@@ -121,16 +123,16 @@ public class Tribe {
     }
 
 
-    public void activateEventBuildings(Event event, Player player) {
+    public void activateEventBuildings(GameObserver observer, Event event, Player player) {
         for (EventBuilding eb : eventBuildings) {
-            event.triggerBuilding(eb, player);
+            event.triggerBuilding(observer, eb, player);
         }
     }
 
 
-    public void activateTribeBuildings(Player player) {
+    public void activateTribeBuildings(GameObserver observer, Player player) {
         for (TribeBuilding tb : tribeBuildings) {
-            tb.tribeBuildingEffect(player);
+            tb.tribeBuildingEffect(observer, player);
         }
     }
 

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am43.network;
 
-import it.polimi.ingsw.am43.network.Connections.MultiPersistentClientConnection;
-import it.polimi.ingsw.am43.network.Connections.PersistentClientConnection;
+import it.polimi.ingsw.am43.network.connections.MultiPersistentClientConnection;
+import it.polimi.ingsw.am43.network.connections.PersistentClientConnection;
 
 public class Reaper{
     private final MultiPersistentClientConnection connections;

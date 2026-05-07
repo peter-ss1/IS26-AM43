@@ -3,12 +3,13 @@ package it.polimi.ingsw.am43.model.board;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.player.Player;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 
-public class OfferTrackCard {
+public class OfferTrackCard implements Serializable {
 
     private final List<OfferAction> actions;
     private Player player;
@@ -28,7 +29,7 @@ public class OfferTrackCard {
 
     public void setPlayer(Player p) {
         this.player = p;
-        p.setAvailableActions(this.actions);
+        p.setAvailableActions(this.getActions());
     }
 
     public void removePlayer() {

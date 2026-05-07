@@ -21,7 +21,7 @@ class TribeDeckTest {
         cards.add(new Gatherer(1, 1));
         cards.add(new Artist(2, 1));
         cards.add(new Artist(3, 1));
-        deck = new TribeDeck(1, cards);
+        deck = new TribeDeck( cards);
         assertEquals(1, deck.draw().getEra());
         assertEquals(1, deck.draw().getEra());
         assertEquals(2, deck.draw().getEra());
@@ -33,7 +33,7 @@ class TribeDeckTest {
     void shouldBeEmpty() {
         List<Card> cards = new ArrayList<>();
         cards.add(new Artist(1, 1));
-        deck = new TribeDeck(1, cards);
+        deck = new TribeDeck( cards);
         deck.draw();
         assertTrue(deck.isEmpty());
     }

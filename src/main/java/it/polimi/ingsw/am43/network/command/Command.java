@@ -23,8 +23,6 @@ public abstract sealed class Command extends DataClientToServer permits GameComm
         this.playerId=playerId;
     }
 
-    public abstract void execute(ServerController serverController);
-    public abstract void execute(GameController gameController);
 
     public UUID getPlayerId() {
         return playerId;

@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am43.network.socket.server;
 
-import it.polimi.ingsw.am43.network.Connections.ConnectionFactory;
+import it.polimi.ingsw.am43.network.connections.ConnectionFactory;
 
 import java.io.*;
 import java.net.ServerSocket;

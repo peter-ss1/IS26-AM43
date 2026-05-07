@@ -3,9 +3,9 @@ package it.polimi.ingsw.am43.controller;
 import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.Connections.PersistentServerConnection;
-import it.polimi.ingsw.am43.network.Connections.ServerConnection;
-import it.polimi.ingsw.am43.network.Connections.ServerConnectionUser;
+import it.polimi.ingsw.am43.network.connections.PersistentServerConnection;
+import it.polimi.ingsw.am43.network.connections.ServerConnection;
+import it.polimi.ingsw.am43.network.connections.ServerConnectionUser;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Message;
@@ -21,7 +21,7 @@ import java.util.UUID;
 public class ClientController implements ServerConnectionUser, MessageReceiver {
 
     private ServerConnection serverConnection;
-    private Executor<ClientController> messageExecutor;
+    private final Executor<ClientController> messageExecutor;
     private final UI ui;
     private final ClientModel localModel;
     private volatile boolean connected;
@@ -32,28 +32,31 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
         this.localModel = localModel;
         this.serverConnection= null;
         this.connected=false;
-        this.playerId = UUID.randomUUID();
+        this.playerId = ResiliencyManager.getOrCreateUUID(2);
         this.messageExecutor=new Executor<>(this);
+        this.messageExecutor.start();
     }
 
 
     public ClientModel getLocalModel() {
         return this.localModel;
     }
-    public void chooseConnectionType(boolean rmi) throws IOException {
+    public void chooseConnectionType(String serverIp, boolean rmi) {
         PersistentServerConnection connection;
         if (rmi) {
-            connection = new ServerRMIConnection(1099, "MesosServer", this, this, this.playerId);
+            connection = new ServerRMIConnection(serverIp,1099, "MesosServer", this, this, this.playerId);
         } else {
-            connection = new SocketServerConnection(InetAddress.getLocalHost().getHostAddress(), 8080, this, this, playerId);
+            connection = new SocketServerConnection(serverIp, 8080, this, this, playerId);
         }
-        try {
-            connection.open();
-        }catch (Exception e){
-            System.out.println("ko");
+        while (!connection.open()){
+            System.out.println("unable to establish connection");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                continue;
+            }
         }
         this.serverConnection=connection;
-        this.messageExecutor.start();
         this.connected=true;
     }
 
@@ -108,12 +111,22 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
         }
         this.serverConnection.sendCommand(new GameCommand.EndTurnCommand(this.playerId));
     }
+    public void answerRejoin(boolean answer){
+        this.serverConnection.sendCommand(new ServerCommand.RejoinGameCommand(this.playerId,answer));
+    }
 
     public void receiveMessage(Message message){
         this.messageExecutor.delegate(message);
     }
 
     public void notifyDisconnection(){
+        this.connected=false;
         System.out.println("disconnected");
+        this.chooseConnectionType("192.168.0.142",true);
+        this.refreshLobbies();
+    }
+
+    public UI getView() {
+        return this.ui;
     }
 }

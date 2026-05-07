@@ -21,7 +21,7 @@ public class Executor<T> {
         try {
             this.taskQueue.put(task);
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);//TODO manage this
+            throw new RuntimeException(e);
         }
 
     }

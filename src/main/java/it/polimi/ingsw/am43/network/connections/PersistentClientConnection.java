@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43.network.Connections;
+package it.polimi.ingsw.am43.network.connections;
 
 public interface PersistentClientConnection extends ClientConnection {
     public long getLastPing();

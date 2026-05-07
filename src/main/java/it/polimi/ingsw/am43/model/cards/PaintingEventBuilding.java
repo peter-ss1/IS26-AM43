@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.utils.GameObserver;
 
 public class PaintingEventBuilding extends EventBuilding {
     public final EventEffect<PaintingEvent> reaction;
@@ -11,7 +13,11 @@ public class PaintingEventBuilding extends EventBuilding {
     }
 
     @Override
-    public void reactToEvent(Player player, PaintingEvent event) {
-        reaction.manifest(player, event);
+    public void reactToEvent(GameObserver observer, Player player, PaintingEvent event) {
+        reaction.manifest(observer, player, event);
+    }
+    @Override
+    public String toString() {
+        return "Edificio Evento Pittura (Costo: " + getCost() + " cibo, PV: " + getPrestigePoints() + ") - Reagisce quando si risolve un Evento Pittura.";
     }
 }

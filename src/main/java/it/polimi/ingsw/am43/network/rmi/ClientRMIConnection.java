@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am43.network.rmi;
 
-import it.polimi.ingsw.am43.network.Connections.ConnectionHandler;
-import it.polimi.ingsw.am43.network.Connections.PersistentClientConnection;
+import it.polimi.ingsw.am43.network.connections.ConnectionHandler;
+import it.polimi.ingsw.am43.network.connections.PersistentClientConnection;
 
 import it.polimi.ingsw.am43.network.command.CommandReceiver;
 import it.polimi.ingsw.am43.network.command.GameCommand;

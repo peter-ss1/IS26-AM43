@@ -1,8 +1,9 @@
 package it.polimi.ingsw.am43.main;
 
+import it.polimi.ingsw.am43.controller.PersistencyManager;
 import it.polimi.ingsw.am43.controller.ServerController;
-import it.polimi.ingsw.am43.network.Connections.ClientsConnectionManager;
-import it.polimi.ingsw.am43.network.Connections.ConnectionFactory;
+import it.polimi.ingsw.am43.network.connections.ClientsConnectionManager;
+import it.polimi.ingsw.am43.network.connections.ConnectionFactory;
 import it.polimi.ingsw.am43.network.rmi.ServerAccessRMI;
 import it.polimi.ingsw.am43.network.socket.server.SocketServerAccess;
 
@@ -22,8 +23,9 @@ public class ServerMain {
         ClientsConnectionManager connectionManager= new ClientsConnectionManager();
         ServerController controller = new ServerController(connectionManager);
         connectionManager.setConnectionUser(controller);
-
         ConnectionFactory connectionFactory= new ConnectionFactory(controller,connectionManager);
+
+        PersistencyManager.loadSavedStatus(controller);
 
         try {
             System.out.println("Server IP Address: " + InetAddress.getLocalHost().getHostAddress());

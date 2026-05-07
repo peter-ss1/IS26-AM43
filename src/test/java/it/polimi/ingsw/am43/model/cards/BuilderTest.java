@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
@@ -22,7 +23,7 @@ public class BuilderTest {
         Player player = new Player("alice", Color.CYAN);
         Builder builder = new Builder(1, 0, 2, 4);
 
-        builder.tribeEntranceEffect(player);
+        builder.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(1, player.getTribe().getNumberByCharacterType(CharacterType.BUILDER));
     }
@@ -32,7 +33,7 @@ public class BuilderTest {
         Player player = new Player("alice",Color.WHITE);
         Builder builder = new Builder(1, 0, 2, 4);
 
-        builder.tribeEntranceEffect(player);
+        builder.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(2, player.getBuildingDiscount());
     }
@@ -43,8 +44,8 @@ public class BuilderTest {
         Builder firstBuilder = new Builder(1, 0, 2, 1);
         Builder secondBuilder = new Builder(1, 0,3, 2);
 
-        firstBuilder.tribeEntranceEffect(player);
-        secondBuilder.tribeEntranceEffect(player);
+        firstBuilder.tribeEntranceEffect(new MockObserver(), player);
+        secondBuilder.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(2, player.getTribe().getNumberByCharacterType(CharacterType.BUILDER));
         assertEquals(5, player.getBuildingDiscount());

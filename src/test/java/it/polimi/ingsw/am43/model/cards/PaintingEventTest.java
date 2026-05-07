@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.board.Row;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
@@ -43,7 +44,7 @@ class PaintingEventTest {
         p1.getTribe().addCardToTribe(new Artist(1, 0));
         p1.getTribe().addCardToTribe(new Artist(1, 0));
 
-        example.affectPlayers(players);
+        example.affectPlayers(new MockObserver(), players);
         assertEquals(4, p1.getPrestigePoints());
         assertEquals(-2, p2.getPrestigePoints());
     }
@@ -52,8 +53,8 @@ class PaintingEventTest {
     void shouldTriggerBuilding() {
         Player p1 = new Player("p1",Color.WHITE);
         p1.getTribe().addCardToTribe(new Artist(1, 0));
-        example.triggerBuilding(new SustenanceEventBuilding(1, 0, 0, 0, (player, event) -> {player.alterFood(2);}), p1);
-        example.triggerBuilding(new PaintingEventBuilding(1, 0, 0, 0, new EventEffect.BonusPaintingEvent()), p1);
+        example.triggerBuilding(new MockObserver(), new SustenanceEventBuilding(1, 0, 0, 0, (observer, player, event) -> {player.alterFood(2);}), p1);
+        example.triggerBuilding(new MockObserver(), new PaintingEventBuilding(1, 0, 0, 0, new EventEffect.BonusPaintingEvent()), p1);
         assertEquals(1, p1.getFood());
     }
 }

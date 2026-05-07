@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.board.Row;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
@@ -36,7 +37,7 @@ class SustenanceEventTest {
         p4.getTribe().addCardToTribe(new Artist(1, 0));
         p4.alterFood(2);
 
-        example.affectPlayers(players);
+        example.affectPlayers(new MockObserver(), players);
         assertEquals(0, p1.getPrestigePoints());
         assertEquals(0, p1.getFood());
         assertEquals(0, p2.getFood());
@@ -60,9 +61,9 @@ class SustenanceEventTest {
     @Test
     void shouldTriggerBuilding() {
         Player p1 = new Player("p1",Color.CYAN);
-        example.triggerBuilding(new SustenanceEventBuilding(1, 0, 0, 0, (player, event) -> {player.alterFood(2);}), p1);
-        example.triggerBuilding(new PaintingEventBuilding(1, 0, 0, 0, (player, event) -> {player.alterFood(2);}), p1);
-        example.triggerBuilding(new RitualEventBuilding(1, 0, 0, 0, (player, event) -> {player.alterFood(2);}), p1);
+        example.triggerBuilding(new MockObserver(), new SustenanceEventBuilding(1, 0, 0, 0, (observer, player, event) -> {player.alterFood(2);}), p1);
+        example.triggerBuilding(new MockObserver(), new PaintingEventBuilding(1, 0, 0, 0, (observer, player, event) -> {player.alterFood(2);}), p1);
+        example.triggerBuilding(new MockObserver(), new RitualEventBuilding(1, 0, 0, 0, (observer, player, event) -> {player.alterFood(2);}), p1);
         assertEquals(2, p1.getFood());
 
     }

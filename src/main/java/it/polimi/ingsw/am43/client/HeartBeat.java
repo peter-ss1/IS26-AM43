@@ -1,11 +1,11 @@
 package it.polimi.ingsw.am43.client;
 
-import it.polimi.ingsw.am43.network.Connections.PersistentServerConnection;
+import it.polimi.ingsw.am43.network.connections.PersistentServerConnection;
 
 public class HeartBeat{
     private final PersistentServerConnection connection;
     private volatile boolean active;
-    private Thread loop;
+    private final Thread loop;
 
 
     public HeartBeat(PersistentServerConnection connection){

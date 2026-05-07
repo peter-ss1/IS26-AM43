@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
@@ -13,7 +14,7 @@ public class GathererTest {
         Player player = new Player("alice", Color.WHITE);
         Gatherer gatherer = new Gatherer(1, 0);
 
-        gatherer.tribeEntranceEffect(player);
+        gatherer.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(1, player.getTribe().getNumberByCharacterType(CharacterType.GATHERER));
     }
@@ -23,7 +24,7 @@ public class GathererTest {
         Player player = new Player("alice",Color.CYAN);
         Gatherer gatherer = new Gatherer(1,0);
 
-        gatherer.tribeEntranceEffect(player);
+        gatherer.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(3, player.getSustenanceDiscount());
     }
@@ -34,8 +35,8 @@ public class GathererTest {
         Gatherer firstGatherer = new Gatherer(1,0);
         Gatherer secondGatherer = new Gatherer(2,0);
 
-        firstGatherer.tribeEntranceEffect(player);
-        secondGatherer.tribeEntranceEffect(player);
+        firstGatherer.tribeEntranceEffect(new MockObserver(), player);
+        secondGatherer.tribeEntranceEffect(new MockObserver(), player);
 
         assertEquals(2, player.getTribe().getNumberByCharacterType(CharacterType.GATHERER));
         assertEquals(6, player.getSustenanceDiscount());

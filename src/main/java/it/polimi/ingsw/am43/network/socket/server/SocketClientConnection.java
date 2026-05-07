@@ -2,9 +2,9 @@ package it.polimi.ingsw.am43.network.socket.server;
 
 
 import it.polimi.ingsw.am43.network.command.CommandReceiver;
-import it.polimi.ingsw.am43.network.Connections.ConnectionHandler;
+import it.polimi.ingsw.am43.network.connections.ConnectionHandler;
 
-import it.polimi.ingsw.am43.network.Connections.PersistentClientConnection;
+import it.polimi.ingsw.am43.network.connections.PersistentClientConnection;
 
 import it.polimi.ingsw.am43.network.command.GameCommand;
 
@@ -36,6 +36,7 @@ public class SocketClientConnection implements VirtualServerSocket, PersistentCl
         this.listener = new SocketClientListener(this,in);
         this.remote=new SocketClientHandler(out);
         this.socket=socket;
+        this.lastPing=System.currentTimeMillis();
         this.listener.start();
     }
 
