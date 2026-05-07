@@ -210,7 +210,8 @@ public class Tribe implements Serializable {
     }
 
 
-    public List<Integer> getIds() {
+
+public List<Integer> getIds() {
         List<Integer> ids = new ArrayList<>();
         this.hunters.forEach(h -> ids.add(h.getId()));
         this.inventors.forEach(inv -> ids.add(inv.getId()));

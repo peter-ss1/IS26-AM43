@@ -45,6 +45,7 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
             VirtualClientRmi stub = (VirtualClientRmi) UnicastRemoteObject.exportObject(this,0);
             this.remote=accessRMI.connect(this.playerID,stub);
         }catch (Exception e){
+            //System.out.println(e.getMessage());
             return false;  //TODO refine
         }
         this.heartBeat.start();

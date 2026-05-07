@@ -33,8 +33,9 @@ public class ClientsConnectionManager implements MultiPersistentClientConnection
         this.connectionUser.notifyConnection(id);
     };
     public void disconnect(UUID id){
-        this.connectionUser.notifyDisconnection(id);
-        this.connections.remove(id);
+        if(this.connections.remove(id)!=null){
+            this.connectionUser.notifyDisconnection(id);
+        }
     };
 
     public Iterator<PersistentClientConnection> iterator(){

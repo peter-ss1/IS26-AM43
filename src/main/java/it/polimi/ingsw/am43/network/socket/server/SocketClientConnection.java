@@ -17,6 +17,7 @@ import java.io.*;
 import java.net.Socket;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SocketClientConnection implements VirtualServerSocket, PersistentClientConnection {
 
@@ -27,6 +28,7 @@ public class SocketClientConnection implements VirtualServerSocket, PersistentCl
     final Socket socket;
     final UUID playerId;
     private volatile long lastPing;
+    private final AtomicBoolean connected;
 
     public SocketClientConnection(UUID id, CommandReceiver commandReceiver, ConnectionHandler connectionHandler, Socket socket, BufferedReader in, PrintWriter out){
 
@@ -38,6 +40,7 @@ public class SocketClientConnection implements VirtualServerSocket, PersistentCl
         this.socket=socket;
         this.lastPing=System.currentTimeMillis();
         this.listener.start();
+        this.connected=new AtomicBoolean(true);
     }
 
     public void sendMessage(Message message){
@@ -60,12 +63,14 @@ public class SocketClientConnection implements VirtualServerSocket, PersistentCl
     }
 
     public void disconnect() {
-        try {
-            this.listener.stop();
-            this.socket.close();
-            this.connectionHandler.disconnect(this.playerId);
-            //TODO
-        }catch (IOException e){System.out.println(e.getMessage());}
+        if (this.connected.compareAndSet(false,true)){
+            try {
+                this.listener.stop();
+                this.socket.close();
+                this.connectionHandler.disconnect(this.playerId);
+            }catch (IOException e){System.out.println(e.getMessage());}
+        }
+
     }
     public long getLastPing() {
         return lastPing;

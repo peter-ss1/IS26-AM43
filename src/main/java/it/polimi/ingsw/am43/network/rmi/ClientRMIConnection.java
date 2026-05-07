@@ -10,6 +10,7 @@ import it.polimi.ingsw.am43.network.message.Message;
 
 import java.rmi.RemoteException;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class ClientRMIConnection implements PersistentClientConnection, VirtualServerRMI {
@@ -18,6 +19,7 @@ public class ClientRMIConnection implements PersistentClientConnection, VirtualS
     private final ConnectionHandler connectionHandler;
     private  final UUID playerId;
     private volatile long lastPing;
+    private final AtomicBoolean connected;
 
     public ClientRMIConnection(UUID id, CommandReceiver commandReceiver, ConnectionHandler connectionHandler, VirtualClientRmi clientRmi){
         this.commandReceiver=commandReceiver;
@@ -25,6 +27,7 @@ public class ClientRMIConnection implements PersistentClientConnection, VirtualS
         this.playerId=id;
         this.remote=clientRmi;
         this.lastPing=System.currentTimeMillis();
+        this.connected=new AtomicBoolean(true);
     }
 
     public void sendCommand(GameCommand command) throws RemoteException{
@@ -56,7 +59,9 @@ public class ClientRMIConnection implements PersistentClientConnection, VirtualS
     public void updateLastPing(){
         this.lastPing=System.currentTimeMillis();
     }
-    public void disconnect(){
-        this.connectionHandler.disconnect(this.playerId);
+    public void disconnect(){//TODO syncronized
+        if (this.connected.compareAndSet(true,false)){
+            this.connectionHandler.disconnect(this.playerId);
+        }
     }
 }

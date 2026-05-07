@@ -18,8 +18,8 @@ public class ServerAccessRMI extends UnicastRemoteObject implements VirtualServe
 
     @Override
     public VirtualServerRMI connect(UUID playerID, VirtualClientRmi client) throws RemoteException {
-        ClientRMIConnection connection= this.connectionFactory.createConnection(playerID,client);
-        VirtualServerRMI stub = (VirtualServerRMI) UnicastRemoteObject.exportObject(connection,0);
+        ClientRMIConnection connection = this.connectionFactory.createConnection(playerID, client);
+        VirtualServerRMI stub = (VirtualServerRMI) UnicastRemoteObject.exportObject(connection, 0);
         connection.register();
         return stub;
     }

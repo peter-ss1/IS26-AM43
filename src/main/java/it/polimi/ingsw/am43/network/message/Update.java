@@ -41,6 +41,9 @@ import java.util.Map;
         @JsonSubTypes.Type(value = Update.OrderModifierUpdate.class, name = "orderModifierUpdate"),
         @JsonSubTypes.Type(value = Update.FoodOfferUpdate.class, name = "foodOfferUpdate"),
         @JsonSubTypes.Type(value = Update.RejoinRequestUpdate.class, name = "rejoinRequestUpdate"),
+        @JsonSubTypes.Type(value = Update.ReconnectionLobbyUpdate.class, name = "reconnectionLobbyUpdate"),
+        @JsonSubTypes.Type(value = Update.GameRestartedUpdate.class, name = "gameRestartedUpdate"),
+
 })
 
 public non-sealed abstract class Update extends Message {
@@ -459,8 +462,9 @@ public non-sealed abstract class Update extends Message {
     }
 
     public static class ReconnectionLobbyUpdate extends Update {
+        @JsonProperty("reconnectedPlayers")
         private final List<String> reconnectedPlayers;
-        public ReconnectionLobbyUpdate(List<String> reconnectedPlayers) {
+        public ReconnectionLobbyUpdate(@JsonProperty("reconnectedPlayers")List<String> reconnectedPlayers) {
             this.reconnectedPlayers = reconnectedPlayers;
         }
         @Override

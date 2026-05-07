@@ -32,7 +32,7 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
         this.localModel = localModel;
         this.serverConnection= null;
         this.connected=false;
-        this.playerId = ResiliencyManager.getOrCreateUUID(2);
+        this.playerId = ResiliencyManager.getOrCreateUUID(1);
         this.messageExecutor=new Executor<>(this);
         this.messageExecutor.start();
     }
@@ -122,7 +122,9 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
     public void notifyDisconnection(){
         this.connected=false;
         System.out.println("disconnected");
-        this.chooseConnectionType("192.168.0.142",true);
+        try {
+            this.chooseConnectionType(InetAddress.getLocalHost().getHostAddress(),true);
+        }catch (Exception e){e.printStackTrace();}
         this.refreshLobbies();
     }
 
