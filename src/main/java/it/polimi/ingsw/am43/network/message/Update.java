@@ -14,6 +14,7 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @JsonSubTypes({
@@ -52,10 +53,14 @@ public non-sealed abstract class Update extends Message {
 
 
     public static class RejoinRequestUpdate extends Update{
-        public RejoinRequestUpdate(){};
+        @JsonProperty("name")
+        private final String name;
+        public RejoinRequestUpdate(@JsonProperty("name")String name){
+            this.name=name;
+        };
         @Override
         public void execute(ClientController controller){
-            controller.getView().askForRejoin();
+            controller.getView().askForRejoin(this.name);
         }
     }
 

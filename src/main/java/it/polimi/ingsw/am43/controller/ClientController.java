@@ -33,7 +33,7 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
         this.localModel = localModel;
         this.serverConnection= null;
         this.connected=new AtomicBoolean(false);
-        this.playerId = ResiliencyManager.getOrCreateUUID(1);
+        this.playerId = ResiliencyManager.getOrCreateUUID(2);
         this.messageExecutor=new Executor<>(this);
         this.messageExecutor.start();
         this.connected=new AtomicBoolean(false);
@@ -51,8 +51,8 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
             } else {
                 connection = new SocketServerConnection(serverIp, 8080, this, this, playerId);
             }
-            connection.open();
             this.serverConnection = connection;
+            connection.open();
         }
     }
 
@@ -127,6 +127,7 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
             }catch (Exception e){e.printStackTrace();}
         }
     }
+
 
     public UI getView() {
         return this.ui;

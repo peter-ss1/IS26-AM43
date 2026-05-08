@@ -33,6 +33,15 @@ public class ClientPlayer implements Serializable {
         this.disconnected = false;
     }
 
+    public ClientPlayer(String nickname){
+        this.nickname = nickname;
+        this.color = null;
+        this.food = 0;
+        this.prestigePoints = 0;
+        this.tribe = new ArrayList<>();
+        this.disconnected = false;
+    }
+
     public ClientPlayer(String nickname, Color color, int prestigePoints, List<Integer> ids) {
         this.nickname = nickname;
         this.color = color;

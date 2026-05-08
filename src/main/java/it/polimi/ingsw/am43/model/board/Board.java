@@ -250,7 +250,7 @@ public class Board implements Serializable {
                         this.topRow.getIds(),
                         this.bottomRow.getIds(),
                         this.turnOrder.getColorOrder(),
-                        this.offerTrack.stream().map(card -> new OfferTrackElement(card.getActions(), null)).toList(),
+                        this.offerTrack.stream().map(card -> new OfferTrackElement(card.getActions(), card.getPlayer().map(Player::getColor).orElse(null))).toList(),
                         this.currEra,
                         phase
                 ));

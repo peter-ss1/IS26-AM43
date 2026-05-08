@@ -137,7 +137,6 @@ public class Game implements ModelInterface, Serializable {
         resolveOffer(player);
     }
 
-
     public void endCurrentTurn(Player player) {
         if (!this.players.contains(player))
             throw new IllegalArgumentException(("Player is not registered in the game"));

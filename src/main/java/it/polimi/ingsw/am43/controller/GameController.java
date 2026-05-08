@@ -192,6 +192,13 @@ public class GameController implements GameObserver, GameCommandReceiver {
         System.out.println(this.disconnectedClients.get(id)+" disconnected from lobby "+this.lobbyId);
     }
 
+    public void notifyConnection(UUID id){
+        synchronized (this.disconnectedClients){
+            if(this.disconnectedClients.containsKey(id))
+                this.serverController.sendMessage(id,new Update.RejoinRequestUpdate(this.disconnectedClients.get(id)));
+        }
+    }
+
     private List<ClientPlayer> getPlayersInfo() {
         return this.model.getPlayers().stream()
                 .map(player -> new ClientPlayer(player.getNickname(), player.getColor()))

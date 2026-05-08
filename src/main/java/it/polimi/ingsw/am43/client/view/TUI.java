@@ -43,14 +43,13 @@ public class TUI implements UI, Runnable {
     }
 
     //TODO remake
-    public void askForRejoin(){
+    public void askForRejoin(String name){
         while (true){
-            System.out.println("Would you like to join beck the game?[Y/N]");
-            //String input = scanner.nextLine().trim();
-            String input= "Y";
-            if(true){
+            System.out.println("Would you like to join beck the game?[Y/N] "+name);
+            String input = scanner.nextLine().trim();
+            if(input.equals("Y")){
+                this.localModel.setOwnPlayer(new ClientPlayer(name));
                 this.controller.answerRejoin(true);
-
                 break;
             } else if (input.equals("N")) {
                 this.controller.answerRejoin(false);

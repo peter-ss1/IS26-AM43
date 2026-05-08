@@ -20,13 +20,11 @@ public class HeartBeat{
     public void start(){
         if (this.active.compareAndSet(false,true)){
             this.loop.start();
-            System.out.println("heartbeat is starting");
         }
     }
     public void stop(){
         if (this.active.compareAndSet(true,false)){
             this.loop.interrupt();
-            System.out.println("heartbeat is stopping");
         }
     }
 
@@ -49,7 +47,6 @@ public class HeartBeat{
             if (this.active.compareAndSet(true,false)){
                 this.connection.disconnect();
                 e.printStackTrace();
-                System.out.println("heartbeat found a disconnection");
             }
         }
     }

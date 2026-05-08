@@ -43,7 +43,7 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         if (this.clients.containsKey(playerId)) {
             this.clients.get(playerId).setState(ClientState.CHOOSING);
             if(this.clients.get(playerId).getLobbyId()!=0)
-                this.sendMessage(playerId,new Update.RejoinRequestUpdate());
+                this.lobbies.get(this.clients.get(playerId).getLobbyId()).notifyConnection(playerId);
             System.out.println(playerId.toString() + "reconnected");
         } else {
             this.clients.put(playerId, new ClientInfo(ClientState.CHOOSING, 0));
