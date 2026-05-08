@@ -50,6 +50,7 @@ public class GameLoader {
         );
         long seed = loadSeed();
         Collections.shuffle(tribeDeckDTO, new Random(seed));
+        tribeDeckDTO.sort(Comparator.comparingInt((TribeDeckCardDTO dto)->dto.era).thenComparing((TribeDeckCardDTO dto)->dto.isFinal));
         ArrayList<Card> tribeDeck= new ArrayList<Card>();
         for(TribeDeckCardDTO tdo : tribeDeckDTO){
             if (tdo.minPlayer!=null && tdo.minPlayer>numPlayer)continue;

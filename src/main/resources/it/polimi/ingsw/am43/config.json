@@ -702,14 +702,16 @@
         "classTribe": "SUSTENANCE",
         "era": 3,
         "id": 95,
-        "minPlayer": 2
+        "minPlayer": 2,
+        "isFinal": true
       },
       {
         "classTribe": "RITUAL",
         "era": 3,
         "id": 96,
         "malus": -7,
-        "minPlayer": 2
+        "minPlayer": 2,
+        "isFinal": true
       }
     ],
     "buildingDeck": {

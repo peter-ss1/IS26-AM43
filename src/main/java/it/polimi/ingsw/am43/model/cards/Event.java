@@ -8,10 +8,22 @@ import it.polimi.ingsw.am43.model.utils.GameObserver;
 
 import java.util.List;
 
-public abstract class Event extends Card {
+public abstract class Event extends Card implements Comparable<Event> {
 
-    public Event(int era, int id) {
+    private final int resolutionPriority;
+
+    public Event(int era, int id, int resolutionPriority) {
         super(era, id);
+        this.resolutionPriority=resolutionPriority;
+    }
+
+
+    @Override
+    public int compareTo(Event event) {
+        if (Integer.compare(this.resolutionPriority, event.resolutionPriority) != 0) {
+            return 1;
+        }
+        return Integer.compare(this.getEra(), event.getEra());
     }
 
     @Override

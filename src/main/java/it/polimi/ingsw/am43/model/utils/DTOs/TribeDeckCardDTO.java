@@ -29,6 +29,7 @@ public abstract class TribeDeckCardDTO {
     public Integer era;
     public Integer id;
     public Integer minPlayer;
+    public boolean isFinal=false;
 
     public abstract Card createCard();
 

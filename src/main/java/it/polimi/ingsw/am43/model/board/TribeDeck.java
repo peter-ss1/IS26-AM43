@@ -14,9 +14,7 @@ public class TribeDeck implements Serializable {
         this.deck= deck;
     }
     public Card draw(){
-        Card tb= deck.getFirst();
-        deck.removeFirst();
-        return tb;
+        return deck.removeFirst();
     }
 
 

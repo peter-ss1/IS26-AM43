@@ -46,7 +46,7 @@ public class TUI implements UI, Runnable {
     public void askForRejoin(String name){
         while (true){
             System.out.println("Would you like to join beck the game?[Y/N] "+name);
-            String input = scanner.nextLine().trim();
+            String input ="Y";  //TODO hardcoded answere
             if(input.equals("Y")){
                 this.localModel.setOwnPlayer(new ClientPlayer(name));
                 this.controller.answerRejoin(true);

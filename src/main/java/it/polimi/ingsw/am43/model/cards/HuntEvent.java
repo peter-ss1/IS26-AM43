@@ -14,7 +14,7 @@ import java.util.Map;
 public class HuntEvent extends Event {
 
     public HuntEvent(int era, int id) {
-        super(era,id);
+        super(era,id,1);
     }
 
     @Override
