@@ -17,24 +17,26 @@ import it.polimi.ingsw.am43.utils.Executor;
 import java.io.*;
 import java.net.InetAddress;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientController implements ServerConnectionUser, MessageReceiver {
 
     private ServerConnection serverConnection;
-    private final Executor<ClientController> messageExecutor;
+    private Executor<ClientController> messageExecutor;
     private final UI ui;
     private final ClientModel localModel;
-    private volatile boolean connected;
+    private AtomicBoolean connected;
     private final UUID playerId;
 
     public ClientController(UI ui, ClientModel localModel) {
         this.ui = ui;
         this.localModel = localModel;
         this.serverConnection= null;
-        this.connected=false;
+        this.connected=new AtomicBoolean(false);
         this.playerId = ResiliencyManager.getOrCreateUUID(1);
         this.messageExecutor=new Executor<>(this);
         this.messageExecutor.start();
+        this.connected=new AtomicBoolean(false);
     }
 
 
@@ -42,22 +44,16 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
         return this.localModel;
     }
     public void chooseConnectionType(String serverIp, boolean rmi) {
-        PersistentServerConnection connection;
-        if (rmi) {
-            connection = new ServerRMIConnection(serverIp,1099, "MesosServer", this, this, this.playerId);
-        } else {
-            connection = new SocketServerConnection(serverIp, 8080, this, this, playerId);
-        }
-        while (!connection.open()){
-            System.out.println("unable to establish connection");
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                continue;
+        if (this.connected.compareAndSet(false, true)) {
+            PersistentServerConnection connection;
+            if (rmi) {
+                connection = new ServerRMIConnection(serverIp, 1099, "MesosServer", this, this, this.playerId);
+            } else {
+                connection = new SocketServerConnection(serverIp, 8080, this, this, playerId);
             }
+            connection.open();
+            this.serverConnection = connection;
         }
-        this.serverConnection=connection;
-        this.connected=true;
     }
 
     public void disconnect(){
@@ -120,12 +116,16 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
     }
 
     public void notifyDisconnection(){
-        this.connected=false;
-        System.out.println("disconnected");
-        try {
-            this.chooseConnectionType(InetAddress.getLocalHost().getHostAddress(),true);
-        }catch (Exception e){e.printStackTrace();}
-        this.refreshLobbies();
+        if (this.connected.compareAndSet(true,false)){
+            this.messageExecutor.stop();
+            System.out.println("disconnected");
+            try {
+                this.messageExecutor=new Executor<>(this);
+                this.messageExecutor.start();
+                this.serverConnection.open();
+                this.connected.set(true);
+            }catch (Exception e){e.printStackTrace();}
+        }
     }
 
     public UI getView() {

@@ -39,8 +39,7 @@ public class SocketClientConnection implements VirtualServerSocket, PersistentCl
         this.remote=new SocketClientHandler(out);
         this.socket=socket;
         this.lastPing=System.currentTimeMillis();
-        this.listener.start();
-        this.connected=new AtomicBoolean(true);
+        this.connected=new AtomicBoolean(false);
     }
 
     public void sendMessage(Message message){
@@ -59,7 +58,11 @@ public class SocketClientConnection implements VirtualServerSocket, PersistentCl
     }
 
     public void register(){
-        this.connectionHandler.connect(this.playerId,this);
+        if (this.connected.compareAndSet(false,true)){
+            this.listener.start();
+            this.connectionHandler.connect(this.playerId,this);
+        }
+
     }
 
     public void disconnect() {
@@ -67,7 +70,7 @@ public class SocketClientConnection implements VirtualServerSocket, PersistentCl
             try {
                 this.listener.stop();
                 this.socket.close();
-                this.connectionHandler.disconnect(this.playerId);
+                this.connectionHandler.disconnect(this.playerId,this);
             }catch (IOException e){System.out.println(e.getMessage());}
         }
 

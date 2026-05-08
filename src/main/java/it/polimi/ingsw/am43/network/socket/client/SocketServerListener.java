@@ -9,32 +9,34 @@ import it.polimi.ingsw.am43.utils.UtilsJSON;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SocketServerListener {
     private final BufferedReader input;
     private final Thread loop;
-    private volatile boolean active;
+    private AtomicBoolean active;
     private final SocketServerConnection connection;
 
     public SocketServerListener(SocketServerConnection connection, BufferedReader in) throws IOException{
         this.input=in;
         this.connection=connection;
         this.loop=new Thread(this::runLoop);
-        this.active=false;
+        this.active=new AtomicBoolean(false);
     }
 
     public void start(){
-        this.active=true;
-        this.loop.start();
+        if (this.active.compareAndSet(false,true))
+            this.loop.start();
     }
     public void stop(){
-        this.active=false;
+        if(this.active.compareAndSet(false,true))
+            this.loop.interrupt();
     }
     private void runLoop(){
         String json;
         DataServerToClient data;
         try{
-            while ((json = input.readLine()) != null && this.active) {
+            while ((json = input.readLine()) != null && this.active.get()) {
                 try {
                     data = UtilsJSON.mapper.readValue(json, DataServerToClient.class);
                     switch (data) {
@@ -53,8 +55,7 @@ public class SocketServerListener {
                 }
             }
         }catch (IOException e){
-            if (this.active){
-                this.active=false;
+            if (this.active.compareAndSet(true,false)){
                 this.connection.disconnect();
             }
         }

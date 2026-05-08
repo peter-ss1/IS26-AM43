@@ -48,8 +48,9 @@ public class TUI implements UI, Runnable {
             System.out.println("Would you like to join beck the game?[Y/N]");
             //String input = scanner.nextLine().trim();
             String input= "Y";
-            if(input.equals("Y")){
+            if(true){
                 this.controller.answerRejoin(true);
+
                 break;
             } else if (input.equals("N")) {
                 this.controller.answerRejoin(false);

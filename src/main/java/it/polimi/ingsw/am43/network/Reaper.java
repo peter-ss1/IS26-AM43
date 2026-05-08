@@ -15,12 +15,16 @@ public class Reaper{
     }
 
     public void start(){
-        this.active=true;
-        this.loop.start();
+        if (!this.active){
+            this.active=true;
+            this.loop.start();
+        }
     }
     public void stop(){
-        this.active=false;
-        this.loop.interrupt();
+        if (this.active){
+            this.active=false;
+            this.loop.interrupt();
+        }
     }
 
     private void runLoop(){

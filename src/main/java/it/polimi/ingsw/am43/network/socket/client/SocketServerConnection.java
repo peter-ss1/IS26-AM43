@@ -12,6 +12,9 @@ import it.polimi.ingsw.am43.network.socket.VirtualClientSocket;
 import java.io.*;
 import java.net.Socket;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class SocketServerConnection implements PersistentServerConnection, VirtualClientSocket {
 
@@ -20,12 +23,14 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
     private final UUID playerId;
     private final ServerConnectionUser connectionUser;
     private final MessageReceiver messageReceiver;
-    private final HeartBeat heartBeat;
+    private HeartBeat heartBeat;
 
     private  SocketServerListener listener;
     private SocketServerHandler remote;
     private  Socket socket;
     private volatile long lastPong;
+    private AtomicBoolean connected;
+    private final ReadWriteLock lock;
 
     public SocketServerConnection(String ip, int port,ServerConnectionUser connectionUser, MessageReceiver messageReceiver, UUID id){
         this.ip=ip;
@@ -35,13 +40,19 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
         this.messageReceiver= messageReceiver;
         this.playerId=id;
         this.lastPong=System.currentTimeMillis();
+        this.connected=new AtomicBoolean(false);
+        this.lock=new ReentrantReadWriteLock();
     }
 
     public void sendCommand(ServerCommand command) {
+        this.lock.readLock().lock();
         this.remote.sendCommand(command);
+        this.lock.readLock().unlock();
     }
     public void sendCommand(GameCommand command){
+        this.lock.readLock().lock();
         this.remote.sendCommand(command);
+        this.lock.readLock().unlock();
     }
     public void close(){
         this.heartBeat.stop();
@@ -50,25 +61,37 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
             this.socket.close();
         }catch (IOException e){System.out.println(e.getMessage());}
     }
-    public boolean open(){
-        try {
-            Socket socket = new Socket(ip, port);
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            out.println(this.playerId.toString());
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            socket.setSoTimeout(5000);
-            String uuidString = in.readLine();
-            System.out.println("ok");
-            UUID playerId = UUID.fromString(uuidString);
-            socket.setSoTimeout(0);
-            if(!playerId.equals(this.playerId)) throw new Exception();//TODO exception
-            this.socket=socket;
-            this.remote = new SocketServerHandler(out);
-            this.listener = new SocketServerListener(this, in);
-        }catch (Exception e){return false;}
-        this.listener.start();
-        this.heartBeat.start();
-        return true;
+    public void open(){
+        this.lock.writeLock().lock();
+        while (this.connected.compareAndSet(false,true)){
+            try {
+                Socket socket = new Socket(ip, port);
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                out.println(this.playerId.toString());
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                socket.setSoTimeout(5000);
+                String uuidString = in.readLine();
+                UUID playerId = UUID.fromString(uuidString);
+                socket.setSoTimeout(0);
+                if(!playerId.equals(this.playerId)) throw new Exception();//TODO exception
+                this.socket=socket;
+                this.remote = new SocketServerHandler(out);
+                this.listener = new SocketServerListener(this, in);
+                this.heartBeat=new HeartBeat(this);
+                this.listener.start();
+                this.heartBeat.start();
+            }catch (Exception e){
+                System.out.println("unable to establish connection");
+                this.connected.set(false);
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ie) {
+                    continue;
+                }
+            }
+        }
+        this.lock.writeLock().unlock();
+
     }
 
     public void sendMessage(Message message){
@@ -80,7 +103,9 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
 
 
     public void ping(){
+        this.lock.readLock().lock();
         this.remote.ping();
+        this.lock.readLock().unlock();
     }
     public long getLastPong(){
         return this.lastPong;
@@ -89,8 +114,12 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
         this.lastPong=System.currentTimeMillis();
     }
     public void disconnect() {
-        this.close();
-        this.connectionUser.notifyDisconnection();
+        this.lock.writeLock().lock();
+        if (this.connected.compareAndSet(true,false)){
+            this.close();
+            this.connectionUser.notifyDisconnection();
+        }
+        this.lock.writeLock().unlock();
     }
 
 }

@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public interface ConnectionHandler {
 
-    public void disconnect(UUID id);
+    public void disconnect(UUID id, PersistentClientConnection connection);
     public void connect(UUID id, PersistentClientConnection connection);
 }

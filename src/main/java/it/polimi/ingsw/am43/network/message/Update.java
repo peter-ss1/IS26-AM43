@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.network.message;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -474,6 +475,7 @@ public non-sealed abstract class Update extends Message {
     }
 
     public static class GameRestartedUpdate extends Update {
+        @JsonProperty("players")
         private final List<ClientPlayer> players;
         @JsonProperty("currPlayer")
         private final String currentPlayerNickname;
@@ -485,9 +487,13 @@ public non-sealed abstract class Update extends Message {
         private final List<Color> orderQueue;
         @JsonProperty("offerTrack")
         private final List<OfferTrackElement> offerTrack;
+        @JsonProperty("era")
         private final int era;
+        @JsonProperty("phase")
         private final GamePhase phase;
-        public GameRestartedUpdate(List<ClientPlayer> players, String nickname, List<Integer> ids, List<Integer> ids1, List<Color> colorOrder, List<OfferTrackElement> list1, int currEra, GamePhase phase) {
+
+        @JsonCreator
+        public GameRestartedUpdate(@JsonProperty("players")List<ClientPlayer> players,@JsonProperty("currPlayer") String nickname,@JsonProperty("topRow") List<Integer> ids,@JsonProperty("bottomRow") List<Integer> ids1,@JsonProperty("orderQueue") List<Color> colorOrder,@JsonProperty("offerTrack") List<OfferTrackElement> list1,@JsonProperty("era") int currEra,@JsonProperty("phase") GamePhase phase) {
             this.players = players;
             this.currentPlayerNickname = nickname;
             this.topRowCards = ids;

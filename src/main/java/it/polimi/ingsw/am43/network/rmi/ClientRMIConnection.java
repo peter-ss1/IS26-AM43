@@ -27,7 +27,7 @@ public class ClientRMIConnection implements PersistentClientConnection, VirtualS
         this.playerId=id;
         this.remote=clientRmi;
         this.lastPing=System.currentTimeMillis();
-        this.connected=new AtomicBoolean(true);
+        this.connected=new AtomicBoolean(false);
     }
 
     public void sendCommand(GameCommand command) throws RemoteException{
@@ -41,7 +41,9 @@ public class ClientRMIConnection implements PersistentClientConnection, VirtualS
     }
 
     public void register(){
-        this.connectionHandler.connect(this.playerId,this);
+        if (this.connected.compareAndSet(false,true)){
+            this.connectionHandler.connect(this.playerId,this);
+        }
     };
 
     public void sendMessage(Message message){
@@ -59,9 +61,13 @@ public class ClientRMIConnection implements PersistentClientConnection, VirtualS
     public void updateLastPing(){
         this.lastPing=System.currentTimeMillis();
     }
-    public void disconnect(){//TODO syncronized
+    public void disconnect(){
         if (this.connected.compareAndSet(true,false)){
-            this.connectionHandler.disconnect(this.playerId);
+            try {
+                java.rmi.server.UnicastRemoteObject.unexportObject(this, true);
+            } catch (java.rmi.NoSuchObjectException e) {
+            }
+            this.connectionHandler.disconnect(this.playerId,this);
         }
     }
 }

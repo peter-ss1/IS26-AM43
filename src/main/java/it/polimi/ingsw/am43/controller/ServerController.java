@@ -74,6 +74,7 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
     }
 
     public void receiveCommand(ServerCommand command){
+        System.out.println(command.getClass());
         this.executor.delegate(command);
     };
     public void receiveCommand(GameCommand command){

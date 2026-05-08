@@ -152,12 +152,13 @@ public class GameController implements GameObserver, GameCommandReceiver {
                 return;
             }
             this.disconnectedClients.remove(playerId);
+            this.broadcast(new Update.ReconnectionLobbyUpdate(this.clients.values().stream().filter(p -> ! disconnectedClients.contains(p)).toList())); //TODO nickname dei ricononnessi
+            System.out.println(clients.get(playerId) + " reconnected to lobby "+ this.lobbyId);
+            if (disconnectedClients.isEmpty()){ //TODO resiliency to not every player
+                this.model.restartGame();
+            }
         }
-        this.broadcast(new Update.ReconnectionLobbyUpdate(this.clients.values().stream().toList())); //TODO nickname dei ricononnessi
-        System.out.println(clients.get(playerId) + " reconnected to lobby "+ this.lobbyId);
-        if (disconnectedClients.isEmpty()){ //TODO resiliency to not every player
-            this.model.restartGame();
-        }
+
     }
 
     public void joinGame(UUID playerID, String nickname, Color color){
