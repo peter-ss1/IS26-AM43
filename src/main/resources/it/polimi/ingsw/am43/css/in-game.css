@@ -1,0 +1,159 @@
+.top-bar {
+    -fx-background-color: #2b2620;
+}
+
+.app-title {
+    -fx-text-fill: #f6eadb;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.top-label {
+    -fx-text-fill: #f6eadb;
+}
+
+.status-info {
+    -fx-text-fill: #1b5e20;
+}
+
+.status-error {
+    -fx-text-fill: #c62828;
+}
+
+.activity-message {
+    -fx-padding: 6px;
+    -fx-background-radius: 6px;
+    -fx-wrap-text: true;
+    -fx-font-size: 12px;
+}
+
+.activity-info {
+    -fx-background-color: rgba(27, 94, 32, 0.10);
+    -fx-text-fill: #2d3a24;
+}
+
+.activity-error {
+    -fx-background-color: rgba(198, 40, 40, 0.12);
+    -fx-text-fill: #7f1d1d;
+}
+
+.activity-important {
+    -fx-background-color: rgba(254, 203, 0, 0.22);
+    -fx-text-fill: #4d3b00;
+}
+
+.board-background {
+    -fx-background-color: #eee6d9;
+}
+
+.section-title {
+    -fx-font-weight: bold;
+}
+
+.side-panel {
+    -fx-background-color: #f7f2ea;
+}
+
+.side-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+}
+
+.scoreboard-row {
+    -fx-padding: 6px;
+    -fx-background-radius: 6px;
+}
+
+.scoreboard-row:hover {
+    -fx-background-color: rgba(95, 90, 82, 0.12);
+}
+
+.current-player-row {
+    -fx-background-color: rgba(254, 203, 0, 0.18);
+}
+
+.viewed-player-row {
+    -fx-border-color: #5f5a52;
+    -fx-border-radius: 6px;
+    -fx-border-width: 1px;
+}
+
+.card-placeholder {
+    -fx-border-color: #8c8173;
+    -fx-background-color: #efe8dc;
+    -fx-padding: 8px;
+}
+
+.card-placeholder-title {
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+}
+
+.card-placeholder-detail {
+    -fx-font-size: 11px;
+    -fx-text-fill: #5f5a52;
+    -fx-text-alignment: center;
+}
+
+.card-node {
+    -fx-padding: 3px;
+    -fx-background-radius: 6px;
+}
+
+.card-clickable {
+    -fx-background-color: rgba(27, 94, 32, 0.16);
+}
+
+.card-clickable:hover {
+    -fx-background-color: rgba(27, 94, 32, 0.28);
+}
+
+.card-disabled {
+    -fx-opacity: 0.45;
+}
+
+.card-highlighted {
+    -fx-background-color: rgba(254, 203, 0, 0.26);
+}
+
+.offer-track-fallback {
+    -fx-border-color: #8c8173;
+    -fx-background-color: #f2eadf;
+}
+
+.fallback-index {
+    -fx-font-weight: bold;
+}
+
+.muted-text {
+    -fx-text-fill: #5f5a52;
+}
+
+.tribe-view {
+    -fx-padding: 12px;
+    -fx-background-color: #f7f2ea;
+    -fx-background-radius: 8px;
+    -fx-border-color: #d4c8b8;
+    -fx-border-radius: 8px;
+}
+
+.tribe-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.tribe-columns {
+    -fx-alignment: top-left;
+}
+
+.tribe-column {
+    -fx-padding: 8px;
+    -fx-background-color: rgba(255, 255, 255, 0.35);
+    -fx-background-radius: 6px;
+    -fx-min-width: 104px;
+}
+
+.tribe-group-title {
+    -fx-font-weight: bold;
+    -fx-text-fill: #5f5a52;
+}

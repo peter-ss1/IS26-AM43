@@ -3,9 +3,11 @@ package it.polimi.ingsw.am43.client.view.gui;
 import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.client.view.ViewState;
+import it.polimi.ingsw.am43.client.view.gui.components.CardMetadataRegistry;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -92,9 +94,10 @@ public class GUI implements UI {
 
     @Override
     public void showGameStart() {
-        //this.state = ViewState.IN_GAME;
+        this.state = ViewState.IN_GAME;
         Platform.runLater(() -> {
-            //this.navigator.showScene(this.state);
+            this.navigator.showScene(this.state);
+            this.navigator.getCurrentScene().refreshFromModel();
             this.navigator.getCurrentScene().showInfo("Game started.");
         });
     }
@@ -117,57 +120,172 @@ public class GUI implements UI {
 
     @Override
     public void showGameError(String error) {
+        this.localModel.stopValidation();
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            this.navigator.getCurrentScene().showError(error);
+        });
     }
 
     @Override
     public void showNewCurrPlayer() {
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            if (this.localModel.isOwnTurn()) {
+                this.navigator.getCurrentScene().showInfo("It's now your turn.");
+            } else {
+                this.navigator.getCurrentScene().showInfo("Current player is now " + this.localModel.getCurrentPlayerNickname() + ".");
+            }
+        });
     }
 
     @Override
     public void showTotemPlaced(String nickname, int position) {
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            this.navigator.getCurrentScene().showInfo(nickname + " placed a totem in position " + (position + 1) + ".");
+        });
     }
 
     @Override
     public void showCardPicked(String nickname, int cardId) {
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            this.navigator.getCurrentScene().showInfo(nickname + " picked " + this.cardName(cardId) + ".");
+        });
     }
 
     @Override
     public void showBuildingAcquisition(String nickname, int cost) {
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            this.navigator.getCurrentScene().showInfo(nickname + " paid " + cost + " food to buy a building.");
+        });
     }
 
     @Override
     public void showHunterEffect(String nickname, int food) {
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            this.navigator.getCurrentScene().showInfo(nickname + " received " + food + " food from a hunter.");
+        });
     }
 
     @Override
     public void showBuildingEffect(String nickname, int bonus, String resource) {
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            this.navigator.getCurrentScene().showInfo(nickname + " received " + bonus + " " + resource + " from a building.");
+        });
     }
 
     @Override
     public void showHuntEvent(Map<String, List<Integer>> effects) {
+        refreshGameSceneWithInfo("Hunt event resolved. " + this.formatFoodPrestigeEffects(effects));
     }
 
     @Override
     public void showPaintingEvent(Map<String, Integer> effects) {
+        refreshGameSceneWithInfo("Painting event resolved. " + this.formatSingleResourceEffects(effects, "food"));
     }
 
     @Override
     public void showSustenanceEvent(Map<String, List<Integer>> effects) {
+        refreshGameSceneWithInfo("Sustenance event resolved. " + this.formatFoodPrestigeEffects(effects));
     }
 
     @Override
     public void showRitualEvent(Map<String, Integer> effects) {
+        refreshGameSceneWithInfo("Ritual event resolved. " + this.formatSingleResourceEffects(effects, "prestige points"));
     }
 
     @Override
     public void showGameEnd() {
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            String winners = String.join(", ", this.localModel.getWinners());
+            String message = "Game ended. Winners: " + winners + ".";
+            this.navigator.getCurrentScene().showInfo(message);
+            this.showGameEndDialog(winners);
+        });
     }
 
     @Override
     public void showOrderModifier(String nickname, int modifier, boolean prestige) {
+        if (this.state != ViewState.IN_GAME) return;
+        String resource = prestige ? "prestige points" : "food";
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            this.navigator.getCurrentScene().showInfo(nickname + " changed " + resource + " by " + modifier + ".");
+        });
     }
 
     @Override
     public void showFoodOffer(String nickname) {
+        refreshGameSceneWithInfo(nickname + " received 3 food from the offer card.");
+    }
+
+    private void refreshGameSceneWithInfo(String message) {
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            this.navigator.getCurrentScene().showInfo(message);
+        });
+    }
+
+    private String formatFoodPrestigeEffects(Map<String, List<Integer>> effects) {
+        if (effects == null || effects.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        effects.forEach((nickname, values) -> {
+            int food = values.isEmpty() ? 0 : values.getFirst();
+            int prestige = values.size() < 2 ? 0 : values.getLast();
+            builder.append(nickname)
+                    .append(": ")
+                    .append(this.formatSigned(food))
+                    .append(" food, ")
+                    .append(this.formatSigned(prestige))
+                    .append(" prestige. ");
+        });
+        return builder.toString().trim();
+    }
+
+    private String formatSingleResourceEffects(Map<String, Integer> effects, String resource) {
+        if (effects == null || effects.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        effects.forEach((nickname, value) -> builder.append(nickname)
+                .append(": ")
+                .append(this.formatSigned(value))
+                .append(" ")
+                .append(resource)
+                .append(". "));
+        return builder.toString().trim();
+    }
+
+    private String formatSigned(int value) {
+        return value > 0 ? "+" + value : String.valueOf(value);
+    }
+
+    private String cardName(int cardId) {
+        return CardMetadataRegistry.get(cardId).displayName();
+    }
+
+    private void showGameEndDialog(String winners) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game ended");
+        alert.setHeaderText(this.localModel.getWinners().contains(this.localModel.getOwnPlayer().getNickname()) ? "You won!" : "Game over");
+        alert.setContentText("Winners: " + winners);
+        alert.show();
     }
 }
