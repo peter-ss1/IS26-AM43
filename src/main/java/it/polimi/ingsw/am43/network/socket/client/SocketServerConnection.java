@@ -81,7 +81,7 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
                 this.listener.start();
                 this.heartBeat.start();
             }catch (Exception e){
-                System.out.println("unable to establish connection");
+                //System.out.println("unable to establish connection");
                 this.connected.set(false);
                 try {
                     Thread.sleep(3000);

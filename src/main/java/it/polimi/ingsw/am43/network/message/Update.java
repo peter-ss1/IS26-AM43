@@ -3,7 +3,6 @@ package it.polimi.ingsw.am43.network.message;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.client.OfferTrackElement;
@@ -11,10 +10,8 @@ import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 
 @JsonSubTypes({
@@ -43,7 +40,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = Update.OrderModifierUpdate.class, name = "orderModifierUpdate"),
         @JsonSubTypes.Type(value = Update.FoodOfferUpdate.class, name = "foodOfferUpdate"),
         @JsonSubTypes.Type(value = Update.RejoinRequestUpdate.class, name = "rejoinRequestUpdate"),
-        @JsonSubTypes.Type(value = Update.ReconnectionLobbyUpdate.class, name = "reconnectionLobbyUpdate"),
+        @JsonSubTypes.Type(value = Update.newLobbyReconnectionUpdate.class, name = "reconnectionLobbyUpdate"),
         @JsonSubTypes.Type(value = Update.GameRestartedUpdate.class, name = "gameRestartedUpdate"),
 
 })
@@ -53,14 +50,17 @@ public non-sealed abstract class Update extends Message {
 
 
     public static class RejoinRequestUpdate extends Update{
-        @JsonProperty("name")
-        private final String name;
-        public RejoinRequestUpdate(@JsonProperty("name")String name){
-            this.name=name;
-        };
+        @JsonProperty("nickname")
+        private final String nickname;
+        @JsonProperty("color")
+        private final Color color;
+        public RejoinRequestUpdate(@JsonProperty("nickname")String nickname, @JsonProperty("color") Color color){
+            this.nickname = nickname;
+            this.color = color;
+        }
         @Override
         public void execute(ClientController controller){
-            controller.getView().askForRejoin(this.name);
+            controller.getLocalModel().retrieveOldPlayer(this.nickname, this.color);
         }
     }
 
@@ -467,15 +467,15 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
-    public static class ReconnectionLobbyUpdate extends Update {
-        @JsonProperty("reconnectedPlayers")
-        private final List<String> reconnectedPlayers;
-        public ReconnectionLobbyUpdate(@JsonProperty("reconnectedPlayers")List<String> reconnectedPlayers) {
-            this.reconnectedPlayers = reconnectedPlayers;
+    public static class newLobbyReconnectionUpdate extends Update {
+        @JsonProperty("reconnectedPlayer")
+        private final String reconnectedPlayer;
+        public newLobbyReconnectionUpdate(@JsonProperty("reconnectedPlayer")String reconnectedPlayer) {
+            this.reconnectedPlayer = reconnectedPlayer;
         }
         @Override
         public void execute(ClientController controller) {
-            controller.getLocalModel().updateReconnectedLobby(this.reconnectedPlayers);
+            controller.getLocalModel().updateReconnectedLobby(this.reconnectedPlayer);
         }
     }
 

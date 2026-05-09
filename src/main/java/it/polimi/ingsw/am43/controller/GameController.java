@@ -1,12 +1,7 @@
 package it.polimi.ingsw.am43.controller;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
-import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.board.ModelInterface;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
@@ -19,7 +14,6 @@ import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Update;
 import it.polimi.ingsw.am43.utils.Executor;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -31,7 +25,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     private final ServerController serverController;
     private final ModelInterface model;
     private final ConcurrentHashMap<UUID, String> clients;
-    private final ConcurrentHashMap<UUID,String> disconnectedClients;
+    private final ConcurrentHashMap<UUID, String> disconnectedClients;
     private final Executor<GameController> executor;
     private final int lobbyId;
 
@@ -41,21 +35,21 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.model = model;
         this.model.setObserver(this);
         this.clients = new ConcurrentHashMap<>();
-        this.disconnectedClients= new ConcurrentHashMap<>();
+        this.disconnectedClients = new ConcurrentHashMap<>();
         this.clients.put(playerID, nickname);
-        this.executor=new Executor<>(this);
+        this.executor = new Executor<>(this);
         this.lobbyId = lobbyId;
         this.executor.start();
     }
 
     // for recovery
-    public GameController(ServerController serverController, ModelInterface model, int lobbyId, ConcurrentMap<UUID,String> clients){
+    public GameController(ServerController serverController, ModelInterface model, int lobbyId, ConcurrentMap<UUID, String> clients) {
         this.serverController = serverController;
         this.model = model;
         this.model.setObserver(this);
-        this.disconnectedClients= new ConcurrentHashMap<>(clients);
+        this.disconnectedClients = new ConcurrentHashMap<>(clients);
         this.clients = new ConcurrentHashMap<>(clients);
-        this.executor=new Executor<>(this);
+        this.executor = new Executor<>(this);
         this.lobbyId = lobbyId;
         this.executor.start();
     }
@@ -68,7 +62,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         return this.model.getNumPlayers();
     }
 
-    public Set<UUID> getPlayers(){
+    public Set<UUID> getPlayers() {
         return this.clients.keySet();
     }
 
@@ -87,8 +81,8 @@ public class GameController implements GameObserver, GameCommandReceiver {
         }
     }
 
-    public void pickCard(int id, UUID playerID){
-        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
+    public void pickCard(int id, UUID playerID) {
+        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
         try {
             String nickname = this.clients.get(playerID);
             this.model.pickCard(this.model.getCardById(id), this.model.getPlayerByName(nickname));
@@ -104,8 +98,8 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     }
 
-    public void placeTotem(int position, UUID playerID){
-        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
+    public void placeTotem(int position, UUID playerID) {
+        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
         try {
             String nickname = this.clients.get(playerID);
             this.model.placeTotemOnTrack(this.model.getPlayerByName(nickname), position);
@@ -120,8 +114,8 @@ public class GameController implements GameObserver, GameCommandReceiver {
         }
     }
 
-    public void endTurn(UUID playerID){
-        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
+    public void endTurn(UUID playerID) {
+        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
         try {
             String nickname = this.clients.get(playerID);
             this.model.endCurrentTurn(this.model.getPlayerByName(nickname));
@@ -138,30 +132,31 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     //TODO synchronise methods
-    public void joinLobby(UUID playerID){
+    public void joinLobby(UUID playerID) {
         this.clients.put(playerID, "-");
         this.serverController.sendMessage(playerID, new Update.LobbyJoinedUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers()), this.getPlayersInfo()));
         this.broadcast(new Update.NewLobbyJoinUpdate(this.getCurrentPlayers()));
     }
 
     //TODO remake
-    public void rejoinLobby(UUID playerId){
+    public void rejoinLobby(UUID playerId) {
         synchronized (this.disconnectedClients) {//shiflock
             if (!this.disconnectedClients.containsKey(playerId)) {
                 this.serverController.sendMessage(playerId, new Error.GenericServerError("player already connected"));
                 return;
             }
             this.disconnectedClients.remove(playerId);
-            this.broadcast(new Update.ReconnectionLobbyUpdate(this.clients.values().stream().filter(p -> ! disconnectedClients.contains(p)).toList())); //TODO nickname dei ricononnessi
-            System.out.println(clients.get(playerId) + " reconnected to lobby "+ this.lobbyId);
-            if (disconnectedClients.isEmpty()){ //TODO resiliency to not every player
+            this.serverController.sendMessage(playerId, new Update.LobbyJoinedUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers()), this.getPlayersInfo()));
+            this.broadcast(new Update.newLobbyReconnectionUpdate(this.clients.get(playerId)));
+            System.out.println(clients.get(playerId) + " reconnected to lobby " + this.lobbyId);
+            if (disconnectedClients.isEmpty()) { //TODO resiliency to not every player
                 this.model.restartGame();
             }
         }
 
     }
 
-    public void joinGame(UUID playerID, String nickname, Color color){
+    public void joinGame(UUID playerID, String nickname, Color color) {
         if (!this.clients.get(playerID).equals("-")) {
             this.serverController.sendMessage(playerID, new Error.GenericServerError("Player already in game"));
             return;
@@ -171,9 +166,9 @@ public class GameController implements GameObserver, GameCommandReceiver {
             this.clients.replace(playerID, "-", nickname);
             this.serverController.sendMessage(playerID, new Update.GameJoinedUpdate(nickname, color));
             this.broadcast(new Update.PlayerAddedUpdate(nickname, color));
-            if (this.clients.values().stream().noneMatch(n -> n.equals("-")) && this.getCurrentPlayers() == this.getNumPlayers()){
+            if (this.clients.values().stream().noneMatch(n -> n.equals("-")) && this.getCurrentPlayers() == this.getNumPlayers()) {
                 this.model.startGame();
-                PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
+                PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
             }
         } catch (IllegalMoveException e) {
             this.serverController.sendMessage(playerID, new Error.GenericServerError(e.getMessage()));
@@ -184,24 +179,24 @@ public class GameController implements GameObserver, GameCommandReceiver {
         }
     }
 
-    public void notifyDisconnection(UUID id){
-        synchronized (this.disconnectedClients){
+    public void notifyDisconnection(UUID id) {
+        synchronized (this.disconnectedClients) {
             this.disconnectedClients.put(id, this.clients.get(id));
         }
         //TODO notify other player and model when resiliency
-        System.out.println(this.disconnectedClients.get(id)+" disconnected from lobby "+this.lobbyId);
+        System.out.println(this.disconnectedClients.get(id) + " disconnected from lobby " + this.lobbyId);
     }
 
-    public void notifyConnection(UUID id){
-        synchronized (this.disconnectedClients){
-            if(this.disconnectedClients.containsKey(id))
-                this.serverController.sendMessage(id,new Update.RejoinRequestUpdate(this.disconnectedClients.get(id)));
+    public void notifyConnection(UUID id) {
+        synchronized (this.disconnectedClients) {
+            if (this.disconnectedClients.containsKey(id))
+                this.serverController.sendMessage(id, new Update.RejoinRequestUpdate(this.disconnectedClients.get(id), this.model.getPlayerByName(this.disconnectedClients.get(id)).getColor()));
         }
     }
 
     private List<ClientPlayer> getPlayersInfo() {
         return this.model.getPlayers().stream()
-                .map(player -> new ClientPlayer(player.getNickname(), player.getColor()))
+                .map(player -> new ClientPlayer(player.getNickname(), player.getColor(), this.disconnectedClients.contains(player.getNickname())))
                 .toList();
     }
 }

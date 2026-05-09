@@ -63,8 +63,8 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
                 this.lastPong=System.currentTimeMillis();
                 this.heartBeat= new HeartBeat(this);
                 this.heartBeat.start();
-            }catch (Exception e){
-                System.out.println("unable to establish connection");
+            }catch (Exception e)  {
+                //System.out.println("unable to establish connection");
                 this.connected.set(false);
                 try {
                     Thread.sleep(3000);

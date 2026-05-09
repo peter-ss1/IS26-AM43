@@ -36,7 +36,8 @@ public class OrderQueue implements Serializable {
     public void append(GameObserver observer, Player player) {
         this.playerOrder.offer(player);
         int modifier = this.foodModifiers.get(playerOrder.size()-1);
-        if (modifier != 0 && player.getFood() + modifier >= 0) {
+        if (modifier == 0) return;
+        if (player.getFood() + modifier >= 0) {
             player.alterFood(modifier);
             observer.broadcast(new Update.OrderModifierUpdate(player.getNickname(), modifier, false));
         }

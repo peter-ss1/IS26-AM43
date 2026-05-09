@@ -3,6 +3,7 @@ package it.polimi.ingsw.am43.client;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
+import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.*;
 
@@ -83,9 +84,8 @@ public class ClientModel {
 
     public void setOtherPlayers(List<ClientPlayer> otherPlayers) {
         this.otherPlayers.clear();
-        if (otherPlayers != null) {
-            this.otherPlayers.addAll(otherPlayers);
-        }
+        if (this.ownPlayer != null) otherPlayers = otherPlayers.stream().filter(p -> !p.getNickname().equals(this.ownPlayer.getNickname())).toList();
+        this.otherPlayers.addAll(otherPlayers);
     }
 
     public List<Integer> getTopRowCards() {
@@ -354,10 +354,10 @@ public class ClientModel {
         this.ui.showFoodOffer(nickname);
     }
 
-    public void updateReconnectedLobby(List<String> reconnectedPlayers) {
-        this.ownLobby.setCurrentPlayers(reconnectedPlayers.size());
-        this.getAllPlayers().stream().filter(player -> !reconnectedPlayers.contains(player.getNickname())).forEach(player -> player.setDisconnected(true));
-        this.ui.showReconnectionLobby();
+    public void updateReconnectedLobby(String reconnectedPlayers) {
+        if (reconnectedPlayers.equalsIgnoreCase(this.ownPlayer.getNickname())) return;
+        this.getPlayerByNickname(reconnectedPlayers).setDisconnected(false);
+        this.ui.showNewPlayer();
     }
 
     public void restartGame(List<ClientPlayer> players, String currentPlayerNickname, List<Integer> topRowCards, List<Integer> bottomRowCards, int era, GamePhase phase, List<OfferTrackElement> offerTrack, List<Color> orderQueue) {
@@ -376,5 +376,10 @@ public class ClientModel {
         this.validating = false;
         this.currPlayerNickname = currentPlayerNickname;
         this.ui.showGameStart();
+    }
+
+    public void retrieveOldPlayer(String nickname, Color color) {
+        this.ownPlayer = new ClientPlayer(nickname, color);
+        this.ui.showRetrievedInfo();
     }
 }

@@ -45,8 +45,7 @@ public interface UI {
 
     void showFoodOffer(String nickname);
 
-    //refactor
-    void askForRejoin(String nickname);
-
     void showReconnectionLobby();
+
+    void showRetrievedInfo();
 }
