@@ -184,6 +184,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
             this.disconnectedClients.put(id, this.clients.get(id));
         }
         //TODO notify other player and model when resiliency
+        this.broadcast(new Update.PlayerDisconnectedUpdate(this.clients.get(id))); //this update should be broadcasted by the model not the game controller
         System.out.println(this.disconnectedClients.get(id) + " disconnected from lobby " + this.lobbyId);
     }
 

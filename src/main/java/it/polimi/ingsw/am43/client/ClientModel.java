@@ -382,4 +382,10 @@ public class ClientModel {
         this.ownPlayer = new ClientPlayer(nickname, color);
         this.ui.showRetrievedInfo();
     }
+
+    public void disconnectPlayer(String nickname) {
+        this.otherPlayers.stream().filter(p -> p.getNickname().equals(nickname))
+                .findFirst().ifPresent(player -> player.setDisconnected(true));
+        this.ui.showDisconnectedPlayer(nickname);
+    }
 }

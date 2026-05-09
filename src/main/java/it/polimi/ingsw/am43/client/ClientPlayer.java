@@ -25,10 +25,10 @@ public class ClientPlayer implements Serializable {
         this.disconnected = false;
     }
 
-    public ClientPlayer(String nickname, Color color, int prestigePoints, List<Integer> ids) {
+    public ClientPlayer(String nickname, Color color, int food, int prestigePoints, List<Integer> ids) {
         this.nickname = nickname;
         this.color = color;
-        this.food = 0;
+        this.food = food;
         this.prestigePoints = prestigePoints;
         this.tribe = ids;
         this.disconnected = false;

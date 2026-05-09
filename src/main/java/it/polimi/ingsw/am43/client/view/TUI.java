@@ -117,7 +117,18 @@ public class TUI implements UI, Runnable {
     }
 
     @Override
-    public void showReconnectionLobby() {
+    public void showDisconnectedPlayer(String nickname) {
+        synchronized (this.printLock) {
+            System.out.print("\r\033[K");
+            this.printError("Player " + nickname + " lost connection.");
+            if (this.state == ViewState.IN_LOBBY_CHOICE ||  this.state == ViewState.IN_LOBBY) {
+                this.printLobbyInfo();
+                if (this.localModel.getOwnPlayer() == null) System.out.print("> ");
+            } else if (this.state == ViewState.IN_GAME) {
+                this.printScoreboard(this.localModel.getAllPlayers(),  this.localModel.getCurrentPlayerNickname());
+                this.printGamePrompt();
+            }
+        }
     }
 
     private void setUpClient() {
@@ -178,7 +189,7 @@ public class TUI implements UI, Runnable {
     private void lobbyChoiceStage() {
         this.state = ViewState.LOBBY_CHOICE;
         this.printWelcome();
-        this.controller.refreshLobbies();
+        this.controller.refreshLobbies(); //TODO remove this if it's the server who answers with either available lobby or old lobby
         this.startInputLoop();
     }
 
@@ -493,6 +504,7 @@ public class TUI implements UI, Runnable {
             System.out.print("\r\033[K");
             this.printLobbyInfo();
             if (this.localModel.getOwnPlayer() == null) System.out.print("> ");
+            else this.state = ViewState.IN_LOBBY;
         }
     }
 
@@ -884,9 +896,11 @@ public class TUI implements UI, Runnable {
         System.out.println(" ╠═══╬════════════════════╬══════════╬══════════╣");
         for (ClientPlayer p : players) {
             String turnMarker = p.getNickname().equals(currentPlayer) ? MESOS + "»" + RESET : " ";
+            String name = p.isDisconnected() ? "reconnecting..."  : p.getNickname();
+            String color = p.isDisconnected() ? DIM : CardVisualizer.getASCIIColor(p.getColor());
             System.out.printf(" ║ %s ║%s║    %-6d║    %-6d║\n",
                     turnMarker,
-                    CardVisualizer.centerLine(p.getNickname(), CardVisualizer.getASCIIColor(p.getColor()), 20),
+                    CardVisualizer.centerLine(name, color, 20),
                     p.getFood(),
                     p.getPrestigePoints()
             );

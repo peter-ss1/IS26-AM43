@@ -40,8 +40,9 @@ import java.util.Map;
         @JsonSubTypes.Type(value = Update.OrderModifierUpdate.class, name = "orderModifierUpdate"),
         @JsonSubTypes.Type(value = Update.FoodOfferUpdate.class, name = "foodOfferUpdate"),
         @JsonSubTypes.Type(value = Update.RejoinRequestUpdate.class, name = "rejoinRequestUpdate"),
-        @JsonSubTypes.Type(value = Update.newLobbyReconnectionUpdate.class, name = "reconnectionLobbyUpdate"),
+        @JsonSubTypes.Type(value = Update.newLobbyReconnectionUpdate.class, name = "newReconnectionLobbyUpdate"),
         @JsonSubTypes.Type(value = Update.GameRestartedUpdate.class, name = "gameRestartedUpdate"),
+        @JsonSubTypes.Type(value = Update.PlayerDisconnectedUpdate.class, name = "playerDisconnectedUpdate"),
 
 })
 
@@ -512,6 +513,20 @@ public non-sealed abstract class Update extends Message {
         @Override
         public void execute(ClientController controller) {
             controller.getLocalModel().restartGame(this.players, this.currentPlayerNickname, this.topRowCards, this.bottomRowCards, this.era, this.phase, this.offerTrack, this.orderQueue);
+        }
+    }
+
+    public static class PlayerDisconnectedUpdate extends Update {
+        @JsonProperty("nickname")
+        private final String nickname;
+
+        public PlayerDisconnectedUpdate(@JsonProperty("nickname") String nickname) {
+            this.nickname = nickname;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().disconnectPlayer(this.nickname);
         }
     }
 }

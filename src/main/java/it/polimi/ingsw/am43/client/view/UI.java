@@ -45,7 +45,7 @@ public interface UI {
 
     void showFoodOffer(String nickname);
 
-    void showReconnectionLobby();
-
     void showRetrievedInfo();
+
+    void showDisconnectedPlayer(String nickname);
 }
