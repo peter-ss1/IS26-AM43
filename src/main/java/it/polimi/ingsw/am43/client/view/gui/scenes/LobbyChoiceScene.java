@@ -1,105 +1,90 @@
 package it.polimi.ingsw.am43.client.view.gui.scenes;
 
 import it.polimi.ingsw.am43.client.LobbyInfo;
-import it.polimi.ingsw.am43.client.view.gui.GUI;
+import it.polimi.ingsw.am43.client.view.gui.LobbyElement;
 import it.polimi.ingsw.am43.model.enums.Color;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 public class LobbyChoiceScene extends CustomScene {
     @FXML
-    private TableView<LobbyInfo> lobbiesTable;
-    @FXML
-    private TableColumn<LobbyInfo, Integer> lobbyIdColumn;
-    @FXML
-    private TableColumn<LobbyInfo, Integer> currentPlayersColumn;
-    @FXML
-    private TableColumn<LobbyInfo, Integer> maxPlayersColumn;
-    @FXML
-    private TextField joinLobbyIdField;
+    private ListView<LobbyInfo> lobbyInfoList;
     @FXML
     private TextField nicknameField;
     @FXML
-    private ComboBox<Color> colorCombo;
+    private ToggleGroup colorGroup;
     @FXML
-    private Spinner<Integer> numPlayersSpinner;
+    private ToggleGroup numberGroup;
     @FXML
-    private Label errorLabel;
+    private Button joinLobbyButton;
     @FXML
-    private Button joinSelectedLobbyButton;
+    private Button createLobbyButton;
+
+    private final ObservableList<LobbyInfo> lobbies = FXCollections.observableArrayList();
+    private final BooleanProperty validating = new SimpleBooleanProperty(false);
 
     @FXML
     private void initialize() {
-        lobbyIdColumn.setCellValueFactory(new PropertyValueFactory<>("lobbyId"));
-        currentPlayersColumn.setCellValueFactory(new PropertyValueFactory<>("currentPlayers"));
-        maxPlayersColumn.setCellValueFactory(new PropertyValueFactory<>("numPlayers"));
-        colorCombo.setItems(FXCollections.observableArrayList(Color.values()));
-        numPlayersSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 5, 2));
-        joinSelectedLobbyButton.setDisable(true);
-        lobbiesTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) ->
-                joinSelectedLobbyButton.setDisable(newSel == null));
+        this.lobbyInfoList.setPlaceholder(new Label("No active lobbies found. Create one!"));
+        this.lobbyInfoList.setCellFactory(_ -> new LobbyElement());
     }
 
-    public void setGui(GUI gui) {
-        this.gui = gui;
+    @Override
+    public void setUp() {
+        this.lobbies.setAll(this.gui.getLocalModel().getLobbies());
+        this.lobbyInfoList.setItems(this.lobbies);
+
+        this.joinLobbyButton.disableProperty().bind(
+                this.lobbyInfoList.getSelectionModel().selectedItemProperty().isNull().or(this.validating)
+        );
+        this.createLobbyButton.disableProperty().bind(
+                this.nicknameField.textProperty().isEmpty().or(this.colorGroup.selectedToggleProperty().isNull()).or(this.numberGroup.selectedToggleProperty().isNull())
+        );
+        this.colorGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) {
+                oldVal.setSelected(true);
+            }
+        });
+        this.numberGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) {
+                oldVal.setSelected(true);
+            }
+        });
     }
 
-    public void refreshFromModel() {
-        if (gui == null) {
-            return;
-        }
-        lobbiesTable.setItems(FXCollections.observableArrayList(gui.getLocalModel().getLobbies()));
-    }
-
-    @FXML
-    private void onRefreshClicked() {
-        if (gui == null) {
-            showError("GUI not initialized.");
-            return;
-        }
-        showError("Refreshing lobbies...");
-        this.gui.submitTask(() -> this.controller.refreshLobbies());
+    @Override
+    public void reset() {
+        this.nicknameField.clear();
+        this.validating.set(false);
     }
 
     @FXML
     private void onJoinClicked() {
-        if (gui == null) {
-            showError("GUI not initialized.");
-            return;
-        }
-        LobbyInfo selectedLobby = lobbiesTable.getSelectionModel().getSelectedItem();
-        if (selectedLobby == null) {
-            showError("Select a lobby.");
-            return;
-        }
-        this.gui.submitTask(() -> this.controller.joinLobby(selectedLobby.getLobbyId()));
-        errorLabel.setText("");
+        this.validating.set(true);
+        this.gui.submitTask(() -> this.controller.joinLobby(this.lobbyInfoList.getSelectionModel().getSelectedItem().getLobbyId()));
     }
 
     @FXML
     private void onCreateClicked() {
-        if (gui == null) {
-            showError("GUI not initialized.");
-            return;
-        }
+        this.validating.set(true);
         String nickname = nicknameField.getText() == null ? "" : nicknameField.getText().trim();
         if (!nickname.matches("^[a-zA-Z0-9]{3,12}$")) {
-            showError("Nickname must be 3-12 alphanumeric chars.");
+            this.nicknameField.clear();
+            this.nicknameField.setPromptText("Enter a valid nickname");
             return;
         }
-        Color color = colorCombo.getValue();
-        if (color == null) {
-            showError("Please choose a color.");
-            return;
-        }
-        int numPlayers = numPlayersSpinner.getValue();
-        this.gui.submitTask(() -> this.controller.createLobby(nickname, color, numPlayers));
-        errorLabel.setText("");
+        int index = this.colorGroup.getToggles().indexOf(this.colorGroup.getSelectedToggle());
+        Color color = Color.values()[index];
+        int num = this.numberGroup.getToggles().indexOf(this.numberGroup.getSelectedToggle())+2;
+        this.gui.submitTask(() -> this.controller.createLobby(nickname, color, num));
     }
 
-    public void showError(String message) {
-        errorLabel.setText(message);
+    @Override
+    public void showAvailableLobbies() {
+        this.lobbies.setAll(this.gui.getLocalModel().getLobbies());
     }
 }

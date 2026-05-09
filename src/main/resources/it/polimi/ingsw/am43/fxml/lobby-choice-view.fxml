@@ -1,77 +1,181 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="470.0" prefWidth="986.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.LobbyChoiceScene">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="connectionScene" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.LobbyChoiceScene">
    <children>
-      <HBox layoutX="-22.0" layoutY="109.0" />
-      <VBox layoutX="562.0" layoutY="97.0" prefHeight="315.0" prefWidth="402.0" spacing="12.0">
-         <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </padding>
+      <HBox alignment="CENTER" fillHeight="false" layoutX="-46.0" layoutY="26.0" spacing="200.0" AnchorPane.bottomAnchor="-26.0" AnchorPane.leftAnchor="-46.0" AnchorPane.rightAnchor="46.0" AnchorPane.topAnchor="26.0">
          <children>
-            <Label text="Lobby Choice" />
-            <TableView fx:id="lobbiesTable" prefHeight="240.0">
-               <columns>
-                  <TableColumn fx:id="lobbyIdColumn" prefWidth="120.0" text="Lobby ID" />
-                  <TableColumn fx:id="currentPlayersColumn" prefWidth="120.0" text="Players" />
-                  <TableColumn fx:id="maxPlayersColumn" prefWidth="120.0" text="Max" />
-               </columns>
-            </TableView>
-            <HBox spacing="10.0">
+            <VBox alignment="CENTER" minHeight="600.0" minWidth="400.0" spacing="12.0" styleClass="loginContainer">
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
                <children>
-                  <Button mnemonicParsing="false" onAction="#onRefreshClicked" text="Refresh" />
-                  <Button fx:id="joinSelectedLobbyButton" mnemonicParsing="false" onAction="#onJoinClicked" text="Join Selected Lobby" />
+                  <Label styleClass="subtitle" text="available lobbies">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <ListView fx:id="lobbyInfoList" maxHeight="400.0" minHeight="400.0" styleClass="lobbies" />
+                  <Button fx:id="joinLobbyButton" mnemonicParsing="false" onAction="#onJoinClicked" text="JOIN LOBBY">
+                     <styleClass>
+                        <String fx:value="loginElement" />
+                        <String fx:value="main-button" />
+                     </styleClass>
+                  </Button>
                </children>
-            </HBox>
-            <Label style="-fx-text-fill: #c62828;" />
-         </children>
-      </VBox>
-      <VBox layoutX="50.0" layoutY="103.0" prefHeight="263.0" prefWidth="402.0" spacing="12.0">
-          <padding>
-              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-          </padding>
+            </VBox>
+            <VBox alignment="CENTER" minHeight="600.0" minWidth="400.0" styleClass="loginContainer">
+            
+                            <Label styleClass="subtitle" text="start a new game">
+                  <VBox.margin>
+                     <Insets bottom="30.0" />
+                  </VBox.margin>
+               </Label>
+                  <Label styleClass="loginLabel" text="ENTER A NICKNAME" />
+                  <TextField fx:id="nicknameField" alignment="CENTER" promptText="3-12 alphanumeric" styleClass="loginElement">
+                  <VBox.margin>
+                     <Insets bottom="20.0" />
+                  </VBox.margin>
+               </TextField>
       
-                      <HBox spacing="10.0" />
+                                    <Label styleClass="loginLabel" text="CHOOSE A COLOR" />
+               <HBox alignment="CENTER" fillHeight="false" maxHeight="75.0" prefHeight="100.0" prefWidth="200.0">
+                  <children>
+                     <ToggleButton contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" prefHeight="75.0" prefWidth="50.0" text="Color">
+                        <toggleGroup>
+                           <ToggleGroup fx:id="colorGroup" />
+                        </toggleGroup>
+                        <graphic>
+                           <ImageView fitHeight="75.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true">
+                              <image>
+                                 <Image url="@../images/BlackTotem.PNG" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <styleClass>
+                           <String fx:value="loginElement" />
+                           <String fx:value="login-toggle" />
+                        </styleClass>
+                     </ToggleButton>
+                     <ToggleButton contentDisplay="GRAPHIC_ONLY" layoutX="148.0" layoutY="10.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="75.0" text="Color" toggleGroup="$colorGroup">
+                        <graphic>
+                           <ImageView fitHeight="75.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true">
+                              <image>
+                                 <Image url="@../images/WhiteTotem.PNG" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <styleClass>
+                           <String fx:value="loginElement" />
+                           <String fx:value="login-toggle" />
+                        </styleClass>
+                     </ToggleButton>
+                     <ToggleButton contentDisplay="GRAPHIC_ONLY" layoutX="205.0" layoutY="10.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="75.0" text="Color" toggleGroup="$colorGroup">
+                        <graphic>
+                           <ImageView fitHeight="75.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true">
+                              <image>
+                                 <Image url="@../images/OrangeTotem.PNG" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <styleClass>
+                           <String fx:value="login-toggle" />
+                           <String fx:value="loginElement" />
+                        </styleClass>
+                     </ToggleButton>
+                     <ToggleButton contentDisplay="GRAPHIC_ONLY" layoutX="261.0" layoutY="10.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="75.0" text="Color" toggleGroup="$colorGroup">
+                        <graphic>
+                           <ImageView fitHeight="75.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true">
+                              <image>
+                                 <Image url="@../images/YellowTotem.PNG" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <styleClass>
+                           <String fx:value="loginElement" />
+                           <String fx:value="login-toggle" />
+                        </styleClass>
+                     </ToggleButton>
+                     <ToggleButton contentDisplay="GRAPHIC_ONLY" layoutX="348.0" layoutY="10.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="75.0" text="Color" toggleGroup="$colorGroup">
+                        <graphic>
+                           <ImageView fitHeight="75.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true">
+                              <image>
+                                 <Image url="@../images/CyanTotem.PNG" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <styleClass>
+                           <String fx:value="login-toggle" />
+                           <String fx:value="loginElement" />
+                        </styleClass>
+                     </ToggleButton>
+                  </children>
+                  <VBox.margin>
+                     <Insets bottom="20.0" />
+                  </VBox.margin>
+               </HBox>
       
-                      <Label text="Create Lobby" />
-          <GridPane hgap="10.0" vgap="8.0">
-              <children>
-                  <Label text="Nickname" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                  <TextField fx:id="nicknameField" promptText="3-12 alphanumeric" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-      
-                              <Label text="Color" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                  <ComboBox fx:id="colorCombo" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      
-                              <Label text="Num players" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                  <Spinner fx:id="numPlayersSpinner" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-              </children>
-            <columnConstraints>
-               <ColumnConstraints />
-               <ColumnConstraints />
-            </columnConstraints>
-            <rowConstraints>
-               <RowConstraints />
-               <RowConstraints />
-               <RowConstraints />
-            </rowConstraints>
-          </GridPane>
-      
-                      <Button mnemonicParsing="false" onAction="#onCreateClicked" text="Create Lobby" />
-          <Label fx:id="errorLabel" style="-fx-text-fill: #c62828;" />
-      </VBox>
+                                    <Label styleClass="loginLabel" text="SELECT THE NUMBER OF PLAYERS" />
+               <HBox alignment="CENTER" fillHeight="false" maxHeight="50.0" prefHeight="100.0" prefWidth="200.0" spacing="15.0">
+                  <children>
+                     <ToggleButton contentDisplay="CENTER" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="2">
+                        <styleClass>
+                           <String fx:value="loginElement" />
+                           <String fx:value="login-toggle" />
+                        </styleClass>
+                        <toggleGroup>
+                           <ToggleGroup fx:id="numberGroup" />
+                        </toggleGroup>
+                     </ToggleButton>
+                     <ToggleButton contentDisplay="CENTER" layoutX="179.0" layoutY="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="3" toggleGroup="$numberGroup">
+                        <styleClass>
+                           <String fx:value="loginElement" />
+                           <String fx:value="login-toggle" />
+                        </styleClass>
+                     </ToggleButton>
+                     <ToggleButton contentDisplay="CENTER" layoutX="204.0" layoutY="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="4" toggleGroup="$numberGroup">
+                        <styleClass>
+                           <String fx:value="loginElement" />
+                           <String fx:value="login-toggle" />
+                        </styleClass>
+                     </ToggleButton>
+                     <ToggleButton contentDisplay="CENTER" layoutX="229.0" layoutY="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="5" toggleGroup="$numberGroup">
+                        <styleClass>
+                           <String fx:value="loginElement" />
+                           <String fx:value="login-toggle" />
+                        </styleClass>
+                     </ToggleButton>
+                  </children>
+                  <VBox.margin>
+                     <Insets bottom="20.0" />
+                  </VBox.margin>
+               </HBox>
+            
+                            <Button fx:id="createLobbyButton" mnemonicParsing="false" onAction="#onCreateClicked" text="CREATE LOBBY">
+                  <styleClass>
+                     <String fx:value="loginElement" />
+                     <String fx:value="main-button" />
+                  </styleClass>
+               </Button>
+            </VBox>
+         </children></HBox>
+       <Button fx:id="settingsButton" contentDisplay="GRAPHIC_ONLY" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#onSettingsClicked" pickOnBounds="false" prefHeight="40.0" prefWidth="40.0" styleClass="settings-button" text="aaa" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+           <graphic>
+               <Region mouseTransparent="true" prefHeight="200.0" prefWidth="200.0" styleClass="icon" />
+           </graphic></Button>
    </children>
 </AnchorPane>

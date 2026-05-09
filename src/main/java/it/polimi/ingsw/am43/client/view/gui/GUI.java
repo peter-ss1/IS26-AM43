@@ -19,6 +19,7 @@ public class GUI implements UI {
     private final ClientModel localModel;
     private final ClientController controller;
     private final GuiNavigator navigator;
+    private final PopUp popUp;
     private ViewState state;
 
     public GUI(GuiApplication application, Stage stage) {
@@ -27,6 +28,7 @@ public class GUI implements UI {
         this.controller = new ClientController(this, this.localModel);
         this.navigator = new GuiNavigator(stage, this, this.controller);
         this.navigator.init();
+        this.popUp = new PopUp(stage);
         this.state = ViewState.CONNECTION;
     }
 
@@ -35,7 +37,7 @@ public class GUI implements UI {
     }
 
     public void connectAsync(String serverIp, boolean rmi, Consumer<String> onError) {
-        new Thread(() -> {
+        new Thread(() -> { //TODO the client should send a connection request and wait for next stage from server
             try {
                 this.controller.chooseConnectionType(serverIp, rmi);
                 this.state = ViewState.LOBBY_CHOICE;
@@ -53,26 +55,10 @@ public class GUI implements UI {
         this.app.runAsync(task);
     }
 
-    public void refreshLobbies() {
-        new Thread(this.controller::refreshLobbies).start();
-    }
-
-    public void createLobby(String nickname, Color color, int numPlayers) {
-        new Thread(() -> this.controller.createLobby(nickname, color, numPlayers)).start();
-    }
-
-    public void joinLobby(int lobbyId) {
-        new Thread(() -> this.controller.joinLobby(lobbyId)).start();
-    }
-
-    public void joinGame(String nickname, Color color) {
-        new Thread(() -> this.controller.joinGame(nickname, color)).start();
-    }
-
     @Override
     public void showAvailableLobbies() {
         if (this.state != ViewState.LOBBY_CHOICE) return;
-        Platform.runLater(() -> this.navigator.getCurrentScene().refreshFromModel());
+        Platform.runLater(() -> this.navigator.getCurrentScene().showAvailableLobbies());
     }
 
     @Override
@@ -105,14 +91,14 @@ public class GUI implements UI {
         Platform.runLater(() -> {
             this.navigator.showScene(this.state);
                 String operation = creation ? "creation" : "join";
-                this.navigator.getCurrentScene().showError("Lobby " + operation + " failed: " + message);
-                this.navigator.getCurrentScene().refreshFromModel();
+                this.showPopUp("Lobby " + operation + " failed: " + message);
+                this.navigator.getCurrentScene().reset();
         });
     }
 
     @Override
     public void handleLobbyJoinError(String message) {
-        Platform.runLater(() -> navigator.getCurrentScene().showError("Cannot join game: " + message));
+        Platform.runLater(() -> this.showPopUp("Lobby join failed: " + message));
     }
 
     @Override
@@ -169,5 +155,13 @@ public class GUI implements UI {
 
     @Override
     public void showFoodOffer(String nickname) {
+    }
+
+    public void showPopUp(String message) {
+        this.popUp.show(message);
+    }
+
+    public void showMenu() {
+        Platform.runLater(this.navigator::showMenu);
     }
 }

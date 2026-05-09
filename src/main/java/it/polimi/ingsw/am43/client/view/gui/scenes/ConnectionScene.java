@@ -1,81 +1,60 @@
 package it.polimi.ingsw.am43.client.view.gui.scenes;
 
+import it.polimi.ingsw.am43.client.view.ViewState;
 import it.polimi.ingsw.am43.client.view.gui.GUI;
+import it.polimi.ingsw.am43.client.view.gui.PopUp;
 import it.polimi.ingsw.am43.controller.ClientController;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
+
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.rmi.NotBoundException;
 
 public class ConnectionScene extends CustomScene {
     @FXML
     private TextField ipField;
     @FXML
-    private RadioButton rmiRadio;
-    @FXML
-    private Label errorLabel;
+    private ComboBox<String> connectionType;
     @FXML
     private Button connectButton;
 
     @FXML
     private void onConnectClicked() {
-        if (gui == null) {
-            showError("GUI not initialized.");
-            return;
-        }
-        if (connectButton != null) {
-            connectButton.setDisable(true);
-        }
-
-        String ip = ipField.getText() == null ? "" : ipField.getText().trim();
+        boolean valid = true;
+        this.connectButton.setDisable(true);
+        this.ipField.setDisable(true);
+        this.connectionType.setDisable(true);
+        String ip = this.ipField.getText() == null ? "" : this.ipField.getText().trim();
         if (ip.isEmpty()) {
+            this.ipField.setPromptText("localhost");
             ip = "localhost";
-        } else if (!isValidHostOrIp(ip)) {
-            showError("Invalid host. Use localhost, a valid IPv4, or a hostname.");
-            if (connectButton != null) {
-                connectButton.setDisable(false);
-            }
-            return;
+        } else if (!ip.matches("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
+            this.ipField.setText("");
+            this.ipField.setPromptText("Invalid IP Address");
+            valid = false;
         }
-        boolean isRmi = rmiRadio.isSelected();
-        showError("Connecting...");
-        gui.connectAsync(ip, isRmi, message -> {
-            showError(message);
-            if (connectButton != null) {
-                connectButton.setDisable(false);
-            }
-        });
-    }
-
-    public void showError(String message) {
-        errorLabel.setText(message);
-    }
-
-    private boolean isValidHostOrIp(String value) {
-        if (value.equalsIgnoreCase("localhost")) {
-            return true;
+        String selected = this.connectionType.getValue();
+        if (selected == null) {
+            this.connectionType.setPromptText("Choose one");
+            valid = false;
         }
-        if (isValidIpv4(value)) {
-            return true;
+        if (valid) {
+            this.connectButton.setText("Connecting...");
+            this.gui.connectAsync(ip, selected.equals("RMI"), message -> {
+                this.gui.showPopUp(message);
+                this.connectButton.setText("Connect to Server");
+                this.connectButton.setDisable(false);
+                this.ipField.setDisable(false);
+                this.connectionType.setDisable(false);
+            });
+        } else {
+            this.connectButton.setDisable(false);
+            this.ipField.setDisable(false);
+            this.connectionType.setDisable(false);
         }
-        return value.matches("^(?=.{1,253}$)(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*$");
-    }
-
-    private boolean isValidIpv4(String value) {
-        String[] parts = value.split("\\.");
-        if (parts.length != 4) {
-            return false;
-        }
-        for (String part : parts) {
-            if (!part.matches("\\d{1,3}")) {
-                return false;
-            }
-            int octet = Integer.parseInt(part);
-            if (octet < 0 || octet > 255) {
-                return false;
-            }
-        }
-        return true;
     }
 }

@@ -66,7 +66,7 @@ public abstract class Error extends Message {
     }
 
     public static class LobbyCreationError extends Error {
-        public LobbyCreationError(String message) {
+        public LobbyCreationError(@JsonProperty("message") String message) {
             super(message);
         }
 
