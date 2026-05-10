@@ -4,5 +4,7 @@ enum ViewState {
     CONNECTION,
     LOBBY_CHOICE,
     IN_LOBBY,
-    IN_GAME
+    IN_LOBBY_CHOICE,
+    IN_GAME,
+    RECONNECTION
 }

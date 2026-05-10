@@ -243,6 +243,7 @@ public class Board implements Serializable {
                 players.stream().map(p -> new ClientPlayer(
                                 p.getNickname(),
                                 p.getColor(),
+                                p.getFood(),
                                 p.getPrestigePoints(),
                                 p.getTribe().getIds())).toList()
                         ,

@@ -9,8 +9,10 @@ import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 
 import java.io.IOException;
-import java.rmi.NotBoundException;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static it.polimi.ingsw.am43.client.view.TextFormatting.*;
 
@@ -19,14 +21,15 @@ public class TUI implements UI, Runnable {
     private ViewState state;
     private final ClientModel localModel;
     private final Scanner scanner;
+    private final BlockingQueue<String> inputQueue;
     private final Object printLock;
-
 
     public TUI(Scanner scanner) {
         this.localModel = new ClientModel(this);
         this.controller = new ClientController(this, this.localModel);
         this.state = ViewState.CONNECTION;
         this.scanner = scanner;
+        this.inputQueue = new LinkedBlockingQueue<>();
         this.printLock = new Object();
         try {
             CardVisualizer.loadAscii();
@@ -35,40 +38,96 @@ public class TUI implements UI, Runnable {
         }
     }
 
-    @Override
-    public void run() {
-        this.titleScreen();
-        this.setUpClient();
-        this.lobbyChoiceStage();
-    }
-
-    //TODO remake
-    public void askForRejoin(String name){
-        while (true){
-            System.out.println("Would you like to join beck the game?[Y/N] "+name);
-            String input ="Y";  //TODO hardcoded answere
-            if(input.equals("Y")){
-                this.localModel.setOwnPlayer(new ClientPlayer(name));
-                this.controller.answerRejoin(true);
-                break;
-            } else if (input.equals("N")) {
-                this.controller.answerRejoin(false);
-                break;
-            }else {
-                System.out.println("Invalid answer");
+    public String getInput() throws DisconnectedException {
+        while (true) {
+            if (this.controller.isDisconnected()) {
+                throw new DisconnectedException("Connection lost.");
             }
+            String input;
+            try {
+                input = this.inputQueue.poll(200, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                continue;
+            }
+            if (input != null) return input;
         }
     }
 
     @Override
-    public void showReconnectionLobby() {
-        this.state = ViewState.IN_LOBBY;
-        this.printReconnectionLobbyInfo();
+    public void run() {
+        this.titleScreen();
+        this.setUpClient();
     }
 
-    private void printReconnectionLobbyInfo() {
+    private void startInputLoop() {
+        new Thread(() -> {
+            try {
+                switch (this.state) {
+                    case CONNECTION -> {
+                        this.setUpClient();
+                    }
+                    case LOBBY_CHOICE -> {
+                        this.lobbyChoiceInput();
+                    }
+                    case IN_LOBBY_CHOICE -> {
+                        this.joinLobbyForm();
+                    }
+                    case IN_GAME -> {
+                        this.gameLoopInput();
+                    }
+                    case RECONNECTION -> {
+                        this.reconnectionLoop();
+                    }
+                    default -> {
+                    }
+                }
+            } catch (DisconnectedException e) {
+                this.printReconnectionWaiting();
+            }
+        }).start();
+    }
+
+    private void printReconnectionWaiting() {
         synchronized (this.printLock) {
-            this.localModel.getAllPlayers().stream().filter(p -> !p.isDisconnected()).forEach(p -> System.out.println(p.getNickname()));
+            int i = 0;
+            while (this.controller.isDisconnected()) {
+                if (i == 0 || i == 4) {
+                    System.out.print("\r\033[K");
+                    System.out.print(ERROR + "Attempting to reconnect" + RESET);
+                    i = 0;
+                } else {
+                    System.out.print(ERROR + "." + RESET);
+                }
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                i++;
+            }
+            System.out.println("\n" + MESOS + "Connection restored!" + RESET);
+        }
+    }
+
+    @Override
+    public void showRetrievedInfo() {
+        this.state = ViewState.RECONNECTION;
+        this.startInputLoop();
+    }
+
+    @Override
+    public void showDisconnectedPlayer(String nickname) {
+        synchronized (this.printLock) {
+            System.out.print("\r\033[K");
+            this.printError("Player " + nickname + " lost connection.");
+            if (this.state == ViewState.IN_LOBBY_CHOICE ||  this.state == ViewState.IN_LOBBY) {
+                this.printLobbyInfo();
+                if (this.localModel.getOwnPlayer() == null) System.out.print("> ");
+            } else if (this.state == ViewState.IN_GAME) {
+                this.printScoreboard(this.localModel.getAllPlayers(),  this.localModel.getCurrentPlayerNickname());
+                this.printGamePrompt();
+            }
         }
     }
 
@@ -80,7 +139,7 @@ public class TUI implements UI, Runnable {
             System.out.println("Enter a Server IP " + DIM + "[press enter for localhost]" + RESET);
             while (true) {
                 System.out.print("> ");
-                String input = scanner.nextLine().trim();
+                String input = this.scanner.nextLine().trim();
 
                 if (input.isEmpty()) {
                     serverIP = "localhost";
@@ -96,7 +155,7 @@ public class TUI implements UI, Runnable {
             System.out.println("Choose a connection: " + BOX + " 1 " + RESET + " RMI   " + MESOS + "◈" + RESET + "   " + BOX + " 2 " + RESET + " SOCKET");
             while (true) {
                 System.out.print("> ");
-                String choice = scanner.nextLine().trim();
+                String choice = this.scanner.nextLine().trim();
 
                 if (choice.equals("1") || choice.equals("2")) {
                     try {
@@ -115,22 +174,50 @@ public class TUI implements UI, Runnable {
                 }
             }
         }
+        Thread inputLoop = new Thread(() -> {
+            while (true) {
+                if (this.scanner.hasNextLine()) {
+                    this.inputQueue.offer(this.scanner.nextLine());
+                }
+            }
+        });
+        inputLoop.setDaemon(true);
+        inputLoop.start();
+        this.lobbyChoiceStage();
     }
 
     private void lobbyChoiceStage() {
         this.state = ViewState.LOBBY_CHOICE;
         this.printWelcome();
-        //this.controller.refreshLobbies();
-        new Thread(this::lobbyChoiceInput).start();
+        this.controller.refreshLobbies(); //TODO remove this if it's the server who answers with either available lobby or old lobby
+        this.startInputLoop();
     }
 
-    private void lobbyChoiceInput() {
+    private void reconnectionLoop() throws DisconnectedException {
+        synchronized (this.printLock) {
+            while (true) {
+                System.out.println("You were previously registered as " + CardVisualizer.getASCIIColor(this.localModel.getOwnPlayer().getColor()) + this.localModel.getOwnPlayer().getNickname() + RESET + ". Would you like to get your player back? [y/n]");
+                String input = this.getInput().trim();
+                if (input.equalsIgnoreCase("y")) {
+                    this.controller.answerRejoin(true);
+                    break;
+                } else if (input.equalsIgnoreCase("n")) {
+                    this.controller.answerRejoin(false);
+                    break;
+                } else {
+                    this.printError("Invalid choice. Please enter y or n.");
+                }
+            }
+        }
+    }
+
+    private void lobbyChoiceInput() throws DisconnectedException {
         while (true) {
             synchronized (this.printLock) {
                 System.out.println(BOX + " 1 " + RESET + " Create a new lobby   " + MESOS + "◈" + RESET + "   " + BOX + " 2 " + RESET + " Join an existing lobby");
                 System.out.print("> ");
             }
-            String input = this.scanner.nextLine().trim();
+            String input = this.getInput().trim();
             if (input.equals("1")) {
                 this.state = ViewState.IN_LOBBY;
                 String nickname = "";
@@ -140,7 +227,7 @@ public class TUI implements UI, Runnable {
                 synchronized (this.printLock) {
                     while (nickname.isEmpty()) {
                         System.out.print("Enter a nickname " + DIM + "[3-12 alphanumeric]" + RESET + ": ");
-                        input = scanner.nextLine().trim();
+                        input = this.getInput().trim();
                         if (input.matches("^[a-zA-Z0-9]{3,12}$")) {
                             nickname = input;
                         } else {
@@ -150,7 +237,7 @@ public class TUI implements UI, Runnable {
 
                     while (color == null) {
                         System.out.print("Choose a color between " + CardVisualizer.getColorArrayString(Arrays.stream(Color.values()).toList()) + ": ");
-                        input = scanner.nextLine().trim().toUpperCase();
+                        input = this.getInput().trim().toUpperCase();
                         try {
                             color = Color.valueOf(input);
                         } catch (IllegalArgumentException e) {
@@ -160,7 +247,7 @@ public class TUI implements UI, Runnable {
 
                     while (numPlayers == 0) {
                         System.out.print("Enter number of players " + DIM + "[2-5]" + RESET + ": ");
-                        input = scanner.nextLine().trim();
+                        input = this.getInput().trim();
                         if (input.matches("\\d+")) {
                             int val = Integer.parseInt(input);
                             if (val >= 2 && val <= 5) {
@@ -188,7 +275,7 @@ public class TUI implements UI, Runnable {
                         System.out.println("Enter a lobby ID");
                         System.out.print("> ");
                     }
-                    input = scanner.nextLine().trim();
+                    input = this.getInput().trim();
                     synchronized (this.printLock) {
                         if (input.matches("\\d+")) {
                             int val = Integer.parseInt(input);
@@ -212,7 +299,7 @@ public class TUI implements UI, Runnable {
         }
     }
 
-    private void joinLobbyForm() {
+    private void joinLobbyForm() throws DisconnectedException {
         String nickname = "";
         Color color = null;
         String input;
@@ -223,7 +310,7 @@ public class TUI implements UI, Runnable {
                     System.out.println("Enter nickname " + DIM + "[3-12 alphanumeric]" + RESET);
                     System.out.print("> ");
                 }
-                input = scanner.nextLine().trim();
+                input = this.getInput().trim();
                 synchronized (printLock) {
                     if (!input.matches("^[a-zA-Z0-9]{3,12}$")) {
                         this.printError("Invalid nickname length or characters.");
@@ -240,7 +327,7 @@ public class TUI implements UI, Runnable {
                     System.out.println("Choose a color between " + CardVisualizer.getColorArrayString(this.localModel.getAvailableColors()));
                     System.out.print("> ");
                 }
-                input = scanner.nextLine().trim().toUpperCase();
+                input = this.getInput().trim().toUpperCase();
                 synchronized (printLock) {
                     try {
                         Color chosenColor = Color.valueOf(input);
@@ -263,12 +350,12 @@ public class TUI implements UI, Runnable {
         this.controller.joinGame(nickname, color);
     }
 
-    private void gameLoopInput() {
+    private void gameLoopInput() throws DisconnectedException {
         while (true) {
             synchronized (this.printLock) {
                 this.printGamePrompt();
             }
-            String input = scanner.nextLine().trim();
+            String input = this.getInput().trim();
             synchronized (printLock) {
                 if (input.isEmpty()) {
                     System.out.println();
@@ -311,7 +398,7 @@ public class TUI implements UI, Runnable {
             return;
         }
         try {
-            this.controller.pickCard(this.localModel.getIdByPos(parts[1], Integer.parseInt(parts[2])-1));
+            this.controller.pickCard(this.localModel.getIdByPos(parts[1], Integer.parseInt(parts[2]) - 1));
         } catch (NumberFormatException e) {
             this.printError("Invalid request. Format is: pick <row> <position>");
         } catch (IllegalArgumentException e) {
@@ -346,7 +433,7 @@ public class TUI implements UI, Runnable {
             this.printError("Invalid request. Format is: place <position>");
             return;
         }
-        this.controller.placeTotem(Integer.parseInt(parts[1])-1);
+        this.controller.placeTotem(Integer.parseInt(parts[1]) - 1);
     }
 
     private void handleEndTurn() {
@@ -405,27 +492,29 @@ public class TUI implements UI, Runnable {
             this.printWelcome();
         }
         if (this.localModel.getOwnPlayer() == null) {
-            new Thread(this::joinLobbyForm).start();
+            this.state = ViewState.IN_LOBBY_CHOICE;
+            this.startInputLoop();
         }
     }
 
     @Override
     public void showNewPlayer() {
-        if (this.state != ViewState.IN_LOBBY) return;
+        if (this.state != ViewState.IN_LOBBY && this.state != ViewState.IN_LOBBY_CHOICE) return;
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             this.printLobbyInfo();
             if (this.localModel.getOwnPlayer() == null) System.out.print("> ");
+            else this.state = ViewState.IN_LOBBY;
         }
     }
 
     @Override
     public void showGameStart() {
-        this.state = ViewState.IN_GAME;
         synchronized (printLock) {
+            this.state = ViewState.IN_GAME;
             this.printWelcome();
+            this.startInputLoop();
         }
-        new Thread(this::gameLoopInput).start();
     }
 
     @Override
@@ -441,7 +530,8 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             this.printError("The lobby could not be joined due to: " + message);
         }
-        new Thread(this::joinLobbyForm).start();
+        this.state = ViewState.IN_LOBBY_CHOICE;
+        this.startInputLoop();
     }
 
     @Override
@@ -680,14 +770,18 @@ public class TUI implements UI, Runnable {
             System.out.println(" └────────────────────┘");
         } else {
             for (ClientPlayer p : allPlayers) {
-                String displayName = CardVisualizer.getASCIIColor(p.getColor()) + p.getNickname() + RESET;
-                if (p.getNickname().equals(ownName)) {
-                    displayName += MESOS + " (YOU)" + RESET;
+                if (p.isDisconnected()) {
+                    System.out.println(" │   " + DIM + "reconnecting..." + RESET + "  │");
+                } else {
+                    String displayName = CardVisualizer.getASCIIColor(p.getColor()) + p.getNickname() + RESET;
+                    if (p.getNickname().equals(ownName)) {
+                        displayName += MESOS + " (YOU)" + RESET;
+                    }
+                    System.out.println(" │" + CardVisualizer.centerLine(displayName, RESET, 20) + "│");
                 }
-                System.out.println(" │" + CardVisualizer.centerLine(displayName, RESET, 20) + "│");
             }
             for (int i = allPlayers.size(); i < lobby.getCurrentPlayers(); i++) {
-                System.out.println(" │     "+ DIM + "choosing..." + RESET + "    │");
+                System.out.println(" │     " + DIM + "choosing..." + RESET + "    │");
             }
             System.out.println(" └────────────────────┘");
         }
@@ -699,12 +793,12 @@ public class TUI implements UI, Runnable {
     private void printHelp() {
         System.out.println("\n" + "=".repeat(20) + " MESOS COMMAND LIST " + "=".repeat(20));
 
-        System.out.println( MESOS + "GAMEPLAY COMMANDS:" + RESET);
+        System.out.println(MESOS + "GAMEPLAY COMMANDS:" + RESET);
         printCommand("place <position>", "Place your totem on the specified offer track card.");
         printCommand("pick <row> <position>", "Take the card at the given position from the board. (e.g. pick top 3)");
         printCommand("end", "Finish your current actions and pass the turn.");
 
-        System.out.println("\n"+ MESOS + "VISUALIZATION COMMANDS:" + RESET);
+        System.out.println("\n" + MESOS + "VISUALIZATION COMMANDS:" + RESET);
         printCommand("show board", "Display the main board");
         printCommand("show scoreboard", "Show players points, food, and current turn order.");
         printCommand("show tribe <nickname>", "View the cards collected by you or another player.");
@@ -718,7 +812,7 @@ public class TUI implements UI, Runnable {
 
     private void printPlayerTribe(ClientPlayer player) {
         System.out.println(" ╔═════════════════════════╦═════════════╦═════════════════╗");
-        System.out.printf(" ║%s║ "+MESOS+"FOOD"+RESET+": %-6d║ "+MESOS+"PRESTIGE"+RESET+": %-6d║\n",
+        System.out.printf(" ║%s║ " + MESOS + "FOOD" + RESET + ": %-6d║ " + MESOS + "PRESTIGE" + RESET + ": %-6d║\n",
                 CardVisualizer.centerLine(player.getNickname() + "'s Tribe", CardVisualizer.getASCIIColor(player.getColor()), 25),
                 player.getFood(),
                 player.getPrestigePoints()
@@ -743,13 +837,13 @@ public class TUI implements UI, Runnable {
         this.printIndexes(0, topRowCards.size(), cardWidth);
         this.printRow(topRowCards);
 
-        this.printIndexes(2, 2 +offerTrack.size(), cardWidth);
+        this.printIndexes(2, 2 + offerTrack.size(), cardWidth);
         this.printCentralTrack(orderQueue, offerTrack);
 
         this.printIndexes(0, bottomRowCards.size(), cardWidth);
         this.printRow(bottomRowCards);
 
-        System.out.println(MESOS +"════════════════════════════════════════════════════════════════════════════════════════════════════════════" + RESET);
+        System.out.println(MESOS + "════════════════════════════════════════════════════════════════════════════════════════════════════════════" + RESET);
     }
 
     private void printIndexes(int startingPoint, int size, int cardWidth) {
@@ -798,20 +892,21 @@ public class TUI implements UI, Runnable {
 
     public void printScoreboard(List<ClientPlayer> players, String currentPlayer) {
         System.out.println(" ╔═══╦════════════════════╦══════════╦══════════╗");
-        System.out.println(" ║ "+MESOS + "#" + RESET + " ║       " + MESOS + "PLAYER" +RESET + "       ║   " + MESOS + "FOOD" + RESET + "   ║ " + MESOS + "PRESTIGE" + RESET + " ║");
+        System.out.println(" ║ " + MESOS + "#" + RESET + " ║       " + MESOS + "PLAYER" + RESET + "       ║   " + MESOS + "FOOD" + RESET + "   ║ " + MESOS + "PRESTIGE" + RESET + " ║");
         System.out.println(" ╠═══╬════════════════════╬══════════╬══════════╣");
         for (ClientPlayer p : players) {
             String turnMarker = p.getNickname().equals(currentPlayer) ? MESOS + "»" + RESET : " ";
+            String name = p.isDisconnected() ? "reconnecting..."  : p.getNickname();
+            String color = p.isDisconnected() ? DIM : CardVisualizer.getASCIIColor(p.getColor());
             System.out.printf(" ║ %s ║%s║    %-6d║    %-6d║\n",
                     turnMarker,
-                    CardVisualizer.centerLine(p.getNickname(), CardVisualizer.getASCIIColor(p.getColor()), 20),
+                    CardVisualizer.centerLine(name, color, 20),
                     p.getFood(),
                     p.getPrestigePoints()
             );
         }
         System.out.println(" ╚═══╩════════════════════╩══════════╩══════════╝");
     }
-
 
     private void printCard(int cardId) {
         StringBuilder sb = new StringBuilder();

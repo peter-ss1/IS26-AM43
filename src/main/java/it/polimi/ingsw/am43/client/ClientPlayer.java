@@ -16,14 +16,6 @@ public class ClientPlayer implements Serializable {
     private final List<Integer> tribe;
     private boolean disconnected;
 
-    public ClientPlayer(String nickname, Color color, int food, int prestigePoints, List<Integer> tribe) {
-        this.nickname = nickname;
-        this.color = color;
-        this.food = food;
-        this.prestigePoints = prestigePoints;
-        this.tribe = tribe;
-    }
-
     public ClientPlayer(@JsonProperty("nickname") String nickname,@JsonProperty("color") Color color) {
         this.nickname = nickname;
         this.color = color;
@@ -33,22 +25,22 @@ public class ClientPlayer implements Serializable {
         this.disconnected = false;
     }
 
-    public ClientPlayer(String nickname){
-        this.nickname = nickname;
-        this.color = null;
-        this.food = 0;
-        this.prestigePoints = 0;
-        this.tribe = new ArrayList<>();
-        this.disconnected = false;
-    }
-
-    public ClientPlayer(String nickname, Color color, int prestigePoints, List<Integer> ids) {
+    public ClientPlayer(String nickname, Color color, int food, int prestigePoints, List<Integer> ids) {
         this.nickname = nickname;
         this.color = color;
-        this.food = 0;
+        this.food = food;
         this.prestigePoints = prestigePoints;
         this.tribe = ids;
         this.disconnected = false;
+    }
+
+    public ClientPlayer(String nickname, Color color, boolean disconnected) {
+        this.nickname = nickname;
+        this.color = color;
+        this.food = 0;
+        this.prestigePoints = 0;
+        this.tribe = new ArrayList<>();
+        this.disconnected = disconnected;
     }
 
     public String getNickname() {
