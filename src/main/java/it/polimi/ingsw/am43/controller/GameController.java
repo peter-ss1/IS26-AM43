@@ -85,7 +85,7 @@ public class GameController implements GameObserver {
         }
 
         if (update.getClass().getSimpleName().equals("GameOverUpdate")) {
-            SaveReusltOnDb();
+            SaveResultOnDb();
         }
     }
 
@@ -167,7 +167,7 @@ public class GameController implements GameObserver {
                 .toList();
     }
 
-    private void SaveReusltOnDb() {
+    private void SaveResultOnDb() {
         ClassificaDAO dao = new ClassificaDAO();
         int numGiocatoriPartita = this.model.getNumPlayers();
 
