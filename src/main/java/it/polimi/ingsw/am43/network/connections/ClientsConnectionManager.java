@@ -46,7 +46,8 @@ public class ClientsConnectionManager implements MultiPersistentClientConnection
         if(this.connections.put(id,connection)!=connection){
             this.lock.writeLock().unlock();
             this.connectionUser.notifyConnection(id);
-        }
+        }else
+            this.lock.writeLock().unlock();
 
     };
     public void disconnect(UUID id,PersistentClientConnection connection){
@@ -54,6 +55,8 @@ public class ClientsConnectionManager implements MultiPersistentClientConnection
         if(this.connections.remove(id,connection)){
             this.lock.writeLock().unlock();
             this.connectionUser.notifyDisconnection(id);
+        }else{
+            this.lock.writeLock().unlock();
         }
     };
 

@@ -66,7 +66,7 @@ public class SocketClientConnection implements VirtualServerSocket, PersistentCl
     }
 
     public void disconnect() {
-        if (this.connected.compareAndSet(false,true)){
+        if (this.connected.compareAndSet(true,false)){
             try {
                 this.listener.stop();
                 this.socket.close();
