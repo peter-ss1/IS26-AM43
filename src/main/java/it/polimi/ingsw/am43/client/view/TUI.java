@@ -183,13 +183,11 @@ public class TUI implements UI, Runnable {
         });
         inputLoop.setDaemon(true);
         inputLoop.start();
-        this.lobbyChoiceStage();
     }
 
     private void lobbyChoiceStage() {
         this.state = ViewState.LOBBY_CHOICE;
         this.printWelcome();
-        this.controller.refreshLobbies(); //TODO remove this if it's the server who answers with either available lobby or old lobby
         this.startInputLoop();
     }
 

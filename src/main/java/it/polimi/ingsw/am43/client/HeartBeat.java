@@ -46,7 +46,6 @@ public class HeartBeat{
         }catch (Exception e){
             if (this.active.compareAndSet(true,false)){
                 this.connection.disconnect();
-                e.printStackTrace();
             }
         }
     }

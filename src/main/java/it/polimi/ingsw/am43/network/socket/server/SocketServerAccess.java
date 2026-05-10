@@ -39,6 +39,7 @@ public class SocketServerAccess {
             connection.register();
         } catch (Exception e) {
             System.err.println("Handshake failed");
+            e.printStackTrace();
             try { clientSocket.close(); } catch (Exception ignored) {}
         }
     }

@@ -362,7 +362,7 @@ public class ClientModel {
 
     public void restartGame(List<ClientPlayer> players, String currentPlayerNickname, List<Integer> topRowCards, List<Integer> bottomRowCards, int era, GamePhase phase, List<OfferTrackElement> offerTrack, List<Color> orderQueue) {
         this.ownPlayer = players.stream().filter(player -> player.getNickname().equals(this.ownPlayer.getNickname())).toList().getFirst();
-        this.otherPlayers = players.stream().filter(player -> !player.getNickname().equals(this.ownPlayer.getNickname())).toList();
+        this.otherPlayers = new ArrayList<>(players.stream().filter(player -> !player.getNickname().equals(this.ownPlayer.getNickname())).toList());
         this.currentEra = era;
         this.phase = phase;
         this.topRowCards.clear();

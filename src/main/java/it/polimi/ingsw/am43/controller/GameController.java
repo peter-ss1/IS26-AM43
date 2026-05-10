@@ -157,6 +157,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.lock.writeLock().lock();//shiflock
         if (!this.disconnectedClients.containsKey(playerId)) {
             this.serverController.sendMessage(playerId, new Error.GenericServerError("player already connected"));
+            this.lock.writeLock().unlock();
             return;
         }
         this.disconnectedClients.remove(playerId);
@@ -188,7 +189,6 @@ public class GameController implements GameObserver, GameCommandReceiver {
             this.broadcast(new Update.PlayerAddedUpdate(nickname, color));
             if (this.clients.values().stream().noneMatch(n -> n.equals("-")) && this.getCurrentPlayers() == this.getNumPlayers()) {
                 this.model.startGame();
-                PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
                 this.gameStarted=true;
                 PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
             }
@@ -207,9 +207,10 @@ public class GameController implements GameObserver, GameCommandReceiver {
             this.clients.remove(id);
             this.serverController.putPlayerChoosing(id);
         }
-        else this.disconnectedClients.put(id, this.clients.get(id));
+        else{ this.disconnectedClients.put(id, this.clients.get(id));}
         this.lock.writeLock().unlock();
         //TODO notify other player and model when resiliency
+        this.gameStopped=true;
         this.broadcast(new Update.PlayerDisconnectedUpdate(this.clients.get(id))); //this update should be broadcasted by the model not the game controller
         System.out.println(this.disconnectedClients.get(id) + " disconnected from lobby " + this.lobbyId);
     }
@@ -217,7 +218,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     public void notifyConnection(UUID id){
         this.lock.readLock().lock();
         if(this.disconnectedClients.containsKey(id))
-            this.serverController.sendMessage(id,new Update.RejoinRequestUpdate(this.disconnectedClients.get(id)));
+            this.serverController.sendMessage(id,new Update.RejoinRequestUpdate(this.disconnectedClients.get(id),this.model.getPlayerByName(this.disconnectedClients.get(id)).getColor()));
         this.lock.readLock().unlock();
     }
 

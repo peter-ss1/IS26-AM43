@@ -49,10 +49,10 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
             if (rmi) {
                 connection = new ServerRMIConnection(serverIp, 1099, "MesosServer", this, this, this.playerId);
             } else {
-                connection = new SocketServerConnection(serverIp, 8080, this, this, playerId);
+                connection = new SocketServerConnection(serverIp, 8080, this, this, this.playerId);
             }
             this.serverConnection = connection;
-            connection.open();
+            connection.open();//TODO wait
         }
     }
 
