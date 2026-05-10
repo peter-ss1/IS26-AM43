@@ -2,11 +2,13 @@ package it.polimi.ingsw.am43.controller;
 
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
+import it.polimi.ingsw.am43.database.ClassificaDAO;
 import it.polimi.ingsw.am43.model.board.ModelInterface;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
+import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.command.Command;
 import it.polimi.ingsw.am43.network.message.Error;
@@ -80,6 +82,10 @@ public class GameController implements GameObserver {
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        if (update.getClass().getSimpleName().equals("GameOverUpdate")) {
+            SaveReusltOnDb();
         }
     }
 
@@ -159,5 +165,16 @@ public class GameController implements GameObserver {
         return this.model.getPlayers().stream()
                 .map(player -> new ClientPlayer(player.getNickname(), player.getColor()))
                 .toList();
+    }
+
+    private void SaveReusltOnDb() {
+        ClassificaDAO dao = new ClassificaDAO();
+        int numGiocatoriPartita = this.model.getNumPlayers();
+
+        for (Player p : this.model.getPlayers()) {
+            p.countFinalPoints();
+            dao.saveresult(p.getNickname(), p.getPrestigePoints(), numGiocatoriPartita);
+        }
+        System.out.println(" Classifica salvata correttamente nel database.");
     }
 }

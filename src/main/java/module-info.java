@@ -6,6 +6,8 @@ module it.polimi.ingsw.am43 {
     requires java.logging;
     requires java.rmi;
     requires java.desktop;
+    requires java.sql;
+    requires com.zaxxer.hikari;
 
     exports it.polimi.ingsw.am43.network to java.rmi;
     exports it.polimi.ingsw.am43.network.message;
@@ -28,4 +30,5 @@ module it.polimi.ingsw.am43 {
     exports it.polimi.ingsw.am43.model.enums;
 
     opens it.polimi.ingsw.am43.model.player to org.junit.platform.commons;
+    opens it.polimi.ingsw.am43.database to com.fasterxml.jackson.databind;
 }
