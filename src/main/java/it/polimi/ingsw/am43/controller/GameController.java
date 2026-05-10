@@ -8,25 +8,26 @@ import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
-import it.polimi.ingsw.am43.network.command.Command;
+import it.polimi.ingsw.am43.network.command.GameCommand;
+import it.polimi.ingsw.am43.network.command.GameCommandReceiver;
 import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Update;
+import it.polimi.ingsw.am43.utils.Executor;
 
-import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
-public class GameController implements GameObserver {
+public class GameController implements GameObserver, GameCommandReceiver {
+
     private final ServerController serverController;
     private final ModelInterface model;
-    private final ConcurrentMap<UUID, String> clients;
-    private final BlockingQueue<Command> commandQueue;
+    private final ConcurrentHashMap<UUID, String> clients;
+    private final ConcurrentHashMap<UUID, String> disconnectedClients;
+    private final Executor<GameController> executor;
     private final int lobbyId;
-
 
 
     public GameController(ServerController serverController, ModelInterface model, int lobbyId, String nickname, UUID playerID) {
@@ -34,36 +35,35 @@ public class GameController implements GameObserver {
         this.model = model;
         this.model.setObserver(this);
         this.clients = new ConcurrentHashMap<>();
+        this.disconnectedClients = new ConcurrentHashMap<>();
         this.clients.put(playerID, nickname);
-        this.commandQueue = new LinkedBlockingQueue<>();
+        this.executor = new Executor<>(this);
         this.lobbyId = lobbyId;
-        new Thread(this::executor).start();
+        this.executor.start();
     }
 
-    public void addToQueue(Command command) {
-        try {
-            commandQueue.put(command);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    // for recovery
+    public GameController(ServerController serverController, ModelInterface model, int lobbyId, ConcurrentMap<UUID, String> clients) {
+        this.serverController = serverController;
+        this.model = model;
+        this.model.setObserver(this);
+        this.disconnectedClients = new ConcurrentHashMap<>(clients);
+        this.clients = new ConcurrentHashMap<>(clients);
+        this.executor = new Executor<>(this);
+        this.lobbyId = lobbyId;
+        this.executor.start();
     }
 
-    private void executor() {
-        while (true) {
-            try {
-                Command command = commandQueue.take();
-                command.execute(this);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            } catch (RuntimeException | RemoteException e) {
-                e.printStackTrace();
-            }
-        }
+    public void receiveCommand(GameCommand command) {
+        this.executor.delegate(command);
     }
 
     public int getNumPlayers() {
         return this.model.getNumPlayers();
+    }
+
+    public Set<UUID> getPlayers() {
+        return this.clients.keySet();
     }
 
     public int getCurrentPlayers() {
@@ -74,18 +74,15 @@ public class GameController implements GameObserver {
         return this.lobbyId;
     }
 
-    @Override
     public void broadcast(Update update) {
         for (UUID id : this.clients.keySet()) {
-            try {
+            if (!this.disconnectedClients.containsKey(id))
                 this.serverController.sendMessage(id, update);
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 
-    public void pickCard(int id, UUID playerID) throws RemoteException {
+    public void pickCard(int id, UUID playerID) {
+        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
         try {
             String nickname = this.clients.get(playerID);
             this.model.pickCard(this.model.getCardById(id), this.model.getPlayerByName(nickname));
@@ -98,9 +95,11 @@ public class GameController implements GameObserver {
         } catch (OutOfTurnException e) {
             this.serverController.sendMessage(playerID, new Error.OutOfTurnError(e.getMessage()));
         }
+
     }
 
-    public void placeTotem(int position, UUID playerID) throws RemoteException {
+    public void placeTotem(int position, UUID playerID) {
+        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
         try {
             String nickname = this.clients.get(playerID);
             this.model.placeTotemOnTrack(this.model.getPlayerByName(nickname), position);
@@ -115,7 +114,8 @@ public class GameController implements GameObserver {
         }
     }
 
-    public void endTurn(UUID playerID) throws RemoteException {
+    public void endTurn(UUID playerID) {
+        PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
         try {
             String nickname = this.clients.get(playerID);
             this.model.endCurrentTurn(this.model.getPlayerByName(nickname));
@@ -131,13 +131,32 @@ public class GameController implements GameObserver {
         }
     }
 
-    public void joinLobby(UUID playerID) throws RemoteException {
+    //TODO synchronise methods
+    public void joinLobby(UUID playerID) {
         this.clients.put(playerID, "-");
         this.serverController.sendMessage(playerID, new Update.LobbyJoinedUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers()), this.getPlayersInfo()));
         this.broadcast(new Update.NewLobbyJoinUpdate(this.getCurrentPlayers()));
     }
 
-    public void joinGame(UUID playerID, String nickname, Color color) throws RemoteException {
+    //TODO remake
+    public void rejoinLobby(UUID playerId) {
+        synchronized (this.disconnectedClients) {//shiflock
+            if (!this.disconnectedClients.containsKey(playerId)) {
+                this.serverController.sendMessage(playerId, new Error.GenericServerError("player already connected"));
+                return;
+            }
+            this.disconnectedClients.remove(playerId);
+            this.serverController.sendMessage(playerId, new Update.LobbyJoinedUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers()), this.getPlayersInfo()));
+            this.broadcast(new Update.newLobbyReconnectionUpdate(this.clients.get(playerId)));
+            System.out.println(clients.get(playerId) + " reconnected to lobby " + this.lobbyId);
+            if (disconnectedClients.isEmpty()) { //TODO resiliency to not every player
+                this.model.restartGame();
+            }
+        }
+
+    }
+
+    public void joinGame(UUID playerID, String nickname, Color color) {
         if (!this.clients.get(playerID).equals("-")) {
             this.serverController.sendMessage(playerID, new Error.GenericServerError("Player already in game"));
             return;
@@ -147,7 +166,10 @@ public class GameController implements GameObserver {
             this.clients.replace(playerID, "-", nickname);
             this.serverController.sendMessage(playerID, new Update.GameJoinedUpdate(nickname, color));
             this.broadcast(new Update.PlayerAddedUpdate(nickname, color));
-            if (this.clients.values().stream().noneMatch(n -> n.equals("-")) && this.getCurrentPlayers() == this.getNumPlayers()) this.model.startGame();
+            if (this.clients.values().stream().noneMatch(n -> n.equals("-")) && this.getCurrentPlayers() == this.getNumPlayers()) {
+                this.model.startGame();
+                PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
+            }
         } catch (IllegalMoveException e) {
             this.serverController.sendMessage(playerID, new Error.GenericServerError(e.getMessage()));
         } catch (IllegalStateException e) {
@@ -157,9 +179,25 @@ public class GameController implements GameObserver {
         }
     }
 
-    public List<ClientPlayer> getPlayersInfo() {
+    public void notifyDisconnection(UUID id) {
+        synchronized (this.disconnectedClients) {
+            this.disconnectedClients.put(id, this.clients.get(id));
+        }
+        //TODO notify other player and model when resiliency
+        this.broadcast(new Update.PlayerDisconnectedUpdate(this.clients.get(id))); //this update should be broadcasted by the model not the game controller
+        System.out.println(this.disconnectedClients.get(id) + " disconnected from lobby " + this.lobbyId);
+    }
+
+    public void notifyConnection(UUID id) {
+        synchronized (this.disconnectedClients) {
+            if (this.disconnectedClients.containsKey(id))
+                this.serverController.sendMessage(id, new Update.RejoinRequestUpdate(this.disconnectedClients.get(id), this.model.getPlayerByName(this.disconnectedClients.get(id)).getColor()));
+        }
+    }
+
+    private List<ClientPlayer> getPlayersInfo() {
         return this.model.getPlayers().stream()
-                .map(player -> new ClientPlayer(player.getNickname(), player.getColor()))
+                .map(player -> new ClientPlayer(player.getNickname(), player.getColor(), this.disconnectedClients.contains(player.getNickname())))
                 .toList();
     }
 }

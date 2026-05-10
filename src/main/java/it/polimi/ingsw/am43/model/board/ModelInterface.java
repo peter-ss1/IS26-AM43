@@ -5,9 +5,10 @@ import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface ModelInterface {
+public interface ModelInterface extends Serializable {
 
     int getNumPlayers();
 
@@ -30,4 +31,6 @@ public interface ModelInterface {
     List<Player> getPlayers();
 
     void startGame();
+
+    void restartGame();
 }

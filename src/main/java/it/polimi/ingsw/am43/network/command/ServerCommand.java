@@ -1,12 +1,12 @@
 package it.polimi.ingsw.am43.network.command;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import it.polimi.ingsw.am43.controller.GameController;
 import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.command.ServerCommand.RegisterCommand;
+import it.polimi.ingsw.am43.utils.Task;
+
 import java.rmi.RemoteException;
 import java.util.UUID;
 
@@ -14,38 +14,42 @@ import java.util.UUID;
  * Base class for commands handled by the ServerController.
  */
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "commandType"
-)
-
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ServerCommand.FetchLobbiesCommand.class, name = "fetchLobbiesCommand"),
         @JsonSubTypes.Type(value = ServerCommand.CreateLobbyCommand.class, name = "createLobbyCommand"),
         @JsonSubTypes.Type(value = ServerCommand.PickLobbyCommand.class, name = "pickLobbyCommand"),
-        @JsonSubTypes.Type(value = RegisterCommand.class, name = "registerCommand"),
+        @JsonSubTypes.Type(value = ServerCommand.RejoinGameCommand.class, name = "rejoinGameCommand"),
 })
 
-public abstract class ServerCommand extends Command {
+public non-sealed abstract class ServerCommand extends Command implements Task<ServerController> {
 
     protected ServerCommand(UUID playerId) {
         super(playerId);
     }
 
-    @Override
-    public void execute(GameController gameController) throws RemoteException {
-        // Server commands are not meant to be executed by GameController.
+    public static class RejoinGameCommand extends ServerCommand{
+        @JsonProperty("answer")
+        private final boolean answer;
+        @JsonCreator
+        public RejoinGameCommand(@JsonProperty("playerId") UUID playerId, @JsonProperty("answer") boolean answer){
+            super(playerId);
+            this.answer=answer;
+        }
+        @Override
+        public void execute(ServerController serverController){
+            serverController.rejoinLobby(this.playerId,this.answer);
+        }
     }
 
-    public static class FetchLobbiesCommand extends ServerCommand {
 
-        public FetchLobbiesCommand(@JsonProperty("playerID") UUID playerId) {
+    public static class FetchLobbiesCommand extends ServerCommand {
+        @JsonCreator
+        public FetchLobbiesCommand(@JsonProperty("playerId") UUID playerId) {
             super(playerId);
         }
 
         @Override
-        public void execute(ServerController serverController) throws RemoteException {
+        public void execute(ServerController serverController){
             serverController.fetchLobbies(this.playerId);
         }
     }
@@ -66,7 +70,7 @@ public abstract class ServerCommand extends Command {
         }
 
         @Override
-        public void execute(ServerController controller) throws RemoteException {
+        public void execute(ServerController controller){
             controller.createLobby(this.playerId, this.nickname, this.color, this.numPlayers);
         }
     }
@@ -81,19 +85,10 @@ public abstract class ServerCommand extends Command {
         }
 
         @Override
-        public void execute(ServerController serverController) throws RemoteException {
+        public void execute(ServerController serverController){
             serverController.joinLobby(this.playerId, this.lobbyId);
         }
     }
 
-    public static class RegisterCommand extends ServerCommand {
-        public RegisterCommand(@JsonProperty("playerId") UUID playerId) {
-            super(playerId);
-        }
-
-        @Override
-        public void execute(ServerController serverController) {
-        }
-    }
 
 }

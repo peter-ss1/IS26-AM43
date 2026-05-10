@@ -3,142 +3,156 @@ package it.polimi.ingsw.am43.controller;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.VirtualClient;
-import it.polimi.ingsw.am43.network.command.Command;
+import it.polimi.ingsw.am43.network.connections.ClientConnectionUser;
+import it.polimi.ingsw.am43.network.connections.MultiClientConnection;
+import it.polimi.ingsw.am43.network.command.CommandReceiver;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Message;
 import it.polimi.ingsw.am43.network.message.Update;
+import it.polimi.ingsw.am43.utils.Executor;
 
-import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Global server-side controller.
  * It manages open lobbies and dispatches commands either to itself
  * or to a specific GameController.
  */
-public class ServerController {
+public class ServerController implements ClientConnectionUser, CommandReceiver {
+    private final MultiClientConnection connectionManager;
     private final ConcurrentMap<UUID, ClientInfo> clients;
     private final ConcurrentMap<Integer, GameController> lobbies;
-    private final BlockingQueue<Command> commandQueue;
+    private final Executor<ServerController> executor;
 
-    public ServerController() {
+    public ServerController(MultiClientConnection connectionManager) {
+        this.connectionManager= connectionManager;
         this.clients = new ConcurrentHashMap<>();
         this.lobbies = new ConcurrentHashMap<>();
-        this.commandQueue = new LinkedBlockingQueue<>();
-        new Thread(this::executor).start();
+        this.executor= new Executor<>(this);
+        this.executor.start();
     }
 
-    public void register(UUID playerId, VirtualClient client) {
+    public void notifyConnection(UUID playerId) {
         if (this.clients.containsKey(playerId)) {
-            //TODO: reconnection logic
+            this.clients.get(playerId).setState(ClientState.CHOOSING);
+            if(this.clients.get(playerId).getLobbyId()!=0)
+                this.lobbies.get(this.clients.get(playerId).getLobbyId()).notifyConnection(playerId);
+            System.out.println(playerId.toString() + "reconnected");
         } else {
-            this.clients.put(playerId, new ClientInfo(client, ClientState.CHOOSING, 0));
+            this.clients.put(playerId, new ClientInfo(ClientState.CHOOSING, 0));
             System.out.println("client connected");
         }
     }
 
-    public void addToQueue(ServerCommand command) {
-        try {
-            commandQueue.put(command);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void addToQueue(GameCommand command) {
-        GameController lobbyController = lobbies.get(clients.get(command.getPlayerId()).getLobbyId());
-        if (lobbyController == null) {
-            throw new IllegalArgumentException("Player " + command.getPlayerId() + " is not registered in any lobby");
-        }
-        lobbyController.addToQueue(command);
-    }
-
-
-    private void executor() {
-        while (true) {
-            try {
-                Command command = commandQueue.take();
-                command.execute(this);
-            } catch (RemoteException | InterruptedException e) {
-                throw new RuntimeException(e);
+    public void notifyDisconnection(UUID id){
+        ClientInfo client;
+        int lobby;
+        if ((client=this.clients.get(id))!=null){
+            if (client.getState()==ClientState.PLAYING && (lobby=client.getLobbyId())!=0){
+                this.lobbies.get(lobby).notifyDisconnection(id);
             }
+            client.setState(ClientState.DISCONNECTED);
+            System.out.println(id.toString()+"disconnected");
         }
+
     }
 
-    public void fetchLobbies(UUID playerId) throws RemoteException {
+    public void recoverLobby(GameRecovery gameRecovery){
+        int lobbyId= gameRecovery.getLobbyId();
+        for (UUID id : gameRecovery.getClients().keySet()){
+            this.clients.put(id,new ClientInfo(ClientState.DISCONNECTED,lobbyId));
+        }
+        GameController gameController= new GameController(this, gameRecovery.getGame(), lobbyId,gameRecovery.getClients());
+        this.lobbies.put(lobbyId,gameController);
+    }
+
+    public void receiveCommand(ServerCommand command){
+        System.out.println(command.getClass());
+        this.executor.delegate(command);
+    };
+    public void receiveCommand(GameCommand command){
+        lobbies.get(clients.get(command.getPlayerId()).getLobbyId()).receiveCommand(command);
+    };
+
+
+    public void fetchLobbies(UUID playerId){
         List<LobbyInfo> availableLobbies = lobbies.values().stream()
                 .map(game -> new LobbyInfo(game.getLobbyId(), game.getNumPlayers(), game.getCurrentPlayers()))
                 .filter(lobbyInfo -> lobbyInfo.getNumPlayers() != lobbyInfo.getCurrentPlayers())
                 .toList();
-        this.getClientByID(playerId).sendMessage(new Update.AvailableLobbiesUpdate(availableLobbies));
+        this.connectionManager.getConnection(playerId).sendMessage(new Update.AvailableLobbiesUpdate(availableLobbies));
     }
-
-    public void createLobby(UUID playerID, String nickname, Color color, int numPlayers) throws RemoteException {
+    public void createLobby(UUID playerId, String nickname, Color color, int numPlayers){
         if (nickname.isBlank() || !nickname.matches("^[a-zA-Z0-9]{3,12}$")) {
-            this.clients.get(playerID).getClient().sendMessage(new Error.LobbyCreationError("Invalid name"));
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyCreationError("Invalid name"));
             return;
         }
         if (color == null) {
-            this.clients.get(playerID).getClient().sendMessage(new Error.LobbyCreationError("Invalid color"));
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyCreationError("Invalid color"));
             return;
         }
         if (numPlayers < 2 || numPlayers > 5) {
-            this.clients.get(playerID).getClient().sendMessage(new Error.LobbyCreationError("Invalid number of players"));
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyCreationError("Invalid number of players"));
             return;
         }
 
         int lobbyId = lobbies.isEmpty() ? 1 : Collections.max(lobbies.keySet()) + 1;
         Game game = new Game(numPlayers, nickname, color);
-        GameController gameController = new GameController(this, game, lobbyId, nickname, playerID);
-        lobbies.put(lobbyId, gameController);
-        clients.get(playerID).setLobbyId(lobbyId);
-        clients.get(playerID).setState(ClientState.PLAYING);
-        clients.get(playerID).getClient().sendMessage(new Update.LobbyCreatedUpdate(new LobbyInfo(lobbyId, numPlayers, 1), nickname, color));
+        GameController gameController = new GameController(this, game, lobbyId, nickname, playerId);
+        this.lobbies.put(lobbyId, gameController);
+        this.clients.get(playerId).setLobbyId(lobbyId);
+        this.clients.get(playerId).setState(ClientState.PLAYING);
+        this.connectionManager.getConnection(playerId).sendMessage(new Update.LobbyCreatedUpdate(new LobbyInfo(lobbyId, numPlayers, 1), nickname, color));
         for (Map.Entry<UUID, ClientInfo> entry : clients.entrySet()) {
             if (entry.getValue().getState().equals(ClientState.CHOOSING)) {
-                entry.getValue().getClient().sendMessage(new Update.NewLobbyUpdate(new LobbyInfo(lobbyId, numPlayers, 1)));
+                this.connectionManager.getConnection(entry.getKey()).sendMessage(new Update.NewLobbyUpdate(new LobbyInfo(lobbyId, numPlayers, 1)));
             }
         }
     }
-
-    public void joinLobby(UUID playerID, int lobbyId) throws RemoteException {
+    public void joinLobby(UUID playerId, int lobbyId) {
         if (!this.lobbies.containsKey(lobbyId)) {
-            clients.get(playerID).getClient().sendMessage(new Error.LobbyJoinError("Lobby #" + lobbyId + " could not be found."));
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyJoinError("Lobby #" + lobbyId + " could not be found."));
             return;
         }
         GameController gameController = lobbies.get(lobbyId);
         if (gameController.getCurrentPlayers() >= gameController.getNumPlayers()) {
-            clients.get(playerID).getClient().sendMessage(new Error.LobbyJoinError("Lobby #" + lobbyId + " is already full."));
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyJoinError("Lobby #" + lobbyId + " is already full."));
             return;
-        }
-        clients.get(playerID).setLobbyId(lobbyId);
-        clients.get(playerID).setState(ClientState.PLAYING);
-        gameController.joinLobby(playerID);
+        }//TODO think about it
+        this.clients.get(playerId).setLobbyId(lobbyId);
+        this.clients.get(playerId).setState(ClientState.PLAYING);
+        gameController.joinLobby(playerId);
         for (Map.Entry<UUID, ClientInfo> entry : clients.entrySet()) {
             if (entry.getValue().getState().equals(ClientState.CHOOSING)) {
-                entry.getValue().getClient().sendMessage(new Update.NewLobbyUpdate(new LobbyInfo(lobbyId, gameController.getNumPlayers(), gameController.getCurrentPlayers())));
+                this.connectionManager.getConnection(entry.getKey()).sendMessage(new Update.NewLobbyUpdate(new LobbyInfo(lobbyId, gameController.getNumPlayers(), gameController.getCurrentPlayers())));
             }
         }
     }
-
-    private VirtualClient getClientByID(UUID playerID) throws IllegalArgumentException {
-        if (!this.clients.containsKey(playerID)) throw new IllegalArgumentException("player not registered");
-        return this.clients.get(playerID).getClient();
+    public void rejoinLobby(UUID playerId, boolean answer){
+        if (!this.clients.containsKey(playerId)) {
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.GenericServerError("player not registered"));
+            return;
+        }
+        if(this.clients.get(playerId).getLobbyId()==0){
+            this.connectionManager.getConnection(playerId).sendMessage(new Error.GenericServerError("player not in game"));
+            return;
+        }
+        this.clients.get(playerId).setState(ClientState.PLAYING);
+        this.lobbies.get(this.clients.get(playerId).getLobbyId()).rejoinLobby(playerId);
     }
 
-    public void sendMessage(UUID playerID, Message message) throws RemoteException {
-        this.getClientByID(playerID).sendMessage(message);
+    public void sendMessage(UUID playerId, Message message) {
+        this.connectionManager.getConnection(playerId).sendMessage(message);
     }
+
+
 
 
 }

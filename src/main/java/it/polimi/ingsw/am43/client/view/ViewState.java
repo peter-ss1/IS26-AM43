@@ -5,5 +5,6 @@ public enum ViewState {
     LOBBY_CHOICE,
     IN_LOBBY,
     IN_LOBBY_CHOICE,
-    IN_GAME
+    IN_GAME,
+    RECONNECTION
 }

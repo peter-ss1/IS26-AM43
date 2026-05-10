@@ -5,9 +5,10 @@ import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class OrderQueue {
+public class OrderQueue implements Serializable {
 
     private final Queue<Player> playerOrder;
     private final List<Integer> foodModifiers;
@@ -35,7 +36,8 @@ public class OrderQueue {
     public void append(GameObserver observer, Player player) {
         this.playerOrder.offer(player);
         int modifier = this.foodModifiers.get(playerOrder.size()-1);
-        if (modifier != 0 && player.getFood() + modifier >= 0) {
+        if (modifier == 0) return;
+        if (player.getFood() + modifier >= 0) {
             player.alterFood(modifier);
             observer.broadcast(new Update.OrderModifierUpdate(player.getNickname(), modifier, false));
         }

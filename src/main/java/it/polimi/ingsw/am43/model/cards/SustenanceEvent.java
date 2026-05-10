@@ -14,7 +14,7 @@ import java.util.Map;
 public class SustenanceEvent extends Event {
 
     public SustenanceEvent(int era, int id) {
-        super(era, id);
+        super(era, id,2);
     }
 
     @Override

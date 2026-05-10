@@ -1,20 +1,24 @@
 package it.polimi.ingsw.am43.model.board;
 
+import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
+import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.player.Player;
+import it.polimi.ingsw.am43.model.player.Tribe;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class Board {
+public class Board implements Serializable {
 
     private final OrderQueue turnOrder;
     private final TribeDeck tribeDeck;
@@ -24,10 +28,10 @@ public class Board {
     private final List<OfferTrackCard> offerTrack;
     private int currEra;
 
-    public Board(List<Player> players, int numPlayers, int seed, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack, List<Integer> numBuildings) throws RuntimeException {
+    public Board(List<Player> players, int numPlayers, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack) throws RuntimeException {
         this.turnOrder = new OrderQueue(players, foodModifiers);
-        this.tribeDeck = new TribeDeck(seed, tribeDeck);
-        this.buildingDeck = new BuildingDeck(seed, buildingDeck, numBuildings);
+        this.tribeDeck = new TribeDeck(tribeDeck);
+        this.buildingDeck = new BuildingDeck(buildingDeck);
         this.topRow = new Row();
         this.bottomRow = new Row();
         this.offerTrack = offerTrack;
@@ -53,11 +57,14 @@ public class Board {
         }
     }
 
-    public int getCurrEra() { return this.currEra; }
+    public int getCurrEra() {
+        return this.currEra;
+    }
 
     public void setPlayerOnTrack(Player player, int position) throws IndexOutOfBoundsException, IllegalMoveException {
         if (position < 0 || position > this.offerTrack.size()) throw new IndexOutOfBoundsException("Invalid position");
-        if (this.offerTrack.get(position).getPlayer().isPresent()) throw new IllegalMoveException("Cannot pick occupied tile");
+        if (this.offerTrack.get(position).getPlayer().isPresent())
+            throw new IllegalMoveException("Cannot pick occupied tile");
         this.offerTrack.get(position).setPlayer(player);
     }
 
@@ -140,7 +147,7 @@ public class Board {
         this.topRow.removeBuildings();
     }
 
-    public void returnPlayerToOrderQueue(GameObserver observer , Player player) {
+    public void returnPlayerToOrderQueue(GameObserver observer, Player player) {
         for (OfferTrackCard otd : this.offerTrack) {
             if (otd.getPlayer().isPresent() && otd.getPlayer().get().equals(player)) {
                 otd.removePlayer();
@@ -199,12 +206,12 @@ public class Board {
     public boolean pickableCards(OfferAction row, Player player) {
         switch (row) {
             case TOP:
-                if (topRow.getAllCharacters().isEmpty() && topRow.getAllBuildings().isEmpty() && topRow.getAllBuildings().stream().noneMatch(building -> building.getCost()<(player.getFood() - player.getBuildingDiscount()))) {
+                if (topRow.getAllCharacters().isEmpty() && topRow.getAllBuildings().isEmpty() && topRow.getAllBuildings().stream().noneMatch(building -> building.getCost() < (player.getFood() - player.getBuildingDiscount()))) {
                     return false;
                 }
                 break;
             case BOTTOM:
-                if (bottomRow.getAllCharacters().isEmpty() && bottomRow.getAllBuildings().isEmpty() && bottomRow.getAllBuildings().stream().noneMatch(building -> building.getCost()<(player.getFood() - player.getBuildingDiscount()))) {
+                if (bottomRow.getAllCharacters().isEmpty() && bottomRow.getAllBuildings().isEmpty() && bottomRow.getAllBuildings().stream().noneMatch(building -> building.getCost() < (player.getFood() - player.getBuildingDiscount()))) {
                     return false;
                 }
                 break;
@@ -213,7 +220,7 @@ public class Board {
     }
 
     public boolean hasFoodBonus() {
-        return turnOrder.getLastFoodGiven()>0;
+        return turnOrder.getLastFoodGiven() > 0;
     }
 
     public void buildGameStartedUpdate(GameObserver observer, List<Player> players, String nickname) {
@@ -229,5 +236,24 @@ public class Board {
 
     public void buildNewRoundUpdate(GameObserver observer) {
         observer.broadcast(new Update.NewRoundUpdate(this.currEra, this.topRow.getIds(), this.bottomRow.getIds()));
+    }
+
+    public void buildGameRestartedUpdate(GameObserver observer, List<Player> players, String nickname, GamePhase phase) {
+        observer.broadcast(new Update.GameRestartedUpdate(
+                players.stream().map(p -> new ClientPlayer(
+                                p.getNickname(),
+                                p.getColor(),
+                                p.getFood(),
+                                p.getPrestigePoints(),
+                                p.getTribe().getIds())).toList()
+                        ,
+                        nickname,
+                        this.topRow.getIds(),
+                        this.bottomRow.getIds(),
+                        this.turnOrder.getColorOrder(),
+                        this.offerTrack.stream().map(card -> new OfferTrackElement(card.getActions(), card.getPlayer().map(Player::getColor).orElse(null))).toList(),
+                        this.currEra,
+                        phase
+                ));
     }
 }

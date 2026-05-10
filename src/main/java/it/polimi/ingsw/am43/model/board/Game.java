@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.board;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;
@@ -11,9 +12,10 @@ import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Game implements ModelInterface {
+public class Game implements ModelInterface, Serializable {
     private final List<Color> availableColors;
     private final List<Player> players;
     private final int numPlayers;
@@ -21,7 +23,7 @@ public class Game implements ModelInterface {
     private GamePhase phase;
     private Board board;
     private final Map<Integer, Card> idToCard;
-    private GameObserver observer;
+    private transient GameObserver observer;
 
     public Game(int np, String nk, Color color) {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
@@ -40,8 +42,8 @@ public class Game implements ModelInterface {
         return new ArrayList<>(this.availableColors);
     }
 
-    public void initBoard(List<Player> players, int numPlayers, int seed, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack, List<Integer> numBuildings) throws RuntimeException {
-        this.board = new Board(players, numPlayers, seed, foodModifiers, tribeDeck, buildingDeck, offerTrack, numBuildings);
+    public void initBoard(List<Player> players, int numPlayers, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack) throws RuntimeException {
+        this.board = new Board(players, numPlayers, foodModifiers, tribeDeck, buildingDeck, offerTrack);
         this.currPlayer = this.board.getNextPlayerInOrderQueue();
     }
 
@@ -135,7 +137,6 @@ public class Game implements ModelInterface {
         resolveOffer(player);
     }
 
-
     public void endCurrentTurn(Player player) {
         if (!this.players.contains(player))
             throw new IllegalArgumentException(("Player is not registered in the game"));
@@ -174,5 +175,9 @@ public class Game implements ModelInterface {
 
     public GameObserver getObserver() {
         return this.observer;
+    }
+
+    public void restartGame() {
+        this.board.buildGameRestartedUpdate(this.observer, this.players, this.currPlayer.getNickname(), this.phase);
     }
 }

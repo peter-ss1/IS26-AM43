@@ -21,12 +21,10 @@ public enum GamePhase {
                 game.initBoard(
                         game.getPlayers(),
                         game.getNumPlayers(),
-                        loader.loadSeed(),
                         loader.loadFoodModifiers(game.getNumPlayers()),
-                        loader.loadTribeDeck(),
-                        loader.loadBuildingDeck(),
-                        loader.loadOfferTrackCard(game.getNumPlayers()),
-                        loader.loadNumBuildings(game.getNumPlayers())
+                        loader.loadTribeDeck(game.getNumPlayers()),
+                        loader.loadBuildingDeck(game.getNumPlayers()),
+                        loader.loadOfferTrackCard(game.getNumPlayers())
                 );
             } catch (IOException e) {
                 throw new RuntimeException(e);

@@ -1,26 +1,31 @@
 package it.polimi.ingsw.am43.main;
 
+import it.polimi.ingsw.am43.controller.PersistencyManager;
 import it.polimi.ingsw.am43.controller.ServerController;
-import it.polimi.ingsw.am43.network.VirtualServer;
-import it.polimi.ingsw.am43.network.rmi.ServerRMI;
-import it.polimi.ingsw.am43.network.rmi.VirtualServerRMI;
-import it.polimi.ingsw.am43.network.socket.server.SocketServer;
+import it.polimi.ingsw.am43.network.connections.ClientsConnectionManager;
+import it.polimi.ingsw.am43.network.connections.ConnectionFactory;
+import it.polimi.ingsw.am43.network.rmi.ServerAccessRMI;
+import it.polimi.ingsw.am43.network.socket.server.SocketServerAccess;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.rmi.AccessException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 
 public class ServerMain {
     private static final int SOCKET_PORT = 8080;
     private static final int RMI_PORT = 1099;
 
     static void main() {
-        ServerController controller = new ServerController();
+
+        ClientsConnectionManager connectionManager= new ClientsConnectionManager();
+        ServerController controller = new ServerController(connectionManager);
+        connectionManager.setConnectionUser(controller);
+        ConnectionFactory connectionFactory= new ConnectionFactory(controller,connectionManager);
+
+        PersistencyManager.loadSavedStatus(controller);
 
         try {
             System.out.println("Server IP Address: " + InetAddress.getLocalHost().getHostAddress());
@@ -30,7 +35,7 @@ public class ServerMain {
 
         new Thread(() -> {
             try {
-                SocketServer socketServer = new SocketServer(SOCKET_PORT, controller);
+                SocketServerAccess socketServer = new SocketServerAccess(SOCKET_PORT,connectionFactory);
                 System.out.println("Server activated socket protocol on port " + SOCKET_PORT);
                 socketServer.runServer();
             } catch (IOException e) {
@@ -39,14 +44,14 @@ public class ServerMain {
         }).start();
 
         try {
-            ServerRMI serverRMI = new ServerRMI(controller);
+            ServerAccessRMI serverAccessRMI = new ServerAccessRMI(connectionFactory);
             Registry registry;
             try {
                 registry = LocateRegistry.createRegistry(RMI_PORT);
             } catch (RemoteException e) {
                 registry = LocateRegistry.getRegistry(RMI_PORT);
             }
-            registry.rebind("MesosServer", serverRMI);
+            registry.rebind("MesosServer", serverAccessRMI);
 
             System.out.println("Server activated RMI protocol on port " + RMI_PORT);
         } catch (RemoteException e) {

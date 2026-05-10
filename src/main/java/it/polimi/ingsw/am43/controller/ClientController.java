@@ -3,108 +3,76 @@ package it.polimi.ingsw.am43.controller;
 import it.polimi.ingsw.am43.client.ClientModel;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
-import it.polimi.ingsw.am43.network.VirtualServer;
+import it.polimi.ingsw.am43.network.connections.PersistentServerConnection;
+import it.polimi.ingsw.am43.network.connections.ServerConnection;
+import it.polimi.ingsw.am43.network.connections.ServerConnectionUser;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 import it.polimi.ingsw.am43.network.message.Message;
-import it.polimi.ingsw.am43.network.rmi.ClientRMI;
-import it.polimi.ingsw.am43.network.rmi.VirtualServerRMI;
-import it.polimi.ingsw.am43.network.socket.client.ServerSocketHandler;
-import it.polimi.ingsw.am43.network.socket.client.SocketClient;
+import it.polimi.ingsw.am43.network.message.MessageReceiver;
+import it.polimi.ingsw.am43.network.rmi.ServerRMIConnection;
+import it.polimi.ingsw.am43.network.socket.client.SocketServerConnection;
+import it.polimi.ingsw.am43.utils.Executor;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ClientController {
-    private VirtualServer server;
+public class ClientController implements ServerConnectionUser, MessageReceiver {
+
+    private ServerConnection serverConnection;
+    private Executor<ClientController> messageExecutor;
     private final UI ui;
     private final ClientModel localModel;
-    private final BlockingQueue<Message> messageQueue;
+    private AtomicBoolean connected;
     private final UUID playerId;
 
     public ClientController(UI ui, ClientModel localModel) {
         this.ui = ui;
         this.localModel = localModel;
-        this.server = null;
-        this.playerId = UUID.randomUUID();
-        this.messageQueue = new LinkedBlockingQueue<>();
-        new Thread(this::executor).start();
+        this.serverConnection= null;
+        this.connected=new AtomicBoolean(false);
+        this.playerId = ResiliencyManager.getOrCreateUUID(3);
+        this.messageExecutor=new Executor<>(this);
+        this.messageExecutor.start();
+        this.connected=new AtomicBoolean(false);
     }
 
-    private void executor() {
-        while (true) {
-            try {
-                Message message = messageQueue.take();
-                message.execute(this);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
-    }
 
     public ClientModel getLocalModel() {
         return this.localModel;
     }
-
-    public void chooseConnectionType(String serverIp, boolean rmi) throws IOException, NotBoundException {
-        if (rmi) {
-            Registry registry = LocateRegistry.getRegistry(serverIp, 1099);
-            this.server = (VirtualServerRMI) registry.lookup("MesosServer");
-            ((VirtualServerRMI) this.server).connect(this.playerId, new ClientRMI(this));
-        } else {
-            Socket serverSocket;
-            serverSocket = new Socket(serverIp, 8080);
-            InputStreamReader socketRx = new InputStreamReader(serverSocket.getInputStream());
-            OutputStreamWriter socketTx = new OutputStreamWriter(serverSocket.getOutputStream());
-            this.server = new ServerSocketHandler(new BufferedWriter(socketTx));
-            new SocketClient(new BufferedReader(socketRx), this).run();
-            this.server.sendCommand(new ServerCommand.RegisterCommand(this.playerId));
+    public void chooseConnectionType(String serverIp, boolean rmi) {
+        if (this.connected.compareAndSet(false, true)) {
+            PersistentServerConnection connection;
+            if (rmi) {
+                connection = new ServerRMIConnection(serverIp, 1099, "MesosServer", this, this, this.playerId);
+            } else {
+                connection = new SocketServerConnection(serverIp, 8080, this, this, playerId);
+            }
+            this.serverConnection = connection;
+            connection.open();
         }
     }
 
+    public void disconnect(){
+        this.serverConnection.close();
+    }
     public void refreshLobbies() {
-        try {
-            server.sendCommand(new ServerCommand.FetchLobbiesCommand(this.playerId));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        this.serverConnection.sendCommand(new ServerCommand.FetchLobbiesCommand(this.playerId));
     }
-
-    public void createLobby(String nickname, Color color, int numPlayers) {
-        try {
-            server.sendCommand(new ServerCommand.CreateLobbyCommand(this.playerId, nickname, color, numPlayers));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+    public void createLobby(String nickname, Color color, int numPlayers){
+        this.serverConnection.sendCommand(new ServerCommand.CreateLobbyCommand(this.playerId, nickname, color, numPlayers));
     }
-
-    public void joinLobby(int lobbyId) {
-        try {
-            server.sendCommand(new ServerCommand.PickLobbyCommand(this.playerId, lobbyId));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+    public void joinLobby(int lobbyId){
+        this.serverConnection.sendCommand(new ServerCommand.PickLobbyCommand(this.playerId, lobbyId));
     }
-
-    public void joinGame(String nickname, Color color) {
-        try {
-            this.server.sendCommand(new GameCommand.PickNameColorCommand(this.playerId, nickname, color));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+    public void joinGame(String nickname, Color color){
+        this.serverConnection.sendCommand(new GameCommand.PickNameColorCommand(this.playerId, nickname, color));
     }
-
     public void pickCard(int id) {
-        if (server == null) {
+        if (this.serverConnection == null) {
             throw new IllegalStateException("Remote model is not set");
         }
         if (localModel == null) {
@@ -113,16 +81,10 @@ public class ClientController {
         if (playerId == null) {
             throw new IllegalStateException("Player id is not set");
         }
-        try {
-            this.localModel.startValidation();
-            server.sendCommand(new GameCommand.PickCardCommand(this.playerId, id));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        this.serverConnection.sendCommand(new GameCommand.PickCardCommand(this.playerId, id));
     }
-
     public void placeTotem(int position) {
-        if (server == null) {
+        if (this.serverConnection == null) {
             throw new IllegalStateException("Remote model is not set");
         }
         if (localModel == null) {
@@ -131,16 +93,10 @@ public class ClientController {
         if (playerId == null) {
             throw new IllegalStateException("Player id is not set");
         }
-        try {
-            this.localModel.startValidation();
-            server.sendCommand(new GameCommand.PlaceTotemCommand(this.playerId, position));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        this.serverConnection.sendCommand(new GameCommand.PlaceTotemCommand(this.playerId, position));
     }
-
     public void endTurn() {
-        if (server == null) {
+        if (this.serverConnection == null) {
             throw new IllegalStateException("Remote model is not set");
         }
         if (localModel == null) {
@@ -149,23 +105,34 @@ public class ClientController {
         if (playerId == null) {
             throw new IllegalStateException("Player id is not set");
         }
-        try {
-            this.localModel.startValidation();
-            server.sendCommand(new GameCommand.EndTurnCommand(this.playerId));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        this.serverConnection.sendCommand(new GameCommand.EndTurnCommand(this.playerId));
+    }
+    public void answerRejoin(boolean answer){
+        this.serverConnection.sendCommand(new ServerCommand.RejoinGameCommand(this.playerId,answer));
+    }
+
+    public void receiveMessage(Message message){
+        this.messageExecutor.delegate(message);
+    }
+
+    public void notifyDisconnection(){
+        if (this.connected.compareAndSet(true,false)){
+            this.messageExecutor.stop();
+            try {
+                this.messageExecutor=new Executor<>(this);
+                this.messageExecutor.start();
+                this.serverConnection.open();
+                this.connected.set(true);
+            }catch (Exception e){e.printStackTrace();}
         }
     }
 
-    public void addToQueue(Message message) {
-        try {
-            this.messageQueue.put(message);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public UI getView() {
         return this.ui;
+    }
+
+    public boolean isDisconnected() {
+        return !this.connected.get();
     }
 }

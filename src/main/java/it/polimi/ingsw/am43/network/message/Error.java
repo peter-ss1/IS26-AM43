@@ -14,7 +14,7 @@ import it.polimi.ingsw.am43.controller.ClientController;
         @JsonSubTypes.Type(value = Error.GenericServerError.class, name = "genericServerError"),
 })
 
-public abstract class Error extends Message {
+public non-sealed abstract class Error extends Message {
     @JsonProperty("message")
     protected final String message;
 

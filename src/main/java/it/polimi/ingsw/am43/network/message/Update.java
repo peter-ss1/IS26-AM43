@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.network.message;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import it.polimi.ingsw.am43.client.ClientPlayer;
@@ -11,6 +12,7 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 
 import java.util.List;
 import java.util.Map;
+
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Update.AvailableLobbiesUpdate.class, name = "showAvailableLobbies"),
@@ -37,9 +39,34 @@ import java.util.Map;
         @JsonSubTypes.Type(value = Update.NewLobbyJoinUpdate.class, name = "newLobbyJoinUpdate"),
         @JsonSubTypes.Type(value = Update.OrderModifierUpdate.class, name = "orderModifierUpdate"),
         @JsonSubTypes.Type(value = Update.FoodOfferUpdate.class, name = "foodOfferUpdate"),
+        @JsonSubTypes.Type(value = Update.RejoinRequestUpdate.class, name = "rejoinRequestUpdate"),
+        @JsonSubTypes.Type(value = Update.newLobbyReconnectionUpdate.class, name = "newReconnectionLobbyUpdate"),
+        @JsonSubTypes.Type(value = Update.GameRestartedUpdate.class, name = "gameRestartedUpdate"),
+        @JsonSubTypes.Type(value = Update.PlayerDisconnectedUpdate.class, name = "playerDisconnectedUpdate"),
+
 })
 
-public abstract class Update extends Message {
+public non-sealed abstract class Update extends Message {
+
+
+
+    public static class RejoinRequestUpdate extends Update{
+        @JsonProperty("nickname")
+        private final String nickname;
+        @JsonProperty("color")
+        private final Color color;
+        public RejoinRequestUpdate(@JsonProperty("nickname")String nickname, @JsonProperty("color") Color color){
+            this.nickname = nickname;
+            this.color = color;
+        }
+        @Override
+        public void execute(ClientController controller){
+            controller.getLocalModel().retrieveOldPlayer(this.nickname, this.color);
+        }
+    }
+
+
+    
 
     public static class AvailableLobbiesUpdate extends Update {
         @JsonProperty("lobbies")
@@ -176,7 +203,7 @@ public abstract class Update extends Message {
         }
     }
 
-    public static class NewLobbyUpdate extends Message {
+    public static class NewLobbyUpdate extends Update {
         @JsonProperty("lobby")
         private final LobbyInfo lobby;
 
@@ -438,6 +465,68 @@ public abstract class Update extends Message {
         @Override
         public void execute(ClientController controller) {
             controller.getLocalModel().resolveFoodOffer(this.nickname);
+        }
+    }
+
+    public static class newLobbyReconnectionUpdate extends Update {
+        @JsonProperty("reconnectedPlayer")
+        private final String reconnectedPlayer;
+        public newLobbyReconnectionUpdate(@JsonProperty("reconnectedPlayer")String reconnectedPlayer) {
+            this.reconnectedPlayer = reconnectedPlayer;
+        }
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().updateReconnectedLobby(this.reconnectedPlayer);
+        }
+    }
+
+    public static class GameRestartedUpdate extends Update {
+        @JsonProperty("players")
+        private final List<ClientPlayer> players;
+        @JsonProperty("currPlayer")
+        private final String currentPlayerNickname;
+        @JsonProperty("topRow")
+        private final List<Integer> topRowCards;
+        @JsonProperty("bottomRow")
+        private final List<Integer> bottomRowCards;
+        @JsonProperty("orderQueue")
+        private final List<Color> orderQueue;
+        @JsonProperty("offerTrack")
+        private final List<OfferTrackElement> offerTrack;
+        @JsonProperty("era")
+        private final int era;
+        @JsonProperty("phase")
+        private final GamePhase phase;
+
+        @JsonCreator
+        public GameRestartedUpdate(@JsonProperty("players")List<ClientPlayer> players,@JsonProperty("currPlayer") String nickname,@JsonProperty("topRow") List<Integer> ids,@JsonProperty("bottomRow") List<Integer> ids1,@JsonProperty("orderQueue") List<Color> colorOrder,@JsonProperty("offerTrack") List<OfferTrackElement> list1,@JsonProperty("era") int currEra,@JsonProperty("phase") GamePhase phase) {
+            this.players = players;
+            this.currentPlayerNickname = nickname;
+            this.topRowCards = ids;
+            this.bottomRowCards = ids1;
+            this.orderQueue = colorOrder;
+            this.era = currEra;
+            this.phase = phase;
+            this.offerTrack = list1;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().restartGame(this.players, this.currentPlayerNickname, this.topRowCards, this.bottomRowCards, this.era, this.phase, this.offerTrack, this.orderQueue);
+        }
+    }
+
+    public static class PlayerDisconnectedUpdate extends Update {
+        @JsonProperty("nickname")
+        private final String nickname;
+
+        public PlayerDisconnectedUpdate(@JsonProperty("nickname") String nickname) {
+            this.nickname = nickname;
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getLocalModel().disconnectPlayer(this.nickname);
         }
     }
 }

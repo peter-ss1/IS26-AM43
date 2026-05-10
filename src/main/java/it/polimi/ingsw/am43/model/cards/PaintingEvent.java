@@ -13,7 +13,7 @@ import java.util.Map;
 public class PaintingEvent extends Event {
 
     public PaintingEvent(int era,int id) {
-        super(era,id);
+        super(era,id,1);
     }
 
     @Override

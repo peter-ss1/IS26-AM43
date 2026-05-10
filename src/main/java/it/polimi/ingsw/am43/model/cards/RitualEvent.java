@@ -17,7 +17,7 @@ public class RitualEvent extends Event {
     private final List<Player> winners;
 
     public RitualEvent(int era, int id, int malus) {
-        super(era, id);
+        super(era, id,1);
         this.malus = malus;
         this.losers = new ArrayList<>();
         this.winners = new ArrayList<>();

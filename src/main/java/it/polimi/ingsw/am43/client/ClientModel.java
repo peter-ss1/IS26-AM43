@@ -3,6 +3,7 @@ package it.polimi.ingsw.am43.client;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
+import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.*;
 
@@ -10,7 +11,7 @@ public class ClientModel {
     private LobbyInfo ownLobby;
     private final List<LobbyInfo> lobbies;
     private ClientPlayer ownPlayer;
-    private final List<ClientPlayer> otherPlayers;
+    private List<ClientPlayer> otherPlayers;
     private final List<Integer> topRowCards;
     private final List<Integer> bottomRowCards;
     private final List<Color> orderQueue;
@@ -83,9 +84,8 @@ public class ClientModel {
 
     public void setOtherPlayers(List<ClientPlayer> otherPlayers) {
         this.otherPlayers.clear();
-        if (otherPlayers != null) {
-            this.otherPlayers.addAll(otherPlayers);
-        }
+        if (this.ownPlayer != null) otherPlayers = otherPlayers.stream().filter(p -> !p.getNickname().equals(this.ownPlayer.getNickname())).toList();
+        this.otherPlayers.addAll(otherPlayers);
     }
 
     public List<Integer> getTopRowCards() {
@@ -352,5 +352,40 @@ public class ClientModel {
     public void resolveFoodOffer(String nickname) {
         this.getPlayerByNickname(nickname).alterFood(3);
         this.ui.showFoodOffer(nickname);
+    }
+
+    public void updateReconnectedLobby(String reconnectedPlayers) {
+        if (reconnectedPlayers.equalsIgnoreCase(this.ownPlayer.getNickname())) return;
+        this.getPlayerByNickname(reconnectedPlayers).setDisconnected(false);
+        this.ui.showNewPlayer();
+    }
+
+    public void restartGame(List<ClientPlayer> players, String currentPlayerNickname, List<Integer> topRowCards, List<Integer> bottomRowCards, int era, GamePhase phase, List<OfferTrackElement> offerTrack, List<Color> orderQueue) {
+        this.ownPlayer = players.stream().filter(player -> player.getNickname().equals(this.ownPlayer.getNickname())).toList().getFirst();
+        this.otherPlayers = players.stream().filter(player -> !player.getNickname().equals(this.ownPlayer.getNickname())).toList();
+        this.currentEra = era;
+        this.phase = phase;
+        this.topRowCards.clear();
+        this.topRowCards.addAll(topRowCards);
+        this.bottomRowCards.clear();
+        this.bottomRowCards.addAll(bottomRowCards);
+        this.offerTrack.clear();
+        this.offerTrack.addAll(offerTrack);
+        this.orderQueue.clear();
+        this.orderQueue.addAll(orderQueue);
+        this.validating = false;
+        this.currPlayerNickname = currentPlayerNickname;
+        this.ui.showGameStart();
+    }
+
+    public void retrieveOldPlayer(String nickname, Color color) {
+        this.ownPlayer = new ClientPlayer(nickname, color);
+        this.ui.showRetrievedInfo();
+    }
+
+    public void disconnectPlayer(String nickname) {
+        this.otherPlayers.stream().filter(p -> p.getNickname().equals(nickname))
+                .findFirst().ifPresent(player -> player.setDisconnected(true));
+        this.ui.showDisconnectedPlayer(nickname);
     }
 }

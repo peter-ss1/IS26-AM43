@@ -44,4 +44,8 @@ public interface UI {
     void showOrderModifier(String nickname, int modifier, boolean prestige);
 
     void showFoodOffer(String nickname);
+
+    void showRetrievedInfo();
+
+    void showDisconnectedPlayer(String nickname);
 }
