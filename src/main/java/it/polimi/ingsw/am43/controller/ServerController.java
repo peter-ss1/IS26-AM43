@@ -39,14 +39,21 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         this.executor.start();
     }
 
+    public void putPlayerChoosing(UUID id){
+        this.clients.get(id).setLobbyId(0);
+    }
+
     public void notifyConnection(UUID playerId) {
         if (this.clients.containsKey(playerId)) {
             this.clients.get(playerId).setState(ClientState.CHOOSING);
             if(this.clients.get(playerId).getLobbyId()!=0)
                 this.lobbies.get(this.clients.get(playerId).getLobbyId()).notifyConnection(playerId);
+            else
+                this.fetchLobbies(playerId);
             System.out.println(playerId.toString() + "reconnected");
         } else {
             this.clients.put(playerId, new ClientInfo(ClientState.CHOOSING, 0));
+            this.fetchLobbies(playerId);
             System.out.println("client connected");
         }
     }

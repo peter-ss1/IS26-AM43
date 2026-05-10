@@ -120,7 +120,7 @@ public class TUI implements UI, Runnable {
     private void lobbyChoiceStage() {
         this.state = ViewState.LOBBY_CHOICE;
         this.printWelcome();
-        this.controller.refreshLobbies();
+        //this.controller.refreshLobbies();
         new Thread(this::lobbyChoiceInput).start();
     }
 

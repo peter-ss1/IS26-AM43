@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class GameController implements GameObserver, GameCommandReceiver {
 
@@ -34,6 +36,9 @@ public class GameController implements GameObserver, GameCommandReceiver {
     private final ConcurrentHashMap<UUID,String> disconnectedClients;
     private final Executor<GameController> executor;
     private final int lobbyId;
+    private volatile boolean gameStarted;
+    private volatile boolean gameStopped;
+    private final ReadWriteLock lock;
 
 
     public GameController(ServerController serverController, ModelInterface model, int lobbyId, String nickname, UUID playerID) {
@@ -46,6 +51,9 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.executor=new Executor<>(this);
         this.lobbyId = lobbyId;
         this.executor.start();
+        this.gameStarted=false;
+        this.gameStopped=false;
+        this.lock=new ReentrantReadWriteLock();
     }
 
     // for recovery
@@ -58,6 +66,9 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.executor=new Executor<>(this);
         this.lobbyId = lobbyId;
         this.executor.start();
+        this.gameStarted=true;
+        this.gameStopped=true;
+        this.lock=new ReentrantReadWriteLock();
     }
 
     public void receiveCommand(GameCommand command) {
@@ -81,11 +92,14 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     public void broadcast(Update update) {
+        this.lock.readLock().lock();
         for (UUID id : this.clients.keySet()) {
             if (!this.disconnectedClients.containsKey(id))
                 this.serverController.sendMessage(id, update);
         }
+        this.lock.readLock().unlock();
     }
+
 
     public void pickCard(int id, UUID playerID){
         PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
@@ -146,18 +160,24 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     //TODO remake
     public void rejoinLobby(UUID playerId){
-        synchronized (this.disconnectedClients) {//shiflock
-            if (!this.disconnectedClients.containsKey(playerId)) {
-                this.serverController.sendMessage(playerId, new Error.GenericServerError("player already connected"));
-                return;
-            }
-            this.disconnectedClients.remove(playerId);
-            this.broadcast(new Update.ReconnectionLobbyUpdate(this.clients.values().stream().filter(p -> ! disconnectedClients.contains(p)).toList())); //TODO nickname dei ricononnessi
-            System.out.println(clients.get(playerId) + " reconnected to lobby "+ this.lobbyId);
-            if (disconnectedClients.isEmpty()){ //TODO resiliency to not every player
-                this.model.restartGame();
-            }
+        this.lock.writeLock().lock();//shiflock
+        if (!this.disconnectedClients.containsKey(playerId)) {
+            this.serverController.sendMessage(playerId, new Error.GenericServerError("player already connected"));
+            return;
         }
+        this.disconnectedClients.remove(playerId);
+        this.lock.writeLock().unlock();
+        this.lock.readLock().lock();
+        this.broadcast(new Update.ReconnectionLobbyUpdate(this.clients.values().stream().filter(p -> !disconnectedClients.contains(p)).toList())); //TODO nickname dei ricononnessi
+        System.out.println(clients.get(playerId) + " reconnected to lobby " + this.lobbyId);
+        if (this.gameStarted) {
+            //this.model.activatePlayer(this.model.getPlayerByName(this.clients.get(playerId)));
+        }
+        if (disconnectedClients.isEmpty() && this.gameStarted && this.gameStopped) { //TODO resiliency to not every player
+            this.model.restartGame();
+            this.gameStopped=false;
+        }
+        this.lock.readLock().unlock();
 
     }
 
@@ -173,6 +193,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
             this.broadcast(new Update.PlayerAddedUpdate(nickname, color));
             if (this.clients.values().stream().noneMatch(n -> n.equals("-")) && this.getCurrentPlayers() == this.getNumPlayers()){
                 this.model.startGame();
+                this.gameStarted=true;
                 PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId,this.model,this.clients),Integer.toString(this.lobbyId));
             }
         } catch (IllegalMoveException e) {
@@ -185,18 +206,22 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     public void notifyDisconnection(UUID id){
-        synchronized (this.disconnectedClients){
-            this.disconnectedClients.put(id, this.clients.get(id));
+        this.lock.writeLock().lock();
+        if (!this.gameStarted) {
+            this.clients.remove(id);
+            this.serverController.putPlayerChoosing(id);
         }
+        else this.disconnectedClients.put(id, this.clients.get(id));
+        this.lock.writeLock().unlock();
         //TODO notify other player and model when resiliency
         System.out.println(this.disconnectedClients.get(id)+" disconnected from lobby "+this.lobbyId);
     }
 
     public void notifyConnection(UUID id){
-        synchronized (this.disconnectedClients){
-            if(this.disconnectedClients.containsKey(id))
-                this.serverController.sendMessage(id,new Update.RejoinRequestUpdate(this.disconnectedClients.get(id)));
-        }
+        this.lock.readLock().lock();
+        if(this.disconnectedClients.containsKey(id))
+            this.serverController.sendMessage(id,new Update.RejoinRequestUpdate(this.disconnectedClients.get(id)));
+        this.lock.readLock().unlock();
     }
 
     private List<ClientPlayer> getPlayersInfo() {
