@@ -65,17 +65,16 @@ public class GUI implements UI {
 
     @Override
     public void enterLobby() {
-        this.state = ViewState.IN_LOBBY;
+        this.state = this.localModel.getOwnPlayer() == null? ViewState.IN_LOBBY_CHOICE : ViewState.IN_LOBBY;
         Platform.runLater(() -> {
             this.navigator.showScene(this.state);
-            this.navigator.getCurrentScene().refreshFromModel();
         });
     }
 
     @Override
     public void showNewPlayer() {
-        if (this.state != ViewState.IN_LOBBY) return;
-        Platform.runLater(() -> navigator.getCurrentScene().refreshFromModel());
+        if (this.state != ViewState.IN_LOBBY && this.state != ViewState.IN_LOBBY_CHOICE) return;
+        Platform.runLater(() -> navigator.getCurrentScene().showNewPlayer());
     }
 
     @Override
@@ -101,7 +100,10 @@ public class GUI implements UI {
 
     @Override
     public void handleLobbyJoinError(String message) {
-        Platform.runLater(() -> this.showPopUp("Lobby join failed: " + message));
+        Platform.runLater(() -> {
+            this.showPopUp("Lobby join failed: " + message);
+            this.navigator.getCurrentScene().reset();
+        });
     }
 
     @Override

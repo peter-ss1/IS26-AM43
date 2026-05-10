@@ -14,7 +14,7 @@ public final class GuiSettings {
         String path = "";
         switch (scene) {
             case CONNECTION -> path = CONNECTION_PATH;
-            case IN_LOBBY -> path = IN_LOBBY_PATH;
+            case IN_LOBBY, IN_LOBBY_CHOICE -> path = IN_LOBBY_PATH;
             case LOBBY_CHOICE -> path = LOBBY_CHOICE_PATH;
             case IN_GAME -> path = IN_GAME_PATH;
         }

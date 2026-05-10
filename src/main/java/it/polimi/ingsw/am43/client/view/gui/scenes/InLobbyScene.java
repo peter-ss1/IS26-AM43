@@ -1,156 +1,143 @@
 package it.polimi.ingsw.am43.client.view.gui.scenes;
 
 import it.polimi.ingsw.am43.client.ClientPlayer;
-import it.polimi.ingsw.am43.client.LobbyInfo;
-import it.polimi.ingsw.am43.client.view.gui.GUI;
-import it.polimi.ingsw.am43.controller.ClientController;
+import it.polimi.ingsw.am43.client.view.gui.components.LobbyPlayerNode;
 import it.polimi.ingsw.am43.model.enums.Color;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class InLobbyScene extends CustomScene {
     @FXML
-    private Label lobbyIdLabel;
+    private Label lobbyId;
     @FXML
-    private Label lobbyStatusLabel;
-    @FXML
-    private Label waitingLabel;
-    @FXML
-    private Label infoLabel;
-    @FXML
-    private Label errorLabel;
-    @FXML
-    private TableView<ClientPlayer> playersTable;
-    @FXML
-    private TableColumn<ClientPlayer, String> nicknameColumn;
-    @FXML
-    private TableColumn<ClientPlayer, String> colorColumn;
+    private HBox banner;
     @FXML
     private TextField nicknameField;
     @FXML
-    private ComboBox<Color> colorCombo;
+    private ToggleGroup colorGroup;
     @FXML
-    private Label joinFormTitle;
+    private HBox playerContainer;
     @FXML
-    private GridPane joinFormGrid;
-    @FXML
-    private javafx.scene.control.Button joinGameButton;
+    private Button confirmButton;
+
+    private final BooleanProperty validating = new SimpleBooleanProperty(false);
 
     @FXML
     private void initialize() {
-        nicknameColumn.setCellValueFactory(data -> {
-            String nickname = data.getValue().getNickname();
-            if (gui != null && gui.getLocalModel().getOwnPlayer() != null
-                    && gui.getLocalModel().getOwnPlayer().getNickname().equals(nickname)) {
-                nickname += " (YOU)";
+    }
+
+    @Override
+    public void setUp() {
+        this.lobbyId.setText("Lobby ID: " + this.gui.getLocalModel().getOwnLobby().getLobbyId());
+        if (this.gui.getLocalModel().getOwnPlayer() != null) {
+            this.banner.getChildren().clear();
+            Label text = new Label("  WAITING FOR GAME TO START...  ");
+            text.getStyleClass().add("loginLabel");
+            this.banner.getChildren().add(text);
+        } else {
+            this.confirmButton.disableProperty().bind(
+                    this.nicknameField.textProperty().isEmpty().or(this.colorGroup.selectedToggleProperty().isNull())
+            );
+            this.colorGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal == null) {
+                    oldVal.setSelected(true);
+                }
+            });
+            this.updateAvailableColors();
+        }
+        for (int i = 0; i < this.gui.getLocalModel().getOwnLobby().getNumPlayers(); i++) {
+            this.playerContainer.getChildren().add(new LobbyPlayerNode());
+        }
+        this.updateLobbyPlayers();
+
+    }
+
+    private void updateLobbyPlayers() {
+        List<ClientPlayer> allPlayers = this.gui.getLocalModel().getAllPlayers();
+        String ownName = this.gui.getLocalModel().getOwnPlayer() == null ? "" : this.gui.getLocalModel().getOwnPlayer().getNickname();
+        for (ClientPlayer p : allPlayers) {
+            LobbyPlayerNode existingNode = findNodeForPlayer(p.getNickname());
+            if (existingNode == null) {
+                LobbyPlayerNode emptySlot = findFirstEmptySlot();
+                if (emptySlot != null) {
+                    emptySlot.activate(p.getNickname(), p.getColor(), p.getNickname().equals(ownName));
+                }
             }
-            return new SimpleStringProperty(nickname);
-        });
-        colorColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getColor().name()));
+        }
     }
 
-    public void setGui(GUI gui) {
-        this.gui = gui;
-        refreshAvailableColors();
+    private LobbyPlayerNode findNodeForPlayer(String name) {
+        return playerContainer.getChildren().stream().map(n -> (LobbyPlayerNode) n)
+                .filter(lp -> !lp.isEmpty() && name.equals(lp.getNickname())).findFirst().orElse(null);
     }
 
-    public void refreshFromModel() {
-        if (gui == null) {
-            return;
-        }
-        LobbyInfo lobby = gui.getLocalModel().getOwnLobby();
-        if (lobby == null) {
-            lobbyIdLabel.setText("-");
-            lobbyStatusLabel.setText("-");
-            waitingLabel.setText("Waiting for lobby data...");
-            playersTable.setItems(FXCollections.observableArrayList());
-            refreshAvailableColors();
-            return;
-        }
-        lobbyIdLabel.setText(String.valueOf(lobby.getLobbyId()));
-        lobbyStatusLabel.setText(lobby.getCurrentPlayers() + " / " + lobby.getNumPlayers());
+    private LobbyPlayerNode findFirstEmptySlot() {
+        return playerContainer.getChildren().stream().map(n -> (LobbyPlayerNode) n)
+                .filter(LobbyPlayerNode::isEmpty).findFirst().orElse(null);
+    }
 
-        List<ClientPlayer> players = gui.getLocalModel().getAllPlayers();
-        playersTable.setItems(FXCollections.observableArrayList(players));
-        playersTable.refresh();
-
-        boolean waiting = lobby.getCurrentPlayers() != lobby.getNumPlayers();
-        waitingLabel.setText(waiting ? "Waiting for players to connect..." : "Lobby is full.");
-
-        boolean needsJoinForm = gui.getLocalModel().getOwnPlayer() == null;
-        joinFormTitle.setVisible(needsJoinForm);
-        joinFormTitle.setManaged(needsJoinForm);
-        joinFormGrid.setVisible(needsJoinForm);
-        joinFormGrid.setManaged(needsJoinForm);
-        nicknameField.setVisible(needsJoinForm);
-        nicknameField.setManaged(needsJoinForm);
-        colorCombo.setVisible(needsJoinForm);
-        colorCombo.setManaged(needsJoinForm);
-        joinGameButton.setVisible(needsJoinForm);
-        joinGameButton.setManaged(needsJoinForm);
-        refreshAvailableColors();
+    @Override
+    public void reset() {
+        this.nicknameField.clear();
+        this.validating.set(false);
+        this.confirmButton.setText("CONFIRM");
     }
 
     @FXML
-    private void onJoinGameClicked() {
-        if (gui == null) {
-            showError("GUI not initialized.");
-            return;
-        }
+    private void onConfirmClicked() {
         String nickname = nicknameField.getText() == null ? "" : nicknameField.getText().trim();
         if (!nickname.matches("^[a-zA-Z0-9]{3,12}$")) {
-            showError("Nickname must be 3-12 alphanumeric chars.");
+            this.nicknameField.clear();
+            this.nicknameField.setPromptText("Invalid nickname");
+            return;
+        } else if (!this.gui.getLocalModel().isNicknameAvailable(nickname)) {
+            this.nicknameField.clear();
+            this.nicknameField.setPromptText("Nickname taken");
             return;
         }
-        if (!gui.getLocalModel().isNicknameAvailable(nickname)) {
-            showError("Nickname already in use.");
-            return;
-        }
-        Color color = colorCombo.getValue();
-        if (color == null) {
-            showError("Please choose a color.");
-            return;
-        }
-        if (!gui.getLocalModel().isColorAvailable(color)) {
-            showError("Color already in use.");
-            return;
-        }
+        int index = this.colorGroup.getToggles().indexOf(this.colorGroup.getSelectedToggle());
+        Color color = Color.values()[index];
+        this.confirmButton.setText("CONFIRMING");
         this.gui.submitTask(() -> this.controller.joinGame(nickname, color));
-        clearError();
-        showInfo("Joining game...");
     }
 
-    public void showError(String message) {
-        this.errorLabel.setText(message);
-    }
-
-    public void showInfo(String message) {
-        this.infoLabel.setText(message);
-    }
-
-    private void clearError() {
-        this.errorLabel.setText("");
-    }
-
-    private void refreshAvailableColors() {
-        if (gui == null) {
-            return;
+    @Override
+    public void showNewPlayer() {
+        if (this.gui.getLocalModel().getOwnPlayer() == null) this.updateAvailableColors();
+        else {
+            this.banner.getChildren().clear();
+            Label text = new Label("  WAITING FOR GAME TO START...  ");
+            text.getStyleClass().add("loginLabel");
+            this.banner.getChildren().add(text);
         }
-        Color currentSelection = colorCombo.getValue();
-        colorCombo.setItems(FXCollections.observableArrayList(gui.getLocalModel().getAvailableColors()));
-        if (currentSelection != null && gui.getLocalModel().isColorAvailable(currentSelection)) {
-            colorCombo.setValue(currentSelection);
-        } else {
-            colorCombo.setValue(null);
+        updateLobbyPlayers();
+    }
+
+    public void updateAvailableColors() {
+        List<Color> availableColors = this.gui.getLocalModel().getAvailableColors();
+        List<Toggle> toggles = this.colorGroup.getToggles();
+
+        for (int i = 0; i < toggles.size(); i++) {
+            Color currentColor = Color.values()[i];
+            Node node = (Node) toggles.get(i);
+            if (availableColors.contains(currentColor)) {
+                node.setDisable(false);
+                node.setOpacity(1.0);
+            } else {
+                node.setDisable(true);
+                node.setOpacity(0.3);
+            }
+            if (node.isDisable() && toggles.get(i).isSelected()) {
+                this.colorGroup.selectToggle(null);
+            }
         }
     }
 }

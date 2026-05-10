@@ -59,12 +59,15 @@ public class LobbyChoiceScene extends CustomScene {
     @Override
     public void reset() {
         this.nicknameField.clear();
+        this.joinLobbyButton.setText("JOIN LOBBY");
+        this.createLobbyButton.setText("CREATE LOBBY");
         this.validating.set(false);
     }
 
     @FXML
     private void onJoinClicked() {
         this.validating.set(true);
+        this.joinLobbyButton.setText("JOINING LOBBY");
         this.gui.submitTask(() -> this.controller.joinLobby(this.lobbyInfoList.getSelectionModel().getSelectedItem().getLobbyId()));
     }
 
@@ -80,6 +83,7 @@ public class LobbyChoiceScene extends CustomScene {
         int index = this.colorGroup.getToggles().indexOf(this.colorGroup.getSelectedToggle());
         Color color = Color.values()[index];
         int num = this.numberGroup.getToggles().indexOf(this.numberGroup.getSelectedToggle())+2;
+        this.createLobbyButton.setText("CREATING LOBBY");
         this.gui.submitTask(() -> this.controller.createLobby(nickname, color, num));
     }
 

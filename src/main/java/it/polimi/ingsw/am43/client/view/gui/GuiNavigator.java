@@ -1,10 +1,7 @@
 package it.polimi.ingsw.am43.client.view.gui;
 
 import it.polimi.ingsw.am43.client.view.ViewState;
-import it.polimi.ingsw.am43.client.view.gui.scenes.ConnectionScene;
 import it.polimi.ingsw.am43.client.view.gui.scenes.CustomScene;
-import it.polimi.ingsw.am43.client.view.gui.scenes.InLobbyScene;
-import it.polimi.ingsw.am43.client.view.gui.scenes.LobbyChoiceScene;
 import it.polimi.ingsw.am43.controller.ClientController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -41,7 +38,7 @@ public class GuiNavigator {
         this.stage.centerOnScreen();
         this.stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         this.stage.setFullScreenExitHint("");
-        this.stage.getIcons().add(new Image(getClass().getResourceAsStream("/it/polimi/ingsw/am43/images/OrangeTotem.PNG")));
+        this.stage.getIcons().add(new Image(getClass().getResourceAsStream("/it/polimi/ingsw/am43/images/REDtotem.PNG")));
         loader = this.buildLoader(CONNECTION_PATH);
         this.mainScene.switchScene(this.loadRoot(loader));
         this.currentScene = loader.getController();

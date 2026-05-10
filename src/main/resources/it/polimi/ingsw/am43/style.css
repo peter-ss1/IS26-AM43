@@ -185,3 +185,17 @@
 .lobby-info:hover .label {
     -fx-text-fill: rgba(4, 49, 64);
 }
+
+.lobby-title {
+    -fx-font-size: 100px;
+}
+
+.ownLobbyPlayer {
+    -fx-background-color: rgba(241, 131, 18, 0.8);
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+}
+
+.ownLobbyLabel {
+    -fx-text-fill: rgba(4, 49, 64);
+}
