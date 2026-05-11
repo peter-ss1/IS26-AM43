@@ -117,6 +117,7 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
 
     public void notifyDisconnection(){
         if (this.connected.compareAndSet(true,false)){
+            this.ui.showDisconnection();
             this.messageExecutor.stop();
             try {
                 this.messageExecutor=new Executor<>(this);

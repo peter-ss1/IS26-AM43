@@ -31,6 +31,8 @@ public class GuiNavigator {
         FXMLLoader loader = this.buildLoader("/it/polimi/ingsw/am43/fxml/main-view.fxml");
         Parent root = this.loadRoot(loader);
         this.mainScene = loader.getController();
+        this.mainScene.setGui(this.gui);
+        this.mainScene.setController(this.controller);
         Scene scene = new Scene(root, 1280, 720);
         this.stage.setScene(scene);
         this.stage.setTitle("MESOS");
@@ -78,5 +80,13 @@ public class GuiNavigator {
 
     public void showMenu() {
         this.mainScene.showMenu();
+    }
+
+    public void showDisconnectionMenu() {
+        this.mainScene.showDisconnectionMenu();
+    }
+
+    public void showLoading() {
+        this.mainScene.showLoading();
     }
 }

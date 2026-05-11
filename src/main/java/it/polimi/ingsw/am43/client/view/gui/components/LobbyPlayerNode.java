@@ -12,10 +12,12 @@ import javafx.util.Duration;
 
 public class LobbyPlayerNode extends VBox {
     private Label playerNameLabel;
+    private String playerName;
     private boolean empty;
 
     public LobbyPlayerNode() {
         this.empty = true;
+        this.playerName = "";
         this.getStyleClass().add("loginContainer");
         this.setAlignment(Pos.CENTER);
         this.setSpacing(15);
@@ -31,9 +33,10 @@ public class LobbyPlayerNode extends VBox {
         this.getChildren().addAll(totemIcon, this.playerNameLabel);
     }
 
-    public void activate(String nickname, Color color, boolean isOwnPlayer) {
+    public void activate(String nickname, Color color, boolean disconnected, boolean isOwnPlayer) {
         this.empty = false;
-        this.setOpacity(1);
+        this.playerName = nickname;
+        this.setOpacity(disconnected ? 0.5 : 1);
         this.getChildren().clear();
         if (isOwnPlayer) {
             this.getStyleClass().remove("loginContainer");
@@ -43,7 +46,7 @@ public class LobbyPlayerNode extends VBox {
         ImageView totemIcon = new ImageView(new Image(getClass().getResourceAsStream(path)));
         totemIcon.setFitWidth(100);
         totemIcon.setPreserveRatio(true);
-        this.playerNameLabel = new Label(nickname);
+        this.playerNameLabel = new Label(disconnected ? "RECONNECTING..." : nickname);
         this.playerNameLabel.getStyleClass().add(isOwnPlayer? "ownLobbyLabel" : "loginLabel");
         this.getChildren().addAll(totemIcon, this.playerNameLabel);
         animateTransition(totemIcon);
@@ -77,5 +80,11 @@ public class LobbyPlayerNode extends VBox {
 
     public String getNickname() {
         return this.playerNameLabel.getText();
+    }
+
+    public void update(boolean disconnected) {
+        System.out.println("updating");
+        this.playerNameLabel.setText(disconnected? "RECONNECTING..." : this.playerName);
+        this.setOpacity(disconnected ? 0.5 : 1);
     }
 }

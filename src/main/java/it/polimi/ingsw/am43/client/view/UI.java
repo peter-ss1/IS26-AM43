@@ -48,4 +48,10 @@ public interface UI {
     void showRetrievedInfo();
 
     void showDisconnectedPlayer(String nickname);
+
+    void enterLobbyChoice();
+
+    void showPlayerReconnection(String nickname);
+
+    void showDisconnection();
 }

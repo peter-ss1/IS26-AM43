@@ -5,13 +5,11 @@ import it.polimi.ingsw.am43.client.view.gui.components.LobbyPlayerNode;
 import it.polimi.ingsw.am43.model.enums.Color;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class InLobbyScene extends CustomScene {
@@ -68,8 +66,10 @@ public class InLobbyScene extends CustomScene {
             if (existingNode == null) {
                 LobbyPlayerNode emptySlot = findFirstEmptySlot();
                 if (emptySlot != null) {
-                    emptySlot.activate(p.getNickname(), p.getColor(), p.getNickname().equals(ownName));
+                    emptySlot.activate(p.getNickname(), p.getColor(), p.isDisconnected(), p.getNickname().equals(ownName));
                 }
+            } else {
+                existingNode.update(p.isDisconnected());
             }
         }
     }
@@ -119,6 +119,16 @@ public class InLobbyScene extends CustomScene {
             this.banner.getChildren().add(text);
         }
         updateLobbyPlayers();
+    }
+
+    @Override
+    public void showPlayerReconnection(String nickname) {
+        this.updateLobbyPlayers();
+    }
+
+    @Override
+    public void showDisconnectedPlayer(String nickname) {
+        this.updateLobbyPlayers();
     }
 
     public void updateAvailableColors() {
