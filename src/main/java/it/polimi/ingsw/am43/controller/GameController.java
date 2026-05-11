@@ -170,11 +170,26 @@ public class GameController implements GameObserver {
     private void SaveResultOnDb() {
         ClassificaDAO dao = new ClassificaDAO();
         int numGiocatoriPartita = this.model.getNumPlayers();
-
+            //salva punteggi giocatori
         for (Player p : this.model.getPlayers()) {
             p.countFinalPoints();
             dao.saveresult(p.getNickname(), p.getPrestigePoints(), numGiocatoriPartita);
         }
-        System.out.println(" Classifica salvata correttamente nel database.");
+        System.out.println("\n" +
+                "51\n" +
+                "Classification successfully saved to database");
+
+        // 2. Recupera l'intera classifica dal DB
+        List<String> fullLeaderboard = dao.getFullLeaderboard(numGiocatoriPartita);
+
+        // 3. Calcola la posizione (rank) di ciascun giocatore della partita corrente
+        java.util.Map<String, Integer> playerRanks = new java.util.HashMap<>();
+        for (Player p : this.model.getPlayers()) {
+            int rank = dao.getPlayerRank(p.getPrestigePoints(), numGiocatoriPartita);
+            playerRanks.put(p.getNickname(), rank);
+        }
+
+        // 4. Invio   messaggio a tutti i giocatori con la classifica
+        this.broadcast(new Update.LeaderboardUpdate(fullLeaderboard, playerRanks, numGiocatoriPartita));
     }
 }

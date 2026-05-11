@@ -353,4 +353,16 @@ public class ClientModel {
         this.getPlayerByNickname(nickname).alterFood(3);
         this.ui.showFoodOffer(nickname);
     }
+    public void showLeaderboard(List<String> leaderboard, java.util.Map<String, Integer> playerRanks, int numGiocatori) {
+        String myNickname = (this.ownPlayer != null) ? this.ownPlayer.getNickname() : null;
+        int myRank = -1;
+
+        // Cerco la mia posizione nella mappa inviata dal server
+        if (myNickname != null && playerRanks.containsKey(myNickname)) {
+            myRank = playerRanks.get(myNickname);
+        }
+
+
+        this.ui.showLeaderboard(leaderboard, myRank, numGiocatori);
+    }
 }

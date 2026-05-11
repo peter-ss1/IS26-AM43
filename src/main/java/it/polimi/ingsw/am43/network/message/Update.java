@@ -37,6 +37,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = Update.NewLobbyJoinUpdate.class, name = "newLobbyJoinUpdate"),
         @JsonSubTypes.Type(value = Update.OrderModifierUpdate.class, name = "orderModifierUpdate"),
         @JsonSubTypes.Type(value = Update.FoodOfferUpdate.class, name = "foodOfferUpdate"),
+        @JsonSubTypes.Type(value = Update.LeaderboardUpdate.class, name = "LeaderboardUpdate"),
 })
 
 public abstract class Update extends Message {
@@ -390,6 +391,30 @@ public abstract class Update extends Message {
         @Override
         public void execute(ClientController controller) {
             controller.getLocalModel().endGame(winners);
+        }
+    }
+    public static class LeaderboardUpdate extends Update {
+        private final List<String> leaderboard;
+        private final java.util.Map<String, Integer> playerRanks;
+        private final int numGiocatori;
+
+        public LeaderboardUpdate(
+                @com.fasterxml.jackson.annotation.JsonProperty("leaderboard") List<String> leaderboard,
+                @com.fasterxml.jackson.annotation.JsonProperty("playerRanks") java.util.Map<String, Integer> playerRanks,
+                @com.fasterxml.jackson.annotation.JsonProperty("numGiocatori") int numGiocatori) {
+            this.leaderboard = leaderboard;
+            this.playerRanks = playerRanks;
+            this.numGiocatori = numGiocatori;
+        }
+
+        public List<String> getLeaderboard() { return leaderboard; }
+        public java.util.Map<String, Integer> getPlayerRanks() { return playerRanks; }
+        public int getNumGiocatori() { return numGiocatori; }
+
+        @Override
+        public void execute(it.polimi.ingsw.am43.controller.ClientController controller) {
+            // Quando il messaggio arriva a destinazione, dice al ClientModel di far vedere la classifica
+            controller.getLocalModel().showLeaderboard(leaderboard, playerRanks, numGiocatori);
         }
     }
 

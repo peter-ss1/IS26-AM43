@@ -188,8 +188,7 @@ public class Board {
         return true;
     }
 
-    public boolean checkFinalRound() {
-        return tribeDeck.isEmpty();
+    public boolean checkFinalRound() { return tribeDeck.isEmpty();
     }
 
     public boolean isOrderQueueFull() {
