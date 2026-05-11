@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.InGameScene"
+            stylesheets="@../css/in-game.css">
+    <top>
+        <HBox spacing="24.0" styleClass="top-bar">
+            <padding>
+                <Insets top="12.0" right="16.0" bottom="12.0" left="16.0"/>
+            </padding>
+            <children>
+                <Label text="Mesos" styleClass="app-title"/>
+                <Label fx:id="eraLabel" styleClass="top-label"/>
+                <Label fx:id="phaseLabel" styleClass="top-label"/>
+                <Label fx:id="currentPlayerLabel" styleClass="top-label"/>
+                <Label fx:id="statusLabel" styleClass="top-label"/>
+            </children>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true">
+            <content>
+                <VBox spacing="14.0" styleClass="board-background">
+                    <padding>
+                        <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+                    </padding>
+                    <children>
+                        <Label text="Top Row" styleClass="section-title"/>
+                        <FlowPane fx:id="topRowPane" hgap="8.0" vgap="8.0"/>
+
+                        <Label text="Offer Track" styleClass="section-title"/>
+                        <HBox spacing="12.0">
+                            <children>
+                                <StackPane fx:id="orderQueuePane"/>
+                                <HBox fx:id="offerTrackPane" spacing="8.0"/>
+                            </children>
+                        </HBox>
+
+                        <Label text="Bottom Row" styleClass="section-title"/>
+                        <FlowPane fx:id="bottomRowPane" hgap="8.0" vgap="8.0"/>
+
+                        <StackPane fx:id="tribePane"/>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+    <right>
+        <VBox spacing="10.0" prefWidth="280.0" styleClass="side-panel">
+            <padding>
+                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+            </padding>
+            <children>
+                <Label text="Scoreboard" styleClass="side-title"/>
+                <VBox fx:id="scorePanel" spacing="8.0"/>
+                <Label text="Activity" styleClass="side-title"/>
+                <VBox fx:id="activityLogPane" spacing="6.0"/>
+            </children>
+        </VBox>
+    </right>
+</BorderPane>

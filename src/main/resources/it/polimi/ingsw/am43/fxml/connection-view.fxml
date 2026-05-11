@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="connectionScene" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.ConnectionScene">
+    <children>
+        <Button fx:id="settingsButton" contentDisplay="GRAPHIC_ONLY" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#onSettingsClicked" pickOnBounds="false" prefHeight="40.0" prefWidth="40.0" styleClass="settings-button" text="aaa" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+         <graphic>
+            <Region mouseTransparent="true" prefHeight="200.0" prefWidth="200.0" styleClass="icon" />
+         </graphic></Button>
+        <VBox alignment="CENTER" fillWidth="false" pickOnBounds="false" spacing="12.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+
+            <Label mouseTransparent="true" styleClass="title" stylesheets="@../style.css" text="mesos" textAlignment="CENTER">
+                <VBox.margin>
+                    <Insets bottom="200.0" />
+                </VBox.margin>
+            </Label>
+            <VBox alignment="CENTER" prefWidth="300.0" styleClass="loginContainer">
+                <children>
+                    <TextField fx:id="ipField" promptText="localhost" styleClass="loginElement" />
+                    <ComboBox fx:id="connectionType" prefWidth="300.0" promptText="Connection type" styleClass="loginElement">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Socket" />
+                                <String fx:value="RMI" />
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+
+                    <Button fx:id="connectButton" alignment="CENTER" mnemonicParsing="false" onAction="#onConnectClicked" prefWidth="300.0" styleClass="loginElement" text="CONNECT TO SERVER" VBox.vgrow="NEVER" />
+                </children>
+            </VBox>
+        </VBox>
+    </children>
+</AnchorPane>

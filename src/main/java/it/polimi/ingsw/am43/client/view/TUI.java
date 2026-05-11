@@ -23,6 +23,7 @@ public class TUI implements UI, Runnable {
     private final Scanner scanner;
     private final BlockingQueue<String> inputQueue;
     private final Object printLock;
+    private boolean signal;
 
     public TUI(Scanner scanner) {
         this.localModel = new ClientModel(this);
@@ -31,6 +32,7 @@ public class TUI implements UI, Runnable {
         this.scanner = scanner;
         this.inputQueue = new LinkedBlockingQueue<>();
         this.printLock = new Object();
+        this.signal = true;
         try {
             CardVisualizer.loadAscii();
         } catch (IOException e) {
@@ -40,9 +42,8 @@ public class TUI implements UI, Runnable {
 
     public String getInput() throws DisconnectedException {
         while (true) {
-            if (this.controller.isDisconnected()) {
-                throw new DisconnectedException("Connection lost.");
-            }
+            if (this.controller.isDisconnected()) throw new DisconnectedException("Connection lost.");
+            if (this.signal) throw new GameStartedException("Game started");
             String input;
             try {
                 input = this.inputQueue.poll(200, TimeUnit.MILLISECONDS);
@@ -63,28 +64,44 @@ public class TUI implements UI, Runnable {
         new Thread(() -> {
             try {
                 switch (this.state) {
-                    case CONNECTION -> {
-                        this.setUpClient();
-                    }
-                    case LOBBY_CHOICE -> {
-                        this.lobbyChoiceInput();
-                    }
-                    case IN_LOBBY_CHOICE -> {
-                        this.joinLobbyForm();
-                    }
-                    case IN_GAME -> {
-                        this.gameLoopInput();
-                    }
-                    case RECONNECTION -> {
-                        this.reconnectionLoop();
-                    }
+                    case CONNECTION -> this.setUpClient();
+                    case LOBBY_CHOICE -> this.lobbyChoiceInput();
+                    case IN_LOBBY -> this.lobbyWaitLoop();
+                    case IN_LOBBY_CHOICE -> this.joinLobbyForm();
+                    case IN_GAME -> this.gameLoopInput();
+                    case RECONNECTION -> this.reconnectionLoop();
                     default -> {
                     }
                 }
             } catch (DisconnectedException e) {
                 this.printReconnectionWaiting();
+            } catch (GameStartedException e) {
+                this.state = ViewState.IN_GAME;
+                this.signal = false;
+                synchronized (printLock) {
+                    System.out.print("\r\033[K");
+                    this.printWelcome();
+                    this.startInputLoop();
+                }
             }
         }).start();
+    }
+
+    private void lobbyWaitLoop() throws DisconnectedException {
+        while (true) {
+            synchronized (printLock) {
+                System.out.println(MESOS + "Type 'rules' to show game rules" + RESET);
+                System.out.print("> ");
+            }
+            String input = this.getInput().trim();
+            synchronized (printLock) {
+                if (!input.equalsIgnoreCase("rules")) {
+                    this.printError("Check your spelling");
+                } else {
+                    System.out.println(MESOS + "Here's a summary of the game rules: !!!" + RESET);
+                }
+            }
+        }
     }
 
     private void printReconnectionWaiting() {
@@ -121,11 +138,11 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             this.printError("Player " + nickname + " lost connection.");
-            if (this.state == ViewState.IN_LOBBY_CHOICE ||  this.state == ViewState.IN_LOBBY) {
+            if (this.state == ViewState.IN_LOBBY_CHOICE || this.state == ViewState.IN_LOBBY) {
                 this.printLobbyInfo();
-                if (this.localModel.getOwnPlayer() == null) System.out.print("> ");
+                System.out.print("> ");
             } else if (this.state == ViewState.IN_GAME) {
-                this.printScoreboard(this.localModel.getAllPlayers(),  this.localModel.getCurrentPlayerNickname());
+                this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
                 this.printGamePrompt();
             }
         }
@@ -160,9 +177,13 @@ public class TUI implements UI, Runnable {
                 if (choice.equals("1") || choice.equals("2")) {
                     try {
                         boolean isRmi = choice.equals("1");
-                        controller.chooseConnectionType(serverIP, isRmi);
-
-                        System.out.println(MESOS + "Successfully connected to " + serverIP + " via " + (isRmi ? "RMI." : "SOCKET.") + RESET);
+                        synchronized (this.printLock) {
+                            new Thread(this::printConnectionWaiting).start();
+                            controller.chooseConnectionType(serverIP, isRmi);
+                            this.signal = false;
+                            System.out.print("\r\033[K");
+                            System.out.println(MESOS + "Successfully connected to " + serverIP + " via " + (isRmi ? "RMI." : "SOCKET.") + RESET);
+                        }
                         connected = true;
                         break;
                     } catch (Exception e) {
@@ -183,6 +204,26 @@ public class TUI implements UI, Runnable {
         });
         inputLoop.setDaemon(true);
         inputLoop.start();
+    }
+
+    private void printConnectionWaiting() {
+        int i = 0;
+        while (this.signal) {
+            if (i == 0 || i == 4) {
+                System.out.print("\r\033[K");
+                System.out.print(ERROR + "Attempting to connect" + RESET);
+                i = 0;
+            } else {
+                System.out.print(ERROR + "." + RESET);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            i++;
+        }
     }
 
     private void lobbyChoiceStage() {
@@ -212,6 +253,7 @@ public class TUI implements UI, Runnable {
     private void lobbyChoiceInput() throws DisconnectedException {
         while (true) {
             synchronized (this.printLock) {
+                System.out.print("\r\033[K");
                 System.out.println(BOX + " 1 " + RESET + " Create a new lobby   " + MESOS + "◈" + RESET + "   " + BOX + " 2 " + RESET + " Join an existing lobby");
                 System.out.print("> ");
             }
@@ -368,7 +410,7 @@ public class TUI implements UI, Runnable {
                     case "show" -> handleShowCommands(parts);
                     case "help" -> printHelp();
                     default -> this.printError("Unknown command. Type 'help' to show command list.");
-                }
+                } //TODO RULES
             }
         }
     }
@@ -465,22 +507,57 @@ public class TUI implements UI, Runnable {
     public void showAvailableLobbies() {
         if (this.state != ViewState.LOBBY_CHOICE) return;
         synchronized (printLock) {
-            System.out.print("\r\033[K");
-            List<LobbyInfo> availableLobbies = this.localModel.getLobbies();
-            if (availableLobbies.isEmpty()) {
-                System.out.println(MESOS + "There are no available lobbies. Create one!" + RESET);
-            } else {
-                System.out.println("    ┌──────────┬──────────────────┐");
-                System.out.println("    │" + MESOS + BOLD + " LOBBY ID " + RESET + "│" + MESOS + BOLD + "     PLAYERS      " + RESET + "│");
-                System.out.println("    ├──────────┼──────────────────┤");
-                for (LobbyInfo lobby : availableLobbies) {
-                    String players = String.format("%d / %d", lobby.getCurrentPlayers(), lobby.getNumPlayers());
-                    System.out.printf("    │    %-6d│      %-12s│\n", lobby.getLobbyId(), players);
-                }
-                System.out.println("    └──────────┴──────────────────┘");
-            }
-            System.out.print("> ");
+            this.printAvailableLobbies();
         }
+    }
+
+    @Override
+    public void enterLobbyChoice() {
+        synchronized (printLock) {
+            this.lobbyChoiceStage();
+            this.printAvailableLobbies();
+        }
+    }
+
+    @Override
+    public void showPlayerReconnection(String nickname) {
+        synchronized (this.printLock) {
+            System.out.print("\r\033[K");
+            System.out.println("Player " + nickname + " reconnected");
+            if (this.state == ViewState.IN_LOBBY_CHOICE || this.state == ViewState.IN_LOBBY) {
+                this.printLobbyInfo();
+                System.out.print("> ");
+            } else if (this.state == ViewState.IN_GAME) {
+                this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+                this.printGamePrompt();
+            }
+        }
+    }
+
+    @Override
+    public void showDisconnection() {
+        synchronized (this.printLock) {
+            System.out.print("\r\033[K");
+            this.printError("Connection with server lost");
+        }
+    }
+
+    private void printAvailableLobbies() {
+        System.out.print("\r\033[K");
+        List<LobbyInfo> availableLobbies = this.localModel.getLobbies();
+        if (availableLobbies.isEmpty()) {
+            System.out.println(MESOS + "There are no available lobbies. Create one!\n" + RESET);
+        } else {
+            System.out.println("    ┌──────────┬──────────────────┐");
+            System.out.println("    │" + MESOS + BOLD + " LOBBY ID " + RESET + "│" + MESOS + BOLD + "     PLAYERS      " + RESET + "│");
+            System.out.println("    ├──────────┼──────────────────┤");
+            for (LobbyInfo lobby : availableLobbies) {
+                String players = String.format("%d / %d", lobby.getCurrentPlayers(), lobby.getNumPlayers());
+                System.out.printf("    │    %-6d│      %-12s│\n", lobby.getLobbyId(), players);
+            }
+            System.out.println("    └──────────┴──────────────────┘\n");
+        }
+        System.out.print("> ");
     }
 
     @Override
@@ -489,10 +566,8 @@ public class TUI implements UI, Runnable {
         synchronized (printLock) {
             this.printWelcome();
         }
-        if (this.localModel.getOwnPlayer() == null) {
-            this.state = ViewState.IN_LOBBY_CHOICE;
-            this.startInputLoop();
-        }
+        if (this.localModel.getOwnPlayer() == null) this.state = ViewState.IN_LOBBY_CHOICE;
+        this.startInputLoop();
     }
 
     @Override
@@ -501,18 +576,18 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             this.printLobbyInfo();
-            if (this.localModel.getOwnPlayer() == null) System.out.print("> ");
-            else this.state = ViewState.IN_LOBBY;
+            if (this.localModel.getOwnPlayer() != null && this.state != ViewState.IN_LOBBY) {
+                this.state = ViewState.IN_LOBBY;
+                this.startInputLoop();
+                return;
+            }
+            System.out.print("> ");
         }
     }
 
     @Override
     public void showGameStart() {
-        synchronized (printLock) {
-            this.state = ViewState.IN_GAME;
-            this.printWelcome();
-            this.startInputLoop();
-        }
+        this.signal = true;
     }
 
     @Override
@@ -534,6 +609,7 @@ public class TUI implements UI, Runnable {
 
     @Override
     public void showGameError(String error) {
+        if (this.state != ViewState.IN_GAME) return;
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             this.printError(error);
@@ -894,7 +970,7 @@ public class TUI implements UI, Runnable {
         System.out.println(" ╠═══╬════════════════════╬══════════╬══════════╣");
         for (ClientPlayer p : players) {
             String turnMarker = p.getNickname().equals(currentPlayer) ? MESOS + "»" + RESET : " ";
-            String name = p.isDisconnected() ? "reconnecting..."  : p.getNickname();
+            String name = p.isDisconnected() ? "reconnecting..." : p.getNickname();
             String color = p.isDisconnected() ? DIM : CardVisualizer.getASCIIColor(p.getColor());
             System.out.printf(" ║ %s ║%s║    %-6d║    %-6d║\n",
                     turnMarker,

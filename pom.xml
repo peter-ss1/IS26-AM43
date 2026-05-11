@@ -65,13 +65,16 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>it.polimi.ingsw.am43/it.polimi.ingsw.am43.HelloApplication</mainClass>
+                            <mainClass>it.polimi.ingsw.am43/it.polimi.ingsw.am43.client.view.gui.GuiApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
                             <noManPages>true</noManPages>
                             <stripDebug>true</stripDebug>
                             <noHeaderFiles>true</noHeaderFiles>
+                            <options>
+                                <option>--enable-native-access=javafx.graphics</option>
+                            </options>
                         </configuration>
                     </execution>
                 </executions>

@@ -164,7 +164,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.lock.writeLock().unlock();
         this.lock.readLock().lock();
         this.serverController.sendMessage(playerId, new Update.LobbyJoinedUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers()), this.getPlayersInfo()));
-        this.broadcast(new Update.newLobbyReconnectionUpdate(this.clients.get(playerId)));
+        this.broadcast(new Update.PlayerReconnectionUpdate(this.clients.get(playerId)));
         System.out.println(clients.get(playerId) + " reconnected to lobby " + this.lobbyId);
         if (this.gameStarted && !this.gameStopped) {
             this.model.moveToWait(this.model.getPlayerByName(this.clients.get(playerId)));
@@ -217,9 +217,9 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     public void notifyConnection(UUID id){
         this.lock.readLock().lock();
-        if(this.disconnectedClients.containsKey(id))
-            this.serverController.sendMessage(id,new Update.RejoinRequestUpdate(this.disconnectedClients.get(id),this.model.getPlayerByName(this.disconnectedClients.get(id)).getColor()));
-        this.lock.readLock().unlock();
+        if(this.disconnectedClients.containsKey(id)) {
+            this.serverController.sendMessage(id, new Update.RejoinRequestUpdate(this.disconnectedClients.get(id), this.model.getPlayerByName(this.disconnectedClients.get(id)).getColor()));
+        }this.lock.readLock().unlock();
     }
 
     private List<ClientPlayer> getPlayersInfo() {
