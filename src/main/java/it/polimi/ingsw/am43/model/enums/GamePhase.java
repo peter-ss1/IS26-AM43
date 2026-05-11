@@ -41,7 +41,10 @@ public enum GamePhase {
                         game.setCurrPlayer(player);
                         game.resolveOffer(player);
                     },
-                    () -> game.getPhase().resolvePhase(game, board));
+                    () -> {
+                            game.wakeUpWaiting();
+                            game.getPhase().resolvePhase(game, board);
+                    });
         }
     },
     ACTION_RESOLUTION {
@@ -52,6 +55,7 @@ public enum GamePhase {
                 player.getTribe().activateTimedBuilding(game, player, board);
             }
             if (game.getPhase().equals(ROUND_ENDING)) {
+                game.wakeUpWaiting();
                 game.getPhase().resolvePhase(game, board);
             }
         }
@@ -63,6 +67,7 @@ public enum GamePhase {
             if (board.checkFinalRound()) {
                 board.activateEvents(game.getObserver(), OfferAction.TOP, game.getPlayers());
                 game.setPhase(FINAL_COUNT);
+                game.wakeUpWaiting();
                 game.getPhase().resolvePhase(game, board);
                 return;
             }
@@ -77,6 +82,7 @@ public enum GamePhase {
         @Override
         public void resolvePhase(Game game, Board board) {
             game.setPhase(ROUND_ENDING);
+            game.wakeUpWaiting();
             game.getPhase().resolvePhase(game, board);
         }
     },
