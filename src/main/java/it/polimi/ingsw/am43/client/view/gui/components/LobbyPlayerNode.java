@@ -56,7 +56,7 @@ public class LobbyPlayerNode extends VBox {
         ScaleTransition pulse = new ScaleTransition(Duration.millis(300), this);
         pulse.setFromX(1.0);
         pulse.setFromY(1.0);
-        pulse.setToX(1.1); // Slight "pop" out
+        pulse.setToX(1.1);
         pulse.setToY(1.1);
         pulse.setCycleCount(2);
         pulse.setAutoReverse(true);
@@ -86,5 +86,22 @@ public class LobbyPlayerNode extends VBox {
         System.out.println("updating");
         this.playerNameLabel.setText(disconnected? "RECONNECTING..." : this.playerName);
         this.setOpacity(disconnected ? 0.5 : 1);
+    }
+
+    public void deactivate() {
+        this.empty = true;
+        this.playerName = "";
+        this.getStyleClass().remove("ownLobbyPlayer");
+        this.getStyleClass().add("loginContainer");
+        this.setOpacity(0.5);
+        this.getChildren().clear();
+        String path = "/it/polimi/ingsw/am43/images/BLACKtotem.PNG";
+        ImageView totemIcon = new ImageView(new Image(getClass().getResourceAsStream(path)));
+        totemIcon.setFitWidth(100);
+        totemIcon.setPreserveRatio(true);
+        this.playerNameLabel = new Label("WAITING...");
+        this.playerNameLabel.getStyleClass().add("loginLabel");
+        this.getChildren().addAll(totemIcon, this.playerNameLabel);
+        this.animateTransition(totemIcon);
     }
 }
