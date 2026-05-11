@@ -142,8 +142,8 @@ public class TUI implements UI, Runnable {
                 this.printLobbyInfo();
                 System.out.print("> ");
             } else if (this.state == ViewState.IN_GAME) {
-                this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
-                this.printGamePrompt();
+                //this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+                //this.printGamePrompt();
             }
         }
     }
@@ -528,8 +528,8 @@ public class TUI implements UI, Runnable {
                 this.printLobbyInfo();
                 System.out.print("> ");
             } else if (this.state == ViewState.IN_GAME) {
-                this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
-                this.printGamePrompt();
+                //this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+                //this.printGamePrompt();
             }
         }
     }

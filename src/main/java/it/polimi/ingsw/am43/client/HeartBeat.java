@@ -34,12 +34,13 @@ public class HeartBeat{
             while (this.active.get()) {
                 this.connection.ping();
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     continue;
                 }
                 now = System.currentTimeMillis();
                 if (now - this.connection.getLastPong() > 8000) {
+                    System.out.println("heartbeat");
                     throw new Exception(Long.toString(now - this.connection.getLastPong()));
                 }
             }

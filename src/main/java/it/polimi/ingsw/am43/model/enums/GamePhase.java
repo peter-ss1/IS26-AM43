@@ -55,7 +55,6 @@ public enum GamePhase {
                 player.getTribe().activateTimedBuilding(game, player, board);
             }
             if (game.getPhase().equals(ROUND_ENDING)) {
-                game.wakeUpWaiting();
                 game.getPhase().resolvePhase(game, board);
             }
         }
@@ -63,11 +62,10 @@ public enum GamePhase {
     ROUND_ENDING {
         @Override
         public void resolvePhase(Game game, Board board) {
-            board.activateEvents(game.getObserver(), OfferAction.BOTTOM, game.getPlayers());
+            board.activateEvents(game.getObserver(), OfferAction.BOTTOM, game.getAllPlayers());
             if (board.checkFinalRound()) {
-                board.activateEvents(game.getObserver(), OfferAction.TOP, game.getPlayers());
+                board.activateEvents(game.getObserver(), OfferAction.TOP, game.getAllPlayers());
                 game.setPhase(FINAL_COUNT);
-                game.wakeUpWaiting();
                 game.getPhase().resolvePhase(game, board);
                 return;
             }
@@ -82,7 +80,6 @@ public enum GamePhase {
         @Override
         public void resolvePhase(Game game, Board board) {
             game.setPhase(ROUND_ENDING);
-            game.wakeUpWaiting();
             game.getPhase().resolvePhase(game, board);
         }
     },
@@ -90,10 +87,11 @@ public enum GamePhase {
     FINAL_COUNT {
         @Override
         public void resolvePhase(Game game, Board board) {
-            game.getPlayers().forEach(Player::countFinalPoints);
-            game.getPlayers().sort(Comparator.comparingInt(Player::getPrestigePoints).thenComparing(Player::getFood).reversed());
-            Player winner = game.getPlayers().getFirst();
-            List<String> winners = game.getPlayers().stream()
+            List<Player> players= game.getAllPlayers();
+            players.forEach(Player::countFinalPoints);
+            players.sort(Comparator.comparingInt(Player::getPrestigePoints).thenComparing(Player::getFood).reversed());
+            Player winner = players.getFirst();
+            List<String> winners = players.stream()
                     .filter(p -> p.getPrestigePoints() == winner.getPrestigePoints() && p.getFood() == winner.getFood())
                     .map(Player::getNickname).toList();
             game.getObserver().broadcast(new Update.GameOverUpdate(winners));

@@ -33,10 +33,18 @@ public class Game implements ModelInterface, Serializable {
         this.numPlayers = np;
         this.phase = GamePhase.PREPARATION;
         this.players = new ArrayList<>();
-        this.addPlayer(nk, color);
         this.idToCard = new HashMap<>();
         this.inactivePlayers=new ArrayList<>();
         this.waitingPlayers=new ArrayList<>();
+        this.addPlayer(nk, color);
+    }
+
+    public List<Player> getAllPlayers(){
+        List<Player> players = new ArrayList<>();
+        players.addAll(this.players);
+        players.addAll(this.waitingPlayers);
+        players.addAll(this.inactivePlayers);
+        return players;
     }
 
     public void moveToInactive(Player player) throws IllegalArgumentException{
@@ -48,11 +56,14 @@ public class Game implements ModelInterface, Serializable {
             throw new IllegalArgumentException("Player not active");
         }
         this.inactivePlayers.add(player);
+        if (this.currPlayer.equals(player));
+            this.setCurrPlayer(this.board.getNextPlayerInOrderQueue());
     }
 
     public void moveToWait(Player player) throws IllegalArgumentException{
         if (!this.inactivePlayers.remove(player)) throw new IllegalArgumentException("player not inactive");
         this.waitingPlayers.add(player);
+        this.observer.updatePlayer(player.getNickname(),this.board.buildGameSnapshot(this.players, this.currPlayer.getNickname(), this.phase));
     }
 
     public boolean wakeUpWaiting() {
@@ -95,7 +106,7 @@ public class Game implements ModelInterface, Serializable {
     }
 
     public void addPlayer(String nickname, Color color) {
-        if (this.numPlayers == this.players.size()) throw new IllegalArgumentException("Game is already full");
+        if (this.numPlayers == this.getAllPlayers().size()) throw new IllegalArgumentException("Game is already full");
         if (!phase.equals(GamePhase.PREPARATION))
             throw new IllegalStateException("Cannot add player when phase is " + phase);
         if (this.players.stream().anyMatch(p -> p.getNickname().equals(nickname)))
@@ -222,6 +233,6 @@ public class Game implements ModelInterface, Serializable {
     }
 
     public void restartGame() {
-        this.board.buildGameRestartedUpdate(this.observer, this.players, this.currPlayer.getNickname(), this.phase);
+        this.observer.broadcast(this.board.buildGameSnapshot(this.getAllPlayers(), this.currPlayer.getNickname(), this.phase));
     }
 }

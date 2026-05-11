@@ -385,7 +385,13 @@ public class ClientModel {
 
     public void disconnectPlayer(String nickname) {
         this.otherPlayers.stream().filter(p -> p.getNickname().equals(nickname))
-                .findFirst().ifPresent(player -> player.setDisconnected(true));
+                .findFirst().ifPresent(player -> {
+                    player.setDisconnected(true);
+                    if(this.orderQueue.remove(player.getColor())){}
+                    else {
+                        this.offerTrack.stream().filter(otc->otc.getColor()!=null && otc.getColor().equals(player.getColor())).findFirst().ifPresent(otc->otc.setColor(null));
+                    }
+                });
         this.ui.showDisconnectedPlayer(nickname);
     }
 }

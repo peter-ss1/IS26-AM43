@@ -94,6 +94,11 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.lock.readLock().unlock();
     }
 
+    public void updatePlayer(String name, Update update) {
+        this.clients.entrySet().stream().filter(e->e.getValue().equals(name)).findFirst().ifPresent(
+                e->this.serverController.sendMessage(e.getKey(),update)
+        );
+    }
 
     public void pickCard(int id, UUID playerID) {
         PersistencyManager.saveRecovery(new GameRecovery(this.lobbyId, this.model, this.clients), Integer.toString(this.lobbyId));
@@ -166,7 +171,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.serverController.sendMessage(playerId, new Update.LobbyJoinedUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers()), this.getPlayersInfo()));
         this.broadcast(new Update.PlayerReconnectionUpdate(this.clients.get(playerId)));
         System.out.println(clients.get(playerId) + " reconnected to lobby " + this.lobbyId);
-        if (this.gameStarted && !this.gameStopped) {
+        if (!this.model.getPlayers().contains(this.model.getPlayerByName(this.clients.get(playerId)))){
             this.model.moveToWait(this.model.getPlayerByName(this.clients.get(playerId)));
         }
         if (disconnectedClients.isEmpty() && this.gameStarted && this.gameStopped) { //TODO resiliency to not every player
@@ -202,16 +207,19 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     public void notifyDisconnection(UUID id){
+        String name;
         this.lock.writeLock().lock();
         if (!this.gameStarted) {
-            this.clients.remove(id);
+            name=this.clients.remove(id);
             this.serverController.putPlayerChoosing(id);
+            this.broadcast(new Update.PlayerDisconnectedUpdate(name));
         }
-        else{ this.disconnectedClients.put(id, this.clients.get(id));}
+        else{
+            this.disconnectedClients.put(id, this.clients.get(id));
+            this.broadcast(new Update.PlayerDisconnectedUpdate(this.disconnectedClients.get(id)));
+            this.model.moveToInactive(this.model.getPlayerByName(this.disconnectedClients.get(id)));
+        }
         this.lock.writeLock().unlock();
-        //TODO notify other player and model when resiliency
-        //this.broadcast(new Update.PlayerDisconnectedUpdate(this.clients.get(id))); //this update should be broadcasted by the model not the game controller
-        this.model.moveToInactive(this.model.getPlayerByName(this.disconnectedClients.get(id))); //TODO concurrency
         System.out.println(this.disconnectedClients.get(id) + " disconnected from lobby " + this.lobbyId);
     }
 
@@ -227,4 +235,5 @@ public class GameController implements GameObserver, GameCommandReceiver {
                 .map(player -> new ClientPlayer(player.getNickname(), player.getColor(), this.disconnectedClients.contains(player.getNickname())))
                 .toList();
     }
+
 }

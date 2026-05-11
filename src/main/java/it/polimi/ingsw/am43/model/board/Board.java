@@ -58,21 +58,19 @@ public class Board implements Serializable {
     }
 
     public void removePlayerFromBoard(Player player){
-        if(this.turnOrder.removePlayer(player)){
-            this.playersOnBoard--;
-            return;
-        }else {
+        if(!this.turnOrder.removePlayer(player)){
             for (OfferTrackCard otc : this.offerTrack){
                 if(otc.getPlayer().isPresent() && otc.getPlayer().get().equals(player))
                     otc.removePlayer();
             }
-            return;
         }
+        this.playersOnBoard--;
+        return;
 
     }
 
     public void addPlayerFromBoard(){
-        this.playersOnBoard--;
+        this.playersOnBoard++;
     }
 
     public int getCurrEra() {
@@ -173,6 +171,7 @@ public class Board implements Serializable {
             }
         }
         this.turnOrder.append(observer, player);
+        //TODO boolean on modifiers
     }
 
     public boolean isOrderQueueEmpty() {
@@ -256,8 +255,9 @@ public class Board implements Serializable {
         observer.broadcast(new Update.NewRoundUpdate(this.currEra, this.topRow.getIds(), this.bottomRow.getIds()));
     }
 
-    public void buildGameRestartedUpdate(GameObserver observer, List<Player> players, String nickname, GamePhase phase) {
-        observer.broadcast(new Update.GameRestartedUpdate(
+
+    public Update.GameRestartedUpdate buildGameSnapshot(List<Player> players, String nickname, GamePhase phase) {
+        return new Update.GameRestartedUpdate(
                 players.stream().map(p -> new ClientPlayer(
                                 p.getNickname(),
                                 p.getColor(),
@@ -272,6 +272,6 @@ public class Board implements Serializable {
                         this.offerTrack.stream().map(card -> new OfferTrackElement(card.getActions(), card.getPlayer().map(Player::getColor).orElse(null))).toList(),
                         this.currEra,
                         phase
-                ));
+                );
     }
 }
