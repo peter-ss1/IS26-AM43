@@ -43,7 +43,7 @@ public class ClientModel {
     public void refreshLobbies(List<LobbyInfo> lobbies) {
         this.lobbies.clear();
         this.lobbies.addAll(lobbies);
-        this.ui.showAvailableLobbies();
+        this.ui.enterLobbyChoice();
     }
 
     public int getNumPlayers() {
@@ -354,10 +354,10 @@ public class ClientModel {
         this.ui.showFoodOffer(nickname);
     }
 
-    public void updateReconnectedLobby(String reconnectedPlayers) {
-        if (reconnectedPlayers.equalsIgnoreCase(this.ownPlayer.getNickname())) return;
-        this.getPlayerByNickname(reconnectedPlayers).setDisconnected(false);
-        this.ui.showNewPlayer();
+    public void reconnectPlayer(String reconnectedPlayer) {
+        if (reconnectedPlayer.equalsIgnoreCase(this.ownPlayer.getNickname())) return;
+        this.getPlayerByNickname(reconnectedPlayer).setDisconnected(false);
+        this.ui.showPlayerReconnection(reconnectedPlayer);
     }
 
     public void restartGame(List<ClientPlayer> players, String currentPlayerNickname, List<Integer> topRowCards, List<Integer> bottomRowCards, int era, GamePhase phase, List<OfferTrackElement> offerTrack, List<Color> orderQueue) {

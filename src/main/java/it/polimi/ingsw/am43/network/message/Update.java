@@ -40,7 +40,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = Update.OrderModifierUpdate.class, name = "orderModifierUpdate"),
         @JsonSubTypes.Type(value = Update.FoodOfferUpdate.class, name = "foodOfferUpdate"),
         @JsonSubTypes.Type(value = Update.RejoinRequestUpdate.class, name = "rejoinRequestUpdate"),
-        @JsonSubTypes.Type(value = Update.newLobbyReconnectionUpdate.class, name = "newReconnectionLobbyUpdate"),
+        @JsonSubTypes.Type(value = Update.PlayerReconnectionUpdate.class, name = "playerReconnectionUpdate"),
         @JsonSubTypes.Type(value = Update.GameRestartedUpdate.class, name = "gameRestartedUpdate"),
         @JsonSubTypes.Type(value = Update.PlayerDisconnectedUpdate.class, name = "playerDisconnectedUpdate"),
 
@@ -64,9 +64,6 @@ public non-sealed abstract class Update extends Message {
             controller.getLocalModel().retrieveOldPlayer(this.nickname, this.color);
         }
     }
-
-
-    
 
     public static class AvailableLobbiesUpdate extends Update {
         @JsonProperty("lobbies")
@@ -468,15 +465,15 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
-    public static class newLobbyReconnectionUpdate extends Update {
+    public static class PlayerReconnectionUpdate extends Update {
         @JsonProperty("reconnectedPlayer")
         private final String reconnectedPlayer;
-        public newLobbyReconnectionUpdate(@JsonProperty("reconnectedPlayer")String reconnectedPlayer) {
+        public PlayerReconnectionUpdate(@JsonProperty("reconnectedPlayer")String reconnectedPlayer) {
             this.reconnectedPlayer = reconnectedPlayer;
         }
         @Override
         public void execute(ClientController controller) {
-            controller.getLocalModel().updateReconnectedLobby(this.reconnectedPlayer);
+            controller.getLocalModel().reconnectPlayer(this.reconnectedPlayer);
         }
     }
 

@@ -252,6 +252,8 @@ public final class CardVisualizer {
     public static List<String> getOrderQueueASCII(int numPlayers, List<Color> orderQueue) {
         List<String> lines = new ArrayList<>();
         List<Integer> bonus = orderQueueMap.get(numPlayers);
+        int colorOffset = bonus.size() - orderQueue.size();
+
         lines.add("╭───────────────╮");
         lines.add("│               │");
         for (int i = 0; i < 5; i++) {
@@ -259,7 +261,14 @@ public final class CardVisualizer {
                 lines.add("│               │");
                 continue;
             }
-            lines.add(String.format("│  %2d  [%3s]    │", bonus.get(i), i>=orderQueue.size() ? "   " : getASCIIBGColor(orderQueue.get(i)) + "   " + RESET));
+            String colorBox = "   ";
+            if (i >= colorOffset) {
+                int colorIndex = i - colorOffset;
+                if (colorIndex < orderQueue.size()) {
+                    colorBox = getASCIIBGColor(orderQueue.get(colorIndex)) + "   " + RESET;
+                }
+            }
+            lines.add(String.format("│  %2d  [%3s]    │", bonus.get(i), colorBox));
         }
         lines.add("│               │");
         lines.add("╰───────────────╯");

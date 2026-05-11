@@ -44,13 +44,8 @@ public class ConnectionScene extends CustomScene {
         }
         if (valid) {
             this.connectButton.setText("Connecting...");
-            this.gui.connectAsync(ip, selected.equals("RMI"), message -> {
-                this.gui.showPopUp(message);
-                this.connectButton.setText("Connect to Server");
-                this.connectButton.setDisable(false);
-                this.ipField.setDisable(false);
-                this.connectionType.setDisable(false);
-            });
+            String finalIp = ip;
+            this.gui.submitTask(() -> this.controller.chooseConnectionType(finalIp, selected.equals("RMI")));
         } else {
             this.connectButton.setDisable(false);
             this.ipField.setDisable(false);

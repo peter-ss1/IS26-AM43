@@ -38,21 +38,6 @@ public class GUI implements UI {
         return localModel;
     }
 
-    public void connectAsync(String serverIp, boolean rmi, Consumer<String> onError) {
-        new Thread(() -> { //TODO the client should send a connection request and wait for next stage from server
-            try {
-                this.controller.chooseConnectionType(serverIp, rmi);
-                this.state = ViewState.LOBBY_CHOICE;
-                Platform.runLater(() -> {
-                    this.navigator.showScene(ViewState.LOBBY_CHOICE);
-                });
-                this.controller.refreshLobbies();
-            } catch (IOException | NotBoundException e) {
-                Platform.runLater(() -> onError.accept("Could not reach server at " + serverIp + ". " + e.getMessage()));
-            }
-        }).start();
-    }
-
     public void submitTask(Runnable task) {
         this.app.runAsync(task);
     }
@@ -219,6 +204,32 @@ public class GUI implements UI {
     @Override
     public void showFoodOffer(String nickname) {
         refreshGameSceneWithInfo(nickname + " received 3 food from the offer card.");
+    }
+
+    @Override
+    public void showRetrievedInfo() {
+        Platform.runLater(this.navigator::showDisconnectionMenu);
+    }
+
+    @Override
+    public void showDisconnectedPlayer(String nickname) {
+        Platform.runLater(() -> this.navigator.getCurrentScene().showDisconnectedPlayer(nickname));
+    }
+
+    @Override
+    public void showPlayerReconnection(String nickname) {
+        Platform.runLater(() -> this.navigator.getCurrentScene().showPlayerReconnection(nickname));
+    }
+
+    @Override
+    public void showDisconnection() {
+        Platform.runLater(this.navigator::showLoading);
+    }
+
+    @Override
+    public void enterLobbyChoice() {
+        this.state = ViewState.LOBBY_CHOICE;
+        Platform.runLater(() -> this.navigator.showScene(this.state));
     }
 
     private void refreshGameSceneWithInfo(String message) {

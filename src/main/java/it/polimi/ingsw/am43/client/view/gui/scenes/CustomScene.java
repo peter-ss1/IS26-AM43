@@ -13,6 +13,21 @@ public abstract class CustomScene implements UI {
     protected GUI gui;
     protected ClientController controller;
 
+    @Override
+    public void showRetrievedInfo() {}
+
+    @Override
+    public void showDisconnectedPlayer(String nickname) {}
+
+    @Override
+    public void showDisconnection() {}
+
+    @Override
+    public void enterLobbyChoice() {}
+
+    @Override
+    public void showPlayerReconnection(String nickname) {}
+
     public void setGui(GUI gui) {
         this.gui = gui;
     }
