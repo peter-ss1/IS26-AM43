@@ -936,7 +936,7 @@ public class TUI implements UI, Runnable {
     private void printCentralTrack(List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
         List<List<String>> centralCards = new ArrayList<>();
         centralCards.add(CardVisualizer.getEraASCII(this.localModel.getCurrentEra()));
-        centralCards.add(CardVisualizer.getOrderQueueASCII(this.localModel.getNumPlayers(), orderQueue));
+        centralCards.add(CardVisualizer.getOrderQueueASCII(this.localModel.getNumPlayers(), orderQueue, this.localModel.getDisconnectedPlayers()));
         offerTrack.forEach(o -> centralCards.add(CardVisualizer.getOfferTrackASCII(o)));
         printSideBySide(centralCards);
     }

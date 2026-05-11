@@ -249,26 +249,28 @@ public final class CardVisualizer {
         return lines;
     }
 
-    public static List<String> getOrderQueueASCII(int numPlayers, List<Color> orderQueue) {
+    public static List<String> getOrderQueueASCII(int numPlayers, List<Color> orderQueue, List<Color> disconnectedPlayers) {
         List<String> lines = new ArrayList<>();
         List<Integer> bonus = orderQueueMap.get(numPlayers);
-        int colorOffset = bonus.size() - orderQueue.size();
 
         lines.add("╭───────────────╮");
         lines.add("│               │");
-        for (int i = 0; i < 5; i++) {
-            if (i >= bonus.size()) {
-                lines.add("│               │");
-                continue;
-            }
-            String colorBox = "   ";
-            if (i >= colorOffset) {
-                int colorIndex = i - colorOffset;
-                if (colorIndex < orderQueue.size()) {
-                    colorBox = getASCIIBGColor(orderQueue.get(colorIndex)) + "   " + RESET;
-                }
-            }
-            lines.add(String.format("│  %2d  [%3s]    │", bonus.get(i), colorBox));
+        int i = 0;
+        while (i <  numPlayers - (orderQueue.size() + disconnectedPlayers.size())) {
+            lines.add(String.format("│  %2d  [   ]    │", bonus.get(i)));
+            i++;
+        }
+        for (Color color : orderQueue) {
+            lines.add(String.format("│  %2d  [%s]    │", bonus.get(i), getASCIIBGColor(color) + "   " + RESET));
+            i++;
+        }
+        for (Color color : disconnectedPlayers) {
+            lines.add(String.format("│  %2d  [%s]    │", bonus.get(i), getASCIIBGColor(color) + MESOS + "///" + RESET));
+            i++;
+        }
+        while (i<5) {
+            lines.add("│               │");
+            i++;
         }
         lines.add("│               │");
         lines.add("╰───────────────╯");
@@ -281,7 +283,7 @@ public final class CardVisualizer {
         lines.add("╭───────────────╮");
         lines.add("│               │");
         lines.add("│               │");
-        lines.add(String.format("│     [%3s]     │",  card.getColor() == null ? "   " : getASCIIBGColor(card.getColor()) + "   " + RESET));
+        lines.add(String.format("│     [%3s]     │", card.getColor() == null ? "   " : getASCIIBGColor(card.getColor()) + "   " + RESET));
         lines.add("│               │");
         lines.add("│               │");
         lines.add("├───────────────┤");
@@ -292,7 +294,7 @@ public final class CardVisualizer {
 
     private static String getOfferActionsASCII(OfferTrackElement card) {
         StringBuilder actions = new StringBuilder();
-        for (OfferAction o :  card.getOfferActions()) {
+        for (OfferAction o : card.getOfferActions()) {
             switch (o) {
                 case TOP -> actions.append(" ⇑ ");
                 case BOTTOM -> actions.append(" ⇓ ");
@@ -308,7 +310,7 @@ public final class CardVisualizer {
             case RED -> colorCode = RED;
             case YELLOW -> colorCode = YELLOW;
             case WHITE -> colorCode = WHITE;
-            case BLACK ->  colorCode = BLACK;
+            case BLACK -> colorCode = BLACK;
             case CYAN -> colorCode = TEAL;
             default -> colorCode = RESET;
         }
@@ -321,7 +323,7 @@ public final class CardVisualizer {
             case RED -> bGColorCode = BG_RED;
             case YELLOW -> bGColorCode = BG_YELLOW;
             case WHITE -> bGColorCode = BG_WHITE;
-            case BLACK ->  bGColorCode = BG_BLACK;
+            case BLACK -> bGColorCode = BG_BLACK;
             case CYAN -> bGColorCode = BG_TEAL;
             default -> bGColorCode = RESET;
         }

@@ -202,6 +202,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     public void notifyDisconnection(UUID id){
+        String nickname = this.clients.get(id);
         this.lock.writeLock().lock();
         if (!this.gameStarted) {
             this.clients.remove(id);
@@ -211,7 +212,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.lock.writeLock().unlock();
         //TODO notify other player and model when resiliency
         this.gameStopped=true;
-        this.broadcast(new Update.PlayerDisconnectedUpdate(this.clients.get(id))); //this update should be broadcasted by the model not the game controller
+        this.broadcast(new Update.PlayerDisconnectedUpdate(nickname)); //this update should be broadcasted by the model not the game controller
         System.out.println(this.disconnectedClients.get(id) + " disconnected from lobby " + this.lobbyId);
     }
 

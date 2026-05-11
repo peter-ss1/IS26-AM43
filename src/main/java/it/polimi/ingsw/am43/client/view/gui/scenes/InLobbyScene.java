@@ -11,6 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class InLobbyScene extends CustomScene {
     @FXML
@@ -61,6 +63,15 @@ public class InLobbyScene extends CustomScene {
     private void updateLobbyPlayers() {
         List<ClientPlayer> allPlayers = this.gui.getLocalModel().getAllPlayers();
         String ownName = this.gui.getLocalModel().getOwnPlayer() == null ? "" : this.gui.getLocalModel().getOwnPlayer().getNickname();
+
+        Set<String> currentNicknames = allPlayers.stream().map(ClientPlayer::getNickname).collect(Collectors.toSet());
+        for (Node node : this.playerContainer.getChildren()) {
+            LobbyPlayerNode lobbyPlayerNode = (LobbyPlayerNode) node;
+            if (!lobbyPlayerNode.isEmpty() && !currentNicknames.contains(lobbyPlayerNode.getNickname())) {
+                lobbyPlayerNode.deactivate();
+            }
+        }
+
         for (ClientPlayer p : allPlayers) {
             LobbyPlayerNode existingNode = findNodeForPlayer(p.getNickname());
             if (existingNode == null) {
@@ -72,15 +83,16 @@ public class InLobbyScene extends CustomScene {
                 existingNode.update(p.isDisconnected());
             }
         }
+
     }
 
     private LobbyPlayerNode findNodeForPlayer(String name) {
-        return playerContainer.getChildren().stream().map(n -> (LobbyPlayerNode) n)
+        return this.playerContainer.getChildren().stream().map(n -> (LobbyPlayerNode) n)
                 .filter(lp -> !lp.isEmpty() && name.equals(lp.getNickname())).findFirst().orElse(null);
     }
 
     private LobbyPlayerNode findFirstEmptySlot() {
-        return playerContainer.getChildren().stream().map(n -> (LobbyPlayerNode) n)
+        return this.playerContainer.getChildren().stream().map(n -> (LobbyPlayerNode) n)
                 .filter(LobbyPlayerNode::isEmpty).findFirst().orElse(null);
     }
 
