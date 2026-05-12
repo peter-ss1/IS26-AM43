@@ -6,6 +6,7 @@ import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.client.view.gui.components.CardNode;
 import it.polimi.ingsw.am43.client.view.gui.components.OfferTrackCardNode;
 import it.polimi.ingsw.am43.client.view.gui.components.OrderQueueNode;
+import it.polimi.ingsw.am43.client.view.gui.components.OrderQueueSlot;
 import it.polimi.ingsw.am43.client.view.gui.components.PlayerTribeNode;
 import it.polimi.ingsw.am43.client.view.gui.components.TotemNode;
 import it.polimi.ingsw.am43.client.view.gui.GUI;
@@ -27,11 +28,8 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
 public class InGameScene extends CustomScene {
     private static final int MAX_ACTIVITY_MESSAGES = 8;
@@ -59,7 +57,6 @@ public class InGameScene extends CustomScene {
     @FXML
     private VBox activityLogPane;
 
-    private List<Color> offerSelectionOrder = List.of();
     private final List<OfferAction> consumedOfferActions = new ArrayList<>();
     private GamePhase actionContextPhase;
     private String actionContextPlayer;
@@ -110,6 +107,18 @@ public class InGameScene extends CustomScene {
         this.setStatusStyle("status-error");
         this.statusLabel.setText(message);
         this.addActivityMessage(message, "activity-error");
+    }
+
+    @Override
+    public void showDisconnectedPlayer(String nickname) {
+        this.refreshFromModel();
+        this.showError("Player " + nickname + " lost connection. Waiting for reconnection.");
+    }
+
+    @Override
+    public void showPlayerReconnection(String nickname) {
+        this.refreshFromModel();
+        this.showInfo("Player " + nickname + " reconnected.");
     }
 
     private void setStatusStyle(String styleClass) {
@@ -168,30 +177,21 @@ public class InGameScene extends CustomScene {
     private void renderOrderQueue(ClientModel model) {
         this.orderQueuePane.getChildren().clear();
         int numPlayers = model.getNumPlayers();
-        List<Optional<Color>> orderQueueSlots = this.buildOrderQueueSlots(model);
+        List<OrderQueueSlot> orderQueueSlots = this.buildOrderQueueSlots(model);
         this.orderQueuePane.getChildren().add(new OrderQueueNode(numPlayers, orderQueueSlots, this::isCurrentPlayerColor, this::configureOrderQueueDragSource));
     }
 
-    private List<Optional<Color>> buildOrderQueueSlots(ClientModel model) {
+    private List<OrderQueueSlot> buildOrderQueueSlots(ClientModel model) {
         List<Color> currentQueue = model.getOrderQueue();
-        if (model.getPhase() != GamePhase.OFFER_TRACK_SELECTION) {
-            this.offerSelectionOrder = List.of();
-            return this.toOccupiedSlots(currentQueue);
+        List<OrderQueueSlot> slots = new ArrayList<>();
+        int emptySlots = Math.max(0, model.getNumPlayers() - currentQueue.size());
+        for (int i = 0; i < emptySlots; i++) {
+            slots.add(OrderQueueSlot.empty());
         }
-        if (currentQueue.size() == model.getNumPlayers() || this.offerSelectionOrder.isEmpty()) {
-            this.offerSelectionOrder = new ArrayList<>(currentQueue);
-        }
-
-        Set<Color> remainingColors = new HashSet<>(currentQueue);
-        return this.offerSelectionOrder.stream()
-                .map(color -> remainingColors.contains(color) ? Optional.of(color) : Optional.<Color>empty())
-                .toList();
-    }
-
-    private List<Optional<Color>> toOccupiedSlots(List<Color> orderQueue) {
-        return orderQueue.stream()
-                .map(Optional::of)
-                .toList();
+        currentQueue.stream()
+                .map(OrderQueueSlot::active)
+                .forEach(slots::add);
+        return slots;
     }
 
     private void renderScoreboard(List<ClientPlayer> players, String currentPlayer) {
@@ -203,11 +203,15 @@ public class InGameScene extends CustomScene {
             row.setCursor(Cursor.HAND);
             boolean currentPlayerRow = player.getNickname().equals(currentPlayer);
             boolean viewedPlayerRow = player.getNickname().equals(this.viewedTribeNickname);
+            boolean disconnectedPlayerRow = player.isDisconnected();
             if (currentPlayerRow) {
                 row.getStyleClass().add("current-player-row");
             }
             if (viewedPlayerRow) {
                 row.getStyleClass().add("viewed-player-row");
+            }
+            if (disconnectedPlayerRow) {
+                row.getStyleClass().add("disconnected-player-row");
             }
             row.setOnMouseClicked(event -> {
                 this.viewedTribeNickname = player.getNickname();
@@ -219,7 +223,7 @@ public class InGameScene extends CustomScene {
             totem.setHighlighted(currentPlayerRow || viewedPlayerRow);
             Label text = new Label(String.format("%s%s  Food: %d  Prestige: %d",
                     currentPlayerRow ? "> " : "  ",
-                    player.getNickname(),
+                    this.scoreboardName(player),
                     player.getFood(),
                     player.getPrestigePoints()));
             text.setStyle("-fx-text-fill: " + this.cssColor(player.getColor()) + ";");
@@ -260,6 +264,13 @@ public class InGameScene extends CustomScene {
         ClientModel model = this.gui.getLocalModel();
         ClientPlayer currentPlayer = model.getPlayerByNickname(model.getCurrentPlayerNickname());
         return currentPlayer != null && currentPlayer.getColor().equals(color);
+    }
+
+    private String scoreboardName(ClientPlayer player) {
+        if (player.isDisconnected()) {
+            return player.getNickname() + "  reconnecting...";
+        }
+        return player.getNickname();
     }
 
     private void configureOrderQueueDragSource(TotemNode totem, Color color) {

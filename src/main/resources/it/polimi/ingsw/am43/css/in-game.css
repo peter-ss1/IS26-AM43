@@ -37,11 +37,6 @@
     -fx-text-fill: #7f1d1d;
 }
 
-.activity-important {
-    -fx-background-color: rgba(254, 203, 0, 0.22);
-    -fx-text-fill: #4d3b00;
-}
-
 .board-background {
     -fx-background-color: #eee6d9;
 }
@@ -76,6 +71,13 @@
     -fx-border-color: #5f5a52;
     -fx-border-radius: 6px;
     -fx-border-width: 1px;
+}
+
+.disconnected-player-row {
+    -fx-opacity: 0.58;
+    -fx-border-color: #9a8f80;
+    -fx-border-radius: 6px;
+    -fx-border-style: dashed;
 }
 
 .card-placeholder {
