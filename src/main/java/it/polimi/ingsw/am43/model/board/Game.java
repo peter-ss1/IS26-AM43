@@ -56,14 +56,28 @@ public class Game implements ModelInterface, Serializable {
             throw new IllegalArgumentException("Player not active");
         }
         this.inactivePlayers.add(player);
-        if (this.currPlayer.equals(player));
-            this.setCurrPlayer(this.board.getNextPlayerInOrderQueue());
+        if (this.currPlayer.equals(player));{
+            if (this.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION)){
+                System.out.println(this.board.getNextPlayerInOrderQueue().getNickname());
+                //this.board.popNextPlayerInOrderQueue();
+                //System.out.println(this.board.getNextPlayerInOrderQueue().getNickname());
+                this.setCurrPlayer(this.board.getNextPlayerInOrderQueue());
+            }else if(this.getPhase().equals(GamePhase.ACTION_RESOLUTION)){
+                board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,
+                        () -> {
+                            this.wakeUpWaiting();
+                            this.phase.resolvePhase(this, this.board);
+                        });
+            }
+
+        }
+
     }
 
     public void moveToWait(Player player) throws IllegalArgumentException{
         if (!this.inactivePlayers.remove(player)) throw new IllegalArgumentException("player not inactive");
         this.waitingPlayers.add(player);
-        this.observer.updatePlayer(player.getNickname(),this.board.buildGameSnapshot(this.players, this.currPlayer.getNickname(), this.phase));
+        this.observer.updatePlayer(player.getNickname(),this.board.buildGameSnapshot(this.getAllPlayers(), this.currPlayer.getNickname(), this.phase));
     }
 
     public boolean wakeUpWaiting() {
@@ -234,5 +248,10 @@ public class Game implements ModelInterface, Serializable {
 
     public void restartGame() {
         this.observer.broadcast(this.board.buildGameSnapshot(this.getAllPlayers(), this.currPlayer.getNickname(), this.phase));
+    }
+
+    public void removePlayer(String nickname){
+        this.availableColors.add(this.getPlayerByName(nickname).getColor());
+        this.players.remove(this.getPlayerByName(nickname));
     }
 }

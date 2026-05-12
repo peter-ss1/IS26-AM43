@@ -18,6 +18,8 @@ public interface ModelInterface extends Serializable {
 
     void addPlayer(String nickname, Color color);
 
+    void removePlayer(String nickname);
+
     void placeTotemOnTrack(Player player, int position);
 
     Player getPlayerByName(String name);
@@ -33,6 +35,8 @@ public interface ModelInterface extends Serializable {
     void setObserver(GameObserver observer);
 
     List<Player> getPlayers();
+
+    List<Player> getAllPlayers();
 
     void startGame();
 

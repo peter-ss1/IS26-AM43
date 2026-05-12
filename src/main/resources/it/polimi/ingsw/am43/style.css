@@ -39,7 +39,7 @@
 }
 
 .title {
-    -fx-font-family: "VagabundoMedium";
+    -fx-font-family: "VagabundoMedium" !important;
     -fx-font-size: 250px;
     -fx-text-fill: #FEF1CD;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 15, 0, 0, 0);

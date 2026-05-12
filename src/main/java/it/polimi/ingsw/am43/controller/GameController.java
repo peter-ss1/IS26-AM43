@@ -211,6 +211,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.lock.writeLock().lock();
         if (!this.gameStarted) {
             name=this.clients.remove(id);
+            this.model.removePlayer(name);
             this.serverController.putPlayerChoosing(id);
             this.broadcast(new Update.PlayerDisconnectedUpdate(name));
         }
@@ -231,7 +232,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     private List<ClientPlayer> getPlayersInfo() {
-        return this.model.getPlayers().stream()
+        return this.model.getAllPlayers().stream()
                 .map(player -> new ClientPlayer(player.getNickname(), player.getColor(), this.disconnectedClients.contains(player.getNickname())))
                 .toList();
     }

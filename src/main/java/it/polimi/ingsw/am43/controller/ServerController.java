@@ -78,6 +78,7 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         }
         GameController gameController= new GameController(this, gameRecovery.getGame(), lobbyId,gameRecovery.getClients());
         this.lobbies.put(lobbyId,gameController);
+
     }
 
     public void receiveCommand(ServerCommand command){
