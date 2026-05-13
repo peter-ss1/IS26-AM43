@@ -4,6 +4,7 @@ import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.model.board.ModelInterface;
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
@@ -13,12 +14,12 @@ import it.polimi.ingsw.am43.network.command.GameCommandReceiver;
 import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Update;
 import it.polimi.ingsw.am43.utils.Executor;
+import it.polimi.ingsw.am43.utils.ServerScheduler;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -33,6 +34,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     private volatile boolean gameStarted;
     private volatile boolean gameStopped;
     private final ReadWriteLock lock;
+    private ScheduledFuture<?> recoveryTimeoutTask;
 
 
     public GameController(ServerController serverController, ModelInterface model, int lobbyId, String nickname, UUID playerID) {
@@ -63,6 +65,23 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.gameStarted=true;
         this.gameStopped=true;
         this.lock=new ReentrantReadWriteLock();
+        this.recoveryTimeoutTask= ServerScheduler.scheduler.schedule(() -> {
+            lock.writeLock().lock();
+            try {
+                if (this.gameStopped) {
+                    System.out.println("Timeout finished, lobby "+this.lobbyId+" restarting.");
+                    this.model.restartGame();
+                    for (String name : this.disconnectedClients.values()){
+                        this.model.moveToInactive(this.model.getPlayerByName(name));
+                        this.broadcast(new Update.PlayerDisconnectedUpdate(name));
+                        System.out.println(name);
+                    }
+                    this.gameStopped=false;
+                }
+            } finally {
+                lock.writeLock().unlock();
+            }
+        }, 30, TimeUnit.SECONDS);;
     }
 
     public void receiveCommand(GameCommand command) {
@@ -166,20 +185,21 @@ public class GameController implements GameObserver, GameCommandReceiver {
             return;
         }
         this.disconnectedClients.remove(playerId);
-        this.lock.writeLock().unlock();
-        this.lock.readLock().lock();
         this.serverController.sendMessage(playerId, new Update.LobbyJoinedUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers()), this.getPlayersInfo()));
         this.broadcast(new Update.PlayerReconnectionUpdate(this.clients.get(playerId)));
         System.out.println(clients.get(playerId) + " reconnected to lobby " + this.lobbyId);
-        if (!this.model.getPlayers().contains(this.model.getPlayerByName(this.clients.get(playerId)))){
-            this.model.moveToWait(this.model.getPlayerByName(this.clients.get(playerId)));
+        if (this.model.getPlayerByName(this.clients.get(playerId)).getStatus().equals(PlayerStatus.INACTIVE)){
+            this.model.moveToWait(this.model.getPlayerByName(this.clients.get(playerId)),this.gameStopped);
         }
-        if (disconnectedClients.isEmpty() && this.gameStarted && this.gameStopped) { //TODO resiliency to not every player
+        if (disconnectedClients.isEmpty() && this.gameStarted && this.gameStopped) {
+            System.out.println("Every player reconnected, lobby "+this.lobbyId+" restarting.");
+            if (this.recoveryTimeoutTask != null) {
+                this.recoveryTimeoutTask.cancel(false);
+            }
             this.model.restartGame();
             this.gameStopped=false;
         }
-        this.lock.readLock().unlock();
-
+        this.lock.writeLock().unlock();
     }
 
     public void joinGame(UUID playerID, String nickname, Color color) {
@@ -233,7 +253,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     private List<ClientPlayer> getPlayersInfo() {
         return this.model.getAllPlayers().stream()
-                .map(player -> new ClientPlayer(player.getNickname(), player.getColor(), this.disconnectedClients.contains(player.getNickname())))
+                .map(player -> new ClientPlayer(player.getNickname(), player.getColor(), this.disconnectedClients.containsValue(player.getNickname()) ? PlayerStatus.INACTIVE : PlayerStatus.ACTIVE))
                 .toList();
     }
 

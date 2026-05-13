@@ -263,7 +263,8 @@ public class Board implements Serializable {
                                 p.getColor(),
                                 p.getFood(),
                                 p.getPrestigePoints(),
-                                p.getTribe().getIds())).toList()
+                                p.getTribe().getIds(),
+                                p.getStatus())).toList()
                         ,
                         nickname,
                         this.topRow.getIds(),

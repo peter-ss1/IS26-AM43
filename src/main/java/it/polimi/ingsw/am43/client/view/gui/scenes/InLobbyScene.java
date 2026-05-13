@@ -3,6 +3,7 @@ package it.polimi.ingsw.am43.client.view.gui.scenes;
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.view.gui.components.LobbyPlayerNode;
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
@@ -77,10 +78,10 @@ public class InLobbyScene extends CustomScene {
             if (existingNode == null) {
                 LobbyPlayerNode emptySlot = findFirstEmptySlot();
                 if (emptySlot != null) {
-                    emptySlot.activate(p.getNickname(), p.getColor(), p.isDisconnected(), p.getNickname().equals(ownName));
+                    emptySlot.activate(p.getNickname(), p.getColor(), p.getStatus().equals(PlayerStatus.INACTIVE), p.getNickname().equals(ownName));
                 }
             } else {
-                existingNode.update(p.isDisconnected());
+                existingNode.update(p.getStatus().equals(PlayerStatus.INACTIVE));
             }
         }
 

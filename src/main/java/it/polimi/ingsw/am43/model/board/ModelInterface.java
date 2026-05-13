@@ -12,7 +12,7 @@ public interface ModelInterface extends Serializable {
 
     void moveToInactive(Player player);
 
-    void moveToWait(Player player);
+    void moveToWait(Player player,boolean stopped);
 
     int getNumPlayers();
 
@@ -33,8 +33,6 @@ public interface ModelInterface extends Serializable {
     List<Color> getAvailableColors();
 
     void setObserver(GameObserver observer);
-
-    List<Player> getPlayers();
 
     List<Player> getAllPlayers();
 

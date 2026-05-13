@@ -5,6 +5,7 @@ import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
+import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
@@ -18,8 +19,6 @@ import java.util.*;
 public class Game implements ModelInterface, Serializable {
     private final List<Color> availableColors;
     private final List<Player> players;
-    private final List<Player> inactivePlayers;
-    private final List<Player> waitingPlayers;
     private final int numPlayers;
     private Player currPlayer;
     private GamePhase phase;
@@ -34,34 +33,19 @@ public class Game implements ModelInterface, Serializable {
         this.phase = GamePhase.PREPARATION;
         this.players = new ArrayList<>();
         this.idToCard = new HashMap<>();
-        this.inactivePlayers=new ArrayList<>();
-        this.waitingPlayers=new ArrayList<>();
         this.addPlayer(nk, color);
     }
 
-    public List<Player> getAllPlayers(){
-        List<Player> players = new ArrayList<>();
-        players.addAll(this.players);
-        players.addAll(this.waitingPlayers);
-        players.addAll(this.inactivePlayers);
-        return players;
-    }
-
     public void moveToInactive(Player player) throws IllegalArgumentException{
-
-        if (this.players.remove(player)){
-            this.board.removePlayerFromBoard(player);
-        }else if(this.waitingPlayers.remove(player)){
-        }else {
-            throw new IllegalArgumentException("Player not active");
-        }
-        this.inactivePlayers.add(player);
+        player.setStatus(PlayerStatus.INACTIVE);
+        this.board.removePlayerFromBoard(player);
         if (this.currPlayer.equals(player));{
             if (this.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION)){
-                System.out.println(this.board.getNextPlayerInOrderQueue().getNickname());
-                //this.board.popNextPlayerInOrderQueue();
-                //System.out.println(this.board.getNextPlayerInOrderQueue().getNickname());
-                this.setCurrPlayer(this.board.getNextPlayerInOrderQueue());
+                if (this.board.isOrderQueueEmpty()) {
+                    this.getPhase().resolvePhase(this, this.board);
+                }else {
+                    this.setCurrPlayer(this.board.getNextPlayerInOrderQueue());
+                }
             }else if(this.getPhase().equals(GamePhase.ACTION_RESOLUTION)){
                 board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,
                         () -> {
@@ -74,22 +58,18 @@ public class Game implements ModelInterface, Serializable {
 
     }
 
-    public void moveToWait(Player player) throws IllegalArgumentException{
-        if (!this.inactivePlayers.remove(player)) throw new IllegalArgumentException("player not inactive");
-        this.waitingPlayers.add(player);
-        this.observer.updatePlayer(player.getNickname(),this.board.buildGameSnapshot(this.getAllPlayers(), this.currPlayer.getNickname(), this.phase));
+    public void moveToWait(Player player,boolean stopped) throws IllegalArgumentException{
+        if (!player.getStatus().equals(PlayerStatus.INACTIVE)) throw new IllegalArgumentException("player not inactive");
+        player.setStatus(PlayerStatus.WAITING);
+        if(!stopped) this.observer.updatePlayer(player.getNickname(),this.board.buildGameSnapshot(this.getAllPlayers(), this.currPlayer.getNickname(), this.phase));
     }
 
-    public boolean wakeUpWaiting() {
-        boolean r=false;
-        for (Player p : this.waitingPlayers){
-            this.players.add(p);
+    public void wakeUpWaiting() {
+        this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).forEach(p->{
+            p.setStatus(PlayerStatus.ACTIVE);
             this.board.addPlayerFromBoard();
             this.board.returnPlayerToOrderQueue(this.observer,p);
-            r=true;
-        }
-        this.waitingPlayers.clear();
-        return r;
+        });
     }
 
     public void setObserver(GameObserver observer) {
@@ -109,8 +89,20 @@ public class Game implements ModelInterface, Serializable {
         this.idToCard.putAll(map);
     }
 
-    public ArrayList<Player> getPlayers() {
+    public ArrayList<Player> getAllPlayers(){
         return new ArrayList<>(this.players);
+    }
+
+    public ArrayList<Player> getActivePlayers() {
+        return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.ACTIVE)).toList());
+    }
+
+    public ArrayList<Player> getInactivePlayers() {
+        return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.INACTIVE)).toList());
+    }
+
+    public ArrayList<Player> getWaitingPlayers() {
+        return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).toList());
     }
 
     @Override
@@ -172,8 +164,6 @@ public class Game implements ModelInterface, Serializable {
 
     public Player getPlayerByName(String name) {
         for (Player p : this.players) if (p.getNickname().equals(name)) return p;
-        for (Player p:this.inactivePlayers) if (p.getNickname().equals(name)) return p;
-        for (Player p:this.waitingPlayers) if (p.getNickname().equals(name)) return p;
         throw new IllegalArgumentException("Player is not registered in the game");
 
     }

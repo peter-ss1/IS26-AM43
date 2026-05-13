@@ -3,6 +3,7 @@ package it.polimi.ingsw.am43.client;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
+import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.*;
@@ -23,7 +24,6 @@ public class ClientModel {
     private boolean validating;
     private final List<String> winners;
     private boolean gameStarted;
-    private final List<Color> disconnectedPlayers;
 
     public ClientModel(UI ui) {
         this.lobbies = new ArrayList<>();
@@ -41,7 +41,6 @@ public class ClientModel {
         this.validating = false;
         this.winners = new ArrayList<>();
         this.gameStarted = false;
-        this.disconnectedPlayers = new ArrayList<>();
     }
 
     public void refreshLobbies(List<LobbyInfo> lobbies) {
@@ -227,6 +226,12 @@ public class ClientModel {
 
     public void setPhase(GamePhase phase) {
         this.phase = phase;
+        if (this.phase == GamePhase.ROUND_ENDING) {
+            this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).forEach(p->{
+                    p.setStatus(PlayerStatus.ACTIVE);
+                    this.orderQueue.add(p.getColor());
+            });
+        }
     }
 
     public void setCurrentPlayer(String nickname) {
@@ -361,10 +366,8 @@ public class ClientModel {
 
     public void reconnectPlayer(String reconnectedPlayer) {
         if (reconnectedPlayer.equalsIgnoreCase(this.ownPlayer.getNickname())) return;
-        this.getPlayerByNickname(reconnectedPlayer).setDisconnected(false);
+        this.getPlayerByNickname(reconnectedPlayer).setStatus(PlayerStatus.WAITING);
         Color color = this.getPlayerByNickname(reconnectedPlayer).getColor();
-        this.disconnectedPlayers.remove(color);
-        this.orderQueue.add(color);
         this.ui.showPlayerReconnection(reconnectedPlayer);
     }
 
@@ -384,8 +387,6 @@ public class ClientModel {
         this.validating = false;
         this.gameStarted = true;
         this.currPlayerNickname = currentPlayerNickname;
-        this.disconnectedPlayers.clear();
-        this.disconnectedPlayers.addAll(this.otherPlayers.stream().filter(ClientPlayer::isDisconnected).map(ClientPlayer::getColor).toList());
         this.ui.showGameStart();
     }
 
@@ -398,12 +399,11 @@ public class ClientModel {
         this.otherPlayers.stream().filter(p -> p.getNickname().equals(nickname))
                 .findFirst().ifPresentOrElse(p -> {
                     if (this.gameStarted) {
-                        p.setDisconnected(true);
+                        p.setStatus(PlayerStatus.INACTIVE);
                         this.offerTrack.stream().filter(o -> o.getColor() != null && o.getColor().equals(p.getColor())).findFirst().ifPresent(o -> {
                             o.setColor(null);
                         });
                         this.orderQueue.remove(p.getColor());
-                        this.disconnectedPlayers.add(p.getColor());
                     } else {
                         this.ownLobby.setCurrentPlayers(this.ownLobby.getCurrentPlayers()-1);
                         this.otherPlayers.remove(p);
@@ -412,7 +412,11 @@ public class ClientModel {
         this.ui.showDisconnectedPlayer(nickname);
     }
 
-    public List<Color> getDisconnectedPlayers() {
-        return new ArrayList<>(this.disconnectedPlayers);
+    public List<Color> getInactivePlayers() {
+        return new ArrayList<>(this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.INACTIVE)).map(p->p.getColor()).toList());
+    }
+
+    public List<Color> getWaitingPlayers() {
+        return new ArrayList<>(this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).map(p->p.getColor()).toList());
     }
 }

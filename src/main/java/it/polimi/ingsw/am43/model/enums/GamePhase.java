@@ -19,7 +19,7 @@ public enum GamePhase {
             GameLoader loader = new GameLoader("/it/polimi/ingsw/am43/config.json");
             try {
                 game.initBoard(
-                        game.getPlayers(),
+                        game.getAllPlayers(),
                         game.getNumPlayers(),
                         loader.loadFoodModifiers(game.getNumPlayers()),
                         loader.loadTribeDeck(game.getNumPlayers()),
@@ -51,7 +51,7 @@ public enum GamePhase {
         @Override
         public void resolvePhase(Game game, Board board) {
             game.setPhase(ROUND_ENDING);
-            for (Player player : game.getPlayers()) {
+            for (Player player : game.getActivePlayers()) {
                 player.getTribe().activateTimedBuilding(game, player, board);
             }
             if (game.getPhase().equals(ROUND_ENDING)) {
