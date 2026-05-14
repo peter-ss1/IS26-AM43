@@ -11,7 +11,6 @@ import javafx.scene.layout.StackPane;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
@@ -28,7 +27,7 @@ public class OrderQueueNode extends StackPane {
 
     private static final ResourceImageCache<Integer> IMAGE_CACHE = new ResourceImageCache<>();
 
-    public OrderQueueNode(int numPlayers, List<Optional<Color>> orderQueueSlots, Predicate<Color> highlightPredicate,
+    public OrderQueueNode(int numPlayers, List<OrderQueueSlot> orderQueueSlots, Predicate<Color> highlightPredicate,
                           BiConsumer<TotemNode, Color> dragConfigurator) {
         Image image = IMAGE_CACHE.get(numPlayers, id -> String.format(IMAGE_PATH, id));
         if (image == null) {
@@ -38,7 +37,7 @@ public class OrderQueueNode extends StackPane {
         }
     }
 
-    private void renderImageQueue(int numPlayers, List<Optional<Color>> orderQueueSlots, Predicate<Color> highlightPredicate,
+    private void renderImageQueue(int numPlayers, List<OrderQueueSlot> orderQueueSlots, Predicate<Color> highlightPredicate,
                                   BiConsumer<TotemNode, Color> dragConfigurator, Image image) {
         double imageHeight = ASSET_WIDTH * image.getHeight() / image.getWidth();
         ImageView imageView = new ImageView(image);
@@ -53,11 +52,11 @@ public class OrderQueueNode extends StackPane {
 
         List<SlotBounds> slots = SLOT_BOUNDS.getOrDefault(numPlayers, List.of());
         for (int i = 0; i < orderQueueSlots.size() && i < slots.size(); i++) {
-            Optional<Color> slotColor = orderQueueSlots.get(i);
-            if (slotColor.isEmpty()) {
+            OrderQueueSlot slot = orderQueueSlots.get(i);
+            if (slot.emptySlot()) {
                 continue;
             }
-            Color color = slotColor.get();
+            Color color = slot.color();
             TotemNode totem = slots.get(i).createTotemNode(color, ASSET_WIDTH, imageHeight);
             totem.setHighlighted(highlightPredicate.test(color));
             dragConfigurator.accept(totem, color);
@@ -67,18 +66,18 @@ public class OrderQueueNode extends StackPane {
         this.getChildren().addAll(imageView, overlay);
     }
 
-    private void renderFallback(List<Optional<Color>> orderQueueSlots, Predicate<Color> highlightPredicate,
+    private void renderFallback(List<OrderQueueSlot> orderQueueSlots, Predicate<Color> highlightPredicate,
                                 BiConsumer<TotemNode, Color> dragConfigurator) {
         HBox fallback = new HBox(6);
         fallback.setAlignment(Pos.CENTER);
-        for (Optional<Color> slotColor : orderQueueSlots) {
-            if (slotColor.isEmpty()) {
+        for (OrderQueueSlot slot : orderQueueSlots) {
+            if (slot.emptySlot()) {
                 Region emptySlot = new Region();
                 emptySlot.setPrefSize(22.0, 22.0);
                 fallback.getChildren().add(emptySlot);
                 continue;
             }
-            Color color = slotColor.get();
+            Color color = slot.color();
             TotemNode totem = new TotemNode(color, 22.0);
             totem.setHighlighted(highlightPredicate.test(color));
             dragConfigurator.accept(totem, color);

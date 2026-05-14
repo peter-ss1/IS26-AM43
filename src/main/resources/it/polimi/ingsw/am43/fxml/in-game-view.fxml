@@ -1,70 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
+<?import javafx.geometry.HPos?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.InGameScene"
-            stylesheets="@../css/in-game.css">
-    <top>
-        <HBox spacing="24.0" styleClass="top-bar">
-            <padding>
-                <Insets top="12.0" right="16.0" bottom="12.0" left="16.0"/>
-            </padding>
-            <children>
-                <Label text="Mesos" styleClass="app-title"/>
-                <Label fx:id="eraLabel" styleClass="top-label"/>
-                <Label fx:id="phaseLabel" styleClass="top-label"/>
-                <Label fx:id="currentPlayerLabel" styleClass="top-label"/>
-                <Label fx:id="statusLabel" styleClass="top-label"/>
-            </children>
-        </HBox>
-    </top>
-    <center>
-        <ScrollPane fitToWidth="true">
-            <content>
-                <VBox spacing="14.0" styleClass="board-background">
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.InGameScene"
+           stylesheets="@../css/in-game.css"
+           styleClass="connectionScene">
+    <children>
+        <BorderPane styleClass="game-shell">
+            <top>
+                <HBox spacing="24.0" styleClass="top-bar">
+                    <padding>
+                        <Insets top="12.0" right="76.0" bottom="12.0" left="16.0"/>
+                    </padding>
+                    <children>
+                        <Label text="Mesos" styleClass="app-title"/>
+                        <Label fx:id="eraLabel" styleClass="top-label"/>
+                        <Label fx:id="phaseLabel" styleClass="top-label"/>
+                        <Label fx:id="currentPlayerLabel" styleClass="top-label"/>
+                    </children>
+                </HBox>
+            </top>
+            <center>
+                <ScrollPane fitToWidth="true" styleClass="game-scroll">
+                    <content>
+                        <VBox spacing="14.0" styleClass="board-background">
+                            <padding>
+                                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+                            </padding>
+                            <children>
+                                <Label text="top row" styleClass="section-title"/>
+                                <FlowPane fx:id="topRowPane" hgap="8.0" vgap="8.0"/>
+
+                                <Label text="offer track" styleClass="section-title"/>
+                                <GridPane hgap="12.0" vgap="8.0">
+                                    <children>
+                                        <StackPane fx:id="orderQueuePane" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                        <HBox fx:id="offerTrackPane" spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                        <Button fx:id="endTurnButton" mnemonicParsing="false"
+                                                onAction="#onEndTurnClicked" text="END TURN"
+                                                styleClass="board-action-button"
+                                                GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                                GridPane.halignment="RIGHT"/>
+                                    </children>
+                                </GridPane>
+
+                                <Label text="bottom row" styleClass="section-title"/>
+                                <FlowPane fx:id="bottomRowPane" hgap="8.0" vgap="8.0"/>
+
+                                <StackPane fx:id="tribePane"/>
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </center>
+            <right>
+                <VBox spacing="10.0" prefWidth="280.0" styleClass="side-panel">
                     <padding>
                         <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
                     </padding>
                     <children>
-                        <Label text="Top Row" styleClass="section-title"/>
-                        <FlowPane fx:id="topRowPane" hgap="8.0" vgap="8.0"/>
-
-                        <Label text="Offer Track" styleClass="section-title"/>
-                        <HBox spacing="12.0">
-                            <children>
-                                <StackPane fx:id="orderQueuePane"/>
-                                <HBox fx:id="offerTrackPane" spacing="8.0"/>
-                            </children>
-                        </HBox>
-
-                        <Label text="Bottom Row" styleClass="section-title"/>
-                        <FlowPane fx:id="bottomRowPane" hgap="8.0" vgap="8.0"/>
-
-                        <StackPane fx:id="tribePane"/>
+                        <Label text="scoreboard" styleClass="side-title"/>
+                        <VBox fx:id="scorePanel" spacing="8.0"/>
+                        <Label text="activity" styleClass="side-title"/>
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="activity-scroll" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="activityLogPane" spacing="6.0"/>
+                            </content>
+                        </ScrollPane>
                     </children>
                 </VBox>
-            </content>
-        </ScrollPane>
-    </center>
-    <right>
-        <VBox spacing="10.0" prefWidth="280.0" styleClass="side-panel">
-            <padding>
-                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
-            </padding>
+            </right>
+        </BorderPane>
+
+        <Button fx:id="settingsButton" contentDisplay="GRAPHIC_ONLY" minHeight="40.0" minWidth="40.0"
+                mnemonicParsing="false" onAction="#onSettingsClicked" pickOnBounds="false"
+                prefHeight="40.0" prefWidth="40.0" styleClass="settings-button"
+                StackPane.alignment="TOP_RIGHT">
+            <StackPane.margin>
+                <Insets top="50.0" right="50.0"/>
+            </StackPane.margin>
+            <graphic>
+                <Region mouseTransparent="true" prefHeight="200.0" prefWidth="200.0" styleClass="icon"/>
+            </graphic>
+        </Button>
+
+        <AnchorPane fx:id="endGameLayer" managed="false" visible="false" styleClass="connectionScene">
             <children>
-                <Label text="Scoreboard" styleClass="side-title"/>
-                <VBox fx:id="scorePanel" spacing="8.0"/>
-                <Label text="Activity" styleClass="side-title"/>
-                <VBox fx:id="activityLogPane" spacing="6.0"/>
+                <VBox alignment="CENTER" layoutX="390.0" layoutY="36.0" minHeight="648.0" minWidth="500.0"
+                      spacing="12.0" styleClass="loginContainer"
+                      AnchorPane.bottomAnchor="36.0" AnchorPane.leftAnchor="390.0"
+                      AnchorPane.rightAnchor="390.0" AnchorPane.topAnchor="36.0">
+                    <padding>
+                        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+                    </padding>
+                    <children>
+                        <Label text="game over" styleClass="subtitle"/>
+                        <Label fx:id="winnerLabel" text="Result: -" styleClass="loginLabel"/>
+                        <Label fx:id="numPlayersLabel" text="Players in this game: -" styleClass="loginLabel"/>
+                        <Label fx:id="rankLabel" text="Your global rank: -" styleClass="loginLabel"/>
+                        <Label fx:id="leaderboardTitleLabel" text="leaderboard" styleClass="loginLabel"/>
+                        <ListView fx:id="leaderboardList" maxHeight="400.0" minHeight="400.0" minWidth="460.0"
+                                  styleClass="lobbies"/>
+                        <Button fx:id="endGameBackButton" mnemonicParsing="false" text="BACK TO LOBBY CHOICE">
+                            <styleClass>
+                                <String fx:value="loginElement"/>
+                                <String fx:value="main-button"/>
+                            </styleClass>
+                        </Button>
+                    </children>
+                </VBox>
             </children>
-        </VBox>
-    </right>
-</BorderPane>
+        </AnchorPane>
+    </children>
+</StackPane>

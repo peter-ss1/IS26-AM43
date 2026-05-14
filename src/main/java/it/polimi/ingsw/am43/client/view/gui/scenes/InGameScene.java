@@ -6,6 +6,7 @@ import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.client.view.gui.components.CardNode;
 import it.polimi.ingsw.am43.client.view.gui.components.OfferTrackCardNode;
 import it.polimi.ingsw.am43.client.view.gui.components.OrderQueueNode;
+import it.polimi.ingsw.am43.client.view.gui.components.OrderQueueSlot;
 import it.polimi.ingsw.am43.client.view.gui.components.PlayerTribeNode;
 import it.polimi.ingsw.am43.client.view.gui.components.TotemNode;
 import it.polimi.ingsw.am43.client.view.gui.GUI;
@@ -16,25 +17,34 @@ import javafx.fxml.FXML;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.OverrunStyle;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
 public class InGameScene extends CustomScene {
     private static final int MAX_ACTIVITY_MESSAGES = 8;
+    private static final String FOOD_ICON_PATH = "/it/polimi/ingsw/am43/images/food&prestige/food.png";
+    private static final String PRESTIGE_ICON_PATH = "/it/polimi/ingsw/am43/images/food&prestige/prestige_point.png";
+    private static final double SCORE_ICON_SIZE = 30.0;
 
     @FXML
     private Label eraLabel;
@@ -42,8 +52,6 @@ public class InGameScene extends CustomScene {
     private Label phaseLabel;
     @FXML
     private Label currentPlayerLabel;
-    @FXML
-    private Label statusLabel;
     @FXML
     private FlowPane topRowPane;
     @FXML
@@ -53,19 +61,49 @@ public class InGameScene extends CustomScene {
     @FXML
     private StackPane orderQueuePane;
     @FXML
+    private Button endTurnButton;
+    @FXML
     private VBox scorePanel;
     @FXML
     private StackPane tribePane;
     @FXML
     private VBox activityLogPane;
+    @FXML
+    private AnchorPane endGameLayer;
+    @FXML
+    private Label winnerLabel;
+    @FXML
+    private Label numPlayersLabel;
+    @FXML
+    private Label rankLabel;
+    @FXML
+    private Label leaderboardTitleLabel;
+    @FXML
+    private ListView<LeaderboardEntry> leaderboardList;
 
-    private List<Color> offerSelectionOrder = List.of();
     private final List<OfferAction> consumedOfferActions = new ArrayList<>();
     private GamePhase actionContextPhase;
     private String actionContextPlayer;
     private OfferAction pendingPickAction;
     private Integer pendingPickCardId;
     private String viewedTribeNickname;
+
+    @FXML
+    private void initialize() {
+        this.leaderboardList.setPlaceholder(new Label("No leaderboard entries yet."));
+        this.leaderboardList.setCellFactory(_ -> new ListCell<>() {
+            @Override
+            protected void updateItem(LeaderboardEntry entry, boolean empty) {
+                super.updateItem(entry, empty);
+                if (empty || entry == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setGraphic(createLeaderboardRow(entry));
+                }
+            }
+        });
+    }
 
     @Override
     public void setGui(GUI gui) {
@@ -91,14 +129,13 @@ public class InGameScene extends CustomScene {
         this.renderCardRow(this.bottomRowPane, model.getBottomRowCards(), OfferAction.BOTTOM, availableActions);
         this.renderOfferTrack(model.getOfferTrack());
         this.renderOrderQueue(model);
+        this.updateEndTurnButton(model);
         this.renderScoreboard(model.getAllPlayers(), model.getCurrentPlayerNickname());
         this.renderPlayerTribe(model);
     }
 
     @Override
     public void showInfo(String message) {
-        this.setStatusStyle("status-info");
-        this.statusLabel.setText(message);
         this.addActivityMessage(message, "activity-info");
     }
 
@@ -107,14 +144,19 @@ public class InGameScene extends CustomScene {
         if (this.rollbackPendingPickAction()) {
             this.refreshFromModel();
         }
-        this.setStatusStyle("status-error");
-        this.statusLabel.setText(message);
         this.addActivityMessage(message, "activity-error");
     }
 
-    private void setStatusStyle(String styleClass) {
-        this.statusLabel.getStyleClass().removeAll("status-info", "status-error");
-        this.statusLabel.getStyleClass().add(styleClass);
+    @Override
+    public void showDisconnectedPlayer(String nickname) {
+        this.refreshFromModel();
+        this.showError("Player " + nickname + " lost connection. Waiting for reconnection.");
+    }
+
+    @Override
+    public void showPlayerReconnection(String nickname) {
+        this.refreshFromModel();
+        this.showInfo("Player " + nickname + " reconnected.");
     }
 
     private void addActivityMessage(String message, String styleClass) {
@@ -123,6 +165,7 @@ public class InGameScene extends CustomScene {
         }
         Label entry = new Label(message);
         entry.setMaxWidth(Double.MAX_VALUE);
+        entry.setMinHeight(Region.USE_PREF_SIZE);
         entry.setWrapText(true);
         entry.getStyleClass().addAll("activity-message", styleClass);
         this.activityLogPane.getChildren().add(0, entry);
@@ -168,30 +211,25 @@ public class InGameScene extends CustomScene {
     private void renderOrderQueue(ClientModel model) {
         this.orderQueuePane.getChildren().clear();
         int numPlayers = model.getNumPlayers();
-        List<Optional<Color>> orderQueueSlots = this.buildOrderQueueSlots(model);
+        List<OrderQueueSlot> orderQueueSlots = this.buildOrderQueueSlots(model);
         this.orderQueuePane.getChildren().add(new OrderQueueNode(numPlayers, orderQueueSlots, this::isCurrentPlayerColor, this::configureOrderQueueDragSource));
     }
 
-    private List<Optional<Color>> buildOrderQueueSlots(ClientModel model) {
-        List<Color> currentQueue = model.getOrderQueue();
-        if (model.getPhase() != GamePhase.OFFER_TRACK_SELECTION) {
-            this.offerSelectionOrder = List.of();
-            return this.toOccupiedSlots(currentQueue);
-        }
-        if (currentQueue.size() == model.getNumPlayers() || this.offerSelectionOrder.isEmpty()) {
-            this.offerSelectionOrder = new ArrayList<>(currentQueue);
-        }
-
-        Set<Color> remainingColors = new HashSet<>(currentQueue);
-        return this.offerSelectionOrder.stream()
-                .map(color -> remainingColors.contains(color) ? Optional.of(color) : Optional.<Color>empty())
-                .toList();
+    private void updateEndTurnButton(ClientModel model) {
+        this.endTurnButton.setDisable(!this.canEndTurn(model, false));
     }
 
-    private List<Optional<Color>> toOccupiedSlots(List<Color> orderQueue) {
-        return orderQueue.stream()
-                .map(Optional::of)
-                .toList();
+    private List<OrderQueueSlot> buildOrderQueueSlots(ClientModel model) {
+        List<Color> currentQueue = model.getOrderQueue();
+        List<OrderQueueSlot> slots = new ArrayList<>();
+        int emptySlots = Math.max(0, model.getNumPlayers() - currentQueue.size());
+        for (int i = 0; i < emptySlots; i++) {
+            slots.add(OrderQueueSlot.empty());
+        }
+        currentQueue.stream()
+                .map(OrderQueueSlot::active)
+                .forEach(slots::add);
+        return slots;
     }
 
     private void renderScoreboard(List<ClientPlayer> players, String currentPlayer) {
@@ -203,11 +241,15 @@ public class InGameScene extends CustomScene {
             row.setCursor(Cursor.HAND);
             boolean currentPlayerRow = player.getNickname().equals(currentPlayer);
             boolean viewedPlayerRow = player.getNickname().equals(this.viewedTribeNickname);
+            boolean disconnectedPlayerRow = player.isDisconnected();
             if (currentPlayerRow) {
                 row.getStyleClass().add("current-player-row");
             }
             if (viewedPlayerRow) {
                 row.getStyleClass().add("viewed-player-row");
+            }
+            if (disconnectedPlayerRow) {
+                row.getStyleClass().add("disconnected-player-row");
             }
             row.setOnMouseClicked(event -> {
                 this.viewedTribeNickname = player.getNickname();
@@ -217,14 +259,51 @@ public class InGameScene extends CustomScene {
             });
             TotemNode totem = new TotemNode(player.getColor(), 24.0);
             totem.setHighlighted(currentPlayerRow || viewedPlayerRow);
-            Label text = new Label(String.format("%s%s  Food: %d  Prestige: %d",
-                    currentPlayerRow ? "> " : "  ",
-                    player.getNickname(),
-                    player.getFood(),
-                    player.getPrestigePoints()));
-            text.setStyle("-fx-text-fill: " + this.cssColor(player.getColor()) + ";");
-            row.getChildren().addAll(totem, text);
+            Label name = new Label((currentPlayerRow ? "> " : "") + this.scoreboardName(player));
+            name.setMaxWidth(92.0);
+            name.setTextOverrun(OverrunStyle.ELLIPSIS);
+            name.getStyleClass().add("scoreboard-name");
+            name.setStyle("-fx-text-fill: " + this.cssColor(player.getColor()) + ";");
+
+            row.getChildren().addAll(
+                    totem,
+                    name,
+                    this.createScoreIcon(FOOD_ICON_PATH, "F"),
+                    this.createScoreValue(player.getFood()),
+                    this.createScoreIcon(PRESTIGE_ICON_PATH, "P"),
+                    this.createScoreValue(player.getPrestigePoints())
+            );
             this.scorePanel.getChildren().add(row);
+        }
+    }
+
+    private Label createScoreValue(int value) {
+        Label score = new Label(String.valueOf(value));
+        score.getStyleClass().add("scoreboard-value");
+        return score;
+    }
+
+    private Region createScoreIcon(String iconPath, String fallbackText) {
+        Image image = this.loadImage(iconPath);
+        if (image == null) {
+            Label fallback = new Label(fallbackText);
+            fallback.getStyleClass().add("scoreboard-icon-fallback");
+            return fallback;
+        }
+        ImageView icon = new ImageView(image);
+        icon.setFitWidth(SCORE_ICON_SIZE);
+        icon.setFitHeight(SCORE_ICON_SIZE);
+        icon.setPreserveRatio(true);
+        StackPane iconContainer = new StackPane(icon);
+        iconContainer.getStyleClass().add("scoreboard-icon");
+        return iconContainer;
+    }
+
+    private Image loadImage(String path) {
+        try {
+            return new Image(Objects.requireNonNull(this.getClass().getResource(path)).toExternalForm());
+        } catch (NullPointerException exception) {
+            return null;
         }
     }
 
@@ -260,6 +339,13 @@ public class InGameScene extends CustomScene {
         ClientModel model = this.gui.getLocalModel();
         ClientPlayer currentPlayer = model.getPlayerByNickname(model.getCurrentPlayerNickname());
         return currentPlayer != null && currentPlayer.getColor().equals(color);
+    }
+
+    private String scoreboardName(ClientPlayer player) {
+        if (player.isDisconnected()) {
+            return player.getNickname() + "  reconnecting...";
+        }
+        return player.getNickname();
     }
 
     private void configureOrderQueueDragSource(TotemNode totem, Color color) {
@@ -311,6 +397,34 @@ public class InGameScene extends CustomScene {
         this.refreshFromModel();
         this.gui.submitTask(() -> this.controller.pickCard(cardId));
         this.showInfo("Picking card...");
+    }
+
+    @FXML
+    private void onEndTurnClicked() {
+        ClientModel model = this.gui.getLocalModel();
+        if (!this.canEndTurn(model, true)) {
+            return;
+        }
+        model.startValidation();
+        this.refreshFromModel();
+        this.gui.submitTask(this.controller::endTurn);
+        this.showInfo("Ending turn...");
+    }
+
+    private boolean canEndTurn(ClientModel model, boolean showFeedback) {
+        if (model.isValidating()) {
+            if (showFeedback) this.showError("Last command is still being processed.");
+            return false;
+        }
+        if (!model.isOwnTurn()) {
+            if (showFeedback) this.showError("Please wait for your turn.");
+            return false;
+        }
+        if (model.getPhase() != GamePhase.ACTION_RESOLUTION) {
+            if (showFeedback) this.showError("You are not allowed to perform this action in this phase.");
+            return false;
+        }
+        return true;
     }
 
     private boolean canPickCard(OfferAction rowAction, boolean showFeedback) {
@@ -454,6 +568,24 @@ public class InGameScene extends CustomScene {
 
     private String emptyFallback(String value) {
         return value == null || value.isBlank() ? "-" : value;
+    }
+
+    private HBox createLeaderboardRow(LeaderboardEntry entry) {
+        Label position = new Label("#" + entry.position());
+        Label nickname = new Label(entry.nickname());
+        Label score = new Label(entry.score() + " punti");
+        Label date = new Label(entry.date() == null ? "-" : entry.date().toString());
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox row = new HBox(20, position, nickname, spacer, score, date);
+        row.getStyleClass().add("lobby-info");
+
+        return row;
+    }
+
+    public record LeaderboardEntry(int position, String nickname, int score, Object date) {
     }
 
 }
