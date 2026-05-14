@@ -184,7 +184,7 @@ public class ClientModel {
         this.offerTrack.stream().filter(o -> o.getColor() != null && o.getColor().equals(color)).findFirst().ifPresent(o -> {
             o.setColor(null);
         });
-        this.orderQueue.add(color);
+        if (!this.orderQueue.contains(color)) this.orderQueue.add(color);
         this.validating = false;
     }
 

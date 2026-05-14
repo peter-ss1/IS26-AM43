@@ -1,3 +1,13 @@
+@font-face {
+    -fx-font-family: 'VagabundoMedium';
+    src: url('./fonts/FontsFree-Net-comic2.ttf');
+}
+
+@font-face {
+    -fx-font-family: 'Christmas Chalk';
+    src: url('./fonts/christmas-chalk.regular.ttf');
+}
+
 .root {
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
