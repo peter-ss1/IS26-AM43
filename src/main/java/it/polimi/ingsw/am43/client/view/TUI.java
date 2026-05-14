@@ -990,4 +990,21 @@ public class TUI implements UI, Runnable {
         }
         System.out.println(sb);
     }
+    @Override
+    public void showLeaderboard(List<String> leaderboard, int myRank, int numGiocatori) {
+        synchronized (this.printLock) {
+            System.out.println("\n" + MESOS + "========================================================" + RESET);
+            if (myRank != -1) {
+                System.out.println("You're in " + BOLD + myRank + "° place" + RESET + " in the all-time  " + numGiocatori + " player game rankings!");
+            }
+
+            System.out.println("\n" + MESOS + "--- \n" +
+                    "26\n" +
+                    "global historical ranking (" + numGiocatori + " players) ---" + RESET);
+            for (String riga : leaderboard) {
+                System.out.println("  " + riga);
+            }
+            System.out.println(MESOS + "========================================================\n" + RESET);
+        }
+    }
 }

@@ -54,4 +54,5 @@ public interface UI {
     void showPlayerReconnection(String nickname);
 
     void showDisconnection();
+    void showLeaderboard(List<String> leaderboard, int myRank, int numGiocatori);
 }
