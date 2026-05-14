@@ -17,9 +17,13 @@ import javafx.fxml.FXML;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.OverrunStyle;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -38,6 +42,9 @@ import java.util.Objects;
 
 public class InGameScene extends CustomScene {
     private static final int MAX_ACTIVITY_MESSAGES = 8;
+    private static final String FOOD_ICON_PATH = "/it/polimi/ingsw/am43/images/food&prestige/food.png";
+    private static final String PRESTIGE_ICON_PATH = "/it/polimi/ingsw/am43/images/food&prestige/prestige_point.png";
+    private static final double SCORE_ICON_SIZE = 30.0;
 
     @FXML
     private Label eraLabel;
@@ -46,8 +53,6 @@ public class InGameScene extends CustomScene {
     @FXML
     private Label currentPlayerLabel;
     @FXML
-    private Label statusLabel;
-    @FXML
     private FlowPane topRowPane;
     @FXML
     private FlowPane bottomRowPane;
@@ -55,6 +60,8 @@ public class InGameScene extends CustomScene {
     private HBox offerTrackPane;
     @FXML
     private StackPane orderQueuePane;
+    @FXML
+    private Button endTurnButton;
     @FXML
     private VBox scorePanel;
     @FXML
@@ -122,14 +129,13 @@ public class InGameScene extends CustomScene {
         this.renderCardRow(this.bottomRowPane, model.getBottomRowCards(), OfferAction.BOTTOM, availableActions);
         this.renderOfferTrack(model.getOfferTrack());
         this.renderOrderQueue(model);
+        this.updateEndTurnButton(model);
         this.renderScoreboard(model.getAllPlayers(), model.getCurrentPlayerNickname());
         this.renderPlayerTribe(model);
     }
 
     @Override
     public void showInfo(String message) {
-        this.setStatusStyle("status-info");
-        this.statusLabel.setText(message);
         this.addActivityMessage(message, "activity-info");
     }
 
@@ -138,8 +144,6 @@ public class InGameScene extends CustomScene {
         if (this.rollbackPendingPickAction()) {
             this.refreshFromModel();
         }
-        this.setStatusStyle("status-error");
-        this.statusLabel.setText(message);
         this.addActivityMessage(message, "activity-error");
     }
 
@@ -155,17 +159,13 @@ public class InGameScene extends CustomScene {
         this.showInfo("Player " + nickname + " reconnected.");
     }
 
-    private void setStatusStyle(String styleClass) {
-        this.statusLabel.getStyleClass().removeAll("status-info", "status-error");
-        this.statusLabel.getStyleClass().add(styleClass);
-    }
-
     private void addActivityMessage(String message, String styleClass) {
         if (this.activityLogPane == null || message == null || message.isBlank()) {
             return;
         }
         Label entry = new Label(message);
         entry.setMaxWidth(Double.MAX_VALUE);
+        entry.setMinHeight(Region.USE_PREF_SIZE);
         entry.setWrapText(true);
         entry.getStyleClass().addAll("activity-message", styleClass);
         this.activityLogPane.getChildren().add(0, entry);
@@ -215,6 +215,10 @@ public class InGameScene extends CustomScene {
         this.orderQueuePane.getChildren().add(new OrderQueueNode(numPlayers, orderQueueSlots, this::isCurrentPlayerColor, this::configureOrderQueueDragSource));
     }
 
+    private void updateEndTurnButton(ClientModel model) {
+        this.endTurnButton.setDisable(!this.canEndTurn(model, false));
+    }
+
     private List<OrderQueueSlot> buildOrderQueueSlots(ClientModel model) {
         List<Color> currentQueue = model.getOrderQueue();
         List<OrderQueueSlot> slots = new ArrayList<>();
@@ -255,14 +259,51 @@ public class InGameScene extends CustomScene {
             });
             TotemNode totem = new TotemNode(player.getColor(), 24.0);
             totem.setHighlighted(currentPlayerRow || viewedPlayerRow);
-            Label text = new Label(String.format("%s%s  Food: %d  Prestige: %d",
-                    currentPlayerRow ? "> " : "  ",
-                    this.scoreboardName(player),
-                    player.getFood(),
-                    player.getPrestigePoints()));
-            text.setStyle("-fx-text-fill: " + this.cssColor(player.getColor()) + ";");
-            row.getChildren().addAll(totem, text);
+            Label name = new Label((currentPlayerRow ? "> " : "") + this.scoreboardName(player));
+            name.setMaxWidth(92.0);
+            name.setTextOverrun(OverrunStyle.ELLIPSIS);
+            name.getStyleClass().add("scoreboard-name");
+            name.setStyle("-fx-text-fill: " + this.cssColor(player.getColor()) + ";");
+
+            row.getChildren().addAll(
+                    totem,
+                    name,
+                    this.createScoreIcon(FOOD_ICON_PATH, "F"),
+                    this.createScoreValue(player.getFood()),
+                    this.createScoreIcon(PRESTIGE_ICON_PATH, "P"),
+                    this.createScoreValue(player.getPrestigePoints())
+            );
             this.scorePanel.getChildren().add(row);
+        }
+    }
+
+    private Label createScoreValue(int value) {
+        Label score = new Label(String.valueOf(value));
+        score.getStyleClass().add("scoreboard-value");
+        return score;
+    }
+
+    private Region createScoreIcon(String iconPath, String fallbackText) {
+        Image image = this.loadImage(iconPath);
+        if (image == null) {
+            Label fallback = new Label(fallbackText);
+            fallback.getStyleClass().add("scoreboard-icon-fallback");
+            return fallback;
+        }
+        ImageView icon = new ImageView(image);
+        icon.setFitWidth(SCORE_ICON_SIZE);
+        icon.setFitHeight(SCORE_ICON_SIZE);
+        icon.setPreserveRatio(true);
+        StackPane iconContainer = new StackPane(icon);
+        iconContainer.getStyleClass().add("scoreboard-icon");
+        return iconContainer;
+    }
+
+    private Image loadImage(String path) {
+        try {
+            return new Image(Objects.requireNonNull(this.getClass().getResource(path)).toExternalForm());
+        } catch (NullPointerException exception) {
+            return null;
         }
     }
 
@@ -356,6 +397,34 @@ public class InGameScene extends CustomScene {
         this.refreshFromModel();
         this.gui.submitTask(() -> this.controller.pickCard(cardId));
         this.showInfo("Picking card...");
+    }
+
+    @FXML
+    private void onEndTurnClicked() {
+        ClientModel model = this.gui.getLocalModel();
+        if (!this.canEndTurn(model, true)) {
+            return;
+        }
+        model.startValidation();
+        this.refreshFromModel();
+        this.gui.submitTask(this.controller::endTurn);
+        this.showInfo("Ending turn...");
+    }
+
+    private boolean canEndTurn(ClientModel model, boolean showFeedback) {
+        if (model.isValidating()) {
+            if (showFeedback) this.showError("Last command is still being processed.");
+            return false;
+        }
+        if (!model.isOwnTurn()) {
+            if (showFeedback) this.showError("Please wait for your turn.");
+            return false;
+        }
+        if (model.getPhase() != GamePhase.ACTION_RESOLUTION) {
+            if (showFeedback) this.showError("You are not allowed to perform this action in this phase.");
+            return false;
+        }
+        return true;
     }
 
     private boolean canPickCard(OfferAction rowAction, boolean showFeedback) {

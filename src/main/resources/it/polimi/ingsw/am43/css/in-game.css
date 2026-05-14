@@ -1,99 +1,164 @@
+.root {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-font-family: "Christmas Chalk";
+    -fx-font-size: 20px;
+}
+
+.game-shell {
+    -fx-padding: 26px 36px 30px 36px;
+    -fx-background-color: rgba(4, 49, 64, 0.30);
+}
+
 .top-bar {
-    -fx-background-color: #2b2620;
+    -fx-background-color: rgba(4, 49, 64, 0.82);
+    -fx-background-radius: 10 10 0 0;
+    -fx-border-color: rgba(241, 131, 18, 0.35);
+    -fx-border-radius: 10 10 0 0;
+    -fx-border-width: 1 1 0 1;
 }
 
 .app-title {
-    -fx-text-fill: #f6eadb;
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
+    -fx-font-family: "VagabundoMedium";
+    -fx-text-fill: #FEF1CD;
+    -fx-font-size: 34px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.85), 8, 0, 0, 0);
 }
 
 .top-label {
-    -fx-text-fill: #f6eadb;
-}
-
-.status-info {
-    -fx-text-fill: #1b5e20;
-}
-
-.status-error {
-    -fx-text-fill: #c62828;
+    -fx-text-fill: rgba(241, 131, 18);
+    -fx-font-size: 18px;
 }
 
 .activity-message {
-    -fx-padding: 6px;
+    -fx-padding: 8px;
     -fx-background-radius: 6px;
     -fx-wrap-text: true;
-    -fx-font-size: 12px;
-}
-
-.activity-info {
-    -fx-background-color: rgba(27, 94, 32, 0.10);
-    -fx-text-fill: #2d3a24;
-}
-
-.activity-error {
-    -fx-background-color: rgba(198, 40, 40, 0.12);
-    -fx-text-fill: #7f1d1d;
-}
-
-.board-background {
-    -fx-background-color: #eee6d9;
-}
-
-.section-title {
-    -fx-font-weight: bold;
-}
-
-.side-panel {
-    -fx-background-color: #f7f2ea;
-}
-
-.side-title {
-    -fx-font-weight: bold;
     -fx-font-size: 15px;
 }
 
+.activity-scroll,
+.activity-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.activity-scroll {
+    -fx-padding: 0;
+}
+
+.activity-info {
+    -fx-background-color: rgba(241, 131, 18, 0.12);
+    -fx-text-fill: #FEF1CD;
+}
+
+.activity-error {
+    -fx-background-color: rgba(255, 114, 111, 0.16);
+    -fx-text-fill: #ffb8a8;
+}
+
+.game-scroll,
+.game-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.board-background {
+    -fx-background-color: rgba(4, 49, 64, 0.72);
+    -fx-border-color: rgba(241, 131, 18, 0.35);
+    -fx-border-width: 0 1 1 1;
+    -fx-background-radius: 0 0 10 10;
+    -fx-border-radius: 0 0 10 10;
+}
+
+.section-title {
+    -fx-font-family: "VagabundoMedium";
+    -fx-font-size: 34px;
+    -fx-text-fill: #FEF1CD;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.85), 8, 0, 0, 0);
+}
+
+.side-panel {
+    -fx-background-color: rgba(4, 49, 64, 0.78);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(241, 131, 18, 0.35);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.side-title {
+    -fx-font-family: "VagabundoMedium";
+    -fx-font-size: 30px;
+    -fx-text-fill: #FEF1CD;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.85), 8, 0, 0, 0);
+}
+
 .scoreboard-row {
-    -fx-padding: 6px;
+    -fx-padding: 8px;
     -fx-background-radius: 6px;
 }
 
 .scoreboard-row:hover {
-    -fx-background-color: rgba(95, 90, 82, 0.12);
+    -fx-background-color: rgba(241, 131, 18, 0.18);
+}
+
+.scoreboard-name {
+    -fx-font-size: 17px;
+}
+
+.scoreboard-value {
+    -fx-text-fill: #FEF1CD;
+    -fx-font-size: 17px;
+}
+
+.scoreboard-icon {
+    -fx-min-width: 18px;
+    -fx-min-height: 18px;
+    -fx-pref-width: 18px;
+    -fx-pref-height: 18px;
+    -fx-max-width: 18px;
+    -fx-max-height: 18px;
+}
+
+.scoreboard-icon-fallback {
+    -fx-text-fill: rgba(241, 131, 18);
+    -fx-font-size: 17px;
 }
 
 .current-player-row {
-    -fx-background-color: rgba(254, 203, 0, 0.18);
+    -fx-background-color: rgba(241, 131, 18, 0.22);
 }
 
 .viewed-player-row {
-    -fx-border-color: #5f5a52;
+    -fx-border-color: rgba(241, 131, 18);
     -fx-border-radius: 6px;
     -fx-border-width: 1px;
 }
 
 .disconnected-player-row {
     -fx-opacity: 0.58;
-    -fx-border-color: #9a8f80;
+    -fx-border-color: #FEF1CD;
     -fx-border-radius: 6px;
     -fx-border-style: dashed;
 }
 
 .card-placeholder {
-    -fx-border-color: #8c8173;
-    -fx-background-color: #efe8dc;
+    -fx-border-color: rgba(241, 131, 18, 0.55);
+    -fx-background-color: rgba(254, 241, 205, 0.12);
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
     -fx-padding: 8px;
 }
 
 .card-placeholder-title {
     -fx-font-weight: bold;
+    -fx-text-fill: #FEF1CD;
     -fx-text-alignment: center;
 }
 
 .card-placeholder-detail {
-    -fx-font-size: 11px;
-    -fx-text-fill: #5f5a52;
+    -fx-font-size: 12px;
+    -fx-text-fill: rgba(241, 131, 18);
     -fx-text-alignment: center;
 }
 
@@ -103,45 +168,75 @@
 }
 
 .card-clickable {
-    -fx-background-color: rgba(27, 94, 32, 0.16);
+    -fx-background-color: rgba(241, 131, 18, 0.18);
 }
 
 .card-clickable:hover {
-    -fx-background-color: rgba(27, 94, 32, 0.28);
+    -fx-background-color: rgba(241, 131, 18, 0.35);
+    -fx-effect: dropshadow(three-pass-box, rgba(241, 131, 18, 0.7), 15, 0, 0, 0);
 }
 
 .card-disabled {
-    -fx-opacity: 0.45;
+    -fx-opacity: 0.52;
 }
 
 .card-highlighted {
-    -fx-background-color: rgba(254, 203, 0, 0.26);
+    -fx-background-color: rgba(241, 131, 18, 0.28);
 }
 
 .offer-track-fallback {
-    -fx-border-color: #8c8173;
-    -fx-background-color: #f2eadf;
+    -fx-border-color: rgba(241, 131, 18, 0.55);
+    -fx-background-color: rgba(254, 241, 205, 0.12);
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+}
+
+.board-action-button {
+    -fx-min-width: 118px;
+    -fx-pref-width: 118px;
+    -fx-background-color: rgba(4, 49, 64, 0.72);
+    -fx-background-radius: 8px;
+    -fx-border-color: rgba(241, 131, 18, 0.55);
+    -fx-border-radius: 8px;
+    -fx-text-fill: rgba(241, 131, 18);
+    -fx-font-size: 18px;
+    -fx-padding: 6px 10px;
+    -fx-cursor: hand;
+}
+
+.board-action-button:hover {
+    -fx-background-color: rgba(241, 131, 18);
+    -fx-text-fill: rgba(4, 49, 64);
+    -fx-effect: dropshadow(three-pass-box, rgba(241, 131, 18, 0.7), 15, 0, 0, 0);
+}
+
+.board-action-button:disabled {
+    -fx-opacity: 0.42;
+    -fx-cursor: default;
 }
 
 .fallback-index {
     -fx-font-weight: bold;
+    -fx-text-fill: #FEF1CD;
 }
 
 .muted-text {
-    -fx-text-fill: #5f5a52;
+    -fx-text-fill: rgba(254, 241, 205, 0.72);
 }
 
 .tribe-view {
     -fx-padding: 12px;
-    -fx-background-color: #f7f2ea;
+    -fx-background-color: rgba(4, 49, 64, 0.70);
     -fx-background-radius: 8px;
-    -fx-border-color: #d4c8b8;
+    -fx-border-color: rgba(241, 131, 18, 0.35);
     -fx-border-radius: 8px;
 }
 
 .tribe-title {
-    -fx-font-size: 15px;
-    -fx-font-weight: bold;
+    -fx-font-family: "VagabundoMedium";
+    -fx-font-size: 30px;
+    -fx-text-fill: #FEF1CD;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.85), 8, 0, 0, 0);
 }
 
 .tribe-columns {
@@ -150,14 +245,14 @@
 
 .tribe-column {
     -fx-padding: 8px;
-    -fx-background-color: rgba(255, 255, 255, 0.35);
+    -fx-background-color: rgba(254, 241, 205, 0.10);
     -fx-background-radius: 6px;
     -fx-min-width: 104px;
 }
 
 .tribe-group-title {
     -fx-font-weight: bold;
-    -fx-text-fill: #5f5a52;
+    -fx-text-fill: rgba(241, 131, 18);
 }
 
 .connectionScene {
@@ -171,6 +266,23 @@
     -fx-background-color: rgba(4, 49, 64, 0.7);
     -fx-background-radius: 10;
     -fx-padding: 10;
+}
+
+.settings-button {
+    -fx-background-color: rgba(241, 131, 18);
+    -fx-padding: 8;
+    -fx-background-radius: 30;
+    -fx-cursor: hand;
+}
+
+.icon {
+    -fx-mouse-transparent: true;
+    -fx-background-color: rgba(4, 49, 64);
+    -fx-shape: "M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.81,11.69,4.81,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z";
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
 }
 
 .subtitle {
