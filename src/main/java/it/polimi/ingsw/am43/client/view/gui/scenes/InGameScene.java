@@ -18,11 +18,16 @@ import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -56,6 +61,18 @@ public class InGameScene extends CustomScene {
     private StackPane tribePane;
     @FXML
     private VBox activityLogPane;
+    @FXML
+    private AnchorPane endGameLayer;
+    @FXML
+    private Label winnerLabel;
+    @FXML
+    private Label numPlayersLabel;
+    @FXML
+    private Label rankLabel;
+    @FXML
+    private Label leaderboardTitleLabel;
+    @FXML
+    private ListView<LeaderboardEntry> leaderboardList;
 
     private final List<OfferAction> consumedOfferActions = new ArrayList<>();
     private GamePhase actionContextPhase;
@@ -63,6 +80,23 @@ public class InGameScene extends CustomScene {
     private OfferAction pendingPickAction;
     private Integer pendingPickCardId;
     private String viewedTribeNickname;
+
+    @FXML
+    private void initialize() {
+        this.leaderboardList.setPlaceholder(new Label("No leaderboard entries yet."));
+        this.leaderboardList.setCellFactory(_ -> new ListCell<>() {
+            @Override
+            protected void updateItem(LeaderboardEntry entry, boolean empty) {
+                super.updateItem(entry, empty);
+                if (empty || entry == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setGraphic(createLeaderboardRow(entry));
+                }
+            }
+        });
+    }
 
     @Override
     public void setGui(GUI gui) {
@@ -465,6 +499,24 @@ public class InGameScene extends CustomScene {
 
     private String emptyFallback(String value) {
         return value == null || value.isBlank() ? "-" : value;
+    }
+
+    private HBox createLeaderboardRow(LeaderboardEntry entry) {
+        Label position = new Label("#" + entry.position());
+        Label nickname = new Label(entry.nickname());
+        Label score = new Label(entry.score() + " punti");
+        Label date = new Label(entry.date() == null ? "-" : entry.date().toString());
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox row = new HBox(20, position, nickname, spacer, score, date);
+        row.getStyleClass().add("lobby-info");
+
+        return row;
+    }
+
+    public record LeaderboardEntry(int position, String nickname, int score, Object date) {
     }
 
 }

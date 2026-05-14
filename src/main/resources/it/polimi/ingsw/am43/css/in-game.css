@@ -159,3 +159,91 @@
     -fx-font-weight: bold;
     -fx-text-fill: #5f5a52;
 }
+
+.connectionScene {
+    -fx-background-image: url("../images/mesosBG.jpg");
+    -fx-background-repeat: stretch;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+
+.loginContainer {
+    -fx-background-color: rgba(4, 49, 64, 0.7);
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+}
+
+.subtitle {
+    -fx-font-family: "VagabundoMedium";
+    -fx-font-size: 50px;
+    -fx-text-fill: #FEF1CD;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 15, 0, 0, 0);
+}
+
+.loginLabel {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(241, 131, 18);
+    -fx-font-size: 20px;
+}
+
+.loginElement {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-text-fill: rgba(241, 131, 18);
+    -fx-prompt-text-fill: rgba(241, 131, 18, 0.7);
+    -fx-font-size: 20px;
+}
+
+.loginElement:hover {
+    -fx-background-color: rgba(241, 131, 18);
+    -fx-prompt-text-fill: rgba(4, 49, 64);
+    -fx-text-fill: rgba(4, 49, 64);
+    -fx-effect: dropshadow(three-pass-box, rgba(241, 131, 18, 0.7), 15, 0, 0, 0);
+}
+
+.main-button {
+    -fx-font-size: 30px;
+}
+
+.lobbies {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.lobbies .label {
+    -fx-text-fill: rgba(241, 131, 18);
+}
+
+.lobbies .list-cell {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-text-fill: rgba(241, 131, 18);
+    -fx-font-size: 20px;
+    -fx-margin: 5;
+}
+
+.lobbies .list-cell:filled:hover {
+    -fx-background-color: rgba(241, 131, 18);
+    -fx-prompt-text-fill: rgba(4, 49, 64);
+    -fx-text-fill: rgba(4, 49, 64);
+    -fx-effect: dropshadow(three-pass-box, rgba(241, 131, 18, 0.7), 15, 0, 0, 0);
+}
+
+.lobbies .list-cell:filled:selected {
+    -fx-background-color: rgba(241, 131, 18);
+    -fx-prompt-text-fill: rgba(4, 49, 64);
+    -fx-text-fill: rgba(4, 49, 64);
+    -fx-effect: dropshadow(three-pass-box, rgba(241, 131, 18, 0.7), 15, 0, 0, 0);
+}
+
+.lobbies .list-cell:filled:selected .label {
+    -fx-text-fill: rgba(4, 49, 64);
+}
+
+.lobby-info .label {
+    -fx-text-fill: rgba(241, 131, 18);
+}
+
+.lobby-info:hover .label {
+    -fx-text-fill: rgba(4, 49, 64);
+}
