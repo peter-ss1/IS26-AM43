@@ -34,6 +34,10 @@ public class MainScene extends CustomScene {
     private Button no;
     @FXML
     private HBox loadingScreen;
+    @FXML
+    private void initialize() {
+        this.root.getStylesheets().add(getClass().getResource("/it/polimi/ingsw/am43/style.css").toExternalForm());
+    }
 
     public void switchScene(Node node) {
         this.root.getChildren().set(0, node);

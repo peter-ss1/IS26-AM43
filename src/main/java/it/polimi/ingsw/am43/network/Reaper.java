@@ -33,7 +33,8 @@ public class Reaper{
             for(PersistentClientConnection connection : this.connections){
                 now=System.currentTimeMillis();
                 if (now - connection.getLastPing() > 10000) {
-                    connection.disconnect();//TODO implement removal logic
+                    connection.disconnect();
+                    System.out.println("reaper");
                 }
             }
             try {

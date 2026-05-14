@@ -20,6 +20,7 @@ public class SocketServerAccess {
     public void runServer() throws IOException {
         while (true) {
             Socket clientSocket = this.listenSocket.accept();
+            System.out.println("sc");
             new Thread(()->handshake(clientSocket)).start();
         }
     }

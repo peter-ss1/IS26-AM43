@@ -10,9 +10,15 @@ import java.util.List;
 
 public interface ModelInterface extends Serializable {
 
+    void moveToInactive(Player player);
+
+    void moveToWait(Player player,boolean stopped);
+
     int getNumPlayers();
 
     void addPlayer(String nickname, Color color);
+
+    void removePlayer(String nickname);
 
     void placeTotemOnTrack(Player player, int position);
 
@@ -28,7 +34,7 @@ public interface ModelInterface extends Serializable {
 
     void setObserver(GameObserver observer);
 
-    List<Player> getPlayers();
+    List<Player> getAllPlayers();
 
     void startGame();
 

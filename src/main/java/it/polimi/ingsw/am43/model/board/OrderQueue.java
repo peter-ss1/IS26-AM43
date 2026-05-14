@@ -59,6 +59,14 @@ public class OrderQueue implements Serializable {
         return this.playerOrder.isEmpty();
     }
 
+    public boolean removePlayer(Player player){
+        return this.playerOrder.remove(player);
+    }
+
+    public int size(){
+        return this.playerOrder.size();
+    }
+
     public boolean isFull() {
         return this.playerOrder.size() == this.foodModifiers.size();
     }

@@ -5,6 +5,7 @@ import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
+import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
@@ -25,13 +26,50 @@ public class Game implements ModelInterface, Serializable {
     private final Map<Integer, Card> idToCard;
     private transient GameObserver observer;
 
+
     public Game(int np, String nk, Color color) {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
         this.numPlayers = np;
         this.phase = GamePhase.PREPARATION;
         this.players = new ArrayList<>();
-        this.addPlayer(nk, color);
         this.idToCard = new HashMap<>();
+        this.addPlayer(nk, color);
+    }
+
+    public void moveToInactive(Player player) throws IllegalArgumentException{
+        player.setStatus(PlayerStatus.INACTIVE);
+        this.board.removePlayerFromBoard(player);
+        if (this.currPlayer.equals(player));{
+            if (this.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION)){
+                if (this.board.isOrderQueueEmpty()) {
+                    this.getPhase().resolvePhase(this, this.board);
+                }else {
+                    this.setCurrPlayer(this.board.getNextPlayerInOrderQueue());
+                }
+            }else if(this.getPhase().equals(GamePhase.ACTION_RESOLUTION)){
+                board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,
+                        () -> {
+                            this.wakeUpWaiting();
+                            this.phase.resolvePhase(this, this.board);
+                        });
+            }
+
+        }
+
+    }
+
+    public void moveToWait(Player player,boolean stopped) throws IllegalArgumentException{
+        if (!player.getStatus().equals(PlayerStatus.INACTIVE)) throw new IllegalArgumentException("player not inactive");
+        player.setStatus(PlayerStatus.WAITING);
+        if(!stopped) this.observer.updatePlayer(player.getNickname(),this.board.buildGameSnapshot(this.getAllPlayers(), this.currPlayer.getNickname(), this.phase));
+    }
+
+    public void wakeUpWaiting() {
+        this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).forEach(p->{
+            p.setStatus(PlayerStatus.ACTIVE);
+            this.board.addPlayerFromBoard();
+            this.board.returnPlayerToOrderQueue(this.observer,p);
+        });
     }
 
     public void setObserver(GameObserver observer) {
@@ -51,8 +89,20 @@ public class Game implements ModelInterface, Serializable {
         this.idToCard.putAll(map);
     }
 
-    public ArrayList<Player> getPlayers() {
+    public ArrayList<Player> getAllPlayers(){
         return new ArrayList<>(this.players);
+    }
+
+    public ArrayList<Player> getActivePlayers() {
+        return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.ACTIVE)).toList());
+    }
+
+    public ArrayList<Player> getInactivePlayers() {
+        return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.INACTIVE)).toList());
+    }
+
+    public ArrayList<Player> getWaitingPlayers() {
+        return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).toList());
     }
 
     @Override
@@ -62,7 +112,7 @@ public class Game implements ModelInterface, Serializable {
     }
 
     public void addPlayer(String nickname, Color color) {
-        if (this.numPlayers == this.players.size()) throw new IllegalArgumentException("Game is already full");
+        if (this.numPlayers == this.getAllPlayers().size()) throw new IllegalArgumentException("Game is already full");
         if (!phase.equals(GamePhase.PREPARATION))
             throw new IllegalStateException("Cannot add player when phase is " + phase);
         if (this.players.stream().anyMatch(p -> p.getNickname().equals(nickname)))
@@ -98,7 +148,7 @@ public class Game implements ModelInterface, Serializable {
 
     public void placeTotemOnTrack(Player player, int position) {
         if (!this.players.contains(player))
-            throw new IllegalArgumentException(("Player is not registered in the game"));
+            throw new IllegalArgumentException(("Player is not registered/active in the game"));
         if (!phase.equals(GamePhase.OFFER_TRACK_SELECTION))
             throw new IllegalStateException("Cannot place totem when phase is " + phase);
         if (!player.equals(this.currPlayer)) throw new OutOfTurnException("Cannot place totem in other player's turn");
@@ -113,7 +163,9 @@ public class Game implements ModelInterface, Serializable {
     }
 
     public Player getPlayerByName(String name) {
-        return players.stream().filter(p -> p.getNickname().equals(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("Player is not registered in the game"));
+        for (Player p : this.players) if (p.getNickname().equals(name)) return p;
+        throw new IllegalArgumentException("Player is not registered in the game");
+
     }
 
     public Card getCardById(int id) throws IllegalArgumentException {
@@ -144,6 +196,7 @@ public class Game implements ModelInterface, Serializable {
             throw new IllegalStateException("Cannot end turn when phase is " + phase);
         if (!this.currPlayer.equals(player)) throw new OutOfTurnException("Cannot end turn in other player's turn");
         if (this.phase.equals(GamePhase.DRAW_FROM_TOP_BONUS_ACTION)) {
+            this.wakeUpWaiting();
             this.phase.resolvePhase(this, this.board);
             this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             return;
@@ -153,7 +206,10 @@ public class Game implements ModelInterface, Serializable {
             this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             player.getTribe().activateTimedBuilding(this, player, this.board);
             board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,
-                    () -> this.phase.resolvePhase(this, this.board));
+                    () -> {
+                            this.wakeUpWaiting();
+                            this.phase.resolvePhase(this, this.board);
+                    });
         } else throw new IllegalMoveException("Available actions remaining");
     }
 
@@ -163,7 +219,10 @@ public class Game implements ModelInterface, Serializable {
             this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             player.getTribe().activateTimedBuilding(this, player, this.board);
             board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,
-                    () -> this.phase.resolvePhase(this, this.board));
+                    () -> {
+                            this.wakeUpWaiting();
+                            this.phase.resolvePhase(this, this.board);
+                    });
         }
 
     }
@@ -178,6 +237,11 @@ public class Game implements ModelInterface, Serializable {
     }
 
     public void restartGame() {
-        this.board.buildGameRestartedUpdate(this.observer, this.players, this.currPlayer.getNickname(), this.phase);
+        this.observer.broadcast(this.board.buildGameSnapshot(this.getAllPlayers(), this.currPlayer.getNickname(), this.phase));
+    }
+
+    public void removePlayer(String nickname){
+        this.availableColors.add(this.getPlayerByName(nickname).getColor());
+        this.players.remove(this.getPlayerByName(nickname));
     }
 }

@@ -7,6 +7,7 @@ import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
+import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 
 import java.io.IOException;
 import java.util.*;
@@ -142,7 +143,7 @@ public class TUI implements UI, Runnable {
                 this.printLobbyInfo();
                 System.out.print("> ");
             } else if (this.state == ViewState.IN_GAME) {
-                this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+                //this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
                 this.printGamePrompt();
             }
         }
@@ -528,7 +529,7 @@ public class TUI implements UI, Runnable {
                 this.printLobbyInfo();
                 System.out.print("> ");
             } else if (this.state == ViewState.IN_GAME) {
-                this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+                //this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
                 this.printGamePrompt();
             }
         }
@@ -844,7 +845,7 @@ public class TUI implements UI, Runnable {
             System.out.println(" └────────────────────┘");
         } else {
             for (ClientPlayer p : allPlayers) {
-                if (p.isDisconnected()) {
+                if (p.getStatus().equals(PlayerStatus.INACTIVE)) {
                     System.out.println(" │   " + DIM + "reconnecting..." + RESET + "  │");
                 } else {
                     String displayName = CardVisualizer.getASCIIColor(p.getColor()) + p.getNickname() + RESET;
@@ -936,7 +937,7 @@ public class TUI implements UI, Runnable {
     private void printCentralTrack(List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
         List<List<String>> centralCards = new ArrayList<>();
         centralCards.add(CardVisualizer.getEraASCII(this.localModel.getCurrentEra()));
-        centralCards.add(CardVisualizer.getOrderQueueASCII(this.localModel.getNumPlayers(), orderQueue, this.localModel.getDisconnectedPlayers()));
+        centralCards.add(CardVisualizer.getOrderQueueASCII(this.localModel.getNumPlayers(), orderQueue, this.localModel.getInactivePlayers(), this.localModel.getWaitingPlayers()));
         offerTrack.forEach(o -> centralCards.add(CardVisualizer.getOfferTrackASCII(o)));
         printSideBySide(centralCards);
     }
@@ -970,8 +971,8 @@ public class TUI implements UI, Runnable {
         System.out.println(" ╠═══╬════════════════════╬══════════╬══════════╣");
         for (ClientPlayer p : players) {
             String turnMarker = p.getNickname().equals(currentPlayer) ? MESOS + "»" + RESET : " ";
-            String name = p.isDisconnected() ? "reconnecting..." : p.getNickname();
-            String color = p.isDisconnected() ? DIM : CardVisualizer.getASCIIColor(p.getColor());
+            String name = p.getStatus().equals(PlayerStatus.INACTIVE) ? "reconnecting..." : p.getNickname();
+            String color = p.getStatus().equals(PlayerStatus.INACTIVE) ? DIM : CardVisualizer.getASCIIColor(p.getColor());
             System.out.printf(" ║ %s ║%s║    %-6d║    %-6d║\n",
                     turnMarker,
                     CardVisualizer.centerLine(name, color, 20),

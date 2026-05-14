@@ -78,6 +78,7 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         }
         GameController gameController= new GameController(this, gameRecovery.getGame(), lobbyId,gameRecovery.getClients());
         this.lobbies.put(lobbyId,gameController);
+
     }
 
     public void receiveCommand(ServerCommand command){
@@ -93,7 +94,7 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         List<LobbyInfo> availableLobbies = lobbies.values().stream()
                 .map(game -> new LobbyInfo(game.getLobbyId(), game.getNumPlayers(), game.getCurrentPlayers()))
                 .filter(lobbyInfo -> lobbyInfo.getNumPlayers() != lobbyInfo.getCurrentPlayers())
-                .toList();
+                .toList();//TODO
         this.connectionManager.getConnection(playerId).sendMessage(new Update.AvailableLobbiesUpdate(availableLobbies));
     }
     public void createLobby(UUID playerId, String nickname, Color color, int numPlayers){
