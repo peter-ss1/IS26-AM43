@@ -249,20 +249,28 @@ public final class CardVisualizer {
         return lines;
     }
 
-    public static List<String> getOrderQueueASCII(int numPlayers, List<Color> orderQueue, List<Color> disconnectedPlayers, List<Color> waitingPlayers) {
+    public static List<String> getOrderQueueASCII(int numPlayers, List<Color> orderQueue, List<Color> disconnectedPlayers, List<Color> waitingPlayers, boolean top) {
         List<String> lines = new ArrayList<>();
         List<Integer> bonus = orderQueueMap.get(numPlayers);
 
         lines.add("╭───────────────╮");
         lines.add("│               │");
         int i = 0;
-        while (i <  numPlayers - (orderQueue.size() + waitingPlayers.size() + disconnectedPlayers.size())) {
-            lines.add(String.format("│  %2d  [   ]    │", bonus.get(i)));
-            i++;
+        if (!top) {
+            while (i < numPlayers - (orderQueue.size() + waitingPlayers.size() + disconnectedPlayers.size())) {
+                lines.add(String.format("│  %2d  [   ]    │", bonus.get(i)));
+                i++;
+            }
         }
         for (Color color : orderQueue) {
             lines.add(String.format("│  %2d  [%s]    │", bonus.get(i), getASCIIBGColor(color) + "   " + RESET));
             i++;
+        }
+        if (top) {
+            while (i < numPlayers - (waitingPlayers.size() + disconnectedPlayers.size())) {
+                lines.add(String.format("│  %2d  [   ]    │", bonus.get(i)));
+                i++;
+            }
         }
         for (Color color : waitingPlayers) {
             lines.add(String.format("│  %2d  [%s]    │", bonus.get(i), getASCIIBGColor(color) + "   " + RESET));

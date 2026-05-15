@@ -20,12 +20,11 @@ public class DatabaseManager {
         hikariConfig.setMinimumIdle(2);
 
         dataSource = new HikariDataSource(hikariConfig);
-        System.out.println("Database Connection Pool inizializzata con successo!");
     }
 
     public static Connection getConnection() throws SQLException {
         if (dataSource == null) {
-            throw new SQLException("Errore: DatabaseManager non è stato inizializzato.");
+            throw new SQLException("Failed to initialize database manager.");
         }
         return dataSource.getConnection();
     }

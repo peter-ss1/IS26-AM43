@@ -7,6 +7,7 @@ import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.controller.ClientController;
+import it.polimi.ingsw.am43.database.RankElement;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 
@@ -43,8 +44,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = Update.PlayerReconnectionUpdate.class, name = "playerReconnectionUpdate"),
         @JsonSubTypes.Type(value = Update.GameRestartedUpdate.class, name = "gameRestartedUpdate"),
         @JsonSubTypes.Type(value = Update.PlayerDisconnectedUpdate.class, name = "playerDisconnectedUpdate"),
-
-        @JsonSubTypes.Type(value = Update.LeaderboardUpdate.class, name = "LeaderboardUpdate"),
+        @JsonSubTypes.Type(value = Update.LeaderboardUpdate.class, name = "leaderboardUpdate"),
 })
 
 public non-sealed abstract class Update extends Message {
@@ -407,38 +407,37 @@ public non-sealed abstract class Update extends Message {
     public static class GameOverUpdate extends Update {
         @JsonProperty("winners")
         private final List<String> winners;
+        @JsonProperty("finalPoints")
+        private final Map<String, Integer> finalPoints;
 
-        public GameOverUpdate(@JsonProperty("winners") List<String> winners) {
+        public GameOverUpdate(@JsonProperty("winners") List<String> winners, @JsonProperty("finalPoints") Map<String, Integer> finalPoints) {
             this.winners = winners;
+            this.finalPoints = finalPoints;
         }
 
         @Override
         public void execute(ClientController controller) {
-            controller.getLocalModel().endGame(winners);
+            controller.getLocalModel().endGame(this.winners, this.finalPoints);
         }
     }
+
     public static class LeaderboardUpdate extends Update {
-        private final List<String> leaderboard;
-        private final java.util.Map<String, Integer> playerRanks;
-        private final int numGiocatori;
+        @JsonProperty("leaderboard")
+        private final List<RankElement> leaderboard;
+        @JsonProperty("playerRanks")
+        private final Map<String, Integer> playerRanks;
 
         public LeaderboardUpdate(
-                @com.fasterxml.jackson.annotation.JsonProperty("leaderboard") List<String> leaderboard,
-                @com.fasterxml.jackson.annotation.JsonProperty("playerRanks") java.util.Map<String, Integer> playerRanks,
-                @com.fasterxml.jackson.annotation.JsonProperty("numGiocatori") int numGiocatori) {
+                @JsonProperty("leaderboard") List<RankElement> leaderboard,
+                @JsonProperty("playerRanks") java.util.Map<String, Integer> playerRanks) {
             this.leaderboard = leaderboard;
             this.playerRanks = playerRanks;
-            this.numGiocatori = numGiocatori;
         }
 
-        public List<String> getLeaderboard() { return leaderboard; }
-        public java.util.Map<String, Integer> getPlayerRanks() { return playerRanks; }
-        public int getNumGiocatori() { return numGiocatori; }
-
         @Override
-        public void execute(it.polimi.ingsw.am43.controller.ClientController controller) {
+        public void execute(ClientController controller) {
             // Quando il messaggio arriva a destinazione, dice al ClientModel di far vedere la classifica
-            controller.getLocalModel().showLeaderboard(leaderboard, playerRanks, numGiocatori);
+            controller.getLocalModel().showLeaderboard(leaderboard, playerRanks);
         }
     }
 

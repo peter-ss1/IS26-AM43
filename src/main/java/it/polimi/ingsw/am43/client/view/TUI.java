@@ -5,6 +5,7 @@ import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.client.OfferTrackElement;
 import it.polimi.ingsw.am43.controller.ClientController;
+import it.polimi.ingsw.am43.database.RankElement;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
@@ -25,6 +26,7 @@ public class TUI implements UI, Runnable {
     private final BlockingQueue<String> inputQueue;
     private final Object printLock;
     private boolean signal;
+    private boolean gameOver;
 
     public TUI(Scanner scanner) {
         this.localModel = new ClientModel(this);
@@ -34,6 +36,7 @@ public class TUI implements UI, Runnable {
         this.inputQueue = new LinkedBlockingQueue<>();
         this.printLock = new Object();
         this.signal = true;
+        this.gameOver = false;
         try {
             CardVisualizer.loadAscii();
         } catch (IOException e) {
@@ -62,6 +65,7 @@ public class TUI implements UI, Runnable {
     }
 
     private void startInputLoop() {
+        this.inputQueue.clear();
         new Thread(() -> {
             try {
                 switch (this.state) {
@@ -398,6 +402,11 @@ public class TUI implements UI, Runnable {
             }
             String input = this.getInput().trim();
             synchronized (printLock) {
+                if (gameOver) {
+                    this.gameOver = false;
+                    this.controller.refreshLobbies();
+                    return;
+                }
                 if (input.isEmpty()) {
                     System.out.println();
                     continue;
@@ -739,14 +748,12 @@ public class TUI implements UI, Runnable {
     }
 
     @Override
-    public void showGameEnd() {
+    public void showFinalPoints() {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
-            if (this.localModel.getWinners().contains(this.localModel.getOwnPlayer().getNickname())) {
-                System.out.println("YOU WON!");
-            } else {
-                System.out.println("YOU LOST!");
-            }
+            System.out.println(MESOS + "The final results are in!" + RESET);
+            this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+            this.printGamePrompt();
         }
     }
 
@@ -933,11 +940,11 @@ public class TUI implements UI, Runnable {
         }
         System.out.println(sb);
     }
-
+//TODO remove parameters
     private void printCentralTrack(List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
         List<List<String>> centralCards = new ArrayList<>();
         centralCards.add(CardVisualizer.getEraASCII(this.localModel.getCurrentEra()));
-        centralCards.add(CardVisualizer.getOrderQueueASCII(this.localModel.getNumPlayers(), orderQueue, this.localModel.getInactivePlayers(), this.localModel.getWaitingPlayers()));
+        centralCards.add(CardVisualizer.getOrderQueueASCII(this.localModel.getNumPlayers(), orderQueue, this.localModel.getInactivePlayers(), this.localModel.getWaitingPlayers(), this.localModel.getPhase() == GamePhase.ACTION_RESOLUTION));
         offerTrack.forEach(o -> centralCards.add(CardVisualizer.getOfferTrackASCII(o)));
         printSideBySide(centralCards);
     }
@@ -991,20 +998,22 @@ public class TUI implements UI, Runnable {
         System.out.println(sb);
     }
     @Override
-    public void showLeaderboard(List<String> leaderboard, int myRank, int numGiocatori) {
+    public void showGameEnd(List<RankElement> leaderboard, int myRank) {
         synchronized (this.printLock) {
-            System.out.println("\n" + MESOS + "========================================================" + RESET);
-            if (myRank != -1) {
-                System.out.println("You're in " + BOLD + myRank + "° place" + RESET + " in the all-time  " + numGiocatori + " player game rankings!");
-            }
-
-            System.out.println("\n" + MESOS + "--- \n" +
-                    "26\n" +
-                    "global historical ranking (" + numGiocatori + " players) ---" + RESET);
-            for (String riga : leaderboard) {
-                System.out.println("  " + riga);
-            }
+            this.gameOver = true;
+            System.out.print("\r\033[K");
+            if (this.localModel.getWinners().contains(this.localModel.getOwnPlayer().getNickname())) {
+                System.out.println("YOU WON!");
+            } else System.out.println("YOU LOST!");
+            System.out.println(MESOS + "========================================================" + RESET);
+            System.out.println("You ranked " + BOLD + "#" + myRank + RESET + " in the " + this.localModel.getNumPlayers() + "-player game rankings.");
+            System.out.println(MESOS + "LeaderBoard (" + this.localModel.getNumPlayers() + " players)" + RESET);
+            System.out.println(MESOS + "Rank | Player Nickname | Points | Date" + RESET);
+            for (int i = 1; i <= leaderboard.size(); i++) {
+                RankElement element = leaderboard.get(i - 1);
+                System.out.printf("#%2d: %16s %8d %s \n", i, element.getNickname(), element.getPoints(), element.getTimestamp());            }
             System.out.println(MESOS + "========================================================\n" + RESET);
+            System.out.println(MESOS + "Press 'enter' to choose a new lobby..." + RESET);
         }
     }
 }

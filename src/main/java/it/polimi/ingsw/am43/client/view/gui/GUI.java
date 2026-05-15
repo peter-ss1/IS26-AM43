@@ -5,16 +5,13 @@ import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.client.view.ViewState;
 import it.polimi.ingsw.am43.client.view.gui.components.CardMetadataRegistry;
 import it.polimi.ingsw.am43.controller.ClientController;
-import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.database.RankElement;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.rmi.NotBoundException;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class GUI implements UI {
     private final GuiApplication app;
@@ -180,7 +177,7 @@ public class GUI implements UI {
     }
 
     @Override
-    public void showGameEnd() {
+    public void showFinalPoints() {
         if (this.state != ViewState.IN_GAME) return;
         Platform.runLater(() -> {
             this.navigator.getCurrentScene().refreshFromModel();
@@ -231,6 +228,10 @@ public class GUI implements UI {
         this.state = ViewState.LOBBY_CHOICE;
         Platform.runLater(() -> this.navigator.showScene(this.state));
     }
+
+    @Override
+    public void showGameEnd(List<RankElement> leaderboard, int myRank) {}
+
 
     private void refreshGameSceneWithInfo(String message) {
         if (this.state != ViewState.IN_GAME) return;
@@ -295,4 +296,5 @@ public class GUI implements UI {
     public void showMenu() {
         Platform.runLater(this.navigator::showMenu);
     }
+
 }

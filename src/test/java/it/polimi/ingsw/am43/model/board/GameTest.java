@@ -38,11 +38,11 @@ class GameTest {
         assertEquals(GamePhase.PREPARATION, game.getPhase());
         game.startGame();
         assertEquals(GamePhase.OFFER_TRACK_SELECTION, game.getPhase());
-        assertEquals(2, game.getPlayers().size());
+        assertEquals(2, game.getAllPlayers().size());
         List<String> namePlayers = new ArrayList<>();
         namePlayers.add("pippo");
         namePlayers.add("jonny");
-        for (Player player : game.getPlayers()) {
+        for (Player player : game.getAllPlayers()) {
             assertTrue(namePlayers.contains(player.getNickname()));
         }
         assertNotNull(game.getCurrPlayer());

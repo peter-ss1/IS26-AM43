@@ -9,10 +9,6 @@ import it.polimi.ingsw.am43.network.rmi.ServerAccessRMI;
 import it.polimi.ingsw.am43.network.socket.server.SocketServerAccess;
 import it.polimi.ingsw.am43.database.DatabaseConfig;
 import it.polimi.ingsw.am43.database.DatabaseManager;
-import it.polimi.ingsw.am43.network.VirtualServer;
-import it.polimi.ingsw.am43.network.rmi.ServerRMI;
-import it.polimi.ingsw.am43.network.rmi.VirtualServerRMI;
-import it.polimi.ingsw.am43.network.socket.server.SocketServer;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -30,6 +26,8 @@ public class ServerMain {
     private static final int RMI_PORT = 1099;
 
     static void main() {
+        System.setProperty("org.slf4j.simpleLogger.log.com.zaxxer.hikari", "warn");
+        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "warn");
 
         ClientsConnectionManager connectionManager= new ClientsConnectionManager();
         ServerController controller = new ServerController(connectionManager);
@@ -37,7 +35,6 @@ public class ServerMain {
         ConnectionFactory connectionFactory= new ConnectionFactory(controller,connectionManager);
 
         PersistencyManager.loadSavedStatus(controller);
-        ServerController controller = new ServerController();
         try {
 
             ObjectMapper mapper = new ObjectMapper();
@@ -54,14 +51,13 @@ public class ServerMain {
 
             Connection testConn = DatabaseManager.getConnection();
             if (testConn != null) {
-                System.out.println(" SUCCESSO! Il server Java è collegato a MySQL!");
+                System.out.println("Database connection established");
                 testConn.close();
             }
 
         }
         catch (Exception e) {
-            System.err.println(" C'è stato un problema durante la connessione:");
-            e.printStackTrace();
+            System.err.println("Failed to establish database connection: " + e.getMessage());
         }
 
 

@@ -22,7 +22,7 @@ public class TestDatabase {
 
             DatabaseManager.initialize(config);
 
-            ClassificaDAO dao = new ClassificaDAO();
+            RankingDAO dao = new RankingDAO();
 
             System.out.println("Salvataggio di alcuni risultati di prova (Partite a 3 giocatori)...");
             dao.saveresult("Lorenzo", 50, 3);
@@ -37,8 +37,8 @@ public class TestDatabase {
 
 
             System.out.println("\nClassifica completa per 3 giocatori:");
-            List<String> leaderboard = dao.getFullLeaderboard(3);
-            for (String row : leaderboard) {
+            List<RankElement> leaderboard = dao.getFullLeaderboard(3);
+            for (RankElement row : leaderboard) {
                 System.out.println(row);
             }
 

@@ -37,6 +37,5 @@ module it.polimi.ingsw.am43 {
     opens it.polimi.ingsw.am43.utils to com.fasterxml.jackson.databind, java.rmi;
     opens it.polimi.ingsw.am43.client.view.gui.scenes to javafx.fxml;
     exports it.polimi.ingsw.am43.client.view.gui to javafx.graphics;
-    opens it.polimi.ingsw.am43.model.player to org.junit.platform.commons;
     opens it.polimi.ingsw.am43.database to com.fasterxml.jackson.databind;
 }

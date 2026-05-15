@@ -3,6 +3,7 @@ package it.polimi.ingsw.am43.client.view.gui.scenes;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.client.view.gui.GUI;
 import it.polimi.ingsw.am43.controller.ClientController;
+import it.polimi.ingsw.am43.database.RankElement;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
@@ -139,7 +140,7 @@ public abstract class CustomScene implements UI {
     }
 
     @Override
-    public void showGameEnd() {
+    public void showFinalPoints() {
 
     }
 
@@ -151,6 +152,9 @@ public abstract class CustomScene implements UI {
     public void showFoodOffer(String nickname) {
 
     }
+
+    @Override
+    public void showGameEnd(List<RankElement> leaderboard, int myRank){}
 
     public void reset() {
         

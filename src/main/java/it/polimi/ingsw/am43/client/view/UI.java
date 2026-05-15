@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am43.client.view;
 
+import it.polimi.ingsw.am43.database.RankElement;
+
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +41,7 @@ public interface UI {
 
     void showRitualEvent(Map<String, Integer> effects);
 
-    void showGameEnd();
+    void showFinalPoints();
 
     void showOrderModifier(String nickname, int modifier, boolean prestige);
 
@@ -54,5 +56,6 @@ public interface UI {
     void showPlayerReconnection(String nickname);
 
     void showDisconnection();
-    void showLeaderboard(List<String> leaderboard, int myRank, int numGiocatori);
+
+    void showGameEnd(List<RankElement> leaderboard, int myRank);
 }

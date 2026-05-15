@@ -4,32 +4,31 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassificaDAO {
+public class RankingDAO {
 
-    public void saveresult(String nickname, int punteggio, int numGiocatori) {
+    public void saveresult(String nickname, int points, int numPlayers) {
         String sql = "INSERT INTO Classifica (nickname, punteggio, data_partita, num_giocatori) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DatabaseManager.getConnection(); //chiede connessione
              PreparedStatement pstmt = conn.prepareStatement(sql)) { //prepare forma ricevimento
 
             pstmt.setString(1, nickname); //valori da sostituire a ???
-            pstmt.setInt(2, punteggio);
+            pstmt.setInt(2, points);
             // Generazione della data lato Java
             pstmt.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis()));
-            pstmt.setInt(4, numGiocatori);
+            pstmt.setInt(4, numPlayers);
 
             pstmt.executeUpdate(); //invia comando completo
-            System.out.println("Risultato salvato per " + nickname);
+            System.out.println("Result saved for " + nickname);
 
         } catch (SQLException e) {
-            System.err.println("Errore nel salvataggio del risultato:");
-            e.printStackTrace();
+            System.err.println("Error while loading the result: " +  e.getMessage());
         }
     }
 
 
-    public List<String> getFullLeaderboard(int numGiocatori) {
-        List<String> record = new ArrayList<>();
+    public List<RankElement> getFullLeaderboard(int numPlayers) {
+        List<RankElement> leaderBoard = new ArrayList<>();
 
         String sql = "SELECT nickname, punteggio, data_partita FROM Classifica " +
                 "WHERE num_giocatori = ? ORDER BY punteggio DESC";
@@ -37,20 +36,21 @@ public class ClassificaDAO {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, numGiocatori);
+            pstmt.setInt(1, numPlayers);
             ResultSet rs = pstmt.executeQuery();
 
-            int posizione = 1; //fa db a testo
             while (rs.next()) {
-                record.add(posizione + ". " + rs.getString("nickname") + " - " +
-                        rs.getInt("punteggio") + " punti (" +
-                        rs.getTimestamp("data_partita") + ")");
-                posizione++;
+                RankElement element = new RankElement(
+                        rs.getString("nickname"),
+                        rs.getInt("punteggio"),
+                        rs.getTimestamp("data_partita")
+                );
+                leaderBoard.add(element);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return record;
+        return leaderBoard;
     }
 
 

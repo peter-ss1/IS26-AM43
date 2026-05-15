@@ -1,10 +1,10 @@
 package it.polimi.ingsw.am43.client;
 
 import it.polimi.ingsw.am43.client.view.UI;
+import it.polimi.ingsw.am43.database.RankElement;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
-import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.*;
 
@@ -343,9 +343,13 @@ public class ClientModel {
         this.currentEra = currEra;
     }
 
-    public void endGame(List<String> winners) {
+    public void endGame(List<String> winners, Map<String, Integer> finalPoints) {
+        this.winners.clear();
         this.winners.addAll(winners);
-        this.ui.showGameEnd();
+        this.getAllPlayers().forEach(player -> {
+            if (finalPoints.containsKey(player.getNickname())) player.setPrestigePoints(finalPoints.get(player.getNickname()));
+        });
+        this.ui.showFinalPoints();
     }
 
     public List<String> getWinners() {
@@ -419,16 +423,7 @@ public class ClientModel {
     public List<Color> getWaitingPlayers() {
         return new ArrayList<>(this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).map(p->p.getColor()).toList());
     }
-    public void showLeaderboard(List<String> leaderboard, java.util.Map<String, Integer> playerRanks, int numGiocatori) {
-        String myNickname = (this.ownPlayer != null) ? this.ownPlayer.getNickname() : null;
-        int myRank = -1;
-
-        // Cerco la mia posizione nella mappa inviata dal server
-        if (myNickname != null && playerRanks.containsKey(myNickname)) {
-            myRank = playerRanks.get(myNickname);
-        }
-
-
-        this.ui.showLeaderboard(leaderboard, myRank, numGiocatori);
+    public void showLeaderboard(List<RankElement> leaderboard, Map<String, Integer> playerRanks) {
+        this.ui.showGameEnd(leaderboard, playerRanks.get(this.ownPlayer.getNickname()));
     }
 }

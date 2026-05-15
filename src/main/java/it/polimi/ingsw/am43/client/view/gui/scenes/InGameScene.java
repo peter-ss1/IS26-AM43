@@ -13,6 +13,7 @@ import it.polimi.ingsw.am43.client.view.gui.GUI;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
+import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 import javafx.fxml.FXML;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
@@ -241,7 +242,7 @@ public class InGameScene extends CustomScene {
             row.setCursor(Cursor.HAND);
             boolean currentPlayerRow = player.getNickname().equals(currentPlayer);
             boolean viewedPlayerRow = player.getNickname().equals(this.viewedTribeNickname);
-            boolean disconnectedPlayerRow = player.isDisconnected();
+            boolean disconnectedPlayerRow = player.getStatus().equals(PlayerStatus.INACTIVE);
             if (currentPlayerRow) {
                 row.getStyleClass().add("current-player-row");
             }
@@ -342,7 +343,7 @@ public class InGameScene extends CustomScene {
     }
 
     private String scoreboardName(ClientPlayer player) {
-        if (player.isDisconnected()) {
+        if (player.getStatus().equals(PlayerStatus.INACTIVE)) {
             return player.getNickname() + "  reconnecting...";
         }
         return player.getNickname();
