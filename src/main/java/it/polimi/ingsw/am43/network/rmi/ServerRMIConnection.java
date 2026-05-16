@@ -80,42 +80,45 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
     }
     public void sendCommand(ServerCommand command){
         this.lock.readLock().lock();
-        boolean disconnection=false;
+        //boolean disconnection=false;
         try {
             this.remote.sendCommand(command);
         }catch (RemoteException e){
-            disconnection=true;}
+            //disconnection=true;
+        }
         catch (NullPointerException e){System.out.println("connection not already established");}
         finally {
             this.lock.readLock().unlock();
-            if (disconnection)this.disconnect();
+            //if (disconnection)this.disconnect();
         }
     }
     public void sendCommand(GameCommand command){
         this.lock.readLock().lock();
-        boolean disconnection=false;
+        //boolean disconnection=false;
         try {
             this.remote.sendCommand(command);
         }catch (RemoteException e){
-            disconnection=true;}
+            //disconnection=true;
+            }
         catch (NullPointerException e){System.out.println("connection not already established");}
         finally {
             this.lock.readLock().unlock();
-            if (disconnection)this.disconnect();
+            //if (disconnection)this.disconnect();
         }
     }
     public void ping(){
         this.lock.readLock().lock();
-        boolean disconnection=false;
+        //boolean disconnection=false;
         try {
             this.remote.ping();
             this.updateLastPong();
         }catch (RemoteException e){
-            disconnection=true;}
+            //disconnection=true;
+        }
         catch (NullPointerException e){System.out.println("connection not already established");}
         finally {
             this.lock.readLock().unlock();
-            if (disconnection)this.disconnect();
+            //if (disconnection)this.disconnect();
         }
     }
 

@@ -56,7 +56,7 @@ public class SocketServerListener {
             }
         }catch (IOException e){
             if (this.active.compareAndSet(true,false)){
-                this.connection.disconnect();
+                //this.connection.disconnect();
             }
         }
     }

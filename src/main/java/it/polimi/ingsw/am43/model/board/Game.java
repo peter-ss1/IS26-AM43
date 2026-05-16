@@ -39,7 +39,7 @@ public class Game implements ModelInterface, Serializable {
     public void moveToInactive(Player player) throws IllegalArgumentException{
         player.setStatus(PlayerStatus.INACTIVE);
         this.board.removePlayerFromBoard(player);
-        if (this.currPlayer.equals(player));{
+        if (this.currPlayer.equals(player)){
             if (this.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION)){
                 if (this.board.isOrderQueueEmpty()) {
                     this.getPhase().resolvePhase(this, this.board);
