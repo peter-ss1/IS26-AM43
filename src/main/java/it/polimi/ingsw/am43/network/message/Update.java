@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.client.OfferTrackElement;
+import it.polimi.ingsw.am43.client.PointsPair;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.database.RankElement;
 import it.polimi.ingsw.am43.model.enums.Color;
@@ -158,15 +159,18 @@ public non-sealed abstract class Update extends Message {
         private final String nickname;
         @JsonProperty("cardId")
         private final int cardId;
+        @JsonProperty("finalPick")
+        private final boolean finalPick;
 
-        public CardPickedUpdate(@JsonProperty("nickname") String nickname, @JsonProperty("cardId") int cardId) {
+        public CardPickedUpdate(@JsonProperty("nickname") String nickname, @JsonProperty("cardId") int cardId, @JsonProperty("finalPick") boolean finalPick) {
             this.nickname = nickname;
             this.cardId = cardId;
+            this.finalPick = finalPick;
         }
 
         @Override
         public void execute(ClientController controller) {
-            controller.getLocalModel().pickCard(this.nickname, this.cardId);
+            controller.getLocalModel().pickCard(this.nickname, this.cardId, this.finalPick);
         }
     }
 
@@ -330,9 +334,9 @@ public non-sealed abstract class Update extends Message {
 
     public static class HuntEventEffectUpdate extends Update {
         @JsonProperty("effects")
-        private final Map<String, List<Integer>> effects;
+        private final Map<String, PointsPair> effects;
 
-        public HuntEventEffectUpdate(@JsonProperty("effects") Map<String, List<Integer>> effects) {
+        public HuntEventEffectUpdate(@JsonProperty("effects") Map<String, PointsPair> effects) {
             this.effects = effects;
         }
 
@@ -358,9 +362,9 @@ public non-sealed abstract class Update extends Message {
 
     public static class SustenaceEventEffectUpdate extends Update {
         @JsonProperty("effects")
-        private final Map<String, List<Integer>> effects;
+        private final Map<String, PointsPair> effects;
 
-        public SustenaceEventEffectUpdate(@JsonProperty("effects") Map<String, List<Integer>> effects) {
+        public SustenaceEventEffectUpdate(@JsonProperty("effects") Map<String, PointsPair> effects) {
             this.effects = effects;
         }
 

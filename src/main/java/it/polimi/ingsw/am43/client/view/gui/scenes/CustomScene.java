@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.client.view.gui.scenes;
 
+import it.polimi.ingsw.am43.client.PointsPair;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.client.view.gui.GUI;
 import it.polimi.ingsw.am43.controller.ClientController;
@@ -100,7 +101,7 @@ public abstract class CustomScene implements UI {
     }
 
     @Override
-    public void showCardPicked(String nickname, int cardId) {
+    public void showCardPicked(String nickname, int cardId, boolean finalPick) {
 
     }
 
@@ -120,7 +121,7 @@ public abstract class CustomScene implements UI {
     }
 
     @Override
-    public void showHuntEvent(Map<String, List<Integer>> effects) {
+    public void showHuntEvent(Map<String, PointsPair> effects) {
 
     }
 
@@ -130,7 +131,7 @@ public abstract class CustomScene implements UI {
     }
 
     @Override
-    public void showSustenanceEvent(Map<String, List<Integer>> effects) {
+    public void showSustenanceEvent(Map<String, PointsPair> effects) {
 
     }
 
@@ -155,6 +156,9 @@ public abstract class CustomScene implements UI {
 
     @Override
     public void showGameEnd(List<RankElement> leaderboard, int myRank){}
+
+    @Override
+    public void showRoundEnding() {}
 
     public void reset() {
         

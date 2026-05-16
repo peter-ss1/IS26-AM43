@@ -1,9 +1,6 @@
 package it.polimi.ingsw.am43.client.view;
 
-import it.polimi.ingsw.am43.client.ClientModel;
-import it.polimi.ingsw.am43.client.ClientPlayer;
-import it.polimi.ingsw.am43.client.LobbyInfo;
-import it.polimi.ingsw.am43.client.OfferTrackElement;
+import it.polimi.ingsw.am43.client.*;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.database.RankElement;
 import it.polimi.ingsw.am43.model.enums.Color;
@@ -19,16 +16,22 @@ import java.util.concurrent.TimeUnit;
 import static it.polimi.ingsw.am43.client.view.TextFormatting.*;
 
 public class TUI implements UI, Runnable {
+    private CardVisualizer visualizer;
     private final ClientController controller;
-    private ViewState state;
     private final ClientModel localModel;
     private final Scanner scanner;
     private final BlockingQueue<String> inputQueue;
     private final Object printLock;
+    private ViewState state;
     private boolean signal;
     private boolean gameOver;
 
     public TUI(Scanner scanner) {
+        try {
+            this.visualizer = new CardVisualizer();
+        } catch (IOException e) {
+            System.err.println("Unable to load ASCII file: " + e.getMessage());
+        }
         this.localModel = new ClientModel(this);
         this.controller = new ClientController(this, this.localModel);
         this.state = ViewState.CONNECTION;
@@ -37,11 +40,7 @@ public class TUI implements UI, Runnable {
         this.printLock = new Object();
         this.signal = true;
         this.gameOver = false;
-        try {
-            CardVisualizer.loadAscii();
-        } catch (IOException e) {
-            System.err.println("Unable to load ASCII file. " + e.getMessage());
-        }
+
     }
 
     public String getInput() throws DisconnectedException {
@@ -90,67 +89,6 @@ public class TUI implements UI, Runnable {
                 }
             }
         }).start();
-    }
-
-    private void lobbyWaitLoop() throws DisconnectedException {
-        while (true) {
-            synchronized (printLock) {
-                System.out.println(MESOS + "Type 'rules' to show game rules" + RESET);
-                System.out.print("> ");
-            }
-            String input = this.getInput().trim();
-            synchronized (printLock) {
-                if (!input.equalsIgnoreCase("rules")) {
-                    this.printError("Check your spelling");
-                } else {
-                    System.out.println(MESOS + "Here's a summary of the game rules: !!!" + RESET);
-                }
-            }
-        }
-    }
-
-    private void printReconnectionWaiting() {
-        synchronized (this.printLock) {
-            int i = 0;
-            while (this.controller.isDisconnected()) {
-                if (i == 0 || i == 4) {
-                    System.out.print("\r\033[K");
-                    System.out.print(ERROR + "Attempting to reconnect" + RESET);
-                    i = 0;
-                } else {
-                    System.out.print(ERROR + "." + RESET);
-                }
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-                i++;
-            }
-            System.out.println("\n" + MESOS + "Connection restored!" + RESET);
-        }
-    }
-
-    @Override
-    public void showRetrievedInfo() {
-        this.state = ViewState.RECONNECTION;
-        this.startInputLoop();
-    }
-
-    @Override
-    public void showDisconnectedPlayer(String nickname) {
-        synchronized (this.printLock) {
-            System.out.print("\r\033[K");
-            this.printError("Player " + nickname + " lost connection.");
-            if (this.state == ViewState.IN_LOBBY_CHOICE || this.state == ViewState.IN_LOBBY) {
-                this.printLobbyInfo();
-                System.out.print("> ");
-            } else if (this.state == ViewState.IN_GAME) {
-                //this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
-                this.printGamePrompt();
-            }
-        }
     }
 
     private void setUpClient() {
@@ -211,23 +149,21 @@ public class TUI implements UI, Runnable {
         inputLoop.start();
     }
 
-    private void printConnectionWaiting() {
-        int i = 0;
-        while (this.signal) {
-            if (i == 0 || i == 4) {
-                System.out.print("\r\033[K");
-                System.out.print(ERROR + "Attempting to connect" + RESET);
-                i = 0;
-            } else {
-                System.out.print(ERROR + "." + RESET);
+    private void lobbyWaitLoop() throws DisconnectedException {
+        //TODO add quit
+        while (true) {
+            synchronized (printLock) {
+                System.out.println(MESOS + "Type 'rules' to show game rules" + RESET);
+                System.out.print("> ");
             }
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+            String input = this.getInput().trim();
+            synchronized (printLock) {
+                if (!input.equalsIgnoreCase("rules")) {
+                    this.printError("Check your spelling");
+                } else {
+                    this.printRules();
+                }
             }
-            i++;
         }
     }
 
@@ -240,7 +176,7 @@ public class TUI implements UI, Runnable {
     private void reconnectionLoop() throws DisconnectedException {
         synchronized (this.printLock) {
             while (true) {
-                System.out.println("You were previously registered as " + CardVisualizer.getASCIIColor(this.localModel.getOwnPlayer().getColor()) + this.localModel.getOwnPlayer().getNickname() + RESET + ". Would you like to get your player back? [y/n]");
+                System.out.println("You were previously registered as " + this.visualizer.getASCIIColor(this.localModel.getOwnPlayer().getColor()) + this.localModel.getOwnPlayer().getNickname() + RESET + ". Would you like to get your player back? [y/n]");
                 String input = this.getInput().trim();
                 if (input.equalsIgnoreCase("y")) {
                     this.controller.answerRejoin(true);
@@ -281,7 +217,7 @@ public class TUI implements UI, Runnable {
                     }
 
                     while (color == null) {
-                        System.out.print("Choose a color between " + CardVisualizer.getColorArrayString(Arrays.stream(Color.values()).toList()) + ": ");
+                        System.out.print("Choose a color between " + this.visualizer.getColorArrayString(Arrays.stream(Color.values()).toList()) + ": ");
                         input = this.getInput().trim().toUpperCase();
                         try {
                             color = Color.valueOf(input);
@@ -369,7 +305,7 @@ public class TUI implements UI, Runnable {
 
             while (color == null || !this.localModel.isColorAvailable(color)) {
                 synchronized (printLock) {
-                    System.out.println("Choose a color between " + CardVisualizer.getColorArrayString(this.localModel.getAvailableColors()));
+                    System.out.println("Choose a color between " + this.visualizer.getColorArrayString(this.localModel.getAvailableColors()));
                     System.out.print("> ");
                 }
                 input = this.getInput().trim().toUpperCase();
@@ -419,8 +355,9 @@ public class TUI implements UI, Runnable {
                     case "end" -> handleEndTurn();
                     case "show" -> handleShowCommands(parts);
                     case "help" -> printHelp();
+                    case "rules" -> printRules();
                     default -> this.printError("Unknown command. Type 'help' to show command list.");
-                } //TODO RULES
+                }
             }
         }
     }
@@ -514,6 +451,27 @@ public class TUI implements UI, Runnable {
     }
 
     @Override
+    public void showRetrievedInfo() {
+        this.state = ViewState.RECONNECTION;
+        this.startInputLoop();
+    }
+
+    @Override
+    public void showDisconnectedPlayer(String nickname) {
+        synchronized (this.printLock) {
+            System.out.print("\r\033[K");
+            this.printError("Player " + nickname + " lost connection.");
+            if (this.state == ViewState.IN_LOBBY_CHOICE || this.state == ViewState.IN_LOBBY) {
+                this.printLobbyInfo();
+                System.out.print("> ");
+            } else if (this.state == ViewState.IN_GAME) {
+                this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+                this.printGamePrompt();
+            }
+        }
+    }
+
+    @Override
     public void showAvailableLobbies() {
         if (this.state != ViewState.LOBBY_CHOICE) return;
         synchronized (printLock) {
@@ -533,12 +491,12 @@ public class TUI implements UI, Runnable {
     public void showPlayerReconnection(String nickname) {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
-            System.out.println("Player " + nickname + " reconnected");
+            System.out.println(MESOS + "Player " + nickname + " reconnected." + RESET);
             if (this.state == ViewState.IN_LOBBY_CHOICE || this.state == ViewState.IN_LOBBY) {
                 this.printLobbyInfo();
                 System.out.print("> ");
             } else if (this.state == ViewState.IN_GAME) {
-                //this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
+                this.printScoreboard(this.localModel.getAllPlayers(), this.localModel.getCurrentPlayerNickname());
                 this.printGamePrompt();
             }
         }
@@ -550,24 +508,6 @@ public class TUI implements UI, Runnable {
             System.out.print("\r\033[K");
             this.printError("Connection with server lost");
         }
-    }
-
-    private void printAvailableLobbies() {
-        System.out.print("\r\033[K");
-        List<LobbyInfo> availableLobbies = this.localModel.getLobbies();
-        if (availableLobbies.isEmpty()) {
-            System.out.println(MESOS + "There are no available lobbies. Create one!\n" + RESET);
-        } else {
-            System.out.println("    ┌──────────┬──────────────────┐");
-            System.out.println("    │" + MESOS + BOLD + " LOBBY ID " + RESET + "│" + MESOS + BOLD + "     PLAYERS      " + RESET + "│");
-            System.out.println("    ├──────────┼──────────────────┤");
-            for (LobbyInfo lobby : availableLobbies) {
-                String players = String.format("%d / %d", lobby.getCurrentPlayers(), lobby.getNumPlayers());
-                System.out.printf("    │    %-6d│      %-12s│\n", lobby.getLobbyId(), players);
-            }
-            System.out.println("    └──────────┴──────────────────┘\n");
-        }
-        System.out.print("> ");
     }
 
     @Override
@@ -633,10 +573,18 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             if (this.localModel.isOwnTurn()) {
-                System.out.println("It's now your turn!");
+                System.out.println(
+                        this.visualizer.getASCIIColor(this.localModel.getOwnPlayer().getColor()) +
+                                "                                               ╔═════════════════════╗\n" +
+                                "═══════════════════════════════════════════════╣      YOUR TURN      ╠═══════════════════════════════════════════════\n" +
+                                "                                               ╚═════════════════════╝\n" + RESET);
                 this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
             } else {
-                System.out.println("Current player is now " + this.localModel.getCurrentPlayerNickname());
+                System.out.println(
+                        this.visualizer.getASCIIColor(this.localModel.getPlayerByNickname(this.localModel.getCurrentPlayerNickname()).getColor()) +
+                                "                                               ╔═════════════════════╗\n" +
+                                "═══════════════════════════════════════════════╣" + this.visualizer.centerLine(this.localModel.getCurrentPlayerNickname() + "'S TURN", "", 21) + "╠═══════════════════════════════════════════════\n" +
+                                "                                               ╚═════════════════════╝\n" + RESET);
             }
             this.printGamePrompt();
         }
@@ -648,24 +596,25 @@ public class TUI implements UI, Runnable {
             System.out.print("\r\033[K");
             position++;
             if (this.localModel.isOwnTurn()) {
-                System.out.println("You placed the totem in position " + position);
+                System.out.println("◈ You placed the totem in position " + position);
             } else {
-                System.out.println(nickname + "'s totem placed in position " + position);
+                System.out.println("◈" + nickname + "placed the totem in position " + position);
             }
             this.printGamePrompt();
         }
     }
 
     @Override
-    public void showCardPicked(String nickname, int cardId) {
+    public void showCardPicked(String nickname, int cardId, boolean finalPick) {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             if (this.localModel.isOwnTurn()) {
-                System.out.println("You picked a card.");
+                System.out.println("◈ You picked the following card:");
                 this.printCard(cardId);
-                this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
+                if (!finalPick)
+                    this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
             } else {
-                System.out.println(nickname + "picked a card.");
+                System.out.println("◈" + nickname + "picked the following card:");
                 this.printCard(cardId);
             }
             this.printGamePrompt();
@@ -677,9 +626,9 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             if (this.localModel.isOwnTurn()) {
-                System.out.println("You paid " + cost + " food to buy the building.");
+                System.out.println("◈ You paid " + cost + " food to buy the building.");
             } else {
-                System.out.println(nickname + "paid " + cost + " food to buy the building.");
+                System.out.println("◈" + nickname + "paid " + cost + " food to buy the building.");
             }
             this.printGamePrompt();
         }
@@ -690,9 +639,9 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             if (this.localModel.isOwnTurn()) {
-                System.out.println("You picked an active hunter that gave you " + food + " food.");
+                System.out.println("◈ The active hunter you picked procured " + food + " food.");
             } else {
-                System.out.println(nickname + "picked an active hunter that gave " + food + " food.");
+                System.out.println("◈ The active hunter " + nickname + "picked procured " + food + " food.");
             }
             this.printGamePrompt();
         }
@@ -703,19 +652,34 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             if (this.localModel.isOwnTurn()) {
-                System.out.println("One of your buildings gave you " + bonus + " " + resource + ".");
+                System.out.println("◈ Building effect activated: you gained " + bonus + " " + resource + ".");
             } else {
-                System.out.println("One of " + nickname + "'s buildings gave " + bonus + " " + resource + ".");
+                System.out.println("◈ Building effect activated: " + nickname + " gained " + bonus + " " + resource + ".");
             }
             this.printGamePrompt();
         }
     }
 
     @Override
-    public void showHuntEvent(Map<String, List<Integer>> effects) {
+    public void showRoundEnding() {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
-            System.out.println("HUNT EVENT!");
+            System.out.println(MESOS +
+                    "                                               ╔══════════════════╗\n" +
+                    "═══════════════════════════════════════════════╣   ROUND ENDING   ╠═══════════════════════════════════════════════\n" +
+                    "                                               ╚══════════════════╝\n" + RESET);
+            this.printGamePrompt();
+        }
+    }
+
+    @Override
+    public void showHuntEvent(Map<String, PointsPair> effects) {
+        synchronized (this.printLock) {
+            System.out.print("\r\033[K");
+            System.out.println(RED + "The hunt is on!" + RESET);
+            for (Map.Entry<String, PointsPair> entry : effects.entrySet()) {
+                System.out.println("◈ " + (entry.getKey().equals(this.localModel.getOwnPlayer().getNickname()) ? "You" : entry.getKey()) + " gained " + entry.getValue().getFood() + " food and " + entry.getValue().getPrestige() + " prestige points.");
+            }
             this.printGamePrompt();
         }
     }
@@ -724,16 +688,22 @@ public class TUI implements UI, Runnable {
     public void showPaintingEvent(Map<String, Integer> effects) {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
-            System.out.println("PAINTING EVENT!");
+            System.out.println(YELLOW + "Adorn your caves!" + RESET);
+            for (Map.Entry<String, Integer> entry : effects.entrySet()) {
+                System.out.println("◈ " + (entry.getKey().equals(this.localModel.getOwnPlayer().getNickname()) ? "You" : entry.getKey()) + (entry.getValue() < 0 ? " lost " : " gained ") + entry.getValue() + " prestige points.");
+            }
             this.printGamePrompt();
         }
     }
 
     @Override
-    public void showSustenanceEvent(Map<String, List<Integer>> effects) {
+    public void showSustenanceEvent(Map<String, PointsPair> effects) {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
-            System.out.println("SUSTENANCE EVENT!");
+            System.out.println(ORANGE + "Prepare your provisions!" + RESET);
+            for (Map.Entry<String, PointsPair> entry : effects.entrySet()) {
+                System.out.println("◈ " + (entry.getKey().equals(this.localModel.getOwnPlayer().getNickname()) ? "You" : entry.getKey()) + " lost " + entry.getValue().getFood() + " food and " + entry.getValue().getPrestige() + " prestige points.");
+            }
             this.printGamePrompt();
         }
     }
@@ -742,7 +712,10 @@ public class TUI implements UI, Runnable {
     public void showRitualEvent(Map<String, Integer> effects) {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
-            System.out.println("RITUAL EVENT!");
+            System.out.println(PURPLE + "Appease the spirits!" + RESET);
+            for (Map.Entry<String, Integer> entry : effects.entrySet()) {
+                System.out.println("◈ " + (entry.getKey().equals(this.localModel.getOwnPlayer().getNickname()) ? "You" : entry.getKey()) + (entry.getValue() < 0 ? " lost " : " gained ") + entry.getValue() + " prestige points.");
+            }
             this.printGamePrompt();
         }
     }
@@ -762,9 +735,9 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             if (this.localModel.getOwnPlayer().getNickname().equals(nickname)) {
-                System.out.println("You " + (modifier > 0 ? "received " : "lost ") + modifier + " " + (prestige ? "prestige points" : "food") + ".");
+                System.out.println("◈ You " + (modifier > 0 ? "gained " : "lost ") + modifier + " " + (prestige ? "prestige points" : "food") + " from the Order Tile.");
             } else {
-                System.out.println(nickname + " " + (modifier > 0 ? "received " : "lost ") + modifier + " " + (prestige ? "prestige points" : "food") + ".");
+                System.out.println("◈ " + nickname + " " + (modifier > 0 ? "gained " : "lost ") + modifier + " " + (prestige ? "prestige points" : "food") + " from the Order Tile.");
             }
             this.printGamePrompt();
         }
@@ -775,11 +748,58 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             if (this.localModel.isOwnTurn()) {
-                System.out.println("You received 3 food thanks to Offer Card.");
+                System.out.println("◈ You received 3 food from the Offer Track.");
             } else {
-                System.out.println(nickname + "received 3 food thanks to Offer Card.");
+                System.out.println("◈ " + nickname + "received 3 food from the Offer Track.");
             }
             this.printGamePrompt();
+        }
+    }
+
+    @Override
+    public void showGameEnd(List<RankElement> leaderboard, int myRank) {
+        synchronized (this.printLock) {
+            this.gameOver = true;
+            System.out.print("\r\033[K");
+            if (this.localModel.getWinners().contains(this.localModel.getOwnPlayer().getNickname())) {
+                System.out.println(MESOS +
+                        "█ █ █▀▀█ █  █   █   █ █▀▀█ █▀▀█\n" +
+                        "█▄█ █  █ █  █   █▄█▄█ █  █ █  █\n" +
+                        " ▀  ▀▀▀▀  ▀▀▀    ▀ ▀  ▀▀▀▀ ▀  ▀"
+                );
+            } else {
+                System.out.println(MESOS +
+                        "█ █ █▀▀█ █  █   █    █▀▀█ █▀▀▀ ▀█▀\n" +
+                        "█▄█ █  █ █  █   █    █  █ ▀▀▀█  █ \n" +
+                        " ▀  ▀▀▀▀  ▀▀▀   ▀▀▀▀ ▀▀▀▀ ▀▀▀▀  ▀ "
+                );
+                List<String> winners = this.localModel.getWinners();
+                if (winners.size() == 1) System.out.println(MESOS + "The winner is " + winners.getFirst() + "!");
+                else {
+                    StringJoiner joiner = new StringJoiner(", ");
+                    winners.forEach(joiner::add);
+                    System.out.println(MESOS + "The winners are " + joiner + "!");
+                }
+            }
+            System.out.println(MESOS + "You ranked " + BOLD + "#" + myRank + RESET + MESOS + " in the " + this.localModel.getNumPlayers() + "-player game rankings.\n");
+            System.out.println(" ╔══════╦════════════════════╦══════════╦═══════════════════════╗" + RESET);
+            System.out.println(" ║ " + MESOS + "RANK" + RESET + " ║       " + MESOS + "PLAYER" + RESET + "       ║  " + MESOS + "POINTS" + RESET + "  ║                  " + MESOS + "DATE" + RESET + "                  ║");
+            System.out.println(" ╠══════╬════════════════════╬══════════╬═══════════════════════╣" + RESET);
+
+            for (int i = 1; i <= leaderboard.size(); i++) {
+                RankElement element = leaderboard.get(i - 1);
+                String turnMarker = (i == myRank) ? MESOS + "»" + RESET : "#";
+                String color = (i == myRank) ? BOLD + MESOS : RESET;
+                String rankString = String.format("%s%3d", turnMarker, i);
+                System.out.printf(" ║ %s ║%s║    %-6s║ %-23s║\n",
+                        color + rankString + RESET,
+                        this.visualizer.centerLine(element.getNickname(), color, 20),
+                        color + element.getPoints() +  RESET,
+                        color + element.getTimestamp() + RESET
+                );
+            }
+            System.out.println(" ╚══════╩════════════════════╩══════════╩════════════════════╝" + RESET);
+            System.out.println(MESOS + "Press 'enter' to choose a new lobby..." + RESET);
         }
     }
 
@@ -802,6 +822,47 @@ public class TUI implements UI, Runnable {
 
     private void printError(String error) {
         System.out.println(ERROR + error + RESET);
+    }
+
+    private void printReconnectionWaiting() {
+        synchronized (this.printLock) {
+            int i = 0;
+            while (this.controller.isDisconnected()) {
+                if (i == 0 || i == 4) {
+                    System.out.print("\r\033[K");
+                    System.out.print(ERROR + "Attempting to reconnect" + RESET);
+                    i = 0;
+                } else {
+                    System.out.print(ERROR + "." + RESET);
+                }
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                i++;
+            }
+            System.out.println("\n" + MESOS + "Connection restored!" + RESET);
+        }
+    }
+
+    private void printAvailableLobbies() {
+        System.out.print("\r\033[K");
+        List<LobbyInfo> availableLobbies = this.localModel.getLobbies();
+        if (availableLobbies.isEmpty()) {
+            System.out.println(MESOS + "There are no available lobbies. Create one!\n" + RESET);
+        } else {
+            System.out.println("    ┌──────────┬──────────────────┐");
+            System.out.println("    │" + MESOS + BOLD + " LOBBY ID " + RESET + "│" + MESOS + BOLD + "     PLAYERS      " + RESET + "│");
+            System.out.println("    ├──────────┼──────────────────┤");
+            for (LobbyInfo lobby : availableLobbies) {
+                String players = String.format("%d / %d", lobby.getCurrentPlayers(), lobby.getNumPlayers());
+                System.out.printf("    │    %-6d│      %-12s│\n", lobby.getLobbyId(), players);
+            }
+            System.out.println("    └──────────┴──────────────────┘\n");
+        }
+        System.out.print("> ");
     }
 
     private void printWelcome() {
@@ -855,11 +916,11 @@ public class TUI implements UI, Runnable {
                 if (p.getStatus().equals(PlayerStatus.INACTIVE)) {
                     System.out.println(" │   " + DIM + "reconnecting..." + RESET + "  │");
                 } else {
-                    String displayName = CardVisualizer.getASCIIColor(p.getColor()) + p.getNickname() + RESET;
+                    String displayName = this.visualizer.getASCIIColor(p.getColor()) + p.getNickname() + RESET;
                     if (p.getNickname().equals(ownName)) {
                         displayName += MESOS + " (YOU)" + RESET;
                     }
-                    System.out.println(" │" + CardVisualizer.centerLine(displayName, RESET, 20) + "│");
+                    System.out.println(" │" + this.visualizer.centerLine(displayName, RESET, 20) + "│");
                 }
             }
             for (int i = allPlayers.size(); i < lobby.getCurrentPlayers(); i++) {
@@ -874,6 +935,7 @@ public class TUI implements UI, Runnable {
 
     private void printHelp() {
         System.out.println("\n" + "=".repeat(20) + " MESOS COMMAND LIST " + "=".repeat(20));
+        printCommand("rules", "Show a summary of the game rules.");
 
         System.out.println(MESOS + "GAMEPLAY COMMANDS:" + RESET);
         printCommand("place <position>", "Place your totem on the specified offer track card.");
@@ -895,12 +957,12 @@ public class TUI implements UI, Runnable {
     private void printPlayerTribe(ClientPlayer player) {
         System.out.println(" ╔═════════════════════════╦═════════════╦═════════════════╗");
         System.out.printf(" ║%s║ " + MESOS + "FOOD" + RESET + ": %-6d║ " + MESOS + "PRESTIGE" + RESET + ": %-6d║\n",
-                CardVisualizer.centerLine(player.getNickname() + "'s Tribe", CardVisualizer.getASCIIColor(player.getColor()), 25),
+                this.visualizer.centerLine(player.getNickname() + "'s Tribe", this.visualizer.getASCIIColor(player.getColor()), 25),
                 player.getFood(),
                 player.getPrestigePoints()
         );
         System.out.println(" ╚═════════════════════════╩═════════════╩═════════════════╝");
-        Map<String, List<Integer>> tribeMap = CardVisualizer.divideTribe(player.getTribe());
+        Map<String, List<Integer>> tribeMap = this.visualizer.divideTribe(player.getTribe());
         if (tribeMap.isEmpty()) {
             System.out.println("This tribe is still empty.");
             return;
@@ -915,7 +977,7 @@ public class TUI implements UI, Runnable {
                 "                                               ╔═══════════════╗\n" +
                 "═══════════════════════════════════════════════╣     BOARD     ╠═══════════════════════════════════════════════\n" +
                 "                                               ╚═══════════════╝\n" + RESET);
-        int cardWidth = CardVisualizer.getASCII(topRowCards.getFirst()).getFirst().length();
+        int cardWidth = this.visualizer.getASCII(topRowCards.getFirst()).getFirst().length();
         this.printIndexes(0, topRowCards.size(), cardWidth);
         this.printRow(topRowCards);
 
@@ -935,17 +997,18 @@ public class TUI implements UI, Runnable {
         }
         for (int i = 1; i <= (size - startingPoint); i++) {
             String indexLabel = "[" + i + "]";
-            sb.append(CardVisualizer.centerLine(indexLabel, MESOS, cardWidth));
+            sb.append(this.visualizer.centerLine(indexLabel, MESOS, cardWidth));
             sb.append("  ");
         }
         System.out.println(sb);
     }
-//TODO remove parameters
+
+    //TODO remove parameters
     private void printCentralTrack(List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
         List<List<String>> centralCards = new ArrayList<>();
-        centralCards.add(CardVisualizer.getEraASCII(this.localModel.getCurrentEra()));
-        centralCards.add(CardVisualizer.getOrderQueueASCII(this.localModel.getNumPlayers(), orderQueue, this.localModel.getInactivePlayers(), this.localModel.getWaitingPlayers(), this.localModel.getPhase() == GamePhase.ACTION_RESOLUTION));
-        offerTrack.forEach(o -> centralCards.add(CardVisualizer.getOfferTrackASCII(o)));
+        centralCards.add(this.visualizer.getEraASCII(this.localModel.getCurrentEra()));
+        centralCards.add(this.visualizer.getOrderQueueASCII(this.localModel.getNumPlayers(), orderQueue, this.localModel.getInactivePlayers(), this.localModel.getWaitingPlayers(), this.localModel.getPhase() == GamePhase.ACTION_RESOLUTION));
+        offerTrack.forEach(o -> centralCards.add(this.visualizer.getOfferTrackASCII(o)));
         printSideBySide(centralCards);
     }
 
@@ -967,7 +1030,7 @@ public class TUI implements UI, Runnable {
             return;
         }
         List<List<String>> allAscii = ids.stream()
-                .map(CardVisualizer::getASCII)
+                .map(this.visualizer::getASCII)
                 .toList();
         printSideBySide(allAscii);
     }
@@ -979,10 +1042,10 @@ public class TUI implements UI, Runnable {
         for (ClientPlayer p : players) {
             String turnMarker = p.getNickname().equals(currentPlayer) ? MESOS + "»" + RESET : " ";
             String name = p.getStatus().equals(PlayerStatus.INACTIVE) ? "reconnecting..." : p.getNickname();
-            String color = p.getStatus().equals(PlayerStatus.INACTIVE) ? DIM : CardVisualizer.getASCIIColor(p.getColor());
+            String color = p.getStatus().equals(PlayerStatus.INACTIVE) ? DIM : this.visualizer.getASCIIColor(p.getColor());
             System.out.printf(" ║ %s ║%s║    %-6d║    %-6d║\n",
                     turnMarker,
-                    CardVisualizer.centerLine(name, color, 20),
+                    this.visualizer.centerLine(name, color, 20),
                     p.getFood(),
                     p.getPrestigePoints()
             );
@@ -992,28 +1055,81 @@ public class TUI implements UI, Runnable {
 
     private void printCard(int cardId) {
         StringBuilder sb = new StringBuilder();
-        for (String s : CardVisualizer.getASCII(cardId)) {
+        for (String s : this.visualizer.getASCII(cardId)) {
             sb.append(s).append("\n");
         }
         System.out.println(sb);
     }
-    @Override
-    public void showGameEnd(List<RankElement> leaderboard, int myRank) {
-        synchronized (this.printLock) {
-            this.gameOver = true;
-            System.out.print("\r\033[K");
-            if (this.localModel.getWinners().contains(this.localModel.getOwnPlayer().getNickname())) {
-                System.out.println("YOU WON!");
-            } else System.out.println("YOU LOST!");
-            System.out.println(MESOS + "========================================================" + RESET);
-            System.out.println("You ranked " + BOLD + "#" + myRank + RESET + " in the " + this.localModel.getNumPlayers() + "-player game rankings.");
-            System.out.println(MESOS + "LeaderBoard (" + this.localModel.getNumPlayers() + " players)" + RESET);
-            System.out.println(MESOS + "Rank | Player Nickname | Points | Date" + RESET);
-            for (int i = 1; i <= leaderboard.size(); i++) {
-                RankElement element = leaderboard.get(i - 1);
-                System.out.printf("#%2d: %16s %8d %s \n", i, element.getNickname(), element.getPoints(), element.getTimestamp());            }
-            System.out.println(MESOS + "========================================================\n" + RESET);
-            System.out.println(MESOS + "Press 'enter' to choose a new lobby..." + RESET);
+
+    private void printConnectionWaiting() {
+        int i = 0;
+        while (this.signal) {
+            if (i == 0 || i == 4) {
+                System.out.print("\r\033[K");
+                System.out.print(ERROR + "Attempting to connect" + RESET);
+                i = 0;
+            } else {
+                System.out.print(ERROR + "." + RESET);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            i++;
         }
+    }
+
+    private void printRules() {
+        String rulesSummary = MESOS + """
+                 =================================================================================================
+                                                       M E S O S   -   R U L E S                                 \s
+                 =================================================================================================
+                 OVERVIEW:
+                   You are the leader of an ancient tribe. Your goal is to guide its growth by adding
+                   members, ensuring sustenance, building structures, and navigating historical events.
+                   The game lasts 10 rounds. The player with the most Prestige Points (PP) wins.
+                \s
+                 GAMEPLAY ROUNDS (2 PHASES):
+                   1. PLACE TOTEMS ON OFFER TRACK
+                      - In order of the current Turn Order tile (top-to-bottom), place your Totem pawn
+                        onto an empty tile on the Offer track.
+                   2. RESOLVE ACTIONS
+                      - Execute actions from left-to-right based on Totem placement on the track.
+                      - Actions allow you to collect Food or draft Tribe/Building cards from rows.
+                      - After your action, return your Totem to the first empty spot on the Turn Order tile.
+                        (Top spots give Food bonuses; the last spot pays 1 Food token or costs 2 PP).
+                \s
+                 CARD DRAFTING RULES:
+                   - CHARACTER CARDS: Free to acquire, added into columns by type.
+                   - BUILDING CARDS: Costs Food to build (reduced by Builders in your tribe).
+                   - EVENT CARDS: Cannot be drafted; triggered automatically during round cleanup.
+                \s
+                 THE 6 CHARACTER TYPES:
+                   1. HUNTERS   : Gain Food instantly when played; scores Food and PP during Hunt events.
+                   2. GATHERERS : Provides a flat 3-Food discount during the Sustenance Event.
+                   3. INVENTORS : Scores endgame PP equal to (# Inventors) * (# unique Invention icons).
+                   4. SHAMANS   : Compete for majorities/minorities in Shamanic Ritual events for PP.
+                   5. ARTISTS   : Requires a minimum count to avoid point loss in Cave Paintings;
+                                  Scores 10 PP for every 2 Artists at the end of the game.
+                   6. BUILDERS  : Reduces the food cost of future buildings; scores end-game PP.
+                \s
+                 END OF THE ROUND (CLEANUP):
+                   1. RESOLVE EVENTS: Resolve any Event cards present in the bottom row.
+                      * SUSTENANCE IS ALWAYS RESOLVED LAST: Pay 1 Food per Character card.
+                        Unfed characters cost you a penalty in Prestige Points.
+                   2. DISCARD & REPLENISH: Wipe remaining cards from the bottom row.
+                      Shift top row cards to the bottom. Draw new cards to refill the top row.
+                   3. NEW ERA: Revealing a card from a new Era updates the active Building decks.
+                \s
+                 END GAME SCORING:
+                   After round 10, calculate extra PP from:
+                   - Builders  - Artist pairs (10 PP per pair)
+                   - Inventors multipliers  - Building card endgame scores
+                   * Tiebreaker: Most remaining Food wins!
+                 =================================================================================================
+                \s""" + RESET;
+        System.out.print(rulesSummary);
     }
 }

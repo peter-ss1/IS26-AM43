@@ -136,11 +136,13 @@ public class InLobbyScene extends CustomScene {
 
     @Override
     public void showPlayerReconnection(String nickname) {
+        if (this.gui.getLocalModel().getOwnPlayer() == null) this.updateAvailableColors();
         this.updateLobbyPlayers();
     }
 
     @Override
     public void showDisconnectedPlayer(String nickname) {
+        if (this.gui.getLocalModel().getOwnPlayer() == null) this.updateAvailableColors();
         this.updateLobbyPlayers();
     }
 
