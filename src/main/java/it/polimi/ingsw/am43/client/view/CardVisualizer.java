@@ -16,14 +16,13 @@ import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.am43.client.view.TextFormatting.*;
 
-public final class CardVisualizer {
+public class CardVisualizer {
     private static final String CARDS_FILE_PATH = "/it/polimi/ingsw/am43/cards.json";
-    private static final Map<Integer, List<String>> idToASCII = new HashMap<>();
-    private static final Map<Integer, String> idToIMG = new HashMap<>();
-    private static Map<Integer, List<Integer>> orderQueueMap;
-    private static final Map<Integer, String> idToType = new HashMap<>();
+    private final Map<Integer, List<String>> idToASCII = new HashMap<>();
+    private final Map<Integer, List<Integer>> orderQueueMap;
+    private final Map<Integer, String> idToType = new HashMap<>();
 
-    public static void loadAscii() throws IOException {
+    public CardVisualizer() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         InputStream is = CardVisualizer.class.getResourceAsStream(CARDS_FILE_PATH);
         if (is == null) throw new FileNotFoundException("File not found.");
@@ -49,7 +48,7 @@ public final class CardVisualizer {
         });
     }
 
-    private static List<String> createBuildingASCII(JsonNode node) {
+    private List<String> createBuildingASCII(JsonNode node) {
         List<String> lines = new ArrayList<>();
         int prestige = node.get("prestigePoints").asInt();
         String color;
@@ -77,7 +76,7 @@ public final class CardVisualizer {
         return lines;
     }
 
-    private static List<String> createEventASCII(JsonNode node) {
+    private List<String> createEventASCII(JsonNode node) {
         List<String> lines = new ArrayList<>();
         String type = node.get("type").asText();
         int era = node.get("era").asInt();
@@ -124,7 +123,7 @@ public final class CardVisualizer {
         return lines;
     }
 
-    private static List<String> createCharacterASCII(JsonNode node) {
+    private List<String> createCharacterASCII(JsonNode node) {
         List<String> lines = new ArrayList<>();
         String type = node.get("type").asText();
         String color;
@@ -194,11 +193,11 @@ public final class CardVisualizer {
         return lines;
     }
 
-    private static char getInventorSymbol(String symbol) {
+    private char getInventorSymbol(String symbol) {
         return (char) ('A' + InventorSymbol.valueOf(symbol).ordinal());
     }
 
-    public static String centerLine(String word, String color, int width) {
+    public String centerLine(String word, String color, int width) {
         String visibleText = word.replaceAll("\u001B\\[[;\\d]*m", "");
         int visibleLength = visibleText.length();
         int totalPadding = width - visibleLength;
@@ -208,7 +207,7 @@ public final class CardVisualizer {
         return " ".repeat(leftPadding) + color + word + RESET + " ".repeat(rightPadding);
     }
 
-    private static List<String> emptyASCII() {
+    private List<String> emptyASCII() {
         List<String> lines = new ArrayList<>();
         lines.add("╭──────────┬────╮");
         lines.add("│          │    │");
@@ -222,11 +221,11 @@ public final class CardVisualizer {
         return lines;
     }
 
-    public static List<String> getASCII(int id) {
+    public List<String> getASCII(int id) {
         return idToASCII.getOrDefault(id, emptyASCII());
     }
 
-    public static List<String> getEraASCII(int currentEra) {
+    public List<String> getEraASCII(int currentEra) {
         List<String> lines = new ArrayList<>();
         String color;
         switch (currentEra) {
@@ -249,7 +248,7 @@ public final class CardVisualizer {
         return lines;
     }
 
-    public static List<String> getOrderQueueASCII(int numPlayers, List<Color> orderQueue, List<Color> disconnectedPlayers, List<Color> waitingPlayers, boolean top) {
+    public List<String> getOrderQueueASCII(int numPlayers, List<Color> orderQueue, List<Color> disconnectedPlayers, List<Color> waitingPlayers, boolean top) {
         List<String> lines = new ArrayList<>();
         List<Integer> bonus = orderQueueMap.get(numPlayers);
 
@@ -289,7 +288,7 @@ public final class CardVisualizer {
         return lines;
     }
 
-    public static List<String> getOfferTrackASCII(OfferTrackElement card) {
+    public List<String> getOfferTrackASCII(OfferTrackElement card) {
         List<String> lines = new ArrayList<>();
 
         lines.add("╭───────────────╮");
@@ -304,7 +303,7 @@ public final class CardVisualizer {
         return lines;
     }
 
-    private static String getOfferActionsASCII(OfferTrackElement card) {
+    private String getOfferActionsASCII(OfferTrackElement card) {
         StringBuilder actions = new StringBuilder();
         for (OfferAction o : card.getOfferActions()) {
             switch (o) {
@@ -316,7 +315,7 @@ public final class CardVisualizer {
         return actions.toString();
     }
 
-    public static String getASCIIColor(Color color) {
+    public String getASCIIColor(Color color) {
         String colorCode;
         switch (color) {
             case RED -> colorCode = RED;
@@ -342,7 +341,7 @@ public final class CardVisualizer {
         return bGColorCode;
     }
 
-    public static String getColorArrayString(List<Color> colors) {
+    public String getColorArrayString(List<Color> colors) {
         StringJoiner joiner = new StringJoiner(", ");
         for (Color color : colors) {
             String coloredName = getASCIIColor(color) + color.name().toLowerCase() + RESET;
@@ -351,11 +350,11 @@ public final class CardVisualizer {
         return joiner.toString();
     }
 
-    public static Map<String, List<Integer>> divideTribe(List<Integer> ids) {
-        return ids.stream().collect(Collectors.groupingBy(CardVisualizer::getCharacterType));
+    public Map<String, List<Integer>> divideTribe(List<Integer> ids) {
+        return ids.stream().collect(Collectors.groupingBy(this::getCharacterType));
     }
 
-    private static String getCharacterType(int id) {
+    private String getCharacterType(int id) {
         return idToType.get(id);
     }
 }

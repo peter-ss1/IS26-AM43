@@ -227,6 +227,7 @@ public class ClientModel {
     public void setPhase(GamePhase phase) {
         this.phase = phase;
         if (this.phase == GamePhase.ROUND_ENDING) {
+            this.ui.showRoundEnding();
             this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).forEach(p->{
                     p.setStatus(PlayerStatus.ACTIVE);
                     this.orderQueue.add(p.getColor());
@@ -283,11 +284,11 @@ public class ClientModel {
         this.validating = false;
     }
 
-    public void pickCard(String nickname, int cardId) {
+    public void pickCard(String nickname, int cardId, boolean finalPick) {
         this.getPlayerByNickname(nickname).updateTribe(cardId);
         this.topRowCards.remove((Integer) cardId);
         this.bottomRowCards.remove((Integer) cardId);
-        this.ui.showCardPicked(nickname, cardId);
+        this.ui.showCardPicked(nickname, cardId, finalPick);
         this.validating = false;
     }
 
@@ -311,10 +312,10 @@ public class ClientModel {
         this.ui.showBuildingEffect(nickname, bonus, resource);
     }
 
-    public void applyHuntEventEffect(Map<String, List<Integer>> effects) {
+    public void applyHuntEventEffect(Map<String, PointsPair> effects) {
         effects.forEach((key, value) -> {
-            this.getPlayerByNickname(key).alterFood(value.getFirst());
-            this.getPlayerByNickname(key).alterPrestigePoints(value.getLast());
+            this.getPlayerByNickname(key).alterFood(value.getFood());
+            this.getPlayerByNickname(key).alterPrestigePoints(value.getPrestige());
         });
         this.ui.showHuntEvent(effects);
     }
@@ -324,10 +325,10 @@ public class ClientModel {
         this.ui.showPaintingEvent(effects);
     }
 
-    public void applySustenanceEventEffect(Map<String, List<Integer>> effects) {
+    public void applySustenanceEventEffect(Map<String, PointsPair> effects) {
         effects.forEach((key, value) -> {
-            this.getPlayerByNickname(key).alterFood(value.getFirst());
-            this.getPlayerByNickname(key).alterPrestigePoints(value.getLast());
+            this.getPlayerByNickname(key).alterFood(value.getFood());
+            this.getPlayerByNickname(key).alterPrestigePoints(value.getPrestige());
         });
         this.ui.showSustenanceEvent(effects);
     }

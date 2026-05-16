@@ -10,6 +10,7 @@ import it.polimi.ingsw.am43.client.view.gui.components.OrderQueueSlot;
 import it.polimi.ingsw.am43.client.view.gui.components.PlayerTribeNode;
 import it.polimi.ingsw.am43.client.view.gui.components.TotemNode;
 import it.polimi.ingsw.am43.client.view.gui.GUI;
+import it.polimi.ingsw.am43.database.RankElement;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
@@ -81,6 +82,8 @@ public class InGameScene extends CustomScene {
     private Label leaderboardTitleLabel;
     @FXML
     private ListView<LeaderboardEntry> leaderboardList;
+    @FXML
+    private Button endGameBackButton;
 
     private final List<OfferAction> consumedOfferActions = new ArrayList<>();
     private GamePhase actionContextPhase;
@@ -158,6 +161,10 @@ public class InGameScene extends CustomScene {
     public void showPlayerReconnection(String nickname) {
         this.refreshFromModel();
         this.showInfo("Player " + nickname + " reconnected.");
+    }
+
+    @FXML
+    private void onReturnToLobbyChoice() {
     }
 
     private void addActivityMessage(String message, String styleClass) {
@@ -589,4 +596,8 @@ public class InGameScene extends CustomScene {
     public record LeaderboardEntry(int position, String nickname, int score, Object date) {
     }
 
+    @Override
+    public void showGameEnd(List<RankElement> leaderboard, int myRank) {
+        this.endGameLayer.setVisible(true);
+    }
 }
