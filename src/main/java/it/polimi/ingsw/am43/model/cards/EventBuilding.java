@@ -13,8 +13,10 @@ public abstract class EventBuilding extends Building {
     @Override
     public void tribeEntranceEffect(GameObserver observer, Player player) {
         player.getTribe().addCardToTribe(this);
-        player.alterFood(-(this.getCost()));
-        observer.broadcast(new Update.BuildingBoughtUpdate(player.getNickname(), this.getCost()));
+        int cost = this.getCost() - player.getBuildingDiscount();
+        if (cost<0) cost = 0;
+        player.alterFood(-cost);
+        observer.broadcast(new Update.BuildingBoughtUpdate(player.getNickname(), cost));
     }
 
     public void reactToEvent(GameObserver observer, Player player, SustenanceEvent event) {

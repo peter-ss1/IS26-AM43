@@ -212,8 +212,7 @@ public class Board implements Serializable {
         return true;
     }
 
-    public boolean checkFinalRound() {
-        return tribeDeck.isEmpty();
+    public boolean checkFinalRound() { return tribeDeck.isEmpty();
     }
 
     public boolean isOrderQueueFull() {

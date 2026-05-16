@@ -2,12 +2,15 @@ package it.polimi.ingsw.am43.controller;
 
 import it.polimi.ingsw.am43.client.ClientPlayer;
 import it.polimi.ingsw.am43.client.LobbyInfo;
+import it.polimi.ingsw.am43.database.RankElement;
+import it.polimi.ingsw.am43.database.RankingDAO;
 import it.polimi.ingsw.am43.model.board.ModelInterface;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
+import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.GameCommandReceiver;
@@ -17,6 +20,7 @@ import it.polimi.ingsw.am43.utils.Executor;
 import it.polimi.ingsw.am43.utils.ServerScheduler;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -255,6 +259,30 @@ public class GameController implements GameObserver, GameCommandReceiver {
         return this.model.getAllPlayers().stream()
                 .map(player -> new ClientPlayer(player.getNickname(), player.getColor(), this.disconnectedClients.containsValue(player.getNickname()) ? PlayerStatus.INACTIVE : PlayerStatus.ACTIVE))
                 .toList();
+    }
+
+    public void endGame() {
+        //TODO destroy lobby
+        RankingDAO dao = new RankingDAO();
+        int numPlayers = this.model.getNumPlayers();
+            //salva punteggi giocatori
+        for (Player p : this.model.getAllPlayers().stream().filter(p -> p.getStatus() != PlayerStatus.INACTIVE).toList()) {
+            dao.saveresult(p.getNickname(), p.getPrestigePoints(), numPlayers);
+        }
+        System.out.println("Classification successfully saved to database");
+
+        // 2. Recupera l'intera classifica dal DB
+        List<RankElement> fullLeaderboard = dao.getFullLeaderboard(numPlayers);
+
+        // 3. Calcola la posizione (rank) di ciascun giocatore della partita corrente
+        Map<String, Integer> playerRanks = new java.util.HashMap<>();
+        for (Player p : this.model.getAllPlayers().stream().filter(p -> p.getStatus() != PlayerStatus.INACTIVE).toList()) {
+            int rank = dao.getPlayerRank(p.getPrestigePoints(), numPlayers);
+            playerRanks.put(p.getNickname(), rank);
+        }
+
+        // 4. Invio messaggio a tutti i giocatori con la classifica
+        this.broadcast(new Update.LeaderboardUpdate(fullLeaderboard, playerRanks));
     }
 
 }

@@ -81,9 +81,12 @@ public interface TribeBonus extends Serializable {
     }
 
     public static class BonusShamanStars implements TribeBonus {
+        private boolean first = true;
         @Override
         public int calculateBonus(Player player) {
-            return 3;
+            int result = first ? 0 : 3;
+            first = false;
+            return result;
         }
 
         @Override

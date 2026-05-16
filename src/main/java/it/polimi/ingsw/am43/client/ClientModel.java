@@ -1,10 +1,10 @@
 package it.polimi.ingsw.am43.client;
 
 import it.polimi.ingsw.am43.client.view.UI;
+import it.polimi.ingsw.am43.database.RankElement;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
-import it.polimi.ingsw.am43.model.player.Player;
 
 import java.util.*;
 
@@ -183,7 +183,7 @@ public class ClientModel {
         this.offerTrack.stream().filter(o -> o.getColor() != null && o.getColor().equals(color)).findFirst().ifPresent(o -> {
             o.setColor(null);
         });
-        this.orderQueue.add(color);
+        if (!this.orderQueue.contains(color)) this.orderQueue.add(color);
         this.validating = false;
     }
 
@@ -227,6 +227,7 @@ public class ClientModel {
     public void setPhase(GamePhase phase) {
         this.phase = phase;
         if (this.phase == GamePhase.ROUND_ENDING) {
+            this.ui.showRoundEnding();
             this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).forEach(p->{
                     p.setStatus(PlayerStatus.ACTIVE);
                     this.orderQueue.add(p.getColor());
@@ -283,11 +284,11 @@ public class ClientModel {
         this.validating = false;
     }
 
-    public void pickCard(String nickname, int cardId) {
+    public void pickCard(String nickname, int cardId, boolean finalPick) {
         this.getPlayerByNickname(nickname).updateTribe(cardId);
         this.topRowCards.remove((Integer) cardId);
         this.bottomRowCards.remove((Integer) cardId);
-        this.ui.showCardPicked(nickname, cardId);
+        this.ui.showCardPicked(nickname, cardId, finalPick);
         this.validating = false;
     }
 
@@ -311,10 +312,10 @@ public class ClientModel {
         this.ui.showBuildingEffect(nickname, bonus, resource);
     }
 
-    public void applyHuntEventEffect(Map<String, List<Integer>> effects) {
+    public void applyHuntEventEffect(Map<String, PointsPair> effects) {
         effects.forEach((key, value) -> {
-            this.getPlayerByNickname(key).alterFood(value.getFirst());
-            this.getPlayerByNickname(key).alterPrestigePoints(value.getLast());
+            this.getPlayerByNickname(key).alterFood(value.getFood());
+            this.getPlayerByNickname(key).alterPrestigePoints(value.getPrestige());
         });
         this.ui.showHuntEvent(effects);
     }
@@ -324,10 +325,10 @@ public class ClientModel {
         this.ui.showPaintingEvent(effects);
     }
 
-    public void applySustenanceEventEffect(Map<String, List<Integer>> effects) {
+    public void applySustenanceEventEffect(Map<String, PointsPair> effects) {
         effects.forEach((key, value) -> {
-            this.getPlayerByNickname(key).alterFood(value.getFirst());
-            this.getPlayerByNickname(key).alterPrestigePoints(value.getLast());
+            this.getPlayerByNickname(key).alterFood(value.getFood());
+            this.getPlayerByNickname(key).alterPrestigePoints(value.getPrestige());
         });
         this.ui.showSustenanceEvent(effects);
     }
@@ -343,9 +344,13 @@ public class ClientModel {
         this.currentEra = currEra;
     }
 
-    public void endGame(List<String> winners) {
+    public void endGame(List<String> winners, Map<String, Integer> finalPoints) {
+        this.winners.clear();
         this.winners.addAll(winners);
-        this.ui.showGameEnd();
+        this.getAllPlayers().forEach(player -> {
+            if (finalPoints.containsKey(player.getNickname())) player.setPrestigePoints(finalPoints.get(player.getNickname()));
+        });
+        this.ui.showFinalPoints();
     }
 
     public List<String> getWinners() {
@@ -418,5 +423,8 @@ public class ClientModel {
 
     public List<Color> getWaitingPlayers() {
         return new ArrayList<>(this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).map(p->p.getColor()).toList());
+    }
+    public void showLeaderboard(List<RankElement> leaderboard, Map<String, Integer> playerRanks) {
+        this.ui.showGameEnd(leaderboard, playerRanks.get(this.ownPlayer.getNickname()));
     }
 }

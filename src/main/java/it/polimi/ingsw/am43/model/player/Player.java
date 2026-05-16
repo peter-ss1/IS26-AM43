@@ -67,7 +67,7 @@ public class Player implements Serializable {
 
 
     public void alterFood(int amount) {
-        this.food += amount;
+        this.food = Math.max(0, this.food + amount);
     }
 
     public void setAvailableActions(List<OfferAction> offerActions) {

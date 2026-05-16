@@ -1,20 +1,18 @@
 package it.polimi.ingsw.am43.client.view.gui;
 
 import it.polimi.ingsw.am43.client.ClientModel;
+import it.polimi.ingsw.am43.client.PointsPair;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.client.view.ViewState;
 import it.polimi.ingsw.am43.client.view.gui.components.CardMetadataRegistry;
 import it.polimi.ingsw.am43.controller.ClientController;
-import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.database.RankElement;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.rmi.NotBoundException;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class GUI implements UI {
     private final GuiApplication app;
@@ -124,7 +122,7 @@ public class GUI implements UI {
     }
 
     @Override
-    public void showCardPicked(String nickname, int cardId) {
+    public void showCardPicked(String nickname, int cardId, boolean finalPick) {
         if (this.state != ViewState.IN_GAME) return;
         Platform.runLater(() -> {
             this.navigator.getCurrentScene().refreshFromModel();
@@ -160,7 +158,7 @@ public class GUI implements UI {
     }
 
     @Override
-    public void showHuntEvent(Map<String, List<Integer>> effects) {
+    public void showHuntEvent(Map<String, PointsPair> effects) {
         refreshGameSceneWithInfo("Hunt event resolved. " + this.formatFoodPrestigeEffects(effects));
     }
 
@@ -170,7 +168,7 @@ public class GUI implements UI {
     }
 
     @Override
-    public void showSustenanceEvent(Map<String, List<Integer>> effects) {
+    public void showSustenanceEvent(Map<String, PointsPair> effects) {
         refreshGameSceneWithInfo("Sustenance event resolved. " + this.formatFoodPrestigeEffects(effects));
     }
 
@@ -180,14 +178,14 @@ public class GUI implements UI {
     }
 
     @Override
-    public void showGameEnd() {
+    public void showFinalPoints() {
         if (this.state != ViewState.IN_GAME) return;
         Platform.runLater(() -> {
             this.navigator.getCurrentScene().refreshFromModel();
-            String winners = String.join(", ", this.localModel.getWinners());
+            /*String winners = String.join(", ", this.localModel.getWinners());
             String message = "Game ended. Winners: " + winners + ".";
             this.navigator.getCurrentScene().showInfo(message);
-            this.showGameEndDialog(winners);
+            this.showGameEndDialog(winners);*/
         });
     }
 
@@ -232,6 +230,18 @@ public class GUI implements UI {
         Platform.runLater(() -> this.navigator.showScene(this.state));
     }
 
+    @Override
+    public void showGameEnd(List<RankElement> leaderboard, int myRank) {
+        if (this.state != ViewState.IN_GAME) return;
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().showGameEnd(leaderboard, myRank);
+        });
+    }
+
+    @Override
+    public void showRoundEnding() {
+    }
+
     private void refreshGameSceneWithInfo(String message) {
         if (this.state != ViewState.IN_GAME) return;
         Platform.runLater(() -> {
@@ -240,14 +250,14 @@ public class GUI implements UI {
         });
     }
 
-    private String formatFoodPrestigeEffects(Map<String, List<Integer>> effects) {
+    private String formatFoodPrestigeEffects(Map<String, PointsPair> effects) {
         if (effects == null || effects.isEmpty()) {
             return "";
         }
         StringBuilder builder = new StringBuilder();
         effects.forEach((nickname, values) -> {
-            int food = values.isEmpty() ? 0 : values.getFirst();
-            int prestige = values.size() < 2 ? 0 : values.getLast();
+            int food = values.getFood();
+            int prestige = values.getPrestige();
             builder.append(nickname)
                     .append(": ")
                     .append(this.formatSigned(food))
@@ -295,4 +305,5 @@ public class GUI implements UI {
     public void showMenu() {
         Platform.runLater(this.navigator::showMenu);
     }
+
 }

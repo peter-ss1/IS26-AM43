@@ -10,4 +10,13 @@ public class MockObserver implements GameObserver {
     public void broadcast(Update update) {
 
     }
+
+    @Override
+    public void endGame() {
+    }
+
+    @Override
+    public void updatePlayer(String name, Update update) {
+
+    }
 }

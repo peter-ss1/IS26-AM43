@@ -18,7 +18,7 @@ public abstract class CharacterCard extends TribeCard {
 
     @Override
     public void pick(GameObserver observer, Player player) {
-        observer.broadcast(new Update.CardPickedUpdate(player.getNickname(), this.getId()));
+        observer.broadcast(new Update.CardPickedUpdate(player.getNickname(), this.getId(), player.getAvailableActions().size()-1 == 0));
         this.tribeEntranceEffect(observer, player);
     }
 

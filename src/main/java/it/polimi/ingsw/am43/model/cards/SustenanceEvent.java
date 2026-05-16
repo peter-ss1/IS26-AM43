@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am43.model.cards;
 
+import it.polimi.ingsw.am43.client.PointsPair;
 import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.board.Row;
 import it.polimi.ingsw.am43.model.player.Player;
@@ -24,29 +25,21 @@ public class SustenanceEvent extends Event {
 
     @Override
     public void affectPlayers(GameObserver observer, List<Player> players) {
-        //TODO custom data class
-        Map<String, List<Integer>> effects = new HashMap<>();
+        Map<String, PointsPair> effects = new HashMap<>();
         for (Player p : players) {
             int amount = p.getTribe().getTribeNumber() - p.getSustenanceDiscount();
             if (amount <= 0) {
-                List<Integer> list = new ArrayList<>();
-                list.add(0);
-                list.add(0);
-                effects.put(p.getNickname(), list);
+                effects.put(p.getNickname(), new PointsPair(0, 0));
                 continue;
             }
             int excess = p.getFood() - amount;
-            List<Integer> list = new ArrayList<>();
             if (excess < 0) {
-                list.add(-p.getFood());
-                list.add(excess * this.getEra());
                 p.alterFood(-p.getFood());
                 p.alterPrestigePoints(excess * this.getEra());
-                effects.put(p.getNickname(), list);
+                effects.put(p.getNickname(), new PointsPair(-p.getFood(), excess * this.getEra()));
             } else {
-                list.add(-amount);
-                list.add(0);
                 p.alterFood(-amount);
+                effects.put(p.getNickname(), new PointsPair(-amount, 0));
             }
         }
         observer.broadcast(new Update.SustenaceEventEffectUpdate(effects));
