@@ -575,16 +575,16 @@ public class TUI implements UI, Runnable {
             if (this.localModel.isOwnTurn()) {
                 System.out.println(
                         this.visualizer.getASCIIColor(this.localModel.getOwnPlayer().getColor()) +
-                                "                                               ╔═════════════════════╗\n" +
-                                "═══════════════════════════════════════════════╣      YOUR TURN      ╠═══════════════════════════════════════════════\n" +
-                                "                                               ╚═════════════════════╝\n" + RESET);
+                                "                                               ╔═══════════════════╗\n" +
+                                "═══════════════════════════════════════════════╣     YOUR TURN     ╠═══════════════════════════════════════════════\n" +
+                                "                                               ╚═══════════════════╝\n" + RESET);
                 this.printBoard(this.localModel.getTopRowCards(), this.localModel.getBottomRowCards(), this.localModel.getOrderQueue(), this.localModel.getOfferTrack());
             } else {
                 System.out.println(
                         this.visualizer.getASCIIColor(this.localModel.getPlayerByNickname(this.localModel.getCurrentPlayerNickname()).getColor()) +
-                                "                                               ╔═════════════════════╗\n" +
-                                "═══════════════════════════════════════════════╣" + this.visualizer.centerLine(this.localModel.getCurrentPlayerNickname() + "'S TURN", "", 21) + "╠═══════════════════════════════════════════════\n" +
-                                "                                               ╚═════════════════════╝\n" + RESET);
+                                "                                               ╔═══════════════════╗\n" +
+                                "═══════════════════════════════════════════════╣" + this.visualizer.centerLine(this.localModel.getCurrentPlayerNickname() + "'S TURN", "", 20) + "╠═══════════════════════════════════════════════\n" +
+                                "                                               ╚═══════════════════╝\n" + RESET);
             }
             this.printGamePrompt();
         }
@@ -690,7 +690,7 @@ public class TUI implements UI, Runnable {
             System.out.print("\r\033[K");
             System.out.println(YELLOW + "Adorn your caves!" + RESET);
             for (Map.Entry<String, Integer> entry : effects.entrySet()) {
-                System.out.println("◈ " + (entry.getKey().equals(this.localModel.getOwnPlayer().getNickname()) ? "You" : entry.getKey()) + (entry.getValue() < 0 ? " lost " : " gained ") + entry.getValue() + " prestige points.");
+                System.out.println("◈ " + (entry.getKey().equals(this.localModel.getOwnPlayer().getNickname()) ? "You" : entry.getKey()) + (entry.getValue() < 0 ? " lost " : " gained ") + entry.getValue() + "prestige points.");
             }
             this.printGamePrompt();
         }
@@ -714,7 +714,7 @@ public class TUI implements UI, Runnable {
             System.out.print("\r\033[K");
             System.out.println(PURPLE + "Appease the spirits!" + RESET);
             for (Map.Entry<String, Integer> entry : effects.entrySet()) {
-                System.out.println("◈ " + (entry.getKey().equals(this.localModel.getOwnPlayer().getNickname()) ? "You" : entry.getKey()) + (entry.getValue() < 0 ? " lost " : " gained ") + entry.getValue() + " prestige points.");
+                System.out.println("◈ " + (entry.getKey().equals(this.localModel.getOwnPlayer().getNickname()) ? "You" : entry.getKey()) + (entry.getValue() < 0 ? " lost " : " gained ") + entry.getValue() + "prestige points.");
             }
             this.printGamePrompt();
         }
@@ -782,23 +782,23 @@ public class TUI implements UI, Runnable {
                 }
             }
             System.out.println(MESOS + "You ranked " + BOLD + "#" + myRank + RESET + MESOS + " in the " + this.localModel.getNumPlayers() + "-player game rankings.\n");
-            System.out.println(" ╔══════╦════════════════════╦══════════╦═══════════════════════╗" + RESET);
+            System.out.println(MESOS + " ╔══════╦════════════════════╦══════════╦════════════════════════════════════════╗" + RESET);
             System.out.println(" ║ " + MESOS + "RANK" + RESET + " ║       " + MESOS + "PLAYER" + RESET + "       ║  " + MESOS + "POINTS" + RESET + "  ║                  " + MESOS + "DATE" + RESET + "                  ║");
-            System.out.println(" ╠══════╬════════════════════╬══════════╬═══════════════════════╣" + RESET);
+            System.out.println(MESOS + " ╠══════╬════════════════════╬══════════╬════════════════════╣" + RESET);
 
             for (int i = 1; i <= leaderboard.size(); i++) {
                 RankElement element = leaderboard.get(i - 1);
-                String turnMarker = (i == myRank) ? MESOS + "»" + RESET : "#";
-                String color = (i == myRank) ? BOLD + MESOS : RESET;
-                String rankString = String.format("%s%3d", turnMarker, i);
-                System.out.printf(" ║ %s ║%s║    %-6s║ %-23s║\n",
-                        color + rankString + RESET,
-                        this.visualizer.centerLine(element.getNickname(), color, 20),
-                        color + element.getPoints() +  RESET,
-                        color + element.getTimestamp() + RESET
+                String turnMarker = (i == myRank) ? MESOS + "»" + RESET : " ";
+                String rankString = String.format("%s#%2d", turnMarker, i);
+                String nameColor = element.getNickname().equals(this.localModel.getOwnPlayer().getNickname()) ? BOLD : RESET;
+                System.out.printf(" ║ %s ║%s║   %-7d║ %-40s║\n",
+                        rankString,
+                        this.visualizer.centerLine(element.getNickname(), nameColor, 20),
+                        element.getPoints(),
+                        element.getTimestamp()
                 );
             }
-            System.out.println(" ╚══════╩════════════════════╩══════════╩════════════════════╝" + RESET);
+            System.out.println(MESOS + " ╚════╩════════════════════╩══════════╩════════════════════╝" + RESET);
             System.out.println(MESOS + "Press 'enter' to choose a new lobby..." + RESET);
         }
     }

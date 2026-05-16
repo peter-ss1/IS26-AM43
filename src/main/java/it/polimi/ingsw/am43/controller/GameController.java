@@ -85,7 +85,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
             } finally {
                 lock.writeLock().unlock();
             }
-        }, 30, TimeUnit.SECONDS);;
+        }, 40, TimeUnit.SECONDS);;
     }
 
     public void receiveCommand(GameCommand command) {

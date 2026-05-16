@@ -50,7 +50,7 @@ public class ClientRMIConnection implements PersistentClientConnection, VirtualS
         try {
             this.remote.sendMessage(message);
         }catch (RemoteException e){
-            this.disconnect();
+            //this.disconnect();
         }
 
     };
