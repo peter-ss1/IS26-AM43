@@ -37,9 +37,4 @@ public class PaintingEvent extends Event {
     public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
         building.reactToEvent(observer, player, this);
     }
-    @Override
-    public String toString() {
-        return "Evento Pittura (Era " + getEra() + ") - Ottieni PV in base al numero dei tuoi Artisti. Se ne hai meno dell'Era in corso, subisci un malus.";
-    }
-
 }

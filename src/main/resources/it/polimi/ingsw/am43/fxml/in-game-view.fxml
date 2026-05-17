@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane styleClass="connectionScene" stylesheets="@../css/in-game.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.InGameScene">
+<StackPane prefHeight="720.0" prefWidth="1280.0" styleClass="connectionScene" stylesheets="@../css/in-game.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.InGameScene">
     <children>
         <BorderPane styleClass="game-shell">
             <top>
@@ -98,9 +98,9 @@
             </graphic>
         </Button>
 
-        <AnchorPane fx:id="endGameLayer" managed="false" styleClass="connectionScene" visible="false" StackPane.alignment="CENTER">
+        <AnchorPane fx:id="endGameLayer" managed="false" styleClass="connectionScene" StackPane.alignment="CENTER">
             <children>
-                <VBox alignment="CENTER" layoutX="390.0" layoutY="36.0" minHeight="648.0" minWidth="500.0" spacing="12.0" styleClass="loginContainer" AnchorPane.bottomAnchor="36.0" AnchorPane.leftAnchor="390.0" AnchorPane.rightAnchor="390.0" AnchorPane.topAnchor="36.0">
+                <VBox alignment="CENTER" layoutX="390.0" layoutY="36.0" minHeight="650.0" minWidth="550.0" spacing="12.0" styleClass="loginContainer" AnchorPane.bottomAnchor="36.0" AnchorPane.leftAnchor="390.0" AnchorPane.rightAnchor="390.0" AnchorPane.topAnchor="36.0">
                     <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                     </padding>
@@ -110,7 +110,7 @@
                         <Label fx:id="numPlayersLabel" styleClass="loginLabel" text="Players in this game: -" />
                         <Label fx:id="rankLabel" styleClass="loginLabel" text="Your global rank: -" />
                         <Label fx:id="leaderboardTitleLabel" styleClass="loginLabel" text="leaderboard" />
-                        <ListView fx:id="leaderboardList" maxHeight="400.0" minHeight="400.0" minWidth="460.0" styleClass="lobbies" />
+                        <ListView fx:id="leaderboardList" maxHeight="250.0" styleClass="lobbies" />
                         <Button fx:id="endGameBackButton" mnemonicParsing="false" onAction="#onReturnToLobbyChoice" text="BACK TO LOBBY CHOICE">
                             <styleClass>
                                 <String fx:value="loginElement" />

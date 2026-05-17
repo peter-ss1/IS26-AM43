@@ -83,7 +83,6 @@ public class LobbyPlayerNode extends VBox {
     }
 
     public void update(boolean disconnected) {
-        System.out.println("updating");
         this.playerNameLabel.setText(disconnected? "RECONNECTING..." : this.playerName);
         this.setOpacity(disconnected ? 0.5 : 1);
     }

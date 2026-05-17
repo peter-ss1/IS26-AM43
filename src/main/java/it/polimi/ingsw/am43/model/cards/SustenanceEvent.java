@@ -34,9 +34,10 @@ public class SustenanceEvent extends Event {
             }
             int excess = p.getFood() - amount;
             if (excess < 0) {
-                p.alterFood(-p.getFood());
+                int foodLost = -p.getFood();
+                p.alterFood(foodLost);
                 p.alterPrestigePoints(excess * this.getEra());
-                effects.put(p.getNickname(), new PointsPair(-p.getFood(), excess * this.getEra()));
+                effects.put(p.getNickname(), new PointsPair(foodLost, excess * this.getEra()));
             } else {
                 p.alterFood(-amount);
                 effects.put(p.getNickname(), new PointsPair(-amount, 0));

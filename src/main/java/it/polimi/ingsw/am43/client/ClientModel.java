@@ -321,7 +321,7 @@ public class ClientModel {
     }
 
     public void applyPaintingEvent(Map<String, Integer> effects) {
-        effects.forEach((key, value) -> this.getPlayerByNickname(key).alterFood(value));
+        effects.forEach((key, value) -> this.getPlayerByNickname(key).alterPrestigePoints(value));
         this.ui.showPaintingEvent(effects);
     }
 

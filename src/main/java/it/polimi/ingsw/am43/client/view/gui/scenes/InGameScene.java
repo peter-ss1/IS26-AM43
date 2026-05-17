@@ -15,6 +15,8 @@ import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
@@ -41,6 +43,9 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
+
+import static it.polimi.ingsw.am43.client.view.TextFormatting.*;
 
 public class InGameScene extends CustomScene {
     private static final int MAX_ACTIVITY_MESSAGES = 8;
@@ -81,7 +86,7 @@ public class InGameScene extends CustomScene {
     @FXML
     private Label leaderboardTitleLabel;
     @FXML
-    private ListView<LeaderboardEntry> leaderboardList;
+    private ListView<RankElement> leaderboardList;
     @FXML
     private Button endGameBackButton;
 
@@ -97,13 +102,13 @@ public class InGameScene extends CustomScene {
         this.leaderboardList.setPlaceholder(new Label("No leaderboard entries yet."));
         this.leaderboardList.setCellFactory(_ -> new ListCell<>() {
             @Override
-            protected void updateItem(LeaderboardEntry entry, boolean empty) {
+            protected void updateItem(RankElement entry, boolean empty) {
                 super.updateItem(entry, empty);
                 if (empty || entry == null) {
                     setText(null);
                     setGraphic(null);
                 } else {
-                    setGraphic(createLeaderboardRow(entry));
+                    setGraphic(createLeaderboardRow(entry, getIndex()));
                 }
             }
         });
@@ -165,6 +170,7 @@ public class InGameScene extends CustomScene {
 
     @FXML
     private void onReturnToLobbyChoice() {
+        this.gui.submitTask(this.controller::refreshLobbies);
     }
 
     private void addActivityMessage(String message, String styleClass) {
@@ -578,26 +584,37 @@ public class InGameScene extends CustomScene {
         return value == null || value.isBlank() ? "-" : value;
     }
 
-    private HBox createLeaderboardRow(LeaderboardEntry entry) {
-        Label position = new Label("#" + entry.position());
-        Label nickname = new Label(entry.nickname());
-        Label score = new Label(entry.score() + " punti");
-        Label date = new Label(entry.date() == null ? "-" : entry.date().toString());
-
+    private HBox createLeaderboardRow(RankElement entry, int rank) {
+        Label position = new Label("#" + rank);
+        Label nickname = new Label(entry.getNickname());
+        Label score = new Label(entry.getPoints() + " points");
+        Label date = new Label(entry.getTimestamp() == null ? "-" : entry.getTimestamp().toString());
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-
         HBox row = new HBox(20, position, nickname, spacer, score, date);
         row.getStyleClass().add("lobby-info");
-
         return row;
-    }
-
-    public record LeaderboardEntry(int position, String nickname, int score, Object date) {
     }
 
     @Override
     public void showGameEnd(List<RankElement> leaderboard, int myRank) {
+        List<String> winners = this.gui.getLocalModel().getWinners();
+        if (winners.contains(this.gui.getLocalModel().getOwnPlayer().getNickname())) {
+            this.winnerLabel.setText("YOU WON!");
+            this.numPlayersLabel.setText("");
+        } else {
+            this.winnerLabel.setText("YOU LOST!");
+            if (winners.size() == 1) this.numPlayersLabel.setText("The winner is " + winners.getFirst() + "!");
+            else {
+                StringJoiner joiner = new StringJoiner(", ");
+                winners.forEach(joiner::add);
+                this.numPlayersLabel.setText("The winners are " + joiner + "!");
+            }
+        }
+        this.rankLabel.setText("You ranked #" + myRank + " in the " + this.gui.getLocalModel().getNumPlayers() + "-player game rankings.");
+        this.leaderboardTitleLabel.setText(this.gui.getLocalModel().getNumPlayers() + "-players ranking:");
+        this.leaderboardList.setItems(FXCollections.observableArrayList(leaderboard));
+        this.endGameLayer.setManaged(true);
         this.endGameLayer.setVisible(true);
     }
 }

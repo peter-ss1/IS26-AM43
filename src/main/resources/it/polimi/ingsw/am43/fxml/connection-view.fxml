@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="connectionScene" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.ConnectionScene">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="connectionScene" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am43.client.view.gui.scenes.ConnectionScene">
     <children>
         <Button fx:id="settingsButton" contentDisplay="GRAPHIC_ONLY" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#onSettingsClicked" pickOnBounds="false" prefHeight="40.0" prefWidth="40.0" styleClass="settings-button" text="aaa" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
          <graphic>

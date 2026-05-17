@@ -11,7 +11,7 @@ public record OrderQueueSlot(Color color) {
         return new OrderQueueSlot(color);
     }
 
-    public boolean emptySlot() {
+    public boolean isEmpty() {
         return this.color == null;
     }
 }
