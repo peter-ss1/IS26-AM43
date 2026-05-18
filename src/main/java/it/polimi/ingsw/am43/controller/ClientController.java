@@ -36,7 +36,9 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
         this.playerId = ResiliencyManager.getOrCreateUUID(1);
         this.messageExecutor=new Executor<>(this);
         this.messageExecutor.start();
+        this.connected=new AtomicBoolean(false);
     }
+
 
 
     public ClientModel getLocalModel() {

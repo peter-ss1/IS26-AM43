@@ -7,6 +7,7 @@ import it.polimi.ingsw.am43.client.view.gui.components.CardNode;
 import it.polimi.ingsw.am43.client.view.gui.components.OfferTrackCardNode;
 import it.polimi.ingsw.am43.client.view.gui.components.OrderQueueNode;
 import it.polimi.ingsw.am43.client.view.gui.components.OrderQueueSlot;
+import it.polimi.ingsw.am43.client.view.gui.components.OrderQueueSlotBuilder;
 import it.polimi.ingsw.am43.client.view.gui.components.PlayerTribeNode;
 import it.polimi.ingsw.am43.client.view.gui.components.TotemNode;
 import it.polimi.ingsw.am43.client.view.gui.GUI;
@@ -228,16 +229,14 @@ public class InGameScene extends CustomScene {
     }
 
     private List<OrderQueueSlot> buildOrderQueueSlots(ClientModel model) {
-        List<Color> currentQueue = model.getOrderQueue();
-        List<OrderQueueSlot> slots = new ArrayList<>();
-        int emptySlots = Math.max(0, model.getNumPlayers() - currentQueue.size());
-        for (int i = 0; i < emptySlots; i++) {
-            slots.add(OrderQueueSlot.empty());
-        }
-        currentQueue.stream()
-                .map(OrderQueueSlot::active)
-                .forEach(slots::add);
-        return slots;
+        boolean top = model.getPhase() == GamePhase.ACTION_RESOLUTION;
+        return OrderQueueSlotBuilder.buildSlots(
+                model.getNumPlayers(),
+                model.getOrderQueue(),
+                model.getInactivePlayers(),
+                model.getWaitingPlayers(),
+                top
+        );
     }
 
     private void renderScoreboard(List<ClientPlayer> players, String currentPlayer) {
