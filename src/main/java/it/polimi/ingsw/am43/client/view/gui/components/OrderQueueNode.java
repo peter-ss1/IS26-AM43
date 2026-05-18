@@ -54,7 +54,7 @@ public class OrderQueueNode extends StackPane {
         List<SlotBounds> slots = SLOT_BOUNDS.getOrDefault(numPlayers, List.of());
         for (int i = 0; i < orderQueueSlots.size() && i < slots.size(); i++) {
             OrderQueueSlot slot = orderQueueSlots.get(i);
-            if (slot.isEmpty()) {
+            if (slot.emptySlot()) {
                 continue;
             }
             Color color = slot.color();
@@ -71,7 +71,7 @@ public class OrderQueueNode extends StackPane {
         HBox fallback = new HBox(6);
         fallback.setAlignment(Pos.CENTER);
         for (OrderQueueSlot slot : orderQueueSlots) {
-            if (slot.isEmpty()) {
+            if (slot.emptySlot()) {
                 Region emptySlot = new Region();
                 emptySlot.setPrefSize(22.0, 22.0);
                 fallback.getChildren().add(emptySlot);
