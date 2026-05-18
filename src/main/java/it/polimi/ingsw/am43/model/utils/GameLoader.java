@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class GameLoader {
-
+//TODO path as constant
     private final ObjectMapper mapper;
     private final String pathConfig;
     private final Map<Integer,Card> idToCard;

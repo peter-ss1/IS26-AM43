@@ -14,6 +14,11 @@ public class MockObserver implements GameObserver {
     }
 
     @Override
+    public void notifySinglePlayerGame(String name) {
+
+    }
+
+    @Override
     public void updatePlayer(String name, Update update) {
 
     }

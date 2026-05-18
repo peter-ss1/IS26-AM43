@@ -25,9 +25,10 @@ class TribeBuildingTest {
         assertEquals(3, player.getFood());
 
         player = new Player("2",Color.CYAN);
+        player.alterFood(10);
         player.getTribe().addCardToTribe(new Builder(1, 0, 2, 3));
         example = new TribeBuilding(1, 0, 1, 1, new TribeBonus.BonusShamanStars());
-        example.tribeBuildingEffect(new MockObserver(), player);
+        example.pick(new MockObserver(), player);
         assertEquals(3, player.getShamanStars());
 
         player = new Player("3",Color.WHITE);
