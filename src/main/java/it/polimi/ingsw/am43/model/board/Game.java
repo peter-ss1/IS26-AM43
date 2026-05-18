@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.model.board;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
 import it.polimi.ingsw.am43.model.enums.Color;

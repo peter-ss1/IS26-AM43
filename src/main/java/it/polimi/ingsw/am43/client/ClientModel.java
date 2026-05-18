@@ -425,6 +425,7 @@ public class ClientModel {
         return new ArrayList<>(this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).map(p->p.getColor()).toList());
     }
     public void showLeaderboard(List<RankElement> leaderboard, Map<String, Integer> playerRanks) {
+        if (this.winners.isEmpty()) this.winners.add(this.ownPlayer.getNickname());
         this.ui.showGameEnd(leaderboard, playerRanks.get(this.ownPlayer.getNickname()));
     }
     public void startSinglePlayerTimer(){
