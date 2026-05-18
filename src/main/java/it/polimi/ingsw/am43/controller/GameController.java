@@ -274,8 +274,8 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     public void endGame() {
         RankingDAO dao = new RankingDAO();
-        /*
         int numPlayers = this.model.getNumPlayers();
+        //TODO unique timestamp
         for (Player p : this.model.getAllPlayers().stream()
                 .filter(p -> p.getStatus() != PlayerStatus.INACTIVE).toList()) {
             dao.saveresult(p.getNickname(), p.getPrestigePoints(), numPlayers);
@@ -288,9 +288,8 @@ public class GameController implements GameObserver, GameCommandReceiver {
             playerRanks.put(p.getNickname(), dao.getPlayerRank(p.getPrestigePoints(), numPlayers));
         }
 
-        this.broadcast(new Update.LeaderboardUpdate(fullLeaderboard, playerRanks));
+        this.innerBroadcast(new Update.LeaderboardUpdate(fullLeaderboard, playerRanks));
 
-         */
         this.gameStopped = true;
         this.serverController.notifyEndGame(this.lobbyId);
         PersistencyManager.deleteRecovery(this.lobbyId);

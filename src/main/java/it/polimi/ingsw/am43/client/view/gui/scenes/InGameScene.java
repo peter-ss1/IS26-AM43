@@ -109,7 +109,7 @@ public class InGameScene extends CustomScene {
                     setText(null);
                     setGraphic(null);
                 } else {
-                    setGraphic(createLeaderboardRow(entry, getIndex()));
+                    setGraphic(createLeaderboardRow(entry, getIndex()+1));
                 }
             }
         });

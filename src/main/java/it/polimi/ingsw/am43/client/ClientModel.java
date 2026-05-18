@@ -26,6 +26,7 @@ public class ClientModel {
     private boolean gameStarted;
 
     public ClientModel(UI ui) {
+        this.ui = ui;
         this.lobbies = new ArrayList<>();
         this.ownLobby = new LobbyInfo(0, 0, 0);
         this.ownPlayer = null;
@@ -36,14 +37,31 @@ public class ClientModel {
         this.offerTrack = new ArrayList<>();
         this.phase = null;
         this.currentEra = 0;
-        this.ui = ui;
         this.currPlayerNickname = "";
         this.validating = false;
         this.winners = new ArrayList<>();
         this.gameStarted = false;
     }
 
+    public void reset() {
+        this.lobbies.clear();
+        this.ownLobby = new LobbyInfo(0, 0, 0);
+        this.ownPlayer = null;
+        this.otherPlayers.clear();
+        this.topRowCards.clear();
+        this.bottomRowCards.clear();
+        this.orderQueue.clear();
+        this.offerTrack.clear();
+        this.phase = null;
+        this.currentEra = 0;
+        this.currPlayerNickname = "";
+        this.validating = false;
+        this.winners.clear();
+        this.gameStarted = false;
+    }
+
     public void refreshLobbies(List<LobbyInfo> lobbies) {
+        this.reset();
         this.lobbies.clear();
         this.lobbies.addAll(lobbies);
         this.ui.enterLobbyChoice();
