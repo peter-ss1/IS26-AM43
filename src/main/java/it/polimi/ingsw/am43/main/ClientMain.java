@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am43.main;
 
-import it.polimi.ingsw.am43.client.view.TUI;
+import it.polimi.ingsw.am43.client.view.tui.TUI;
 import it.polimi.ingsw.am43.client.view.gui.GuiApplication;
 import javafx.application.Application;
 

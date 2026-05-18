@@ -17,7 +17,6 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
@@ -45,8 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-
-import static it.polimi.ingsw.am43.client.view.TextFormatting.*;
 
 public class InGameScene extends CustomScene {
     private static final int MAX_ACTIVITY_MESSAGES = 8;

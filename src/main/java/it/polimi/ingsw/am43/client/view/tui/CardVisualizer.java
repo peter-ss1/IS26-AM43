@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43.client.view;
+package it.polimi.ingsw.am43.client.view.tui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static it.polimi.ingsw.am43.client.view.TextFormatting.*;
+import static it.polimi.ingsw.am43.client.view.tui.TextFormatting.*;
 
 public class CardVisualizer {
     private static final String CARDS_FILE_PATH = "/it/polimi/ingsw/am43/cards.json";

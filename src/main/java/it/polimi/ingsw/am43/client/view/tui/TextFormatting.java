@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43.client.view;
+package it.polimi.ingsw.am43.client.view.tui;
 
 public final class TextFormatting {
     private TextFormatting() {}

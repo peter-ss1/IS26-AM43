@@ -1,5 +1,5 @@
 package it.polimi.ingsw.am43.model.enums;
-import static it.polimi.ingsw.am43.client.view.TextFormatting.*;
+import static it.polimi.ingsw.am43.client.view.tui.TextFormatting.*;
 public enum Color {
     BLACK,
     WHITE,

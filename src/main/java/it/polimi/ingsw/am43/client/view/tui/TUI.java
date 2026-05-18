@@ -1,6 +1,8 @@
-package it.polimi.ingsw.am43.client.view;
+package it.polimi.ingsw.am43.client.view.tui;
 
 import it.polimi.ingsw.am43.client.*;
+import it.polimi.ingsw.am43.client.view.UI;
+import it.polimi.ingsw.am43.client.view.ViewState;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.database.RankElement;
 import it.polimi.ingsw.am43.model.enums.Color;
@@ -13,7 +15,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static it.polimi.ingsw.am43.client.view.TextFormatting.*;
+import static it.polimi.ingsw.am43.client.view.tui.TextFormatting.*;
 
 public class TUI implements UI, Runnable {
     private CardVisualizer visualizer;

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43.client.view; // Aggiusta il package se serve
+package it.polimi.ingsw.am43.client.view.tui; // Aggiusta il package se serve
 
 public class TextFormat {
     // Reset per tornare al colore di default
