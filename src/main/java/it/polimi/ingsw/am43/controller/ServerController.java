@@ -106,13 +106,13 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
     }
 
     public void handleEndGame(int lobbyId) {
+        this.lobbies.remove(lobbyId);
         this.clients.values().stream()
                 .filter(c -> c.getLobbyId() == lobbyId)
                 .forEach(c -> {
                     c.setLobbyId(0);
                     c.setState(ClientState.CHOOSING);
                 });
-        this.lobbies.remove(lobbyId);
     }
 
     public void fetchLobbies(UUID playerId) {

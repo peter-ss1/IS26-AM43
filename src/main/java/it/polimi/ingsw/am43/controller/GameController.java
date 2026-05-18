@@ -103,7 +103,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.singlePlayerPause=true;
         this.singlePlayerTimeoutTask= ServerScheduler.scheduler.schedule(
                 () -> this.executor.delegate(new GameCommand.SinglePlayerTimeoutCommand()),
-                60, TimeUnit.SECONDS
+                20, TimeUnit.SECONDS
         );
         this.innerUpdatePlayer(name,new Update.TimerStartedUpdate());
     }
