@@ -722,7 +722,6 @@
           "cost": 4,
           "prestigePoints": 3,
           "classBuilding": "TRIBE",
-          "lastGivenBonus": 0,
           "effect": {
             "classEvent": "foodOnSet"
           }
@@ -733,7 +732,6 @@
           "cost": 4,
           "prestigePoints": 4,
           "classBuilding": "TRIBE",
-          "lastGivenBonus": 0,
           "effect": {
             "classEvent": "sustenanceDiscount",
             "character": "GATHERER"
@@ -745,7 +743,6 @@
           "cost": 5,
           "prestigePoints":3,
           "classBuilding": "TRIBE",
-          "lastGivenBonus": 0,
           "effect": {
             "classEvent": "sustenanceDiscount",
             "character": "ARTIST"
@@ -766,7 +763,7 @@
           "era": 1,
           "cost": 3,
           "prestigePoints": 3,
-          "classBuilding": "FINAL",
+          "classBuilding": "TIMED",
           "effect": {
             "classEvent": "bonusTurnFood"
           }
@@ -789,7 +786,6 @@
           "cost": 7,
           "prestigePoints": 0,
           "classBuilding": "RITUAL_BUILDING",
-          "lastGivenBonus": 0,
           "effect": {
             "classEvent": "doubleWinRitual"
 
@@ -801,7 +797,6 @@
           "cost": 6,
           "prestigePoints": 4,
           "classBuilding": "TRIBE",
-          "lastGivenBonus": 0,
           "effect": {
             "classEvent": "shamanStars"
           }
@@ -811,7 +806,7 @@
           "era": 2,
           "cost": 7,
           "prestigePoints": 4,
-          "classBuilding": "RITUAL_BUILDING",
+          "classBuilding": "TRIBE",
           "effect": {
             "classEvent": "sustenanceDiscount",
             "character": "INVENTOR"
@@ -866,7 +861,7 @@
           "prestigePoints": 8,
           "classBuilding": "FINAL",
           "effect": {
-            "classEvent": "finalBonusPoints",
+            "classEvent": "finalPointsByType",
             "character": "HUNTER",
             "amount":3
           }
