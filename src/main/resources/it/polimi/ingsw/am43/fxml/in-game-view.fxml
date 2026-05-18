@@ -91,7 +91,7 @@
 
         <Button fx:id="settingsButton" contentDisplay="GRAPHIC_ONLY" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#onSettingsClicked" pickOnBounds="false" prefHeight="40.0" prefWidth="40.0" styleClass="settings-button" StackPane.alignment="TOP_RIGHT">
             <StackPane.margin>
-                <Insets right="50.0" top="50.0" />
+                <Insets right="50.0" top="35.0" />
             </StackPane.margin>
             <graphic>
                 <Region mouseTransparent="true" prefHeight="200.0" prefWidth="200.0" styleClass="icon" />

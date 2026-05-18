@@ -31,32 +31,43 @@ public class ClientsConnectionManager implements MultiPersistentClientConnection
     }
     public ClientConnection getConnection(UUID id) throws IllegalArgumentException{
         this.lock.readLock().lock();
-        if(this.connections.containsKey(id)){
-            this.lock.readLock().unlock();
-            return this.connections.get(id);
-        }
-        else {
-            this.lock.readLock().unlock();
+        try {
+            PersistentClientConnection conn = this.connections.get(id);
+            if (conn != null) return conn;
             throw new IllegalArgumentException("player not registered");
+        } finally {
+            this.lock.readLock().unlock();
         }
-    };//to put protected
+    }//to put protected
 
     public void connect(UUID id, PersistentClientConnection connection){
+        PersistentClientConnection old;
         this.lock.writeLock().lock();
-        if(this.connections.put(id,connection)!=connection){
+        try {
+            old = this.connections.put(id, connection);
+        } finally {
             this.lock.writeLock().unlock();
+        }
+
+        if (old != null && old != connection) {
+            this.connectionUser.notifyDisconnection(id);
+        }
+        if (old != connection) {
             this.connectionUser.notifyConnection(id);
-        }else
-            this.lock.writeLock().unlock();
+        }
+
 
     };
     public void disconnect(UUID id,PersistentClientConnection connection){
+        boolean removed;
         this.lock.writeLock().lock();
-        if(this.connections.remove(id,connection)){
+        try {
+            removed = this.connections.remove(id, connection);
+        } finally {
             this.lock.writeLock().unlock();
+        }
+        if (removed) {
             this.connectionUser.notifyDisconnection(id);
-        }else{
-            this.lock.writeLock().unlock();
         }
     };
 

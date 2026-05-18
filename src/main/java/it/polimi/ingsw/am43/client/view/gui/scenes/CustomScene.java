@@ -66,6 +66,11 @@ public abstract class CustomScene implements UI {
     }
 
     @Override
+    public void showTimer(int length) {
+
+    }
+
+    @Override
     public void showNewPlayer() {
 
     }

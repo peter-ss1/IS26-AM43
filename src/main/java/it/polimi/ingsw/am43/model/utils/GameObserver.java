@@ -6,4 +6,5 @@ public interface GameObserver {
     void broadcast(Update update);
     void updatePlayer(String name, Update update);
     void endGame();
+    void notifySinglePlayerGame(String name);
 }

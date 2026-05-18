@@ -80,4 +80,14 @@ public class PersistencyManager {
             System.err.println("Error while scanning recovery directory: " + e.getMessage());
         }
     }
+
+    public static void deleteRecovery(int id) {
+        Path path = SAVE_DIRECTORY.resolve(id + "_model.dat");
+        try {
+            Files.deleteIfExists(path);
+            System.out.println("Recovery file deleted: " + path.toAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Error while deleting recovery file: " + e.getMessage());
+        }
+    }
 }

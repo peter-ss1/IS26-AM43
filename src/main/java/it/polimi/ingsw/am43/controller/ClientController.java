@@ -33,7 +33,7 @@ public class ClientController implements ServerConnectionUser, MessageReceiver {
         this.localModel = localModel;
         this.serverConnection= null;
         this.connected=new AtomicBoolean(false);
-        this.playerId = ResiliencyManager.getOrCreateUUID(2);
+        this.playerId = ResiliencyManager.getOrCreateUUID(1);
         this.messageExecutor=new Executor<>(this);
         this.messageExecutor.start();
         this.connected=new AtomicBoolean(false);
