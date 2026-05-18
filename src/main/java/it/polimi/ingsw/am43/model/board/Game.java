@@ -38,6 +38,12 @@ public class Game implements ModelInterface, Serializable {
 
     public void moveToInactive(Player player) throws IllegalArgumentException{
         player.setStatus(PlayerStatus.INACTIVE);
+        List <Player>InGamePlayers=this.players.stream().filter(p-> !p.getStatus().equals(PlayerStatus.INACTIVE)).toList();
+        if (InGamePlayers.isEmpty()){
+            this.observer.endGame();
+            return;
+        }
+
         this.board.removePlayerFromBoard(player);
         if (this.currPlayer.equals(player)){
             if (this.getPhase().equals(GamePhase.OFFER_TRACK_SELECTION)){
@@ -55,13 +61,14 @@ public class Game implements ModelInterface, Serializable {
             }
 
         }
-
+        if (InGamePlayers.size()==1)
+            this.observer.notifySinglePlayerGame(InGamePlayers.getFirst().getNickname());
     }
 
-    public void moveToWait(Player player,boolean stopped) throws IllegalArgumentException{
+    public void moveToWait(Player player) throws IllegalArgumentException{
         if (!player.getStatus().equals(PlayerStatus.INACTIVE)) throw new IllegalArgumentException("player not inactive");
         player.setStatus(PlayerStatus.WAITING);
-        if(!stopped) this.observer.updatePlayer(player.getNickname(),this.board.buildGameSnapshot(this.getAllPlayers(), this.currPlayer.getNickname(), this.phase));
+        this.observer.updatePlayer(player.getNickname(),this.board.buildGameSnapshot(this.getAllPlayers(), this.currPlayer.getNickname(), this.phase));
     }
 
     public void wakeUpWaiting() {

@@ -427,4 +427,7 @@ public class ClientModel {
     public void showLeaderboard(List<RankElement> leaderboard, Map<String, Integer> playerRanks) {
         this.ui.showGameEnd(leaderboard, playerRanks.get(this.ownPlayer.getNickname()));
     }
+    public void startSinglePlayerTimer(){
+        this.ui.showTimer(60);
+    }
 }

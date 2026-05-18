@@ -46,9 +46,22 @@ import java.util.Map;
         @JsonSubTypes.Type(value = Update.GameRestartedUpdate.class, name = "gameRestartedUpdate"),
         @JsonSubTypes.Type(value = Update.PlayerDisconnectedUpdate.class, name = "playerDisconnectedUpdate"),
         @JsonSubTypes.Type(value = Update.LeaderboardUpdate.class, name = "leaderboardUpdate"),
+        @JsonSubTypes.Type(value = Update.TimerStartedUpdate.class, name = "timerStartedUpdate"),
+
 })
 
 public non-sealed abstract class Update extends Message {
+
+
+    public static class TimerStartedUpdate extends Update{
+        public TimerStartedUpdate(){};
+
+        @Override
+        public void execute(ClientController controller){
+            controller.getLocalModel().startSinglePlayerTimer();
+        }
+
+    }
 
 
 

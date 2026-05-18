@@ -673,6 +673,15 @@ public class TUI implements UI, Runnable {
     }
 
     @Override
+    public void showTimer(int length) {
+        synchronized (this.printLock) {
+            System.out.print("\r\033[K");
+            this.printError("Timer started of length: " + length);
+            this.printGamePrompt();
+        }
+    }
+
+    @Override
     public void showHuntEvent(Map<String, PointsPair> effects) {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");

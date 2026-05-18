@@ -61,4 +61,6 @@ public interface UI {
     void showGameEnd(List<RankElement> leaderboard, int myRank);
 
     void showRoundEnding();
+
+    void showTimer(int length);
 }

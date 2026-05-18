@@ -242,6 +242,14 @@ public class GUI implements UI {
     public void showRoundEnding() {
     }
 
+    @Override
+    public void showTimer(int length) {
+        Platform.runLater(() -> {
+            this.navigator.getCurrentScene().refreshFromModel();
+            this.navigator.getCurrentScene().showError("Timer started of length: " + length);
+        });
+    }
+
     private void refreshGameSceneWithInfo(String message) {
         if (this.state != ViewState.IN_GAME) return;
         Platform.runLater(() -> {
