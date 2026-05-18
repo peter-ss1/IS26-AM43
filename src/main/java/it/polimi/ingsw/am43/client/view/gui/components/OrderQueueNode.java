@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 
 public class OrderQueueNode extends StackPane {
     private static final double ASSET_WIDTH = 118.0;
+    private static final double DISCONNECTED_OPACITY = 0.55;
 
     private static final String IMAGE_PATH = "/it/polimi/ingsw/am43/images/OrderQueues/%d.png";
     private static final Map<Integer, List<SlotBounds>> SLOT_BOUNDS = Map.of(
@@ -58,8 +59,7 @@ public class OrderQueueNode extends StackPane {
             }
             Color color = slot.color();
             TotemNode totem = slots.get(i).createTotemNode(color, ASSET_WIDTH, imageHeight);
-            totem.setHighlighted(highlightPredicate.test(color));
-            dragConfigurator.accept(totem, color);
+            this.configureTotem(slot, totem, highlightPredicate, dragConfigurator);
             overlay.getChildren().add(totem);
         }
 
@@ -79,10 +79,25 @@ public class OrderQueueNode extends StackPane {
             }
             Color color = slot.color();
             TotemNode totem = new TotemNode(color, 22.0);
-            totem.setHighlighted(highlightPredicate.test(color));
-            dragConfigurator.accept(totem, color);
+            this.configureTotem(slot, totem, highlightPredicate, dragConfigurator);
             fallback.getChildren().add(totem);
         }
         this.getChildren().add(fallback);
+    }
+
+    private void configureTotem(OrderQueueSlot slot, TotemNode totem, Predicate<Color> highlightPredicate,
+                                BiConsumer<TotemNode, Color> dragConfigurator) {
+        Color color = slot.color();
+        totem.setHighlighted(highlightPredicate.test(color));
+        if (slot.disconnectedSlot()) {
+            totem.setOpacity(DISCONNECTED_OPACITY);
+            totem.setDraggable(false);
+            return;
+        }
+        if (slot.activeSlot()) {
+            dragConfigurator.accept(totem, color);
+        } else {
+            totem.setDraggable(false);
+        }
     }
 }
