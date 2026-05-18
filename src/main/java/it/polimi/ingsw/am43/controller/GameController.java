@@ -103,7 +103,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.singlePlayerPause=true;
         this.singlePlayerTimeoutTask= ServerScheduler.scheduler.schedule(
                 () -> this.executor.delegate(new GameCommand.SinglePlayerTimeoutCommand()),
-                60, TimeUnit.SECONDS
+                20, TimeUnit.SECONDS
         );
         this.innerUpdatePlayer(name,new Update.TimerStartedUpdate());
     }
@@ -274,8 +274,8 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     public void endGame() {
         RankingDAO dao = new RankingDAO();
+
         int numPlayers = this.model.getNumPlayers();
-        //TODO unique timestamp
         for (Player p : this.model.getAllPlayers().stream()
                 .filter(p -> p.getStatus() != PlayerStatus.INACTIVE).toList()) {
             dao.saveresult(p.getNickname(), p.getPrestigePoints(), numPlayers);

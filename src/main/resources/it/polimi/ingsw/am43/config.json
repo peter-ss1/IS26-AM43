@@ -825,8 +825,8 @@
         {
           "id": 107,
           "era": 2,
-          "cost": 5,
-          "prestigePoints": 6,
+          "cost": 6,
+          "prestigePoints": 4,
           "classBuilding": "FINAL",
           "effect": {
             "classEvent": "finalDoubleBuilder"
