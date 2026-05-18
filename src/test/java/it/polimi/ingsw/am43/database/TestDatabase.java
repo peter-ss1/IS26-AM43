@@ -11,7 +11,7 @@ num_giocatori INT NOT NULL
 );
 ------------------------------------------------------------------*/
 public class TestDatabase {
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         try {
 
             DatabaseConfig config = new DatabaseConfig();
@@ -51,5 +51,5 @@ public class TestDatabase {
             System.err.println("Errore durante il test:");
             e.printStackTrace();
         }
-    }
+    }*/
 }
