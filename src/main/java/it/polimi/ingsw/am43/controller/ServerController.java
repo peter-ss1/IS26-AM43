@@ -63,7 +63,10 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
     }
 
     public void receiveCommand(GameCommand command) {
-        GameController gc = this.lobbies.get(this.clients.get(command.getPlayerId()).getLobbyId());
+        ClientInfo info = this.clients.get(command.getPlayerId());
+        if (info == null || info.getLobbyId() == 0) return;
+        GameController gc = this.lobbies.get(info.getLobbyId());
+        if (gc == null) return;
         gc.receiveCommand(command);
     }
 
@@ -111,7 +114,8 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
                 .filter(c -> c.getLobbyId() == lobbyId)
                 .forEach(c -> {
                     c.setLobbyId(0);
-                    c.setState(ClientState.CHOOSING);
+                    if (c.getState().equals(ClientState.PLAYING))
+                        c.setState(ClientState.CHOOSING);
                 });
     }
 

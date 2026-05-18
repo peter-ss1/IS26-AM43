@@ -29,7 +29,7 @@ public class SocketServerListener {
             this.loop.start();
     }
     public void stop(){
-        if(this.active.compareAndSet(false,true))
+        if(this.active.compareAndSet(true,false))
             this.loop.interrupt();
     }
     private void runLoop(){

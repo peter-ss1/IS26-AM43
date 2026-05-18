@@ -202,9 +202,9 @@ public class Game implements ModelInterface, Serializable {
             throw new IllegalStateException("Cannot end turn when phase is " + phase);
         if (!this.currPlayer.equals(player)) throw new OutOfTurnException("Cannot end turn in other player's turn");
         if (this.phase.equals(GamePhase.DRAW_FROM_TOP_BONUS_ACTION)) {
+            this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             this.wakeUpWaiting();
             this.phase.resolvePhase(this, this.board);
-            this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             return;
         }
         if (board.checkEndTurnCondition(player)) {
@@ -221,7 +221,8 @@ public class Game implements ModelInterface, Serializable {
 
     public void resolveOffer(Player player) {
         if (player.getAvailableActions().isEmpty() || board.isOfferResolved(this.observer, player)) {
-            board.returnPlayerToOrderQueue(this.observer, player);
+            if (!this.getPhase().equals(GamePhase.DRAW_FROM_TOP_BONUS_ACTION))
+                board.returnPlayerToOrderQueue(this.observer, player);
             this.observer.broadcast(new Update.TurnEndedUpdate(player.getNickname()));
             player.getTribe().activateTimedBuilding(this, player, this.board);
             board.getNextPlayerOnOfferTrack().ifPresentOrElse(this::setCurrPlayer,

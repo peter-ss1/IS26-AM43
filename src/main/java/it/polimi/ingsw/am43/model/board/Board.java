@@ -85,7 +85,7 @@ public class Board implements Serializable {
     }
 
     public void increaseCurrEra() {
-        if (this.currEra++ > 3) throw new IllegalStateException("Era does not exist");
+        if (++this.currEra > 3) throw new IllegalStateException("Era does not exist");
         this.bottomRow.removeBuildings();
         this.moveTopToBottomBuildings();
         this.topRow.addAllBuildings(this.buildingDeck.revealEra(this.currEra));
@@ -222,12 +222,12 @@ public class Board implements Serializable {
     public boolean pickableCards(OfferAction row, Player player) {
         switch (row) {
             case TOP:
-                if (topRow.getAllCharacters().isEmpty() && (topRow.getAllBuildings().isEmpty() || topRow.getAllBuildings().stream().noneMatch(building -> building.getCost() < (player.getFood() - player.getBuildingDiscount())))) {
+                if (topRow.getAllCharacters().isEmpty() && (topRow.getAllBuildings().isEmpty() || topRow.getAllBuildings().stream().noneMatch(building -> building.getCost() <= (player.getFood() - player.getBuildingDiscount())))) {
                     return false;
                 }
                 break;
             case BOTTOM:
-                if (bottomRow.getAllCharacters().isEmpty() && (bottomRow.getAllBuildings().isEmpty() || bottomRow.getAllBuildings().stream().noneMatch(building -> building.getCost() < (player.getFood() - player.getBuildingDiscount())))) {
+                if (bottomRow.getAllCharacters().isEmpty() && (bottomRow.getAllBuildings().isEmpty() || bottomRow.getAllBuildings().stream().noneMatch(building -> building.getCost() <= (player.getFood() - player.getBuildingDiscount())))) {
                     return false;
                 }
                 break;
