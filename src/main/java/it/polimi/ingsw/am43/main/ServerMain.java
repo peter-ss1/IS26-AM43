@@ -11,6 +11,7 @@ import it.polimi.ingsw.am43.database.DatabaseConfig;
 import it.polimi.ingsw.am43.database.DatabaseManager;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.RemoteException;
@@ -38,9 +39,8 @@ public class ServerMain {
         try {
 
             ObjectMapper mapper = new ObjectMapper();
-            File configFile = new File("src/main/resources/it/polimi/ingsw/am43/config.json");
-
-            JsonNode rootNode = mapper.readTree(configFile);
+            InputStream inputStream = ServerMain.class.getResourceAsStream("/it/polimi/ingsw/am43/config.json");
+            JsonNode rootNode = mapper.readTree(inputStream);
             JsonNode dbNode = rootNode.get("database");
 
             DatabaseConfig config = mapper.treeToValue(dbNode, DatabaseConfig.class);
