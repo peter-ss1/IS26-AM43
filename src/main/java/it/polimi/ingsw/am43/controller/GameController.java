@@ -119,7 +119,8 @@ public class GameController implements GameObserver, GameCommandReceiver {
     public void handleDisconnection(UUID id) {
         if (!this.gameStarted) {
             String name = this.clients.remove(id);
-            this.model.removePlayer(name);
+            if(!name.equals("-"))
+                this.model.removePlayer(name);
             if (this.clients.isEmpty())
                 this.serverController.notifyEndGame(this.lobbyId);
             this.serverController.putPlayerChoosing(id);

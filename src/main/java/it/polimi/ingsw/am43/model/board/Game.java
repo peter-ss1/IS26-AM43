@@ -248,7 +248,10 @@ public class Game implements ModelInterface, Serializable {
     }
 
     public void removePlayer(String nickname){
-        this.availableColors.add(this.getPlayerByName(nickname).getColor());
-        this.players.remove(this.getPlayerByName(nickname));
+        try{
+            this.availableColors.add(this.getPlayerByName(nickname).getColor());
+            this.players.remove(this.getPlayerByName(nickname));
+        }catch (Exception e){}
+
     }
 }
