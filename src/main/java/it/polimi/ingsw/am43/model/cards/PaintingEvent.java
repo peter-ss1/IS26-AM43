@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
@@ -13,7 +12,7 @@ import java.util.Map;
 public class PaintingEvent extends Event {
 
     public PaintingEvent(int era,int id) {
-        super(era,id);
+        super(era,id,1);
     }
 
     @Override
@@ -37,9 +36,4 @@ public class PaintingEvent extends Event {
     public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
         building.reactToEvent(observer, player, this);
     }
-    @Override
-    public String toString() {
-        return "Evento Pittura (Era " + getEra() + ") - Ottieni PV in base al numero dei tuoi Artisti. Se ne hai meno dell'Era in corso, subisci un malus.";
-    }
-
 }

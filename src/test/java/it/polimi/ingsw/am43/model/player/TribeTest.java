@@ -298,12 +298,7 @@ class TribeTest {
     @Test
     void testGetBuildingsTotalPrestigePoints() {
         new FinalBuilding(1, 0,0, 3, new NoOpFinalEffect()).tribeEntranceEffect(observer, player);
-        new EventBuilding(1, 0,0, 2) {}.pick(new GameObserver() {
-            @Override
-            public void broadcast(Update update) {
-
-            }
-        }, player);
+        new EventBuilding(1, 0,0, 2) {}.pick(new MockObserver(), player);
         new TribeBuilding(1, 0,0, 4, new NoOpTribeBonus()).tribeEntranceEffect(observer, player);
         new TimedBuilding(1, 0,0, 1, new NoOpTimedEffect()).tribeEntranceEffect(observer, player);
         assertEquals(10, player.getTribe().getBuildingsTotalPrestigePoints());

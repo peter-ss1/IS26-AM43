@@ -38,19 +38,15 @@ class GameTest {
         assertEquals(GamePhase.PREPARATION, game.getPhase());
         game.startGame();
         assertEquals(GamePhase.OFFER_TRACK_SELECTION, game.getPhase());
-        assertEquals(2, game.getPlayers().size());
+        assertEquals(2, game.getAllPlayers().size());
         List<String> namePlayers = new ArrayList<>();
         namePlayers.add("pippo");
         namePlayers.add("jonny");
-        for (Player player : game.getPlayers()) {
+        for (Player player : game.getAllPlayers()) {
             assertTrue(namePlayers.contains(player.getNickname()));
         }
         assertNotNull(game.getCurrPlayer());
         assertTrue(namePlayers.contains(game.getCurrPlayer().getNickname()));
-        for (int i = 1; i <= 117; i++) {//just to test, then adjust
-            assertNotNull(game.getCardById(i));
-            assertEquals(i, game.getCardById(i).getId());
-        }
         assertEquals(2, game.getCurrPlayer().getFood());
         assertThrows(IllegalArgumentException.class, () -> game.getCardById(200));
     }
@@ -117,12 +113,11 @@ class GameTest {
     void bonusBuildingTest() {
         player1.getTribe().addCardToTribe(new TimedBuilding(1, 1, 1, 1, new TimedEffect.BonusPickCard()));
         assertThrows(IllegalMoveException.class, () -> this.game.pickCard(game.getCardById(15), player1));
-        this.game.pickCard(game.getCardById(29), player1);
+        this.game.pickCard(game.getCardById(1), player1);
         assertEquals(GamePhase.DRAW_FROM_TOP_BONUS_ACTION, game.getPhase());
-        assertEquals(1, player1.getTribe().getNumberByCharacterType(CharacterType.SHAMAN));
-        assertEquals(1, player1.getShamanStars());
+        assertEquals(1, player1.getTribe().getNumberByCharacterType(CharacterType.HUNTER));
         assertEquals(1, player1.getAvailableActions().size());
-        assertEquals(1, player1.getFood());
+        assertEquals(2, player1.getFood());
         assertEquals(player1, game.getCurrPlayer());
         this.game.endCurrentTurn(player1);
         assertEquals(player2, game.getCurrPlayer());

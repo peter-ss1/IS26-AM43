@@ -5,13 +5,20 @@ import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface ModelInterface {
+public interface ModelInterface extends Serializable {
+
+    void moveToInactive(Player player);
+
+    void moveToWait(Player player);
 
     int getNumPlayers();
 
     void addPlayer(String nickname, Color color);
+
+    void removePlayer(String nickname);
 
     void placeTotemOnTrack(Player player, int position);
 
@@ -27,7 +34,9 @@ public interface ModelInterface {
 
     void setObserver(GameObserver observer);
 
-    List<Player> getPlayers();
+    List<Player> getAllPlayers();
 
     void startGame();
+
+    void restartGame();
 }

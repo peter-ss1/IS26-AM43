@@ -1,9 +1,9 @@
 package it.polimi.ingsw.am43.main;
 
-import it.polimi.ingsw.am43.client.view.TUI;
+import it.polimi.ingsw.am43.client.view.tui.TUI;
+import it.polimi.ingsw.am43.client.view.gui.GuiApplication;
+import javafx.application.Application;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class ClientMain {
@@ -15,7 +15,7 @@ public class ClientMain {
             System.out.print("> ");
             String uiChoice = scanner.nextLine().trim();
             if (uiChoice.equals("1")) {
-                // startGUI();
+                Application.launch(GuiApplication.class);
                 break;
             } else if (uiChoice.equals("2")) {
                 new Thread(new TUI(scanner)).start();

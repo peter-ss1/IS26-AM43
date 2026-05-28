@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;

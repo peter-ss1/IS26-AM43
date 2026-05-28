@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
@@ -18,14 +17,17 @@ public class TribeBuilding extends Building {
     @Override
     public void tribeEntranceEffect(GameObserver observer, Player player) {
         player.getTribe().addCardToTribe(this);
-        player.alterFood(-(this.getCost()));
+        int cost = this.getCost() - player.getBuildingDiscount();
+        if (cost<0) cost = 0;
+        player.alterFood(-cost);
         lastGivenBonus = this.bonus.calculateBonus(player);
-        observer.broadcast(new Update.BuildingBoughtUpdate(player.getNickname(),  this.getCost()));
+        observer.broadcast(new Update.BuildingBoughtUpdate(player.getNickname(), cost));
+        player.getTribe().activateTribeBuildings(observer, player);
     }
 
     public void tribeBuildingEffect(GameObserver observer, Player player) {
         int newBonus = this.bonus.calculateBonus(player);
-        bonus.giveBonus(observer, player, newBonus - this.lastGivenBonus);
+        bonus.giveBonus(observer, player, newBonus - this.lastGivenBonus); //TODO check if != 0
         this.lastGivenBonus = newBonus;
     }
     @Override

@@ -1,8 +1,10 @@
 package it.polimi.ingsw.am43.client;
 
 import it.polimi.ingsw.am43.client.view.UI;
+import it.polimi.ingsw.am43.database.RankElement;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.GamePhase;
+import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 
 import java.util.*;
 
@@ -10,7 +12,7 @@ public class ClientModel {
     private LobbyInfo ownLobby;
     private final List<LobbyInfo> lobbies;
     private ClientPlayer ownPlayer;
-    private final List<ClientPlayer> otherPlayers;
+    private List<ClientPlayer> otherPlayers;
     private final List<Integer> topRowCards;
     private final List<Integer> bottomRowCards;
     private final List<Color> orderQueue;
@@ -21,8 +23,10 @@ public class ClientModel {
     private final UI ui;
     private boolean validating;
     private final List<String> winners;
+    private boolean gameStarted;
 
     public ClientModel(UI ui) {
+        this.ui = ui;
         this.lobbies = new ArrayList<>();
         this.ownLobby = new LobbyInfo(0, 0, 0);
         this.ownPlayer = null;
@@ -33,16 +37,34 @@ public class ClientModel {
         this.offerTrack = new ArrayList<>();
         this.phase = null;
         this.currentEra = 0;
-        this.ui = ui;
         this.currPlayerNickname = "";
         this.validating = false;
         this.winners = new ArrayList<>();
+        this.gameStarted = false;
+    }
+
+    public void reset() {
+        this.lobbies.clear();
+        this.ownLobby = new LobbyInfo(0, 0, 0);
+        this.ownPlayer = null;
+        this.otherPlayers.clear();
+        this.topRowCards.clear();
+        this.bottomRowCards.clear();
+        this.orderQueue.clear();
+        this.offerTrack.clear();
+        this.phase = null;
+        this.currentEra = 0;
+        this.currPlayerNickname = "";
+        this.validating = false;
+        this.winners.clear();
+        this.gameStarted = false;
     }
 
     public void refreshLobbies(List<LobbyInfo> lobbies) {
+        this.reset();
         this.lobbies.clear();
         this.lobbies.addAll(lobbies);
-        this.ui.showAvailableLobbies();
+        this.ui.enterLobbyChoice();
     }
 
     public int getNumPlayers() {
@@ -83,9 +105,8 @@ public class ClientModel {
 
     public void setOtherPlayers(List<ClientPlayer> otherPlayers) {
         this.otherPlayers.clear();
-        if (otherPlayers != null) {
-            this.otherPlayers.addAll(otherPlayers);
-        }
+        if (this.ownPlayer != null) otherPlayers = otherPlayers.stream().filter(p -> !p.getNickname().equals(this.ownPlayer.getNickname())).toList();
+        this.otherPlayers.addAll(otherPlayers);
     }
 
     public List<Integer> getTopRowCards() {
@@ -180,7 +201,7 @@ public class ClientModel {
         this.offerTrack.stream().filter(o -> o.getColor() != null && o.getColor().equals(color)).findFirst().ifPresent(o -> {
             o.setColor(null);
         });
-        this.orderQueue.add(color);
+        if (!this.orderQueue.contains(color)) this.orderQueue.add(color);
         this.validating = false;
     }
 
@@ -223,6 +244,13 @@ public class ClientModel {
 
     public void setPhase(GamePhase phase) {
         this.phase = phase;
+        if (this.phase == GamePhase.ROUND_ENDING) {
+            this.ui.showRoundEnding();
+            this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).forEach(p->{
+                    p.setStatus(PlayerStatus.ACTIVE);
+                    this.orderQueue.add(p.getColor());
+            });
+        }
     }
 
     public void setCurrentPlayer(String nickname) {
@@ -240,6 +268,7 @@ public class ClientModel {
         this.bottomRowCards.addAll(bottomRowCards);
         this.orderQueue.addAll(orderQueue);
         this.offerTrack.addAll(offerTrack);
+        this.gameStarted = true;
         this.ui.showGameStart();
     }
 
@@ -273,11 +302,11 @@ public class ClientModel {
         this.validating = false;
     }
 
-    public void pickCard(String nickname, int cardId) {
+    public void pickCard(String nickname, int cardId, boolean finalPick) {
         this.getPlayerByNickname(nickname).updateTribe(cardId);
         this.topRowCards.remove((Integer) cardId);
         this.bottomRowCards.remove((Integer) cardId);
-        this.ui.showCardPicked(nickname, cardId);
+        this.ui.showCardPicked(nickname, cardId, finalPick);
         this.validating = false;
     }
 
@@ -301,23 +330,23 @@ public class ClientModel {
         this.ui.showBuildingEffect(nickname, bonus, resource);
     }
 
-    public void applyHuntEventEffect(Map<String, List<Integer>> effects) {
+    public void applyHuntEventEffect(Map<String, PointsPair> effects) {
         effects.forEach((key, value) -> {
-            this.getPlayerByNickname(key).alterFood(value.getFirst());
-            this.getPlayerByNickname(key).alterPrestigePoints(value.getLast());
+            this.getPlayerByNickname(key).alterFood(value.getFood());
+            this.getPlayerByNickname(key).alterPrestigePoints(value.getPrestige());
         });
         this.ui.showHuntEvent(effects);
     }
 
     public void applyPaintingEvent(Map<String, Integer> effects) {
-        effects.forEach((key, value) -> this.getPlayerByNickname(key).alterFood(value));
+        effects.forEach((key, value) -> this.getPlayerByNickname(key).alterPrestigePoints(value));
         this.ui.showPaintingEvent(effects);
     }
 
-    public void applySustenanceEventEffect(Map<String, List<Integer>> effects) {
+    public void applySustenanceEventEffect(Map<String, PointsPair> effects) {
         effects.forEach((key, value) -> {
-            this.getPlayerByNickname(key).alterFood(value.getFirst());
-            this.getPlayerByNickname(key).alterPrestigePoints(value.getLast());
+            this.getPlayerByNickname(key).alterFood(value.getFood());
+            this.getPlayerByNickname(key).alterPrestigePoints(value.getPrestige());
         });
         this.ui.showSustenanceEvent(effects);
     }
@@ -333,9 +362,13 @@ public class ClientModel {
         this.currentEra = currEra;
     }
 
-    public void endGame(List<String> winners) {
+    public void endGame(List<String> winners, Map<String, Integer> finalPoints) {
+        this.winners.clear();
         this.winners.addAll(winners);
-        this.ui.showGameEnd();
+        this.getAllPlayers().forEach(player -> {
+            if (finalPoints.containsKey(player.getNickname())) player.setPrestigePoints(finalPoints.get(player.getNickname()));
+        });
+        this.ui.showFinalPoints();
     }
 
     public List<String> getWinners() {
@@ -352,5 +385,68 @@ public class ClientModel {
     public void resolveFoodOffer(String nickname) {
         this.getPlayerByNickname(nickname).alterFood(3);
         this.ui.showFoodOffer(nickname);
+    }
+
+    public void reconnectPlayer(String reconnectedPlayer) {
+        if (reconnectedPlayer.equalsIgnoreCase(this.ownPlayer.getNickname())) return;
+        this.getPlayerByNickname(reconnectedPlayer).setStatus(PlayerStatus.WAITING);
+        Color color = this.getPlayerByNickname(reconnectedPlayer).getColor();
+        this.ui.showPlayerReconnection(reconnectedPlayer);
+    }
+
+    public void restartGame(List<ClientPlayer> players, String currentPlayerNickname, List<Integer> topRowCards, List<Integer> bottomRowCards, int era, GamePhase phase, List<OfferTrackElement> offerTrack, List<Color> orderQueue) {
+        this.ownPlayer = players.stream().filter(player -> player.getNickname().equals(this.ownPlayer.getNickname())).toList().getFirst();
+        this.otherPlayers = new ArrayList<>(players.stream().filter(player -> !player.getNickname().equals(this.ownPlayer.getNickname())).toList());
+        this.currentEra = era;
+        this.phase = phase;
+        this.topRowCards.clear();
+        this.topRowCards.addAll(topRowCards);
+        this.bottomRowCards.clear();
+        this.bottomRowCards.addAll(bottomRowCards);
+        this.offerTrack.clear();
+        this.offerTrack.addAll(offerTrack);
+        this.orderQueue.clear();
+        this.orderQueue.addAll(orderQueue);
+        this.validating = false;
+        this.gameStarted = true;
+        this.currPlayerNickname = currentPlayerNickname;
+        this.ui.showGameStart();
+    }
+
+    public void retrieveOldPlayer(String nickname, Color color) {
+        this.ownPlayer = new ClientPlayer(nickname, color);
+        this.ui.showRetrievedInfo();
+    }
+
+    public void disconnectPlayer(String nickname) {
+        this.otherPlayers.stream().filter(p -> p.getNickname().equals(nickname))
+                .findFirst().ifPresentOrElse(p -> {
+                    if (this.gameStarted) {
+                        p.setStatus(PlayerStatus.INACTIVE);
+                        this.offerTrack.stream().filter(o -> o.getColor() != null && o.getColor().equals(p.getColor())).findFirst().ifPresent(o -> {
+                            o.setColor(null);
+                        });
+                        this.orderQueue.remove(p.getColor());
+                    } else {
+                        this.ownLobby.setCurrentPlayers(this.ownLobby.getCurrentPlayers()-1);
+                        this.otherPlayers.remove(p);
+                    }
+                }, () -> this.ownLobby.setCurrentPlayers(this.ownLobby.getCurrentPlayers()-1) );
+        this.ui.showDisconnectedPlayer(nickname);
+    }
+
+    public List<Color> getInactivePlayers() {
+        return new ArrayList<>(this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.INACTIVE)).map(p->p.getColor()).toList());
+    }
+
+    public List<Color> getWaitingPlayers() {
+        return new ArrayList<>(this.getAllPlayers().stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).map(p->p.getColor()).toList());
+    }
+    public void showLeaderboard(List<RankElement> leaderboard, Map<String, Integer> playerRanks) {
+        if (this.winners.isEmpty()) this.winners.add(this.ownPlayer.getNickname());
+        this.ui.showGameEnd(leaderboard, playerRanks.get(this.ownPlayer.getNickname()));
+    }
+    public void startSinglePlayerTimer(){
+        this.ui.showTimer(60);
     }
 }

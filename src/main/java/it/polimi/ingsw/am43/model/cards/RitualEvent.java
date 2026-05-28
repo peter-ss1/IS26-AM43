@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
@@ -17,7 +16,7 @@ public class RitualEvent extends Event {
     private final List<Player> winners;
 
     public RitualEvent(int era, int id, int malus) {
-        super(era, id);
+        super(era, id,1);
         this.malus = malus;
         this.losers = new ArrayList<>();
         this.winners = new ArrayList<>();

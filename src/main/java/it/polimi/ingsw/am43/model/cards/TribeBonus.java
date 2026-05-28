@@ -9,6 +9,8 @@ import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
+import java.io.Serializable;
+
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
 @JsonSubTypes({
@@ -18,7 +20,7 @@ import it.polimi.ingsw.am43.network.message.Update;
         @JsonSubTypes.Type(value = TribeBonus.BonusShamanStars.class, name = "shamanStars")
 })
 
-public interface TribeBonus {
+public interface TribeBonus extends Serializable {
     int calculateBonus(Player player);
 
     void giveBonus(GameObserver observer, Player player, int bonus);
@@ -79,9 +81,12 @@ public interface TribeBonus {
     }
 
     public static class BonusShamanStars implements TribeBonus {
+        private boolean first = true;
         @Override
         public int calculateBonus(Player player) {
-            return 3;
+            int result = first ? 0 : 3;
+            first = false;
+            return result;
         }
 
         @Override

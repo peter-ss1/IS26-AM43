@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.model.cards;
 
-import it.polimi.ingsw.am43.client.view.TextFormat;
 import it.polimi.ingsw.am43.model.board.Board;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.player.Player;
@@ -18,8 +17,10 @@ public class TimedBuilding extends Building {
     @Override
     public void tribeEntranceEffect(GameObserver observer, Player player) {
         player.getTribe().addCardToTribe(this);
-        player.alterFood(-(this.getCost()));
-        observer.broadcast(new Update.BuildingBoughtUpdate(player.getNickname(),  this.getCost()));
+        int cost = this.getCost() - player.getBuildingDiscount();
+        if (cost<0) cost = 0;
+        player.alterFood(-cost);
+        observer.broadcast(new Update.BuildingBoughtUpdate(player.getNickname(), cost));
     }
 
     public void TimedBuildingEffect(Player player, Game game, Board board) {

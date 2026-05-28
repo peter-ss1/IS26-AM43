@@ -7,7 +7,7 @@ import it.polimi.ingsw.am43.model.utils.GameLoader;
 import it.polimi.ingsw.am43.network.message.Update;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Map;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,14 +19,12 @@ public enum GamePhase {
             GameLoader loader = new GameLoader("/it/polimi/ingsw/am43/config.json");
             try {
                 game.initBoard(
-                        game.getPlayers(),
+                        game.getAllPlayers(),
                         game.getNumPlayers(),
-                        loader.loadSeed(),
                         loader.loadFoodModifiers(game.getNumPlayers()),
-                        loader.loadTribeDeck(),
-                        loader.loadBuildingDeck(),
-                        loader.loadOfferTrackCard(game.getNumPlayers()),
-                        loader.loadNumBuildings(game.getNumPlayers())
+                        loader.loadTribeDeck(game.getNumPlayers()),
+                        loader.loadBuildingDeck(game.getNumPlayers()),
+                        loader.loadOfferTrackCard(game.getNumPlayers())
                 );
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -43,14 +41,17 @@ public enum GamePhase {
                         game.setCurrPlayer(player);
                         game.resolveOffer(player);
                     },
-                    () -> game.getPhase().resolvePhase(game, board));
+                    () -> {
+                            game.wakeUpWaiting();
+                            game.getPhase().resolvePhase(game, board);
+                    });
         }
     },
     ACTION_RESOLUTION {
         @Override
         public void resolvePhase(Game game, Board board) {
             game.setPhase(ROUND_ENDING);
-            for (Player player : game.getPlayers()) {
+            for (Player player : game.getActivePlayers()) {
                 player.getTribe().activateTimedBuilding(game, player, board);
             }
             if (game.getPhase().equals(ROUND_ENDING)) {
@@ -61,9 +62,9 @@ public enum GamePhase {
     ROUND_ENDING {
         @Override
         public void resolvePhase(Game game, Board board) {
-            board.activateEvents(game.getObserver(), OfferAction.BOTTOM, game.getPlayers());
+            board.activateEvents(game.getObserver(), OfferAction.BOTTOM, game.getAllPlayers());
             if (board.checkFinalRound()) {
-                board.activateEvents(game.getObserver(), OfferAction.TOP, game.getPlayers());
+                board.activateEvents(game.getObserver(), OfferAction.TOP, game.getAllPlayers());
                 game.setPhase(FINAL_COUNT);
                 game.getPhase().resolvePhase(game, board);
                 return;
@@ -86,13 +87,15 @@ public enum GamePhase {
     FINAL_COUNT {
         @Override
         public void resolvePhase(Game game, Board board) {
-            game.getPlayers().forEach(Player::countFinalPoints);
-            game.getPlayers().sort(Comparator.comparingInt(Player::getPrestigePoints).thenComparing(Player::getFood).reversed());
-            Player winner = game.getPlayers().getFirst();
-            List<String> winners = game.getPlayers().stream()
+            List<Player> players= game.getAllPlayers().stream().filter(p -> p.getStatus() != PlayerStatus.INACTIVE).collect(Collectors.toList());
+            players.forEach(Player::countFinalPoints);
+            players.sort(Comparator.comparingInt(Player::getPrestigePoints).thenComparing(Player::getFood).reversed());
+            Player winner = players.getFirst();
+            List<String> winners = players.stream()
                     .filter(p -> p.getPrestigePoints() == winner.getPrestigePoints() && p.getFood() == winner.getFood())
                     .map(Player::getNickname).toList();
-            game.getObserver().broadcast(new Update.GameOverUpdate(winners));
+            game.getObserver().broadcast(new Update.GameOverUpdate(winners, players.stream().collect(Collectors.toMap(Player::getNickname, Player::getPrestigePoints))));
+            game.getObserver().endGame();
         }
     };
 

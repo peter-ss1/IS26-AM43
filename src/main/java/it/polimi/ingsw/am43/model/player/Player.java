@@ -3,11 +3,13 @@ package it.polimi.ingsw.am43.model.player;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
+import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class Player implements Serializable {
 
     private final String nickname;
     private Color color;
@@ -18,6 +20,7 @@ public class Player {
     private int shamanStars;
     private final Tribe tribe;
     private List<OfferAction> availableActions;
+    private PlayerStatus status;
 
     public Player(String nickname, Color color) {
         this.nickname = nickname;
@@ -29,12 +32,24 @@ public class Player {
         this.shamanStars = 0;
         this.tribe = new Tribe();
         this.availableActions = new ArrayList<OfferAction>();
+        this.status=PlayerStatus.ACTIVE;
     }
+
 
 
     public String getNickname() {
         return nickname;
     }
+
+    public void setStatus(PlayerStatus status){
+        this.status=status;
+    }
+
+    public PlayerStatus getStatus(){
+        return this.status;
+    }
+
+
 
 
     public Color getColor() {
@@ -52,7 +67,7 @@ public class Player {
 
 
     public void alterFood(int amount) {
-        this.food += amount;
+        this.food = Math.max(0, this.food + amount);
     }
 
     public void setAvailableActions(List<OfferAction> offerActions) {

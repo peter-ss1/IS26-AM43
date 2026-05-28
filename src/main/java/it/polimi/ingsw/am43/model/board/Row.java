@@ -4,21 +4,20 @@ import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.io.Serializable;
+import java.util.*;
 import java.util.stream.Stream;
 
-public class Row {
+public class Row implements Serializable {
 
     private final List<CharacterCard> characters;
     private final List<Building> buildings;
-    private final List<Event> events;
+    private final PriorityQueue<Event> events;
 
     public Row() {
         this.characters = new ArrayList<>();
         this.buildings = new ArrayList<>();
-        this.events = new ArrayList<>();
+        this.events = new PriorityQueue<>();
     }
 
     public int size() {
@@ -30,16 +29,11 @@ public class Row {
     }
 
     public void addCard(Event event) {
-        //TODO correct order
-        this.events.addFirst(event);
+        this.events.add(event);
     }
 
     public void addCard(Building building) {//to talk later
         this.buildings.add(building);
-    }
-
-    public void addCard(SustenanceEvent sustenanceEvent) {
-        this.events.addLast(sustenanceEvent);
     }
 
     public void removeCharacters() {
@@ -103,7 +97,10 @@ public class Row {
     }
 
     public void activateEvents(GameObserver observer, List<Player> p) {
-        if (!this.events.isEmpty()) this.events.forEach(e -> e.affectPlayers(observer, p));
+        while (!this.events.isEmpty()) {
+            Event e = this.events.poll();
+            e.affectPlayers(observer, p);
+        }
     }
 
     public List<Integer> getIds() {
