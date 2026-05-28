@@ -16,7 +16,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 public class ServerMain {
-    private static final int SOCKET_PORT = 8080;
+    private static final int SOCKET_PORT = 8081;
     private static final int RMI_PORT = 1099;
 
     static void main() {

@@ -62,7 +62,7 @@ public class ClientController {
             ((VirtualServerRMI) this.server).connect(this.playerId, new ClientRMI(this));
         } else {
             Socket serverSocket;
-            serverSocket = new Socket(serverIp, 8080);
+            serverSocket = new Socket(serverIp, 8081);
             InputStreamReader socketRx = new InputStreamReader(serverSocket.getInputStream());
             OutputStreamWriter socketTx = new OutputStreamWriter(serverSocket.getOutputStream());
             this.server = new ServerSocketHandler(new BufferedWriter(socketTx));
