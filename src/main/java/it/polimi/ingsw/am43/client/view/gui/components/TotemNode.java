@@ -9,21 +9,32 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 
+/**
+ * JavaFX node that renders a colored player totem.
+ */
 public class TotemNode extends StackPane {
-    private static final double DEFAULT_SIZE = 30.0;
     private static final double ACTIVE_SHADOW_RADIUS = 18.0;
 
     private final Color playerColor;
     private final Rectangle body;
 
-    public TotemNode(Color playerColor) {
-        this(playerColor, DEFAULT_SIZE);
-    }
-
+    /**
+     * Creates a square totem node for the specified player color.
+     *
+     * @param playerColor the color represented by the totem
+     * @param size the width and height of the totem
+     */
     public TotemNode(Color playerColor, double size) {
         this(playerColor, size, size);
     }
 
+    /**
+     * Creates a totem node for the specified player color and dimensions.
+     *
+     * @param playerColor the color represented by the totem
+     * @param width the width of the totem
+     * @param height the height of the totem
+     */
     public TotemNode(Color playerColor, double width, double height) {
         this.playerColor = playerColor;
         this.body = new Rectangle(width, height);
@@ -38,10 +49,14 @@ public class TotemNode extends StackPane {
         this.setMinSize(width, height);
         this.setPrefSize(width, height);
         this.setMaxSize(width, height);
-        this.setUserData(playerColor);
         this.getChildren().add(this.body);
     }
 
+    /**
+     * Updates the visual highlighted state of this totem.
+     *
+     * @param highlighted {@code true} to highlight this totem, {@code false} otherwise
+     */
     public void setHighlighted(boolean highlighted) {
         if (highlighted) {
             DropShadow glow = new DropShadow();
@@ -56,11 +71,22 @@ public class TotemNode extends StackPane {
         }
     }
 
+    /**
+     * Updates whether this totem is visually configured as draggable.
+     *
+     * @param draggable {@code true} to show this totem as draggable, {@code false} otherwise
+     */
     public void setDraggable(boolean draggable) {
         this.setCursor(draggable ? Cursor.HAND : Cursor.DEFAULT);
         this.setMouseTransparent(!draggable);
     }
 
+    /**
+     * Returns the hexadecimal color associated with the specified player color.
+     *
+     * @param color the player color to convert
+     * @return the hexadecimal color string
+     */
     public static String toPantoneHex(Color color) {
         return switch (color) {
             case RED -> "#EF3340";    // Pantone 1788

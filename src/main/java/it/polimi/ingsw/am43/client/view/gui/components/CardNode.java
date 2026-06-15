@@ -9,6 +9,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
+/**
+ * JavaFX node that displays a card image or a textual placeholder for a card identifier.
+ */
 public class CardNode extends VBox {
     private static final double CARD_WIDTH = 84.0;
     private static final double CARD_HEIGHT = 120.0;
@@ -17,11 +20,19 @@ public class CardNode extends VBox {
 
     private boolean cardDisabled;
 
+    /**
+     * Creates a card node for the specified card identifier.
+     *
+     * @param cardId the identifier of the card to display
+     */
     public CardNode(int cardId) {
         this.setAlignment(Pos.CENTER);
         this.getStyleClass().add("card-node");
         CardMetadataRegistry.CardMetadata metadata = CardMetadataRegistry.get(cardId);
-        Tooltip.install(this, new Tooltip(metadata.tooltipText()));
+        Tooltip tooltip = new Tooltip(metadata.tooltipText());
+        tooltip.setWrapText(true);
+        tooltip.setMaxWidth(320.0);
+        Tooltip.install(this, tooltip);
         Image image = IMAGE_CACHE.get(cardId, id -> String.format(CARD_IMAGE_PATH, id));
         if (image == null) {
             this.getChildren().add(this.createPlaceholder(metadata));
@@ -30,6 +41,11 @@ public class CardNode extends VBox {
         }
     }
 
+    /**
+     * Sets the action invoked when this card is selected.
+     *
+     * @param action the action to invoke, or {@code null} to perform no action
+     */
     public void setOnCardSelected(Runnable action) {
         this.setOnMouseClicked(event -> {
             if (!this.cardDisabled && action != null) {
@@ -39,6 +55,11 @@ public class CardNode extends VBox {
         });
     }
 
+    /**
+     * Updates whether this card is disabled for selection.
+     *
+     * @param disabled {@code true} to disable this card, {@code false} otherwise
+     */
     public void setCardDisabled(boolean disabled) {
         this.cardDisabled = disabled;
         this.setDisable(disabled);
@@ -48,11 +69,21 @@ public class CardNode extends VBox {
         }
     }
 
+    /**
+     * Updates the visual clickable state of this card.
+     *
+     * @param clickable {@code true} to show the card as clickable, {@code false} otherwise
+     */
     public void setClickable(boolean clickable) {
         this.setStyleClassActive("card-clickable", clickable);
         this.setCursor(clickable ? Cursor.HAND : Cursor.DEFAULT);
     }
 
+    /**
+     * Updates the visual highlighted state of this card.
+     *
+     * @param highlighted {@code true} to highlight this card, {@code false} otherwise
+     */
     public void setHighlighted(boolean highlighted) {
         this.setStyleClassActive("card-highlighted", highlighted);
     }

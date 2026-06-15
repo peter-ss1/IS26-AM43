@@ -45,6 +45,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+/**
+ * JavaFX controller for the in-game scene.
+ */
 public class InGameScene extends CustomScene {
     private static final int MAX_ACTIVITY_MESSAGES = 8;
     private static final String FOOD_ICON_PATH = "/it/polimi/ingsw/am43/images/food&prestige/food.png";
@@ -112,12 +115,20 @@ public class InGameScene extends CustomScene {
         });
     }
 
+    /**
+     * Stores the owning {@code GUI} instance and refreshes the scene from the local model.
+     *
+     * @param gui the GUI instance that owns this scene
+     */
     @Override
     public void setGui(GUI gui) {
         this.gui = gui;
         this.refreshFromModel();
     }
 
+    /**
+     * Rebuilds the visible game scene from the current local client model.
+     */
     @Override
     public void refreshFromModel() {
         if (this.gui == null) {
@@ -141,11 +152,21 @@ public class InGameScene extends CustomScene {
         this.renderPlayerTribe(model);
     }
 
+    /**
+     * Displays an informational activity message.
+     *
+     * @param message the message to display
+     */
     @Override
     public void showInfo(String message) {
         this.addActivityMessage(message, "activity-info");
     }
 
+    /**
+     * Displays an error activity message and rolls back any pending card pick action.
+     *
+     * @param message the error message to display
+     */
     @Override
     public void showError(String message) {
         if (this.rollbackPendingPickAction()) {
@@ -154,12 +175,22 @@ public class InGameScene extends CustomScene {
         this.addActivityMessage(message, "activity-error");
     }
 
+    /**
+     * Refreshes the scene and reports that a player disconnected.
+     *
+     * @param nickname the nickname of the disconnected player
+     */
     @Override
     public void showDisconnectedPlayer(String nickname) {
         this.refreshFromModel();
         this.showError("Player " + nickname + " lost connection. Waiting for reconnection.");
     }
 
+    /**
+     * Refreshes the scene and reports that a player reconnected.
+     *
+     * @param nickname the nickname of the reconnected player
+     */
     @Override
     public void showPlayerReconnection(String nickname) {
         this.refreshFromModel();
@@ -592,6 +623,12 @@ public class InGameScene extends CustomScene {
         return row;
     }
 
+    /**
+     * Shows the end-game overlay with winners, the player's rank, and the leaderboard.
+     *
+     * @param leaderboard the leaderboard entries to display
+     * @param myRank the rank of the local player in the relevant leaderboard
+     */
     @Override
     public void showGameEnd(List<RankElement> leaderboard, int myRank) {
         List<String> winners = this.gui.getLocalModel().getWinners();

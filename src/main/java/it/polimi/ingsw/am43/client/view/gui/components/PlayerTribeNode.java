@@ -10,7 +10,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * JavaFX node that displays the cards in a player's tribe grouped by metadata type.
+ */
 public class PlayerTribeNode extends VBox {
+    /**
+     * Creates a node for the specified player's tribe.
+     *
+     * @param player the player whose tribe is displayed
+     * @param ownTribe {@code true} if the displayed tribe belongs to the local player, {@code false} otherwise
+     */
     public PlayerTribeNode(ClientPlayer player, boolean ownTribe) {
         this.setSpacing(8.0);
         this.getStyleClass().add("tribe-view");

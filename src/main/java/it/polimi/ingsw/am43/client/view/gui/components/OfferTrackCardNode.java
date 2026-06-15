@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * JavaFX node that displays an offer track slot with its actions and optional totem.
+ */
 public class OfferTrackCardNode extends StackPane {
     private static final double ASSET_WIDTH = 118.0;
 
@@ -34,6 +37,13 @@ public class OfferTrackCardNode extends StackPane {
     );
     private static final ResourceImageCache<String> IMAGE_CACHE = new ResourceImageCache<>();
 
+    /**
+     * Creates a node for the specified offer track slot.
+     *
+     * @param index the zero-based position of the slot in the offer track
+     * @param slot the offer track slot to display
+     * @param highlightPredicate predicate used to determine whether the slot totem is highlighted
+     */
     public OfferTrackCardNode(int index, OfferTrackElement slot, Predicate<Color> highlightPredicate) {
         String assetName = ASSETS.get(slot.getOfferActions());
         Image image = assetName == null ? null : IMAGE_CACHE.get(assetName, name -> String.format(IMAGE_PATH, name));

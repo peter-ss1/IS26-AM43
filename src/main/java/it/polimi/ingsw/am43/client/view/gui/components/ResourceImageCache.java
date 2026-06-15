@@ -7,6 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Package-local cache for JavaFX images loaded from classpath resources.
+ *
+ * @param <K> the key type used to identify cached images
+ */
 final class ResourceImageCache<K> {
     private final Map<K, Image> images;
 
