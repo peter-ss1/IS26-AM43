@@ -32,6 +32,7 @@ public class PlayerTribeNode extends VBox {
     private void render(ClientPlayer player, boolean ownTribe) {
         Label title = new Label(this.createTitle(player, ownTribe));
         title.getStyleClass().add("tribe-title");
+        this.setAlignment(Pos.TOP_CENTER);
         this.getChildren().add(title);
 
         Map<String, List<Integer>> groupedCards = this.groupTribeCards(player.getTribe());
@@ -43,7 +44,7 @@ public class PlayerTribeNode extends VBox {
         }
 
         HBox columns = new HBox(12.0);
-        columns.setAlignment(Pos.TOP_LEFT);
+        columns.setAlignment(Pos.TOP_CENTER);
         columns.getStyleClass().add("tribe-columns");
 
         groupedCards.forEach((groupName, cardIds) -> {
@@ -67,9 +68,9 @@ public class PlayerTribeNode extends VBox {
 
     private String createTitle(ClientPlayer player, boolean ownTribe) {
         if (ownTribe) {
-            return "Your tribe";
+            return "your tribe";
         }
-        return player.getNickname() + "'s tribe";
+        return player.getNickname().toLowerCase() + "'s tribe";
     }
 
     private Map<String, List<Integer>> groupTribeCards(List<Integer> cardIds) {

@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 public class RankElement implements Serializable {
+    @JsonProperty("rank")
+    private final int rank;
     @JsonProperty("nickname")
     private final String nickname;
     @JsonProperty("points")
@@ -13,12 +15,14 @@ public class RankElement implements Serializable {
     @JsonProperty("timestamp")
     private final Timestamp timestamp;
 
-    public RankElement(@JsonProperty("nickname") String nickname,@JsonProperty("points") int points,@JsonProperty("timestamp") Timestamp timestamp) {
+    public RankElement(@JsonProperty("rank") int rank, @JsonProperty("nickname") String nickname,@JsonProperty("points") int points,@JsonProperty("timestamp") Timestamp timestamp) {
+        this.rank = rank;
         this.nickname = nickname;
         this.points = points;
         this.timestamp = timestamp;
     }
 
+    public int getRank() {return rank;}
     public String getNickname() {
         return nickname;
     }

@@ -14,9 +14,9 @@ public class OrderQueue implements Serializable {
     private final List<Integer> foodModifiers;
 
 
-    public OrderQueue(List<Player> players, List<Integer> foodModifiers) throws IllegalArgumentException {
+    public OrderQueue(List<Player> players, List<Integer> foodModifiers, long seed) throws IllegalArgumentException {
         if (players.size() != foodModifiers.size()) throw new IllegalArgumentException("wrong sizes");
-        Collections.shuffle(players);
+        Collections.shuffle(players, new Random(seed));
         this.playerOrder = new ArrayDeque<>();
         this.foodModifiers = new ArrayList<>(foodModifiers);
         int i = 1;

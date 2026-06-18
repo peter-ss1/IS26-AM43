@@ -799,9 +799,9 @@ public class TUI implements UI, Runnable {
 
             for (int i = 1; i <= leaderboard.size(); i++) {
                 RankElement element = leaderboard.get(i - 1);
-                String turnMarker = (i == myRank) ? "»" : "#";
-                String rankString = String.format("%s%3d", turnMarker, i);
-                String color = (i == myRank) ? BOLD + MESOS : RESET;
+                //String turnMarker = (i == myRank) ? "»" : "#";
+                String rankString = String.format("%s%3d", "#", element.getRank());
+                String color = RESET;//(i == myRank) ? BOLD + MESOS : RESET;
                 System.out.printf(" ║ %s ║%s║%s║ %-22s ║\n",
                         color + rankString + RESET,
                         this.visualizer.centerLine(element.getNickname(), color, 20),
@@ -1014,7 +1014,6 @@ public class TUI implements UI, Runnable {
         System.out.println(sb);
     }
 
-    //TODO remove parameters
     private void printCentralTrack(List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
         List<List<String>> centralCards = new ArrayList<>();
         centralCards.add(this.visualizer.getEraASCII(this.localModel.getCurrentEra()));

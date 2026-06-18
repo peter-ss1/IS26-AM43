@@ -109,7 +109,7 @@ public class InGameScene extends CustomScene {
                     setText(null);
                     setGraphic(null);
                 } else {
-                    setGraphic(createLeaderboardRow(entry, getIndex()+1));
+                    setGraphic(createLeaderboardRow(entry));
                 }
             }
         });
@@ -135,9 +135,8 @@ public class InGameScene extends CustomScene {
             return;
         }
         ClientModel model = this.gui.getLocalModel();
-        this.eraLabel.setText("Era " + model.getCurrentEra());
-        this.phaseLabel.setText(model.getPhase() == null ? "Phase: -" : "Phase: " + model.getPhase());
-        this.currentPlayerLabel.setText("Current player: " + this.emptyFallback(model.getCurrentPlayerNickname()));
+        this.eraLabel.setText("ERA " + model.getCurrentEra());
+        this.phaseLabel.setText(getPhaseText(model));
 
         this.updateActionContext(model);
         this.confirmPendingPick(model);
@@ -150,6 +149,19 @@ public class InGameScene extends CustomScene {
         this.updateEndTurnButton(model);
         this.renderScoreboard(model.getAllPlayers(), model.getCurrentPlayerNickname());
         this.renderPlayerTribe(model);
+    }
+
+    private String getPhaseText(ClientModel model) {
+        String text;
+        if (model.isOwnTurn()) {
+            switch (model.getPhase()) {
+                case ACTION_RESOLUTION -> text = "Pick a card!";
+                case OFFER_TRACK_SELECTION ->  text = "Choose an offer track card!";
+                case DRAW_FROM_TOP_BONUS_ACTION ->  text = "Pick an additional card from the top row!";
+                default -> text = "";
+            }
+        } else text = "Current player is " + this.emptyFallback(model.getCurrentPlayerNickname()) + ", wait for your turn.";
+        return text;
     }
 
     /**
@@ -611,8 +623,8 @@ public class InGameScene extends CustomScene {
         return value == null || value.isBlank() ? "-" : value;
     }
 
-    private HBox createLeaderboardRow(RankElement entry, int rank) {
-        Label position = new Label("#" + rank);
+    private HBox createLeaderboardRow(RankElement entry) {
+        Label position = new Label("#" + entry.getRank());
         Label nickname = new Label(entry.getNickname());
         Label score = new Label(entry.getPoints() + " points");
         Label date = new Label(entry.getTimestamp() == null ? "-" : entry.getTimestamp().toString());

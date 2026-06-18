@@ -32,7 +32,7 @@ class BoardTest {
         cards.add(new Gatherer(1, 1));
         cards.add(new Artist(2, 1));
         cards.add(new Artist(3, 1));
-        Board board = new Board(new ArrayList<>(), -4,  new ArrayList<>(), cards, deckInit, new ArrayList<>());
+        Board board = new Board(new ArrayList<>(), -4,  new ArrayList<>(), cards, deckInit, new ArrayList<>(), 0);
         board.replenishTopRow(3);
         assertEquals(2, board.getCurrEra());
     }

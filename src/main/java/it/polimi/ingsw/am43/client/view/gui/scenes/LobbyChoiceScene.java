@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am43.client.view.gui.scenes;
 
 import it.polimi.ingsw.am43.client.LobbyInfo;
-import it.polimi.ingsw.am43.client.view.gui.LobbyElement;
+import it.polimi.ingsw.am43.client.view.gui.components.LobbyElement;
 import it.polimi.ingsw.am43.model.enums.Color;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

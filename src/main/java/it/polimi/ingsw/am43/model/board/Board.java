@@ -27,8 +27,8 @@ public class Board implements Serializable {
     private int currEra;
     private int playersOnBoard;
 
-    public Board(List<Player> players, int numPlayers, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack) throws RuntimeException {
-        this.turnOrder = new OrderQueue(players, foodModifiers);
+    public Board(List<Player> players, int numPlayers, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack, long seed) throws RuntimeException {
+        this.turnOrder = new OrderQueue(players, foodModifiers, seed);
         this.tribeDeck = new TribeDeck(tribeDeck);
         this.buildingDeck = new BuildingDeck(buildingDeck);
         this.topRow = new Row();

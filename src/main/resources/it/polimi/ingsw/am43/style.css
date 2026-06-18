@@ -209,3 +209,62 @@
 .ownLobbyLabel {
     -fx-text-fill: rgba(4, 49, 64);
 }
+
+.scroll-bar {
+    -fx-background-color: rgba(4, 49, 64, 0.4);
+    -fx-background-radius: 8px;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 12px;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 12px;
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(241, 131, 18, 0.6);
+    -fx-background-radius: 8px;
+    -fx-background-insets: 2px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: rgba(241, 131, 18, 0.9);
+    -fx-effect: dropshadow(three-pass-box, rgba(241, 131, 18, 0.4), 6, 0, 0, 0);
+}
+
+.scroll-bar .thumb:pressed {
+    -fx-background-color: #FEF1CD;
+    -fx-effect: dropshadow(three-pass-box, rgba(254, 241, 205, 0.6), 8, 0, 0, 0);
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 2px;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: rgba(241, 131, 18, 0.7);
+    -fx-padding: 3px;
+}
+
+.scroll-bar .increment-button:hover .increment-arrow,
+.scroll-bar .decrement-button:hover .decrement-arrow {
+    -fx-background-color: rgba(241, 131, 18, 1);
+}
+
+.scroll-bar .increment-button:pressed .increment-arrow,
+.scroll-bar .decrement-button:pressed .decrement-arrow {
+    -fx-background-color: #FEF1CD;
+}
+
+.scroll-bar .track-background {
+    -fx-background-color: transparent;
+}

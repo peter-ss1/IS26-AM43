@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OrderQueueTest {
     private OrderQueue orderQueue;
-    private GameObserver observer = new MockObserver();
+    private final GameObserver observer = new MockObserver();
 
     @BeforeEach
     void setUp() {
@@ -24,7 +24,7 @@ class OrderQueueTest {
         ArrayList<Integer> modifiers = new ArrayList<>();
         modifiers.add(1);
         modifiers.add(-1);
-        orderQueue = new OrderQueue(players, modifiers);
+        orderQueue = new OrderQueue(players, modifiers, 0);
     }
 
     @Test

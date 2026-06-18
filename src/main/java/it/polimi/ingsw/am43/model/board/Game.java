@@ -14,6 +14,7 @@ import it.polimi.ingsw.am43.network.message.Update;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Game implements ModelInterface, Serializable {
     private final List<Color> availableColors;
@@ -24,7 +25,7 @@ public class Game implements ModelInterface, Serializable {
     private Board board;
     private final Map<Integer, Card> idToCard;
     private transient GameObserver observer;
-
+    private long seed;
 
     public Game(int np, String nk, Color color) {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
@@ -32,6 +33,17 @@ public class Game implements ModelInterface, Serializable {
         this.phase = GamePhase.PREPARATION;
         this.players = new ArrayList<>();
         this.idToCard = new HashMap<>();
+        this.seed = ThreadLocalRandom.current().nextLong();
+        this.addPlayer(nk, color);
+    }
+
+    public Game(int np, String nk, Color color, Long seed) {
+        this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
+        this.numPlayers = np;
+        this.phase = GamePhase.PREPARATION;
+        this.players = new ArrayList<>();
+        this.idToCard = new HashMap<>();
+        this.seed = seed;
         this.addPlayer(nk, color);
     }
 
@@ -86,8 +98,12 @@ public class Game implements ModelInterface, Serializable {
         return new ArrayList<>(this.availableColors);
     }
 
+    public long getSeed() {
+        return this.seed;
+    }
+
     public void initBoard(List<Player> players, int numPlayers, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack) throws RuntimeException {
-        this.board = new Board(players, numPlayers, foodModifiers, tribeDeck, buildingDeck, offerTrack);
+        this.board = new Board(players, numPlayers, foodModifiers, tribeDeck, buildingDeck, offerTrack, this.seed);
         this.currPlayer = this.board.getNextPlayerInOrderQueue();
     }
 
@@ -111,7 +127,6 @@ public class Game implements ModelInterface, Serializable {
         return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).toList());
     }
 
-    @Override
     public void startGame() {
         this.getPhase().resolvePhase(this, this.board);
         this.board.buildGameStartedUpdate(this.observer, this.players, this.currPlayer.getNickname());

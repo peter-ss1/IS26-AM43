@@ -6,16 +6,13 @@
 }
 
 .game-shell {
-    -fx-padding: 26px 36px 30px 36px;
-    -fx-background-color: rgba(4, 49, 64, 0.30);
+    -fx-padding: 30px;
+
 }
 
 .top-bar {
-    -fx-background-color: rgba(4, 49, 64, 0.82);
-    -fx-background-radius: 10 10 0 0;
-    -fx-border-color: rgba(241, 131, 18, 0.35);
-    -fx-border-radius: 10 10 0 0;
-    -fx-border-width: 1 1 0 1;
+    -fx-background-color: rgba(4, 49, 64, 0.7);
+    -fx-background-radius: 10 10 10 10;
 }
 
 .app-title {
@@ -64,11 +61,8 @@
 }
 
 .board-background {
-    -fx-background-color: rgba(4, 49, 64, 0.72);
-    -fx-border-color: rgba(241, 131, 18, 0.35);
-    -fx-border-width: 0 1 1 1;
-    -fx-background-radius: 0 0 10 10;
-    -fx-border-radius: 0 0 10 10;
+    -fx-background-color: rgba(4, 49, 64, 0.7);
+    -fx-background-radius: 10;
 }
 
 .section-title {
@@ -79,27 +73,26 @@
 }
 
 .side-panel {
-    -fx-background-color: rgba(4, 49, 64, 0.78);
+    -fx-background-color: rgba(4, 49, 64, 0.7);
     -fx-background-radius: 10;
-    -fx-border-color: rgba(241, 131, 18, 0.35);
-    -fx-border-radius: 10;
-    -fx-border-width: 1;
 }
 
 .side-title {
     -fx-font-family: "VagabundoMedium";
-    -fx-font-size: 30px;
+    -fx-font-size: 34px;
     -fx-text-fill: #FEF1CD;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.85), 8, 0, 0, 0);
 }
 
 .scoreboard-row {
     -fx-padding: 8px;
-    -fx-background-radius: 6px;
+    -fx-background-color: rgba(241, 131, 18, 0.4);
+    -fx-background-radius: 10px;
 }
 
 .scoreboard-row:hover {
-    -fx-background-color: rgba(241, 131, 18, 0.18);
+    -fx-background-color: rgba(241, 131, 18, 0.9);
+    -fx-effect: dropshadow(three-pass-box,rgba(241, 131, 18, 0.8), 15, 0, 0, 0);
 }
 
 .scoreboard-name {
@@ -126,20 +119,17 @@
 }
 
 .current-player-row {
-    -fx-background-color: rgba(241, 131, 18, 0.22);
+    -fx-background-color: rgba(241, 131, 18, 0.9);
+    -fx-effect: dropshadow(three-pass-box,rgba(241, 131, 18, 0.8), 15, 0, 0, 0);
 }
 
 .viewed-player-row {
     -fx-border-color: rgba(241, 131, 18);
-    -fx-border-radius: 6px;
-    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
 }
 
 .disconnected-player-row {
-    -fx-opacity: 0.58;
-    -fx-border-color: #FEF1CD;
-    -fx-border-radius: 6px;
-    -fx-border-style: dashed;
+    -fx-opacity: 0.5;
 }
 
 .card-placeholder {
@@ -226,21 +216,17 @@
 
 .tribe-view {
     -fx-padding: 12px;
-    -fx-background-color: rgba(4, 49, 64, 0.70);
-    -fx-background-radius: 8px;
-    -fx-border-color: rgba(241, 131, 18, 0.35);
-    -fx-border-radius: 8px;
 }
 
 .tribe-title {
     -fx-font-family: "VagabundoMedium";
-    -fx-font-size: 30px;
+    -fx-font-size: 34px;
     -fx-text-fill: #FEF1CD;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.85), 8, 0, 0, 0);
 }
 
 .tribe-columns {
-    -fx-alignment: top-left;
+    -fx-alignment: top-center;
 }
 
 .tribe-column {

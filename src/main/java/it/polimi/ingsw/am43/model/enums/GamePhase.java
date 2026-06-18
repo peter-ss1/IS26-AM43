@@ -16,7 +16,7 @@ public enum GamePhase {
     PREPARATION {
         @Override
         public void resolvePhase(Game game, Board board) {
-            GameLoader loader = new GameLoader("/it/polimi/ingsw/am43/config.json");
+            GameLoader loader = new GameLoader(game.getSeed());
             try {
                 game.initBoard(
                         game.getAllPlayers(),

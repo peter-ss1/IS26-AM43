@@ -5,6 +5,7 @@ import it.polimi.ingsw.am43.client.PointsPair;
 import it.polimi.ingsw.am43.client.view.UI;
 import it.polimi.ingsw.am43.client.view.ViewState;
 import it.polimi.ingsw.am43.client.view.gui.components.CardMetadataRegistry;
+import it.polimi.ingsw.am43.client.view.gui.components.PopUp;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.database.RankElement;
 import javafx.application.Platform;

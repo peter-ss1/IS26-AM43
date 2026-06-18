@@ -1,18 +1,7 @@
 package it.polimi.ingsw.am43.client.view.gui.scenes;
 
-import it.polimi.ingsw.am43.client.view.ViewState;
-import it.polimi.ingsw.am43.client.view.gui.GUI;
-import it.polimi.ingsw.am43.client.view.gui.PopUp;
-import it.polimi.ingsw.am43.controller.ClientController;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
-
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.rmi.NotBoundException;
 
 public class ConnectionScene extends CustomScene {
     @FXML

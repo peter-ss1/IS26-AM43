@@ -2,6 +2,7 @@ package it.polimi.ingsw.am43.client.view.gui;
 
 import it.polimi.ingsw.am43.client.view.ViewState;
 import it.polimi.ingsw.am43.client.view.gui.scenes.CustomScene;
+import it.polimi.ingsw.am43.client.view.gui.scenes.MainScene;
 import it.polimi.ingsw.am43.controller.ClientController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

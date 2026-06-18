@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BuildingDeckTest {
     @Test
     void shouldInitialize() throws IOException {
-        BuildingDeck deck = new BuildingDeck(new GameLoader("/it/polimi/ingsw/am43/config.json").loadBuildingDeck(3));
+        BuildingDeck deck = new BuildingDeck(new GameLoader(0).loadBuildingDeck(3));
         assertEquals(2, deck.revealEra(1).size());
         assertEquals(2, deck.revealEra(2).size());
         assertEquals(4, deck.revealEra(3).size());

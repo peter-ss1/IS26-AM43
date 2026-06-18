@@ -1,21 +1,19 @@
-package it.polimi.ingsw.am43.client.view.gui;
+package it.polimi.ingsw.am43.client.view.gui.scenes;
 
-import it.polimi.ingsw.am43.client.view.gui.scenes.CustomScene;
 import javafx.animation.*;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.effect.Glow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import javax.swing.text.html.ImageView;
 
 public class MainScene extends CustomScene {
     @FXML
@@ -34,6 +32,11 @@ public class MainScene extends CustomScene {
     private Button no;
     @FXML
     private HBox loadingScreen;
+    @FXML
+    private ImageView ruleImg;
+
+    private int carouselIndex;
+
     @FXML
     private void initialize() {
         this.root.getStylesheets().add(getClass().getResource("/it/polimi/ingsw/am43/style.css").toExternalForm());
@@ -54,11 +57,21 @@ public class MainScene extends CustomScene {
 
     @FXML
     public void onCloseClicked() {
+        this.root.getChildren().getFirst().setEffect(null);
         this.menu.setVisible(false);
     }
 
     public void showMenu() {
         this.menu.setVisible(true);
+        this.root.getChildren().getFirst().setEffect(new GaussianBlur(15));
+        this.showImage(1);
+    }
+
+    private void showImage(int index) {
+        if (index == 0 || index == 9) index = 1;
+        this.carouselIndex = index;
+        Image image = new Image(getClass().getResourceAsStream(String.format("/it/polimi/ingsw/am43/images/rules/rule%d.jpg", this.carouselIndex)));
+        this.ruleImg.setImage(image);
     }
 
     public void showDisconnectionMenu() {
@@ -81,6 +94,15 @@ public class MainScene extends CustomScene {
         this.yes.setDisable(true);
         this.no.setDisable(true);
         this.gui.submitTask(() -> this.controller.answerRejoin(false));
+    }
+
+    @FXML
+    public void onPreviousClicked() {
+        this.showImage(carouselIndex - 1);
+    }
+    @FXML
+    public void onNextClicked() {
+        this.showImage(carouselIndex + 1);
     }
 
     public void showLoading() {

@@ -19,6 +19,7 @@ import it.polimi.ingsw.am43.network.message.Update;
 import it.polimi.ingsw.am43.utils.Executor;
 import it.polimi.ingsw.am43.utils.ServerScheduler;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -279,9 +280,9 @@ public class GameController implements GameObserver, GameCommandReceiver {
         int numPlayers = this.model.getNumPlayers();
         for (Player p : this.model.getAllPlayers().stream()
                 .filter(p -> p.getStatus() != PlayerStatus.INACTIVE).toList()) {
-            dao.saveresult(p.getNickname(), p.getPrestigePoints(), numPlayers);
+            dao.saveResult(p.getNickname(), p.getPrestigePoints(), numPlayers);
         }
-        System.out.println("Classification successfully saved to database");
+        System.out.println("Lobby #" + this.lobbyId + "rankings successfully saved to database.");
         List<RankElement> fullLeaderboard = dao.getFullLeaderboard(numPlayers);
         Map<String, Integer> playerRanks = new HashMap<>();
         for (Player p : this.model.getAllPlayers().stream()

@@ -28,7 +28,7 @@ class GameTest {
     private Player player2;
     @BeforeAll
     void gameInitTest() {
-        game = new Game(2, "pippo", Color.BLACK);
+        game = new Game(2, "pippo", Color.BLACK, 19853L);
         game.setObserver(new MockObserver());
         assertEquals(GamePhase.PREPARATION, game.getPhase());
         assertThrows(IllegalPlayerInitializationException.class, () -> game.addPlayer("pippo", Color.WHITE));

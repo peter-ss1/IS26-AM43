@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am43.client.view.gui;
+package it.polimi.ingsw.am43.client.view.gui.components;
 
 import javafx.animation.FadeTransition;
 import javafx.scene.Scene;

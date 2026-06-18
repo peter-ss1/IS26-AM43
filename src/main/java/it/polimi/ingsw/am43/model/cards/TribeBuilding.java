@@ -27,11 +27,7 @@ public class TribeBuilding extends Building {
 
     public void tribeBuildingEffect(GameObserver observer, Player player) {
         int newBonus = this.bonus.calculateBonus(player);
-        bonus.giveBonus(observer, player, newBonus - this.lastGivenBonus); //TODO check if != 0
+        if (newBonus != this.lastGivenBonus) bonus.giveBonus(observer, player, newBonus - this.lastGivenBonus);
         this.lastGivenBonus = newBonus;
-    }
-    @Override
-    public String toString() {
-        return "Edificio Tribù (Costo: " + getCost() + " cibo, PV: " + getPrestigePoints() + ") - Fornisce bonus in base ai personaggi nella tua tribù.";
     }
 }

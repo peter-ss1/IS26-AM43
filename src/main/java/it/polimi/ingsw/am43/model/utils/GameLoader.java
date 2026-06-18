@@ -15,19 +15,20 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class GameLoader {
-//TODO path as constant
-    private final ObjectMapper mapper;
-    private final String pathConfig;
-    private final Map<Integer,Card> idToCard;
+    private static final String pathConfig = "/it/polimi/ingsw/am43/config.json";
 
-    public  GameLoader(String pathConfig){
+    private final ObjectMapper mapper;
+    private final Map<Integer,Card> idToCard;
+    private final long seed;
+
+    public  GameLoader(long seed){
         this.mapper=new ObjectMapper();
-        this.pathConfig= pathConfig;
-        this.idToCard=new HashMap<>();;
+        this.idToCard=new HashMap<>();
+        this.seed = seed;
     }
 
     public ArrayList<Integer> loadFoodModifiers(int numPlayers) throws IOException, IndexOutOfBoundsException{
-         InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
+         InputStream inputStream = getClass().getResourceAsStream(pathConfig);
          if (inputStream == null) throw new IOException("path json error");
          JsonNode orderQueueNode= mapper.readTree(inputStream).path("board").path("orderQueue");
 
@@ -39,7 +40,7 @@ public class GameLoader {
     }
 
     public ArrayList<Card> loadTribeDeck(int numPlayer)throws IOException, IllegalArgumentException{
-        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
+        InputStream inputStream = getClass().getResourceAsStream(pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode tribeDeckNode = mapper.readTree(inputStream).path("board").path("tribeDeck");
         if (tribeDeckNode == null) throw new IOException("node json error");
@@ -48,8 +49,7 @@ public class GameLoader {
                 tribeDeckNode,
                 new TypeReference<ArrayList<TribeDeckCardDTO>>() {}
         );
-        long seed = loadSeed();
-        Collections.shuffle(tribeDeckDTO, new Random(seed));
+        Collections.shuffle(tribeDeckDTO, new Random(this.seed));
         tribeDeckDTO.sort(Comparator.comparingInt((TribeDeckCardDTO dto)->dto.era).thenComparing((TribeDeckCardDTO dto)->dto.isFinal));
         ArrayList<Card> tribeDeck= new ArrayList<Card>();
         for(TribeDeckCardDTO tdo : tribeDeckDTO){
@@ -62,7 +62,7 @@ public class GameLoader {
     }
 
     public Map<Integer, List<Building>> loadBuildingDeck(int numPlayer)throws IOException, IllegalArgumentException{
-        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
+        InputStream inputStream = getClass().getResourceAsStream(pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode buildingDeckNode = mapper.readTree(inputStream).path("board").path("buildingDeck");
         if (buildingDeckNode == null) throw new IOException("node json error");
@@ -71,12 +71,11 @@ public class GameLoader {
                 buildingDeckNode,
                 new TypeReference<Map<Integer, List<BuildingDeckCardDTO>>>() {}
         );
-        long seed= this.loadSeed();
         ArrayList<Integer> numBuildings= this.loadNumBuildings(numPlayer);
         Map<Integer,List<Building>> buildingDeck = new HashMap<Integer, List<Building>>();
         for (Integer i: buildingDeckTDO.keySet()){
             buildingDeck.put(i,new ArrayList<Building>());
-            Collections.shuffle(buildingDeckTDO.get(i),new Random(seed));
+            Collections.shuffle(buildingDeckTDO.get(i),new Random(this.seed));
             buildingDeckTDO.get(i).subList(numBuildings.get(i-1),buildingDeckTDO.get(i).size()).clear();
             for (BuildingDeckCardDTO tdo : buildingDeckTDO.get(i)){
                 Building newBuilding= tdo.createBuilding();
@@ -92,7 +91,7 @@ public class GameLoader {
     }
 
     public ArrayList<OfferTrackCard> loadOfferTrackCard(int numPlayers) throws IOException, IllegalArgumentException{
-        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
+        InputStream inputStream = getClass().getResourceAsStream(pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode offerTrackNode = mapper.readTree(inputStream).path("board").path("offerTrack");
         if (offerTrackNode == null) throw new IOException("node json error");
@@ -117,15 +116,8 @@ public class GameLoader {
         return offerTrack;
     }
 
-    private Long loadSeed()throws IOException{
-        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
-        if (inputStream == null) throw new IOException("path json error");
-        JsonNode seedNode = mapper.readTree(inputStream).path("board").path("seed");
-        return  seedNode.asLong(1234);
-    }
-
     private ArrayList<Integer> loadNumBuildings(int numPlayers) throws IOException, IndexOutOfBoundsException{
-        InputStream inputStream = getClass().getResourceAsStream(this.pathConfig);
+        InputStream inputStream = getClass().getResourceAsStream(pathConfig);
         if (inputStream == null) throw new IOException("path json error");
         JsonNode numBuildings = mapper.readTree(inputStream).path("board").path("numBuildingsByNumPlayers");
         if (numBuildings == null) throw new IOException("node json error");
