@@ -39,7 +39,7 @@ public class MainScene extends CustomScene {
 
     @FXML
     private void initialize() {
-        this.root.getStylesheets().add(getClass().getResource("/it/polimi/ingsw/am43/style.css").toExternalForm());
+        this.root.getStylesheets().add(getClass().getResource("/it/polimi/ingsw/am43/css/style.css").toExternalForm());
     }
 
     public void switchScene(Node node) {

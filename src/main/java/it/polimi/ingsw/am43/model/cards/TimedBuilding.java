@@ -26,8 +26,4 @@ public class TimedBuilding extends Building {
     public void TimedBuildingEffect(Player player, Game game, Board board) {
         this.effect.manifest(player, game, board);
     }
-    @Override
-    public String toString() {
-        return "Edificio a Tempo (Costo: " + getCost() + " cibo, PV: " + getPrestigePoints() + ") - Fornisce bonus in specifiche fasi del round.";
-    }
 }

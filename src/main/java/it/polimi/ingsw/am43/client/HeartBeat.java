@@ -40,7 +40,6 @@ public class HeartBeat{
                 }
                 now = System.currentTimeMillis();
                 if (now - this.connection.getLastPong() > 5000) {
-                    System.out.println("heartbeat");
                     throw new Exception(Long.toString(now - this.connection.getLastPong()));
                 }
             }

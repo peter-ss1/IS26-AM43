@@ -15,8 +15,4 @@ public class PaintingEventBuilding extends EventBuilding {
     public void reactToEvent(GameObserver observer, Player player, PaintingEvent event) {
         reaction.manifest(observer, player, event);
     }
-    @Override
-    public String toString() {
-        return "Edificio Evento Pittura (Costo: " + getCost() + " cibo, PV: " + getPrestigePoints() + ") - Reagisce quando si risolve un Evento Pittura.";
-    }
 }

@@ -55,7 +55,7 @@ public class SocketClientListener {
                             break;
                     }
                 } catch (JsonProcessingException e) {
-                    System.out.println("Parsing error:" + e.getMessage());
+                    System.err.println("Error while parsing command:" + e.getMessage());
                 }
             }
         }catch (IOException e){

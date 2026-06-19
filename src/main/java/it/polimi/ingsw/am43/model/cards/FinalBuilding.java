@@ -24,9 +24,5 @@ public class FinalBuilding extends Building {
     public void finalBuildingEffect(Player player) {
         this.effect.manifest(player);
     }
-    @Override
-    public String toString() {
-        return "Edificio Finale (Costo: " + getCost() + " cibo, PV: " + getPrestigePoints() + ") - Attiva il suo effetto alla fine della partita.";
-    }
 
 }

@@ -18,6 +18,7 @@ import static it.polimi.ingsw.am43.client.view.tui.TextFormatting.*;
 
 public class CardVisualizer {
     private static final String CARDS_FILE_PATH = "/it/polimi/ingsw/am43/cards.json";
+    private static final int CARD_WIDTH = 15;
     private final Map<Integer, List<String>> idToASCII = new HashMap<>();
     private final Map<Integer, List<Integer>> orderQueueMap;
     private final Map<Integer, String> idToType = new HashMap<>();
@@ -63,7 +64,9 @@ public class CardVisualizer {
         lines.add("│" + centerLine("-" + node.get("cost").asText() + "F", color, 5) + "│         │");
         lines.add("├─────╯         │");
         lines.add("│               │");
-        lines.add("│" + centerLine("BUILDING ", color, lines.getFirst().length() - 2) + "│");
+        lines.add("│               │");
+        lines.add("│" + centerLine("BUILDING ", color, CARD_WIDTH) + "│");
+        lines.add("│               │");
         if (prestige == 0) {
             lines.add("│               │");
             lines.add("├───────────────┤");
@@ -71,7 +74,7 @@ public class CardVisualizer {
             lines.add("│         ╭─────┤");
             lines.add("├─────────╯ " + color + "+" + prestige + "P" + RESET + " │");
         }
-        lines.add("│" + centerLine(node.get("effect").get("classEvent").asText().substring(0, 7), color, lines.getFirst().length() - 2) + "│");
+        lines.add("│" + centerLine(node.get("effect").get("symbol").asText(), color, CARD_WIDTH) + "│");
         lines.add("╰───────────────╯");
         return lines;
     }
@@ -91,29 +94,31 @@ public class CardVisualizer {
 
         lines.add("╭───────────────╮");
         lines.add("│               │");
-        lines.add("│" + centerLine(type, color, lines.getFirst().length() - 2) + "│");
+        lines.add("│               │");
+        lines.add("│" + centerLine(type, color, CARD_WIDTH) + "│");
         lines.add("│     " + color + "EVENT" + RESET + "     │");
+        lines.add("│               │");
         lines.add("│               │");
         lines.add("├───────────────┤");
         switch (type) {
             case "HUNT": {
-                lines.add("│  Earn 1F & " + era + "P │");
+                lines.add("│ Earn 1F & " + era + "PP │");
                 lines.add("│    x Hunter   │");
                 break;
             }
             case "RITUAL": {
-                lines.add(String.format("│  Max * : +%2dP │", era * 5));
-                lines.add("│  Min * : " + node.get("malus").asInt() + "P  │");
+                lines.add(String.format("│ Max * : +%2dPP │", era * 5));
+                lines.add("│ Min * : " + node.get("malus").asInt() + "PP  │");
                 break;
             }
             case "SUSTENANCE": {
                 lines.add("│ Lose 1F xChar │");
-                lines.add("│ F=0 : lose " + era + "P │");
+                lines.add("│ F=0: lose " + era + "PP │");
                 break;
             }
             case "PAINTING": {
-                lines.add("│  <" + era + " A : -2P   │");
-                lines.add("│  " + era + "+ A : +" + era + "PxA │");
+                lines.add("│  <" + era + " A:  -2PP  │");
+                lines.add("│  " + era + "+ A: +" + era + "PPxA │");
                 break;
             }
             default: {
@@ -177,7 +182,9 @@ public class CardVisualizer {
             lines.add("│         ╰─────┤");
             lines.add("│               │");
         }
-        lines.add("│" + centerLine(type, color, lines.getFirst().length() - 2) + "│");
+        lines.add("│               │");
+        lines.add("│" + centerLine(type, color, CARD_WIDTH) + "│");
+        lines.add("│               │");
         lines.add("│               │");
         if (type.equals("GATHERER")) {
             lines.add("├────────╮      │");
@@ -215,6 +222,8 @@ public class CardVisualizer {
         lines.add("│               │");
         lines.add("│               │");
         lines.add("│               │");
+        lines.add("│               │");
+        lines.add("│               │");
         lines.add("├────╮          │");
         lines.add("│    │          │");
         lines.add("╰────┴──────────╯");
@@ -237,11 +246,13 @@ public class CardVisualizer {
 
         lines.add("╭───────────────╮");
         lines.add("│               │");
-        lines.add("│" + centerLine("═╦═".repeat(currentEra), color, lines.getFirst().length() - 2) + "│");
-        lines.add("│" + centerLine(" ║ ".repeat(currentEra), color, lines.getFirst().length() - 2) + "│");
-        lines.add("│" + centerLine(" ║ ".repeat(currentEra), color, lines.getFirst().length() - 2) + "│");
-        lines.add("│" + centerLine(" ║ ".repeat(currentEra), color, lines.getFirst().length() - 2) + "│");
-        lines.add("│" + centerLine("═╩═".repeat(currentEra), color, lines.getFirst().length() - 2) + "│");
+        lines.add("│               │");
+        lines.add("│" + centerLine("═╦═".repeat(currentEra), color, CARD_WIDTH) + "│");
+        lines.add("│" + centerLine(" ║ ".repeat(currentEra), color, CARD_WIDTH) + "│");
+        lines.add("│" + centerLine(" ║ ".repeat(currentEra), color, CARD_WIDTH) + "│");
+        lines.add("│" + centerLine(" ║ ".repeat(currentEra), color, CARD_WIDTH) + "│");
+        lines.add("│" + centerLine("═╩═".repeat(currentEra), color, CARD_WIDTH) + "│");
+        lines.add("│               │");
         lines.add("│               │");
         lines.add("╰───────────────╯");
 
@@ -253,6 +264,7 @@ public class CardVisualizer {
         List<Integer> bonus = orderQueueMap.get(numPlayers);
 
         lines.add("╭───────────────╮");
+        lines.add("│               │");
         lines.add("│               │");
         int i = 0;
         if (!top) {
@@ -284,6 +296,7 @@ public class CardVisualizer {
             i++;
         }
         lines.add("│               │");
+        lines.add("│               │");
         lines.add("╰───────────────╯");
         return lines;
     }
@@ -294,22 +307,24 @@ public class CardVisualizer {
         lines.add("╭───────────────╮");
         lines.add("│               │");
         lines.add("│               │");
+        lines.add("│               │");
         lines.add(String.format("│     [%3s]     │", card.getColor() == null ? "   " : getASCIIBGColor(card.getColor()) + "   " + RESET));
         lines.add("│               │");
         lines.add("│               │");
+        lines.add("│               │");
         lines.add("├───────────────┤");
-        lines.add("│" + centerLine(getOfferActionsASCII(card), RESET, lines.getFirst().length() - 2) + "│");
+        lines.add("│" + centerLine(getOfferActionsASCII(card), RESET, CARD_WIDTH) + "│");
         lines.add("╰───────────────╯");
         return lines;
     }
 
     private String getOfferActionsASCII(OfferTrackElement card) {
-        StringBuilder actions = new StringBuilder();
+        StringJoiner actions = new StringJoiner(" ");
         for (OfferAction o : card.getOfferActions()) {
             switch (o) {
-                case TOP -> actions.append(" ⇑ ");
-                case BOTTOM -> actions.append(" ⇓ ");
-                case FOOD -> actions.append("+3F");
+                case TOP -> actions.add(ARROW_UP + " ⇑ " + RESET);
+                case BOTTOM -> actions.add(ARROW_DOWN + " ⇓ " + RESET);
+                case FOOD -> actions.add("+3F");
             }
         }
         return actions.toString();

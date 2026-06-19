@@ -620,7 +620,7 @@
         "classBuilding": "TRIBE",
         "effect": {
           "classEvent": "foodOnSet",
-          "symbol": "SET→+5F",
+          "symbol": "SET → +5F",
           "description": "Whenever you complete a set of 6 Character cards of all different types, gain 5 Food. Sets already completed at the moment you acquire this building do not count."
         }
       },
@@ -633,7 +633,7 @@
         "effect": {
           "classEvent": "sustenanceDiscount",
           "character": "GATHERER",
-          "symbol": "SUST:-1FxGTH",
+          "symbol": "SUST: -1FxGTH",
           "description": "During the Sustenance event, reduce the total Food you must pay by 1 for each Gatherer card in your tribe."
         }
       },
@@ -646,7 +646,7 @@
         "effect": {
           "classEvent": "sustenanceDiscount",
           "character": "ARTIST",
-          "symbol": "SUST:-1FxART",
+          "symbol": "SUST: -1FxART",
           "description": "During the Sustenance event, reduce the total Food you must pay by 1 for each Artist card in your tribe."
         }
       },
@@ -670,7 +670,7 @@
         "classBuilding": "TIMED",
         "effect": {
           "classEvent": "bonusTurnFood",
-          "symbol": "TURN:+1F bonus",
+          "symbol": "TURN: +1F bonus",
           "description": "At the end of your turn, when you place your Totem on a space of the Order of Turn tile that already has a Food bonus, gain 1 additional Food. If you place in the last space, you pay Food normally and this building has no effect."
         }
       },
@@ -682,7 +682,7 @@
         "classBuilding": "TRIBE",
         "effect": {
           "classEvent": "foodOnInventor",
-          "symbol": "INV PAIR→+3F",
+          "symbol": "INV PAIR → +3F",
           "description": "Whenever you acquire a pair of Inventors sharing the same invention icon, gain 3 Food. Pairs already owned at the moment you acquire this building do not count."
         }
       },
@@ -694,7 +694,7 @@
         "classBuilding": "RITUAL_BUILDING",
         "effect": {
           "classEvent": "doubleWinRitual",
-          "symbol": "RIT:WIN→2xPP",
+          "symbol": "RIT: WIN → 2xPP",
           "description": "During the Shamanic Ritual event, if you have more star icons than all other players, gain double the indicated Prestige Points. You also gain Prestige Points in case of a tie."
         }
       },
@@ -706,7 +706,7 @@
         "classBuilding": "TRIBE",
         "effect": {
           "classEvent": "shamanStars",
-          "symbol": "RIT:+3★",
+          "symbol": "RIT: +3*",
           "description": "During the Shamanic Ritual event, your tribe counts as having 3 additional star icons."
         }
       },
@@ -719,7 +719,7 @@
         "effect": {
           "classEvent": "sustenanceDiscount",
           "character": "INVENTOR",
-          "symbol": "SUST:-1FxINV",
+          "symbol": "SUST: -1FxINV",
           "description": "During the Sustenance event, reduce the total Food you must pay by 1 for each Inventor card in your tribe."
         }
       },
@@ -731,7 +731,7 @@
         "classBuilding": "HUNT_BUILDING",
         "effect": {
           "classEvent": "bonusHunt",
-          "symbol": "HNT:+1F+1PPxH",
+          "symbol": "HNT: +1F+1PPxH",
           "description": "During the Hunt event, for each Hunter in your tribe, gain 1 additional Food and 1 additional Prestige Point."
         }
       },
@@ -743,7 +743,7 @@
         "classBuilding": "FINAL",
         "effect": {
           "classEvent": "finalDoubleBuilder",
-          "symbol": "END:BLD PPx2",
+          "symbol": "END: BLD PPx2",
           "description": "At the end of the game, gain double the Prestige Points indicated on each of your Builder cards."
         }
       },
@@ -755,7 +755,7 @@
         "classBuilding": "PAINTING_BUILDING",
         "effect": {
           "classEvent": "bonusPainting",
-          "symbol": "PAINT:+1FxART",
+          "symbol": "PAINT: +1FxART",
           "description": "During the Cave Paintings event, gain 1 Food for each Artist in your tribe."
         }
       },
@@ -767,7 +767,7 @@
         "classBuilding": "FINAL",
         "effect": {
           "classEvent": "finalPointsPerSet",
-          "symbol": "END:+6PPxSET",
+          "symbol": "END: +6PPxSET",
           "description": "At the end of the game, gain 6 Prestige Points for each complete set of 6 Character cards of all different types in your tribe."
         }
       },
@@ -781,7 +781,7 @@
           "classEvent": "finalPointsByType",
           "character": "HUNTER",
           "amount": 3,
-          "symbol": "END:+3PPxHNT",
+          "symbol": "END: +3PPxHNT",
           "description": "At the end of the game, gain 3 Prestige Points for each Hunter card in your tribe."
         }
       },
@@ -795,7 +795,7 @@
           "classEvent": "finalPointsByType",
           "character": "GATHERER",
           "amount": 4,
-          "symbol": "END:+4PPxGTH",
+          "symbol": "END: +4PPxGTH",
           "description": "At the end of the game, gain 4 Prestige Points for each Gatherer card in your tribe."
         }
       },
@@ -809,7 +809,7 @@
           "classEvent": "finalPointsByType",
           "character": "SHAMAN",
           "amount": 4,
-          "symbol": "END:+4PPxSHM",
+          "symbol": "END: +4PPxSHM",
           "description": "At the end of the game, gain 4 Prestige Points for each Shaman card in your tribe."
         }
       },
@@ -823,7 +823,7 @@
           "classEvent": "finalPointsByType",
           "character": "BUILDER",
           "amount": 4,
-          "symbol": "END:+4PPxBLD",
+          "symbol": "END: +4PPxBLD",
           "description": "At the end of the game, gain 4 Prestige Points for each Builder card in your tribe."
         }
       },
@@ -837,7 +837,7 @@
           "classEvent": "finalPointsByType",
           "character": "ARTIST",
           "amount": 4,
-          "symbol": "END:+4PPxART",
+          "symbol": "END: +4PPxART",
           "description": "At the end of the game, gain 4 Prestige Points for each Artist card in your tribe."
         }
       },
@@ -851,7 +851,7 @@
           "classEvent": "finalPointsByType",
           "character": "INVENTOR",
           "amount": 2,
-          "symbol": "END:+2PPxINV",
+          "symbol": "END: +2PPxINV",
           "description": "At the end of the game, gain 2 Prestige Points for each Inventor card in your tribe."
         }
       },
@@ -863,7 +863,7 @@
         "classBuilding": "TIMED",
         "effect": {
           "classEvent": "bonusPickCard",
-          "symbol": "POST:+1 card",
+          "symbol": "POST: +1 card",
           "description": "After all players have resolved their actions (once all Totems are back on the Order of Turn tile) and before the End of Round phase, you may take 1 Character or Building card from the top row, paying its cost."
         }
       },
@@ -875,7 +875,7 @@
         "classBuilding": "FINAL",
         "effect": {
           "classEvent": "finalBonusPoints",
-          "symbol": "END:+25PP",
+          "symbol": "END: +25PP",
           "description": "At the end of the game, gain 25 Prestige Points."
         }
       }
