@@ -27,7 +27,7 @@ public class PopUp {
         root.setOpacity(0);
         Scene scene = new Scene(root);
         scene.setFill(null);
-        scene.getStylesheets().add(PopUp.class.getResource("/it/polimi/ingsw/am43/style.css").toExternalForm());
+        scene.getStylesheets().add(PopUp.class.getResource("/it/polimi/ingsw/am43/css/style.css").toExternalForm());
         popUpStage.setScene(scene);
         popUpStage.setOpacity(0);
         popUpStage.show();

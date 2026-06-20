@@ -48,7 +48,7 @@ public class ResiliencyManager {
                 Files.createDirectories(CLIENTS_DIR);
             }
         } catch (IOException e) {
-            System.err.println("error while creating direcoty clients:  " + e.getMessage());
+            System.err.println("Error while creating recovery directory:  " + e.getMessage());
             return UUID.randomUUID();
         }
         Path uuidFile = CLIENTS_DIR.resolve("client_id_" + client + ".txt");
@@ -57,20 +57,20 @@ public class ResiliencyManager {
             try {
                 String savedId = Files.readString(uuidFile).trim();
                 UUID recoveredUUID = UUID.fromString(savedId);
-                System.out.println("Identity recovered: " + recoveredUUID);
+                System.out.println("The previous client configuration was recovered: " + recoveredUUID);
                 return recoveredUUID;
 
             } catch (IllegalArgumentException | IOException e) {
-                System.err.println("Disc reading error, generating new one");
+                System.out.println("Error while reading recovery configuration, generating a new configuration");
             }
         }
 
         UUID newUUID = UUID.randomUUID();
         try {
             Files.writeString(uuidFile, newUUID.toString());
-            System.out.println("New identity [" + client + "]! generated: " + newUUID);
+            System.out.println("A new client configuration has been generated:" + newUUID);
         } catch (IOException e) {
-            System.err.println("error while writing id on the disc: " + e.getMessage());
+            System.err.println("Error while saving recovery configuration: " + e.getMessage());
         }
 
         return newUUID;

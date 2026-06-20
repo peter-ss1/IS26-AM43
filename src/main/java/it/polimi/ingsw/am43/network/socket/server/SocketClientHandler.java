@@ -20,7 +20,7 @@ public class SocketClientHandler implements VirtualClientSocket {
             String jsonMessage = UtilsJSON.mapper.writeValueAsString(message);
             output.println(jsonMessage);
         } catch (JsonProcessingException e) {
-            System.out.println("Parsing error:" + e.getMessage());
+            System.err.println("Error while parsing message:" + e.getMessage());
         }
     }
 
@@ -29,7 +29,7 @@ public class SocketClientHandler implements VirtualClientSocket {
             String jsonPong = UtilsJSON.mapper.writeValueAsString(new Pong());
             this.output.println(jsonPong);
         } catch (JsonProcessingException e) {
-            System.out.println("Parsing error:" + e.getMessage());
+            System.err.println("Error while parsing pong object:" + e.getMessage());
         }
     }
 

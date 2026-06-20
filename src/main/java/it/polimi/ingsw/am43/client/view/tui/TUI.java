@@ -10,10 +10,14 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static it.polimi.ingsw.am43.client.view.tui.TextFormatting.*;
 
@@ -32,7 +36,7 @@ public class TUI implements UI, Runnable {
         try {
             this.visualizer = new CardVisualizer();
         } catch (IOException e) {
-            System.err.println("Unable to load ASCII file: " + e.getMessage());
+            System.err.println("Error while loading ASCII files: " + e.getMessage());
         }
         this.localModel = new ClientModel(this);
         this.controller = new ClientController(this, this.localModel);
@@ -42,7 +46,6 @@ public class TUI implements UI, Runnable {
         this.printLock = new Object();
         this.signal = true;
         this.gameOver = false;
-
     }
 
     public String getInput() throws DisconnectedException {
@@ -152,7 +155,6 @@ public class TUI implements UI, Runnable {
     }
 
     private void lobbyWaitLoop() throws DisconnectedException {
-        //TODO add quit
         while (true) {
             synchronized (printLock) {
                 System.out.println(MESOS + "Type 'rules' to show game rules" + RESET);
@@ -179,6 +181,7 @@ public class TUI implements UI, Runnable {
         synchronized (this.printLock) {
             while (true) {
                 System.out.println("You were previously registered as " + this.visualizer.getASCIIColor(this.localModel.getOwnPlayer().getColor()) + this.localModel.getOwnPlayer().getNickname() + RESET + ". Would you like to get your player back? [y/n]");
+                System.out.print("> ");
                 String input = this.getInput().trim();
                 if (input.equalsIgnoreCase("y")) {
                     this.controller.answerRejoin(true);
@@ -584,9 +587,9 @@ public class TUI implements UI, Runnable {
             } else {
                 String color = this.visualizer.getASCIIColor(this.localModel.getPlayerByNickname(this.localModel.getCurrentPlayerNickname()).getColor());
                 System.out.println(color +
-                                "                                               ╔═════════════════════╗\n" +
-                                "═══════════════════════════════════════════════╣" + this.visualizer.centerLine(this.localModel.getCurrentPlayerNickname() + "'S TURN", "", 21) + color + "╠═══════════════════════════════════════════════\n" +
-                                "                                               ╚═════════════════════╝\n" + RESET);
+                        "                                               ╔═════════════════════╗\n" +
+                        "═══════════════════════════════════════════════╣" + this.visualizer.centerLine(this.localModel.getCurrentPlayerNickname() + "'S TURN", "", 21) + color + "╠═══════════════════════════════════════════════\n" +
+                        "                                               ╚═════════════════════╝\n" + RESET);
             }
             this.printGamePrompt();
         }
@@ -785,7 +788,8 @@ public class TUI implements UI, Runnable {
                         " ▀  ▀▀▀▀  ▀▀▀   ▀▀▀▀ ▀▀▀▀ ▀▀▀▀  ▀ "
                 );
                 List<String> winners = this.localModel.getWinners();
-                if (winners.size() == 1) System.out.println(MESOS + "The winner is " + winners.getFirst() + "!" + RESET);
+                if (winners.size() == 1)
+                    System.out.println(MESOS + "The winner is " + winners.getFirst() + "!" + RESET);
                 else {
                     StringJoiner joiner = new StringJoiner(", ");
                     winners.forEach(joiner::add);
@@ -920,25 +924,21 @@ public class TUI implements UI, Runnable {
                 lobby.getLobbyId(), lobby.getCurrentPlayers(), lobby.getNumPlayers());
         System.out.println(" ├────────────────────┤");
         List<ClientPlayer> allPlayers = this.localModel.getAllPlayers();
-        if (allPlayers.isEmpty()) {
-            System.out.println(" └────────────────────┘");
-        } else {
-            for (ClientPlayer p : allPlayers) {
-                if (p.getStatus().equals(PlayerStatus.INACTIVE)) {
-                    System.out.println(" │   " + DIM + "reconnecting..." + RESET + "  │");
-                } else {
-                    String displayName = this.visualizer.getASCIIColor(p.getColor()) + p.getNickname() + RESET;
-                    if (p.getNickname().equals(ownName)) {
-                        displayName += MESOS + " (YOU)" + RESET;
-                    }
-                    System.out.println(" │" + this.visualizer.centerLine(displayName, RESET, 20) + "│");
+        for (ClientPlayer p : allPlayers) {
+            if (p.getStatus().equals(PlayerStatus.INACTIVE)) {
+                System.out.println(" │   " + DIM + "reconnecting..." + RESET + "  │");
+            } else {
+                String displayName = this.visualizer.getASCIIColor(p.getColor()) + p.getNickname() + RESET;
+                if (p.getNickname().equals(ownName)) {
+                    displayName += MESOS + " (YOU)" + RESET;
                 }
+                System.out.println(" │" + this.visualizer.centerLine(displayName, RESET, 20) + "│");
             }
-            for (int i = allPlayers.size(); i < lobby.getCurrentPlayers(); i++) {
-                System.out.println(" │     " + DIM + "choosing..." + RESET + "    │");
-            }
-            System.out.println(" └────────────────────┘");
         }
+        for (int i = allPlayers.size(); i < lobby.getCurrentPlayers(); i++) {
+            System.out.println(" │     " + DIM + "choosing..." + RESET + "    │");
+        }
+        System.out.println(" └────────────────────┘");
         if (lobby.getCurrentPlayers() != lobby.getNumPlayers()) {
             System.out.println("Waiting for other players to connect...");
         }

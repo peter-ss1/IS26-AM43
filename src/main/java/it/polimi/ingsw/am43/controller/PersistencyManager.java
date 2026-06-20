@@ -13,7 +13,7 @@ public class PersistencyManager {
         try {
             Files.createDirectories(SAVE_DIRECTORY);
         } catch (IOException e) {
-            System.err.println("Error while loading/creating save directory: " + e.getMessage());
+            System.err.println("Error while loading/creating recovery directory: " + e.getMessage());
         }
     }
 
@@ -27,12 +27,12 @@ public class PersistencyManager {
                 out.writeObject(game);
                 out.flush();
             } catch (Exception e) {
-                System.out.println("recovery model saving error: " + e.getMessage());
+                System.err.println("Error while saving recovery file: " + e.getMessage());
             }
             Files.move(tempPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("recovery model saved in: " + finalPath.toAbsolutePath());
+            System.out.println("Server saved a recovery file to: " + finalPath.toAbsolutePath());
         }catch (Exception e){
-            System.out.println("recovery model moving error: " + e.getMessage());
+            System.out.println("Error while moving recovery file: " + e.getMessage());
         }
 
     }
@@ -40,17 +40,17 @@ public class PersistencyManager {
 
     public static void loadSavedStatus(ServerController serverController){
         if (!Files.exists(SAVE_DIRECTORY)) {
-            System.out.println("No past game to recover");
+            System.out.println("Server did not find previous recovery files");
             return;
         }
 
         try (Stream<Path> fileStream = Files.list(SAVE_DIRECTORY)) {
             if (fileStream.findAny().isEmpty()) {
-                System.out.println("No past game to recover (Directory is empty)");
+                System.out.println("Server did not find previous recovery files");
                 return;
             }
         } catch (IOException e) {
-            System.err.println("Error while checking directory contents: " + e.getMessage());
+            System.err.println("Error while checking recovery directory contents: " + e.getMessage());
             return;
         }
 
@@ -69,7 +69,7 @@ public class PersistencyManager {
                             GameRecovery gameRecovery = (GameRecovery) in.readObject();
 
                             serverController.recoverLobby(gameRecovery);
-                            System.out.println("ID game found and loaded: " + gameId);
+                            System.out.println("Server loaded the recovery file of Lobby #" + gameId);
 
                         } catch (IOException | ClassNotFoundException e) {
                             System.err.println("Error while loading recovery file " + fileName + ": " + e.getMessage());
@@ -85,7 +85,7 @@ public class PersistencyManager {
         Path path = SAVE_DIRECTORY.resolve(id + "_model.dat");
         try {
             Files.deleteIfExists(path);
-            System.out.println("Recovery file deleted: " + path.toAbsolutePath());
+            System.out.println("Server deleted a recovery file from: " + path.toAbsolutePath());
         } catch (IOException e) {
             System.err.println("Error while deleting recovery file: " + e.getMessage());
         }

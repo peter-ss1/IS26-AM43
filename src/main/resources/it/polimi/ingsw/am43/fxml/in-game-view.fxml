@@ -133,7 +133,7 @@
         </AnchorPane>
     </children>
    <stylesheets>
-      <URL value="@../style.css" />
+      <URL value="@../css/style.css" />
       <URL value="@../css/in-game.css" />
    </stylesheets>
 </StackPane>
