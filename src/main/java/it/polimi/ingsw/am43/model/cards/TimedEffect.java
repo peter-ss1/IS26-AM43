@@ -21,12 +21,29 @@ import java.util.List;
 })
 
 
+/**
+ * Strategy describing the round-time effect of a {@link TimedBuilding}. Each
+ * concrete implementation activates a bonus in a specific game phase.
+ */
 @FunctionalInterface
 public interface TimedEffect extends Serializable {
+    /**
+     * Applies this timed effect, inspecting the current game state to decide
+     * whether and how to act.
+     *
+     * @param player the owner of the building
+     * @param game   the current game
+     * @param board  the current board
+     */
     void manifest(Player player, Game game, Board board);
 
+    /**
+     * Grants one extra food during action resolution when the current player
+     * acts while a food bonus is available and the order queue is not full.
+     */
     public static class BonusTurnFood implements TimedEffect {
 
+        /** {@inheritDoc} */
         @Override
         public void manifest(Player player, Game game, Board board) {
             if (game.getPhase() == GamePhase.ACTION_RESOLUTION && player == game.getCurrPlayer() && !board.isOrderQueueFull() && board.hasFoodBonus()) {
@@ -36,8 +53,13 @@ public interface TimedEffect extends Serializable {
         }
     }
 
+    /**
+     * Grants an additional draw action from the top row at the end of a round
+     * when the order queue is full.
+     */
     public static class BonusPickCard implements TimedEffect {
 
+        /** {@inheritDoc} */
         @Override
         public void manifest(Player player, Game game, Board board) {
             if (game.getPhase() == GamePhase.ROUND_ENDING && board.isOrderQueueFull()) {

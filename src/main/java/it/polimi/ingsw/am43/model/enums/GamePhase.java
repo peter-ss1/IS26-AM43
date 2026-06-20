@@ -12,8 +12,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The phases of the game state machine. Each constant overrides
+ * {@link #resolvePhase(Game, Board)} to perform the logic of that phase and to
+ * transition the game to the next one.
+ */
 public enum GamePhase {
+    /** Initial setup: loads the decks and the board, then moves on to the offer track selection. */
     PREPARATION {
+        /** {@inheritDoc} */
         @Override
         public void resolvePhase(Game game, Board board) {
             GameLoader loader = new GameLoader(game.getSeed());
@@ -33,7 +40,9 @@ public enum GamePhase {
             game.setPhase(GamePhase.OFFER_TRACK_SELECTION);
         }
     },
+    /** Picks the next player on the offer track and resolves their offer. */
     OFFER_TRACK_SELECTION {
+        /** {@inheritDoc} */
         @Override
         public void resolvePhase(Game game, Board board) {
             game.setPhase(GamePhase.ACTION_RESOLUTION);
@@ -47,7 +56,9 @@ public enum GamePhase {
                     });
         }
     },
+    /** Resolves the current player's action and activates timed buildings. */
     ACTION_RESOLUTION {
+        /** {@inheritDoc} */
         @Override
         public void resolvePhase(Game game, Board board) {
             game.setPhase(ROUND_ENDING);
@@ -59,7 +70,9 @@ public enum GamePhase {
             }
         }
     },
+    /** Resolves end-of-round events and either starts the final count or sets up a new round. */
     ROUND_ENDING {
+        /** {@inheritDoc} */
         @Override
         public void resolvePhase(Game game, Board board) {
             board.activateEvents(game.getObserver(), OfferAction.BOTTOM, game.getAllPlayers());
@@ -76,7 +89,9 @@ public enum GamePhase {
             game.setCurrPlayer(board.getNextPlayerInOrderQueue());
         }
     },
+    /** Handles the bonus top-row draw granted by a timed building, then ends the round. */
     DRAW_FROM_TOP_BONUS_ACTION {
+        /** {@inheritDoc} */
         @Override
         public void resolvePhase(Game game, Board board) {
             game.setPhase(ROUND_ENDING);
@@ -84,7 +99,9 @@ public enum GamePhase {
         }
     },
 
+    /** Computes final scores, determines the winner(s) and ends the game. */
     FINAL_COUNT {
+        /** {@inheritDoc} */
         @Override
         public void resolvePhase(Game game, Board board) {
             List<Player> players= game.getAllPlayers().stream().filter(p -> p.getStatus() != PlayerStatus.INACTIVE).collect(Collectors.toList());
@@ -99,6 +116,14 @@ public enum GamePhase {
         }
     };
 
+    /**
+     * Executes the logic of this phase and transitions the game to the next one.
+     * The default implementation does nothing; each phase overrides it.
+     *
+     * @param game  the current game
+     * @param board the current board
+     * @throws RuntimeException if the phase logic fails (e.g. during loading)
+     */
     public void resolvePhase(Game game, Board board) throws RuntimeException {
     }
 }

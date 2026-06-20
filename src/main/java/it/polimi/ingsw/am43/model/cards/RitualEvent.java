@@ -10,11 +10,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+/**
+ * Ritual event: the players with the fewest shaman stars suffer a malus, while
+ * those with the most gain extra prestige points.
+ */
 public class RitualEvent extends Event {
     private final int malus;
     private final List<Player> losers;
     private final List<Player> winners;
 
+    /**
+     * @param era   the era the event belongs to
+     * @param id    the unique id of the event
+     * @param malus the prestige point malus applied to the losing players
+     */
     public RitualEvent(int era, int id, int malus) {
         super(era, id,1);
         this.malus = malus;
@@ -22,18 +31,34 @@ public class RitualEvent extends Event {
         this.winners = new ArrayList<>();
     }
 
+    /**
+     * @return the prestige point malus applied to the losing players
+     */
     public int getMalus() {
         return this.malus;
     }
 
+    /**
+     * @param player the player to check
+     * @return {@code true} if the player is among the losers of this ritual
+     */
     public boolean isLoser(Player player) {
         return this.losers.contains(player);
     }
 
+    /**
+     * @param player the player to check
+     * @return {@code true} if the player is among the winners of this ritual
+     */
     public boolean isWinner(Player player) {
         return this.winners.contains(player);
     }
 
+    /**
+     * {@inheritDoc}
+     * Determines winners (most shaman stars) and losers (fewest shaman stars),
+     * applies the malus and the era-based reward, then activates event buildings.
+     */
     @Override
     public void affectPlayers(GameObserver observer, List<Player> players) {
         int minStars = players.getFirst().getShamanStars();
@@ -70,10 +95,12 @@ public class RitualEvent extends Event {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
         building.reactToEvent(observer, player, this);
     }
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return "Evento Rituale (Era " + getEra() + ") - Il giocatore con meno Stelle Sciamano subisce " + malus + " PV. Chi ne ha di più vince PV extra.";

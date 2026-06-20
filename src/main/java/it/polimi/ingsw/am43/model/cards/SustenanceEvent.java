@@ -10,17 +10,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Sustenance event: each player must spend food equal to their tribe size (less
+ * any discount); players who cannot pay lose prestige points instead.
+ */
 public class SustenanceEvent extends Event {
 
+    /**
+     * @param era the era the event belongs to
+     * @param id  the unique id of the event
+     */
     public SustenanceEvent(int era, int id) {
         super(era, id,2);
     }
 
+    /** {@inheritDoc} Adds this event to the given row. */
     @Override
     public void addToRow(Row row) {
         row.addCard(this);
     }
 
+    /**
+     * {@inheritDoc}
+     * Each player pays food equal to their tribe size minus the sustenance
+     * discount; any shortfall is converted into a prestige point loss (scaled by
+     * the era). Event buildings are activated afterwards.
+     */
     @Override
     public void affectPlayers(GameObserver observer, List<Player> players) {
         Map<String, PointsPair> effects = new HashMap<>();
@@ -45,11 +60,13 @@ public class SustenanceEvent extends Event {
         players.forEach(p -> p.getTribe().activateEventBuildings(observer, this, p));
     }
 
+    /** {@inheritDoc} */
     @Override
     public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
         building.reactToEvent(observer, player, this);
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return "Evento Sostentamento (Era " + getEra() + ") - Devi spendere cibo pari alla grandezza della tua tribù (meno gli sconti). Se non puoi, perdi PV.";

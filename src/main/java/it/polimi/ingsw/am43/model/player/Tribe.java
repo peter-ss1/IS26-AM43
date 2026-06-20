@@ -46,6 +46,12 @@ public class Tribe implements Serializable {
         timedBuildings=new ArrayList<>();
     }
 
+    /**
+     * Adds the card to the internal list matching its type.
+     * These methods are overloads — the concrete type determines the destination list.
+     *
+     * @param c the card to add
+     */
     public void addCardToTribe(Hunter c){
         hunters.add(c);
     }
@@ -116,6 +122,11 @@ public class Tribe implements Serializable {
     }
 
 
+    /**
+     * Activates the final effect of all the player's FinalBuilding cards (end-game phase).
+     *
+     * @param player the player who owns the buildings
+     */
     public void activateFinalBuildings(Player player) {
         for (FinalBuilding fb : finalBuildings) {
             fb.finalBuildingEffect(player);
@@ -123,6 +134,13 @@ public class Tribe implements Serializable {
     }
 
 
+    /**
+     * Activates the effect of the EventBuilding cards when an event is received.
+     *
+     * @param observer the controller that receives the notifications
+     * @param event    the event that triggered the activation
+     * @param player   the player who owns the buildings
+     */
     public void activateEventBuildings(GameObserver observer, Event event, Player player) {
         for (EventBuilding eb : eventBuildings) {
             event.triggerBuilding(observer, eb, player);
@@ -130,6 +148,12 @@ public class Tribe implements Serializable {
     }
 
 
+    /**
+     * Activates the effect of the TribeBuilding cards every time a character joins the tribe.
+     *
+     * @param observer the controller that receives the notifications
+     * @param player   the player who owns the buildings
+     */
     public void activateTribeBuildings(GameObserver observer, Player player) {
         for (TribeBuilding tb : tribeBuildings) {
             tb.tribeBuildingEffect(observer, player);
@@ -137,6 +161,13 @@ public class Tribe implements Serializable {
     }
 
 
+    /**
+     * Activates the effect of the TimedBuilding cards at the end of the player's turn.
+     *
+     * @param game   the current game
+     * @param player the player who owns the buildings
+     * @param board  the current board
+     */
     public void activateTimedBuilding(Game game, Player player, Board board) {
         for (TimedBuilding tb : timedBuildings) {
             tb.TimedBuildingEffect(player, game, board);
@@ -146,6 +177,9 @@ public class Tribe implements Serializable {
 
 
 
+    /**
+     * @return the number of complete sets (minimum across the sizes of all six character lists)
+     */
     public int getNumberOfSets() {
         return Math.min(
                 hunters.size(),
@@ -166,6 +200,7 @@ public class Tribe implements Serializable {
     }
 
 
+    /** @return the number of Inventor symbol pairs in the tribe */
     public int getInventorSymbolPairs() {
         Map<InventorSymbol, Integer> counts = getSymbolCounts();
         int pairs = 0;
@@ -176,6 +211,7 @@ public class Tribe implements Serializable {
     }
 
 
+    /** @return the number of distinct Inventor symbols (used for the Inventor scoring) */
     public int getDistinctInventorSymbols() {
         return getSymbolCounts().size();
     }
@@ -200,6 +236,7 @@ public class Tribe implements Serializable {
         return total;
     }
 
+    /** @return the sum of the prestige points of all buildings in the tribe */
     public int getBuildingsTotalPrestigePoints() {
         int total = 0;
         for (FinalBuilding fb : finalBuildings)  total += fb.getPrestigePoints();
@@ -211,7 +248,8 @@ public class Tribe implements Serializable {
 
 
 
-public List<Integer> getIds() {
+    /** @return the list of ids of all cards present in the tribe */
+    public List<Integer> getIds() {
         List<Integer> ids = new ArrayList<>();
         this.hunters.forEach(h -> ids.add(h.getId()));
         this.inventors.forEach(inv -> ids.add(inv.getId()));
