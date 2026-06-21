@@ -15,6 +15,9 @@ import java.io.IOException;
 
 import static it.polimi.ingsw.am43.client.view.gui.GuiSettings.CONNECTION_PATH;
 
+/**
+ * Handles window initialization and transitions between FXML-based scenes.
+ */
 public class GuiNavigator {
     private final Stage stage;
     private final GUI gui;
@@ -22,12 +25,18 @@ public class GuiNavigator {
     private CustomScene currentScene;
     private MainScene mainScene;
 
+    /**
+     * Constructs a navigator tied to the primary application stage and controller.
+     */
     public GuiNavigator(Stage stage, GUI gui, ClientController controller) {
         this.stage = stage;
         this.gui = gui;
         this.controller = controller;
     }
 
+    /**
+     * Configures the primary window properties and initializes the connection scene.
+     */
     public void init() {
         FXMLLoader loader = this.buildLoader("/it/polimi/ingsw/am43/fxml/main-view.fxml");
         Parent root = this.loadRoot(loader);
@@ -50,11 +59,13 @@ public class GuiNavigator {
         this.stage.show();
     }
 
+    /**
+     * Safely loads an FXML root element, wrapping exceptions in explanation messages.
+     */
     private Parent loadRoot(FXMLLoader loader) {
         try {
             return loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
             throw new RuntimeException("Could not load FXML file: " + e.getMessage());
         } catch (NullPointerException e) {
             throw new RuntimeException("FXML file not found. " + e.getMessage());
@@ -65,6 +76,9 @@ public class GuiNavigator {
         return new FXMLLoader(getClass().getResource(resourcePath));
     }
 
+    /**
+     * Loads required scene based on state and updates the window with the swapped scene.
+     */
     public void showScene(ViewState scene) {
         FXMLLoader loader = this.buildLoader(GuiSettings.getPath(scene));
         Parent root = this.loadRoot(loader);
@@ -75,18 +89,30 @@ public class GuiNavigator {
         this.currentScene.setUp();
     }
 
+    /**
+     * Gets the currently active scene controller.
+     */
     public CustomScene getCurrentScene() {
         return this.currentScene;
     }
 
+    /**
+     * Directs the main scene controller to display the game menu overlay panel.
+     */
     public void showMenu() {
         this.mainScene.showMenu();
     }
 
+    /**
+     * Directs the main scene controller to display the recovery choice overlay screen.
+     */
     public void showDisconnectionMenu() {
         this.mainScene.showDisconnectionMenu();
     }
 
+    /**
+     * Directs the main scene controller to display the loading overlay screen.
+     */
     public void showLoading() {
         this.mainScene.showLoading();
     }

@@ -7,14 +7,27 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-
+/**
+ * A temporary notification overlay anchored to a parent JavaFX stage.
+ */
 public class PopUp {
     private final Stage parent;
 
+    /**
+     * Constructs a PopUp instance attached to a parent stage.
+     *
+     * @param parent The owner {@link Stage} used to position the notification.
+     */
     public PopUp(Stage parent) {
         this.parent = parent;
     }
 
+    /**
+     * Displays a text message at the bottom center of the parent stage.
+     * The pop-up automatically fades in, stays visible for 2 seconds, and then fades out and closes.
+     *
+     * @param message The text string to display.
+     */
     public void show(String message) {
         Stage popUpStage = new Stage();
         popUpStage.initOwner(parent);

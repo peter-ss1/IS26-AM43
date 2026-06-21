@@ -9,12 +9,19 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
-
+/**
+ * A custom JavaFX UI component representing a player slot in the game lobby.
+ * Can transition between an empty waiting state and an active player display.
+ */
 public class LobbyPlayerNode extends VBox {
     private Label playerNameLabel;
     private String playerName;
     private boolean empty;
 
+    /**
+     * Constructs an empty lobby slot initialized to a "WAITING..." state
+     * with a default black placeholder totem.
+     */
     public LobbyPlayerNode() {
         this.empty = true;
         this.playerName = "";
@@ -33,6 +40,14 @@ public class LobbyPlayerNode extends VBox {
         this.getChildren().addAll(totemIcon, this.playerNameLabel);
     }
 
+    /**
+     * Populates and activates the slot with the player's details, styling, and entrance animation.
+     *
+     * @param nickname The username of the player.
+     * @param color The color of the player's selected totem.
+     * @param disconnected True if the player is currently disconnected.
+     * @param isOwnPlayer True if this slot belongs to the local client.
+     */
     public void activate(String nickname, Color color, boolean disconnected, boolean isOwnPlayer) {
         this.empty = false;
         this.playerName = nickname;
@@ -52,7 +67,12 @@ public class LobbyPlayerNode extends VBox {
         animateTransition(totemIcon);
     }
 
-    public void animateTransition(Node totem) {
+    /**
+     * Triggers a parallel animation playing a container pulse alongside a totem fade-and-scale-in.
+     *
+     * @param totem The totem image node to animate.
+     */
+    private void animateTransition(Node totem) {
         ScaleTransition pulse = new ScaleTransition(Duration.millis(300), this);
         pulse.setFromX(1.0);
         pulse.setFromY(1.0);
@@ -74,19 +94,37 @@ public class LobbyPlayerNode extends VBox {
         new ParallelTransition(pulse, fadeIn, scaleIn).play();
     }
 
+    /**
+     * Checks if the lobby slot is currently unoccupied.
+     *
+     * @return True if empty, false if assigned to a player.
+     */
     public boolean isEmpty() {
         return  empty;
     }
 
+    /**
+     * Retrieves the current text displayed within the player name label.
+     *
+     * @return The text value of the name label.
+     */
     public String getNickname() {
         return this.playerNameLabel.getText();
     }
 
+    /**
+     * Updates the slot's labels and opacity to reflect a player's connection status.
+     *
+     * @param disconnected True to show reconnection status, false for active state.
+     */
     public void update(boolean disconnected) {
         this.playerNameLabel.setText(disconnected? "RECONNECTING..." : this.playerName);
         this.setOpacity(disconnected ? 0.5 : 1);
     }
 
+    /**
+     * Resets the slot back to its initial unoccupied waiting state with an animation.
+     */
     public void deactivate() {
         this.empty = true;
         this.playerName = "";

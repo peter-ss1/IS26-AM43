@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-
+/**
+ * Represents a single entry in the leaderboard list.
+ * It stores a player's rank, identity handle string, final points,
+ * and a precise match timestamp.
+ */
 public class RankElement implements Serializable {
     @JsonProperty("rank")
     private final int rank;

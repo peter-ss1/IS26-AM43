@@ -6,8 +6,20 @@ import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-
+/**
+ * Custom {@link ListCell} for displaying {@link LobbyInfo} in a JavaFX ListView.
+ */
 public class LobbyElement extends ListCell<LobbyInfo> {
+
+    /**
+     * Updates the cell's visual representation.
+     * Clears the cell if it is empty or the lobby is null. Otherwise, constructs
+     * an {@link HBox} containing the lobby ID and player count.
+     *
+     *
+     * @param lobby The lobby data to display.
+     * @param empty True if the cell represents an empty row.
+     */
     @Override
     protected void updateItem(LobbyInfo lobby, boolean empty) {
         super.updateItem(lobby, empty);

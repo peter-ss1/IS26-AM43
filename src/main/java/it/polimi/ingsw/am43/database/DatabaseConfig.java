@@ -11,7 +11,7 @@ public class DatabaseConfig {
 
     /** @return the database connection URL */
     public String getUrl() { return url; }
-    /** @return the database user name */
+    /** @return the database username */
     public String getUser() { return user; }
     /** @return the database user password */
     public String getPassword() { return password; }
@@ -19,7 +19,7 @@ public class DatabaseConfig {
 
     /** @param url the database connection URL */
     public void setUrl(String url) { this.url = url; }
-    /** @param user the database user name */
+    /** @param user the database username */
     public void setUser(String user) { this.user = user; }
     /** @param password the database user password */
     public void setPassword(String password) { this.password = password; }

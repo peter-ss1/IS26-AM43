@@ -8,6 +8,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents simplified offer track card data.
+ * Tracks the available actions it offers and the color of the player using it, if present.
+ */
 public class OfferTrackElement implements Serializable {
     @JsonProperty("offerActions")
     private final List<OfferAction> offerActions;

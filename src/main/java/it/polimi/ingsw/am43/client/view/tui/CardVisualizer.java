@@ -16,6 +16,9 @@ import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.am43.client.view.tui.TextFormatting.*;
 
+/**
+ * Generates and caches ASCII art representations of game cards for the TUI.
+ */
 public class CardVisualizer {
     private static final String CARDS_FILE_PATH = "/it/polimi/ingsw/am43/cards.json";
     private static final int CARD_WIDTH = 15;
@@ -23,6 +26,11 @@ public class CardVisualizer {
     private final Map<Integer, List<Integer>> orderQueueMap;
     private final Map<Integer, String> idToType = new HashMap<>();
 
+    /**
+     * Parses the external JSON file to populate internal ASCII asset dictionaries.
+     *
+     * @throws IOException if the file reading fails
+     */
     public CardVisualizer() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         InputStream is = CardVisualizer.class.getResourceAsStream(CARDS_FILE_PATH);
@@ -49,6 +57,12 @@ public class CardVisualizer {
         });
     }
 
+    /**
+     * Formats building card data into an ASCII art template.
+     *
+     * @param node The JSON data node defining the building.
+     * @return the multi-line populated template.
+     */
     private List<String> createBuildingASCII(JsonNode node) {
         List<String> lines = new ArrayList<>();
         int prestige = node.get("prestigePoints").asInt();
@@ -79,6 +93,12 @@ public class CardVisualizer {
         return lines;
     }
 
+    /**
+     * Formats event card data into an ASCII art template.
+     *
+     * @param node The JSON data node defining the event.
+     * @return the multi-line populated template.
+     */
     private List<String> createEventASCII(JsonNode node) {
         List<String> lines = new ArrayList<>();
         String type = node.get("type").asText();
@@ -128,6 +148,12 @@ public class CardVisualizer {
         return lines;
     }
 
+    /**
+     * Formats character card data into an ASCII art template.
+     *
+     * @param node The JSON data node defining the character.
+     * @return the multi-line populated template.
+     */
     private List<String> createCharacterASCII(JsonNode node) {
         List<String> lines = new ArrayList<>();
         String type = node.get("type").asText();
@@ -204,6 +230,14 @@ public class CardVisualizer {
         return (char) ('A' + InventorSymbol.valueOf(symbol).ordinal());
     }
 
+    /**
+     * Pads dynamic text blocks evenly, ignoring nested ANSI escape codes when computing alignment offsets.
+     *
+     * @param word  the text string to center
+     * @param color the ANSI color code to wrap around the text
+     * @param width the target bounding box width
+     * @return the centered and colored string line
+     */
     public String centerLine(String word, String color, int width) {
         String visibleText = word.replaceAll("\u001B\\[[;\\d]*m", "");
         int visibleLength = visibleText.length();
@@ -230,10 +264,22 @@ public class CardVisualizer {
         return lines;
     }
 
+    /**
+     * Extracts the ASCII art for the specified card.
+     *
+     * @param id The identifier of the requested card.
+     * @return the multi-line populated template.
+     */
     public List<String> getASCII(int id) {
         return idToASCII.getOrDefault(id, emptyASCII());
     }
 
+    /**
+     * Extracts the ASCII art for the specified era.
+     *
+     * @param currentEra The number of the requested era.
+     * @return the multi-line populated template.
+     */
     public List<String> getEraASCII(int currentEra) {
         List<String> lines = new ArrayList<>();
         String color;
@@ -259,6 +305,16 @@ public class CardVisualizer {
         return lines;
     }
 
+    /**
+     * Extracts the ASCII art for the specified order queue configuration.
+     *
+     * @param numPlayers          The number of slots needed.
+     * @param orderQueue          The active players to display.
+     * @param disconnectedPlayers The disconnected players to display with special appearance.
+     * @param waitingPlayers      The waiting players to display with special ordering.
+     * @param top                 {@code true} if the empty slots need to be added at the bottom, {@code false} otherwise.
+     * @return the multi-line populated template.
+     */
     public List<String> getOrderQueueASCII(int numPlayers, List<Color> orderQueue, List<Color> disconnectedPlayers, List<Color> waitingPlayers, boolean top) {
         List<String> lines = new ArrayList<>();
         List<Integer> bonus = orderQueueMap.get(numPlayers);
@@ -291,7 +347,7 @@ public class CardVisualizer {
             lines.add(String.format("│  %2d  [%s]    │", bonus.get(i), getASCIIBGColor(color) + MESOS + "///" + RESET));
             i++;
         }
-        while (i<5) {
+        while (i < 5) {
             lines.add("│               │");
             i++;
         }
@@ -301,6 +357,12 @@ public class CardVisualizer {
         return lines;
     }
 
+    /**
+     * Extracts the ASCII art for the specified offer track card.
+     *
+     * @param card The requested offer track card.
+     * @return the multi-line populated template.
+     */
     public List<String> getOfferTrackASCII(OfferTrackElement card) {
         List<String> lines = new ArrayList<>();
 
@@ -330,6 +392,12 @@ public class CardVisualizer {
         return actions.toString();
     }
 
+    /**
+     * Maps {@link Color} objects to ANSI foreground color escape codes.
+     *
+     * @param color The color to map.
+     * @return the ANSI escape string.
+     */
     public String getASCIIColor(Color color) {
         String colorCode;
         switch (color) {
@@ -343,6 +411,12 @@ public class CardVisualizer {
         return colorCode;
     }
 
+    /**
+     * Maps {@link Color} objects to ANSI background color escape codes.
+     *
+     * @param color The color to map.
+     * @return the ANSI escape string.
+     */
     public static String getASCIIBGColor(Color color) {
         String bGColorCode;
         switch (color) {
@@ -356,6 +430,12 @@ public class CardVisualizer {
         return bGColorCode;
     }
 
+    /**
+     * Returns a colored, comma-separated list representation of mapped {@link Color} objects.
+     *
+     * @param colors The list of colors to format.
+     * @return the aggregated and colored string.
+     */
     public String getColorArrayString(List<Color> colors) {
         StringJoiner joiner = new StringJoiner(", ");
         for (Color color : colors) {
@@ -365,6 +445,12 @@ public class CardVisualizer {
         return joiner.toString();
     }
 
+    /**
+     * Classifies an unorganized list of pickable card based on their type.
+     *
+     * @param ids the list of card identifiers.
+     * @return a map linking category text labels to sets of card IDs.
+     */
     public Map<String, List<Integer>> divideTribe(List<Integer> ids) {
         return ids.stream().collect(Collectors.groupingBy(this::getCharacterType));
     }

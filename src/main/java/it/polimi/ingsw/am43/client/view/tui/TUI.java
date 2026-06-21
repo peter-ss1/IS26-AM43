@@ -10,17 +10,17 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static it.polimi.ingsw.am43.client.view.tui.TextFormatting.*;
 
+/**
+ * Main Text-based User Interface orchestrator. Implements {@link UI} to offer
+ * a single standard access point for view updates.
+ */
 public class TUI implements UI, Runnable {
     private CardVisualizer visualizer;
     private final ClientController controller;
@@ -32,6 +32,12 @@ public class TUI implements UI, Runnable {
     private boolean signal;
     private boolean gameOver;
 
+    /**
+     * Initializes the TUI architecture, spawning the local model, the client-side controller,
+     * the input reading queue, the concurrency lock object and execution flags.
+     *
+     * @param scanner Keyboard input reader component.
+     */
     public TUI(Scanner scanner) {
         try {
             this.visualizer = new CardVisualizer();
@@ -48,6 +54,14 @@ public class TUI implements UI, Runnable {
         this.gameOver = false;
     }
 
+    /**
+     * Extracts next available input without using blocking calls, also polling at fixed intervals
+     * the client connection state and execution flags.
+     *
+     * @return The input entered by the user.
+     * @throws DisconnectedException If a client disconnection is detected.
+     * @throws GameStartedException  If the game starting execution flow is detected.
+     */
     public String getInput() throws DisconnectedException {
         while (true) {
             if (this.controller.isDisconnected()) throw new DisconnectedException("Connection lost.");
@@ -62,12 +76,19 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * Performs standard runtime activation loops displaying header ASCII art.
+     */
     @Override
     public void run() {
         this.titleScreen();
         this.setUpClient();
     }
 
+    /**
+     * Dispatches specialized asynchronous threads managing user inputs,
+     * centralizing exception catching to start alternative execution flows.
+     */
     private void startInputLoop() {
         this.inputQueue.clear();
         new Thread(() -> {
@@ -96,6 +117,9 @@ public class TUI implements UI, Runnable {
         }).start();
     }
 
+    /**
+     * Runs initialization prompts gathering server connection configurations with input verification.
+     */
     private void setUpClient() {
         this.printWelcome();
         boolean connected = false;
@@ -154,6 +178,11 @@ public class TUI implements UI, Runnable {
         inputLoop.start();
     }
 
+    /**
+     * Loops rule commands while players waits in lobby stage.
+     *
+     * @throws DisconnectedException If disconnection is detected during input reading.
+     */
     private void lobbyWaitLoop() throws DisconnectedException {
         while (true) {
             synchronized (printLock) {
@@ -171,12 +200,20 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * Initializes lobby selection ASCII art and execution flow.
+     */
     private void lobbyChoiceStage() {
         this.state = ViewState.LOBBY_CHOICE;
         this.printWelcome();
         this.startInputLoop();
     }
 
+    /**
+     * Handles inputs determining user's choice to recover retrieved configurations.
+     *
+     * @throws DisconnectedException If disconnection is detected during input reading.
+     */
     private void reconnectionLoop() throws DisconnectedException {
         synchronized (this.printLock) {
             while (true) {
@@ -196,6 +233,11 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * Evaluates lobby selection or creation choices with input verification.
+     *
+     * @throws DisconnectedException If disconnection is detected during input reading.
+     */
     private void lobbyChoiceInput() throws DisconnectedException {
         while (true) {
             synchronized (this.printLock) {
@@ -285,6 +327,11 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * Evaluates in-lobby player creation choices with input verification.
+     *
+     * @throws DisconnectedException If disconnection is detected during input reading.
+     */
     private void joinLobbyForm() throws DisconnectedException {
         String nickname = "";
         Color color = null;
@@ -336,6 +383,11 @@ public class TUI implements UI, Runnable {
         this.controller.joinGame(nickname, color);
     }
 
+    /**
+     * Evaluates player game commands with input verification and parsing dispatching.
+     *
+     * @throws DisconnectedException If disconnection is detected during input reading.
+     */
     private void gameLoopInput() throws DisconnectedException {
         while (true) {
             synchronized (this.printLock) {
@@ -455,12 +507,20 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showRetrievedInfo() {
         this.state = ViewState.RECONNECTION;
         this.startInputLoop();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param nickname The disconnected player.
+     */
     @Override
     public void showDisconnectedPlayer(String nickname) {
         synchronized (this.printLock) {
@@ -476,6 +536,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showAvailableLobbies() {
         if (this.state != ViewState.LOBBY_CHOICE) return;
@@ -484,6 +547,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void enterLobbyChoice() {
         synchronized (printLock) {
@@ -492,6 +558,11 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param nickname The reconnected player.
+     */
     @Override
     public void showPlayerReconnection(String nickname) {
         synchronized (this.printLock) {
@@ -507,6 +578,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showDisconnection() {
         synchronized (this.printLock) {
@@ -515,6 +589,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void enterLobby() {
         this.state = ViewState.IN_LOBBY;
@@ -525,6 +602,9 @@ public class TUI implements UI, Runnable {
         this.startInputLoop();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showNewPlayer() {
         if (this.state != ViewState.IN_LOBBY && this.state != ViewState.IN_LOBBY_CHOICE) return;
@@ -540,11 +620,21 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showGameStart() {
         this.signal = true;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param message  The descriptive error explanation.
+     * @param creation {@code true} if the error occurred during lobby creation,
+     *                 {@code false} if it occurred while trying to join.
+     */
     @Override
     public void handleLobbyChoiceError(String message, boolean creation) {
         synchronized (this.printLock) {
@@ -553,6 +643,11 @@ public class TUI implements UI, Runnable {
         this.lobbyChoiceStage();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param message The descriptive error explanation.
+     */
     @Override
     public void handleLobbyJoinError(String message) {
         synchronized (this.printLock) {
@@ -562,6 +657,11 @@ public class TUI implements UI, Runnable {
         this.startInputLoop();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param error The descriptive error explanation.
+     */
     @Override
     public void showGameError(String error) {
         if (this.state != ViewState.IN_GAME) return;
@@ -573,6 +673,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showNewCurrPlayer() {
         synchronized (this.printLock) {
@@ -595,6 +698,12 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param nickname The player who performed the action.
+     * @param position The zero-indexed position of totem placement.
+     */
     @Override
     public void showTotemPlaced(String nickname, int position) {
         synchronized (this.printLock) {
@@ -609,6 +718,13 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param nickname  The player who performed the action.
+     * @param cardId    The numeric identifier of the picked card.
+     * @param finalPick {@code true} if this action concludes the player's turn.
+     */
     @Override
     public void showCardPicked(String nickname, int cardId, boolean finalPick) {
         synchronized (this.printLock) {
@@ -626,6 +742,12 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param nickname The affected player.
+     * @param cost     The amount of food consumed.
+     */
     @Override
     public void showBuildingAcquisition(String nickname, int cost) {
         synchronized (this.printLock) {
@@ -639,6 +761,12 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param nickname The affected player.
+     * @param food     The amount of food procured.
+     */
     @Override
     public void showHunterEffect(String nickname, int food) {
         synchronized (this.printLock) {
@@ -652,6 +780,13 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param nickname The affected player.
+     * @param bonus    The numerical amount of resource involved.
+     * @param resource The type of resource involved.
+     */
     @Override
     public void showBuildingEffect(String nickname, int bonus, String resource) {
         synchronized (this.printLock) {
@@ -665,6 +800,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showRoundEnding() {
         synchronized (this.printLock) {
@@ -677,15 +815,26 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param length The duration of the timer in seconds.
+     */
     @Override
     public void showTimer(int length) {
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
-            this.printError("Timer started of length: " + length);
+            this.printError("You are the only player left. Timer started of length: " + length);
             this.printGamePrompt();
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param effects A map pairing player nicknames with their respective adjustments
+     *                in food and prestige points.
+     */
     @Override
     public void showHuntEvent(Map<String, PointsPair> effects) {
         synchronized (this.printLock) {
@@ -698,6 +847,12 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param effects A map pairing player nicknames with their respective adjustments
+     *                in food.
+     */
     @Override
     public void showPaintingEvent(Map<String, Integer> effects) {
         synchronized (this.printLock) {
@@ -710,6 +865,12 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param effects A map pairing player nicknames with their respective adjustments
+     *                in food and prestige points.
+     */
     @Override
     public void showSustenanceEvent(Map<String, PointsPair> effects) {
         synchronized (this.printLock) {
@@ -722,6 +883,12 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param effects A map pairing player nicknames with their respective adjustments
+     *                in prestige points.
+     */
     @Override
     public void showRitualEvent(Map<String, Integer> effects) {
         synchronized (this.printLock) {
@@ -734,6 +901,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showFinalPoints() {
         synchronized (this.printLock) {
@@ -744,6 +914,14 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param nickname The affected player.
+     * @param modifier The involved bonus/malus.
+     * @param prestige {@code true} if the change alters prestige points,
+     *                 {@code false} if it applies to food.
+     */
     @Override
     public void showOrderModifier(String nickname, int modifier, boolean prestige) {
         synchronized (this.printLock) {
@@ -757,6 +935,11 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param nickname The affected player.
+     */
     @Override
     public void showFoodOffer(String nickname) {
         synchronized (this.printLock) {
@@ -770,6 +953,12 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param leaderboard A sorted list with global historical ranking info.
+     * @param myRank      The client position within global historical ranking.
+     */
     @Override
     public void showGameEnd(List<RankElement> leaderboard, int myRank) {
         synchronized (this.printLock) {
@@ -817,7 +1006,9 @@ public class TUI implements UI, Runnable {
             System.out.println(MESOS + "Press 'enter' to choose a new lobby..." + RESET);
         }
     }
-
+    /**
+     * Prints title ASCII art.
+     */
     private void titleScreen() {
         System.out.println(MESOS + """
                 
@@ -835,10 +1026,17 @@ public class TUI implements UI, Runnable {
                                                                                 \s""" + RESET);
     }
 
+    /**
+     * Prints red colored message error.
+     * @param error The message to display.
+     */
     private void printError(String error) {
         System.out.println(ERROR + error + RESET);
     }
 
+    /**
+     * Prints animated reconnection string with success message.
+     */
     private void printReconnectionWaiting() {
         synchronized (this.printLock) {
             int i = 0;
@@ -862,6 +1060,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * Formats and prints available lobbies extracted from local model.
+     */
     private void printAvailableLobbies() {
         System.out.print("\r\033[K");
         List<LobbyInfo> availableLobbies = this.localModel.getLobbies();
@@ -880,6 +1081,9 @@ public class TUI implements UI, Runnable {
         System.out.print("> ");
     }
 
+    /**
+     * Prints the ASCII art header based on {@link ViewState}.
+     */
     private void printWelcome() {
         switch (this.state) {
             case CONNECTION ->
@@ -912,10 +1116,16 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * Prints colored standard game loop message.
+     */
     private void printGamePrompt() {
         System.out.print(MESOS + "Please enter a command [type 'help' to show command list]: " + RESET);
     }
 
+    /**
+     * Formats and prints in-lobby info extracted from local model.
+     */
     private void printLobbyInfo() {
         LobbyInfo lobby = this.localModel.getOwnLobby();
         String ownName = this.localModel.getOwnPlayer() == null ? "" : this.localModel.getOwnPlayer().getNickname();
@@ -944,6 +1154,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * Prints formatted command list.
+     */
     private void printHelp() {
         System.out.println("\n" + "=".repeat(20) + " MESOS COMMAND LIST " + "=".repeat(20));
         printCommand("rules", "Show a summary of the game rules.");
@@ -961,10 +1174,19 @@ public class TUI implements UI, Runnable {
         System.out.println("=".repeat(60) + "\n");
     }
 
+    /**
+     * Helper method for command formatting.
+     * @param syntax The user input sequence needed.
+     * @param description The command explanation.
+     */
     private void printCommand(String syntax, String description) {
         System.out.printf("  " + MESOS + "%-25s" + RESET + " : %s\n", syntax, description);
     }
 
+    /**
+     * Formats and prints the selected player's tribe, extracted from the local model.
+     * @param player The selected player.
+     */
     private void printPlayerTribe(ClientPlayer player) {
         System.out.println(" ╔═════════════════════════╦═════════════╦═════════════════╗");
         System.out.printf(" ║%s║ " + MESOS + "FOOD" + RESET + ": %-6d║ " + MESOS + "PRESTIGE" + RESET + ": %-6d║\n",
@@ -983,6 +1205,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * Formats and prints the board view with data extracted from local model passed as parameter.
+     */
     public void printBoard(List<Integer> topRowCards, List<Integer> bottomRowCards, List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
         System.out.println(MESOS +
                 "                                               ╔═══════════════╗\n" +
@@ -1001,6 +1226,12 @@ public class TUI implements UI, Runnable {
         System.out.println(MESOS + "════════════════════════════════════════════════════════════════════════════════════════════════════════════" + RESET);
     }
 
+    /**
+     * Helper method to assign and print a one-based index to a row of formatted cards.
+     * @param startingPoint The empty, unindexed spaces.
+     * @param size The number of cards to index.
+     * @param cardWidth The number of characters each card occupies lengthwise.
+     */
     private void printIndexes(int startingPoint, int size, int cardWidth) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < startingPoint; i++) {
@@ -1014,6 +1245,9 @@ public class TUI implements UI, Runnable {
         System.out.println(sb);
     }
 
+    /**
+     * Helper method for board view formatting.
+     */
     private void printCentralTrack(List<Color> orderQueue, List<OfferTrackElement> offerTrack) {
         List<List<String>> centralCards = new ArrayList<>();
         centralCards.add(this.visualizer.getEraASCII(this.localModel.getCurrentEra()));
@@ -1022,6 +1256,10 @@ public class TUI implements UI, Runnable {
         printSideBySide(centralCards);
     }
 
+    /**
+     * Helper method to display multi-line card ASCII art templates side by side.
+     * @param cards The cards to print.
+     */
     private void printSideBySide(List<List<String>> cards) {
         int cardHeight = cards.getFirst().size();
         for (int line = 0; line < cardHeight; line++) {
@@ -1034,6 +1272,10 @@ public class TUI implements UI, Runnable {
         System.out.println();
     }
 
+    /**
+     * Prints cards side by side based on ids with safe emptiness fallback.
+     * @param ids The numerical identifiers of the cards to print.
+     */
     private void printRow(List<Integer> ids) {
         if (ids.isEmpty()) {
             System.out.println("No cards to display.");
@@ -1045,6 +1287,9 @@ public class TUI implements UI, Runnable {
         printSideBySide(allAscii);
     }
 
+    /**
+     * Formats and prints the scoreboard with player info extracted from local model and passed as parameters.
+     */
     public void printScoreboard(List<ClientPlayer> players, String currentPlayer) {
         System.out.println(" ╔═══╦════════════════════╦══════════╦══════════╗");
         System.out.println(" ║ " + MESOS + "#" + RESET + " ║       " + MESOS + "PLAYER" + RESET + "       ║   " + MESOS + "FOOD" + RESET + "   ║ " + MESOS + "PRESTIGE" + RESET + " ║");
@@ -1063,6 +1308,10 @@ public class TUI implements UI, Runnable {
         System.out.println(" ╚═══╩════════════════════╩══════════╩══════════╝");
     }
 
+    /**
+     * Prints a singular card ASCII art multi-line template.
+     * @param cardId The numerical identifier of the card to print.
+     */
     private void printCard(int cardId) {
         StringBuilder sb = new StringBuilder();
         for (String s : this.visualizer.getASCII(cardId)) {
@@ -1071,6 +1320,9 @@ public class TUI implements UI, Runnable {
         System.out.println(sb);
     }
 
+    /**
+     * Prints animated connection string with success message.
+     */
     private void printConnectionWaiting() {
         int i = 0;
         while (this.signal) {
@@ -1091,6 +1343,9 @@ public class TUI implements UI, Runnable {
         }
     }
 
+    /**
+     * Prints formatted game rules.
+     */
     private void printRules() {
         String rulesSummary = MESOS + """
                  =================================================================================================

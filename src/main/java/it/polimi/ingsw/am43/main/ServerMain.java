@@ -20,12 +20,20 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.Connection;
 
+/**
+ * Main initialization entry point for the game server application.
+ * Manages logging overrides, configures controllers, boots up database pooling,
+ * restores cached game data, and starts network protocols (Socket and RMI).
+ */
 public class ServerMain {
     private static final int SOCKET_PORT = 8081;
     private static final int RMI_PORT = 1099;
     private static final String configPath = "/it/polimi/ingsw/am43/config.json";
 
-
+    /**
+     * Boots up the server application by sequentially initializing components
+     * (database connection pool, Socket protocol, RMI protocol).
+     */
     static void main() {
         System.setProperty("org.slf4j.simpleLogger.log.com.zaxxer.hikari", "warn");
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "warn");

@@ -4,10 +4,19 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object (DAO) for managing match results and leaderboard entries.
+ */
 public class RankingDAO {
-
     private final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
+    /**
+     * Saves a player's match result into the database.
+     *
+     * @param nickname   The unique name of the player.
+     * @param points     Total points accumulated by the player.
+     * @param numPlayers The number of players of the match.
+     */
     public void saveResult(String nickname, int points, int numPlayers) {
         String sql = "INSERT INTO Classifica (nickname, punteggio, data_partita, num_giocatori) VALUES (?, ?, ?, ?)";
 
@@ -26,7 +35,12 @@ public class RankingDAO {
         }
     }
 
-
+    /**
+     * Retrieves the entire leaderboard matching a specific player count, ordered descending.
+     *
+     * @param numPlayers The player group size filter.
+     * @return A sorted list of leaderboard elements.
+     */
     public List<RankElement> getFullLeaderboard(int numPlayers) {
         List<RankElement> leaderBoard = new ArrayList<>();
 
@@ -57,8 +71,14 @@ public class RankingDAO {
         return leaderBoard;
     }
 
-
-    public int getPlayerRank(int punteggio, int numGiocatori) {
+    /**
+     * Calculates a player's ranking based on score (grouping ties in the same rank).
+     *
+     * @param points    The score of the selected player.
+     * @param numPlayers The player group size filter.
+     * @return The computed rank index position (1-indexed).
+     */
+    public int getPlayerRank(int points, int numPlayers) {
         int rank = 1;
 
         String sql = "SELECT COUNT(distinct punteggio) AS conteggio FROM Classifica " +
@@ -67,8 +87,8 @@ public class RankingDAO {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, numGiocatori);
-            stmt.setInt(2, punteggio);
+            stmt.setInt(1, numPlayers);
+            stmt.setInt(2, points);
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {

@@ -10,6 +10,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+/**
+ * Scene controller for the lobby selection and creation screen.
+ * Allows users to choose an existing lobby from a list or to create a new one.
+ */
 public class LobbyChoiceScene extends CustomScene {
     @FXML
     private ListView<LobbyInfo> lobbyInfoList;
@@ -27,12 +31,19 @@ public class LobbyChoiceScene extends CustomScene {
     private final ObservableList<LobbyInfo> lobbies = FXCollections.observableArrayList();
     private final BooleanProperty validating = new SimpleBooleanProperty(false);
 
+    /**
+     * JavaFX initialization method. Establishes the custom cell rendering factory
+     * and sets a placeholder in case of empty list.
+     */
     @FXML
     private void initialize() {
         this.lobbyInfoList.setPlaceholder(new Label("No active lobbies found. Create one!"));
         this.lobbyInfoList.setCellFactory(_ -> new LobbyElement());
     }
 
+    /**
+     * Populates active lobbies from the local cache and configures UI state bindings.
+     */
     @Override
     public void setUp() {
         this.lobbies.setAll(this.gui.getLocalModel().getLobbies());
@@ -56,6 +67,9 @@ public class LobbyChoiceScene extends CustomScene {
         });
     }
 
+    /**
+     * Clears user text fields and resets button labels.
+     */
     @Override
     public void reset() {
         this.nicknameField.clear();
@@ -64,6 +78,9 @@ public class LobbyChoiceScene extends CustomScene {
         this.validating.set(false);
     }
 
+    /**
+     * Extracts selected index pointers and dispatches an asynchronous lobby join request.
+     */
     @FXML
     private void onJoinClicked() {
         this.validating.set(true);
@@ -71,6 +88,9 @@ public class LobbyChoiceScene extends CustomScene {
         this.gui.submitTask(() -> this.controller.joinLobby(this.lobbyInfoList.getSelectionModel().getSelectedItem().getLobbyId()));
     }
 
+    /**
+     * Validates user input fields and dispatches an asynchronous lobby creation request.
+     */
     @FXML
     private void onCreateClicked() {
         this.validating.set(true);
@@ -82,11 +102,14 @@ public class LobbyChoiceScene extends CustomScene {
         }
         int index = this.colorGroup.getToggles().indexOf(this.colorGroup.getSelectedToggle());
         Color color = Color.values()[index];
-        int num = this.numberGroup.getToggles().indexOf(this.numberGroup.getSelectedToggle())+2;
+        int num = this.numberGroup.getToggles().indexOf(this.numberGroup.getSelectedToggle()) + 2;
         this.createLobbyButton.setText("CREATING LOBBY");
         this.gui.submitTask(() -> this.controller.createLobby(nickname, color, num));
     }
 
+    /**
+     * UI update syncing the lobby cache with the local model data.
+     */
     @Override
     public void showAvailableLobbies() {
         this.lobbies.setAll(this.gui.getLocalModel().getLobbies());
