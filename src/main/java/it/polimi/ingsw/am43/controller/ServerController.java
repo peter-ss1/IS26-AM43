@@ -3,6 +3,7 @@ package it.polimi.ingsw.am43.controller;
 import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.enums.Color;
+import it.polimi.ingsw.am43.model.exceptions.GameEndedException;
 import it.polimi.ingsw.am43.network.connections.ClientConnectionUser;
 import it.polimi.ingsw.am43.network.connections.MultiClientConnection;
 import it.polimi.ingsw.am43.network.command.CommandReceiver;
@@ -166,9 +167,14 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
             this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyJoinError("Lobby #" + lobbyId + " is already full."));
             return;
         }
+        try {
+            gameController.joinLobby(playerId);
+        }catch (GameEndedException e){
+            this.fetchLobbies(playerId);
+            return;
+        }
         this.clients.get(playerId).setLobbyId(lobbyId);
         this.clients.get(playerId).setState(ClientState.PLAYING);
-        gameController.joinLobby(playerId);
         for (Map.Entry<UUID, ClientInfo> entry : clients.entrySet()) {
             if (entry.getValue().getState().equals(ClientState.CHOOSING)) {
                 this.connectionManager.getConnection(entry.getKey())
@@ -180,15 +186,20 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
     public void rejoinLobby(UUID playerId, boolean answer) {
         if (!this.clients.containsKey(playerId)) {
             this.connectionManager.getConnection(playerId).sendMessage(new Error.GenericServerError("player not registered"));
+            this.fetchLobbies(playerId);
             return;
         }
         if (this.clients.get(playerId).getLobbyId() == 0) {
-            this.connectionManager.getConnection(playerId).sendMessage(new Error.GenericServerError("player not in game"));
+            this.fetchLobbies(playerId);
             return;
         }
         if (answer){
             this.clients.get(playerId).setState(ClientState.PLAYING);
-            this.lobbies.get(this.clients.get(playerId).getLobbyId()).rejoinLobby(playerId);
+            try {
+                this.lobbies.get(this.clients.get(playerId).getLobbyId()).rejoinLobby(playerId);
+            }catch (GameEndedException e){
+                this.fetchLobbies(playerId);
+            }
         }else {
             this.clients.get(playerId).setLobbyId(0);
             this.fetchLobbies(playerId);

@@ -7,6 +7,7 @@ import it.polimi.ingsw.am43.database.RankingDAO;
 import it.polimi.ingsw.am43.model.board.ModelInterface;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
+import it.polimi.ingsw.am43.model.exceptions.GameEndedException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
@@ -19,7 +20,6 @@ import it.polimi.ingsw.am43.network.message.Update;
 import it.polimi.ingsw.am43.utils.Executor;
 import it.polimi.ingsw.am43.utils.ServerScheduler;
 
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -34,6 +34,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     private final int lobbyId;
     private boolean gameStarted;
     private boolean gameStopped;
+    private boolean gameEnded;
     private boolean singlePlayerPause;
     private ScheduledFuture<?> recoveryTimeoutTask;
     private ScheduledFuture<?> singlePlayerTimeoutTask;
@@ -49,6 +50,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.lobbyId = lobbyId;
         this.gameStarted = false;
         this.gameStopped = false;
+        this.gameEnded=false;
         this.singlePlayerPause=false;
         this.executor.start();
     }
@@ -73,8 +75,8 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     public void receiveCommand(GameCommand command) {
-        if (this.gameStopped){
-            this.serverController.sendMessage(command.getPlayerId(),new Error.IllegalMoveError("Cannot perform action while game is stopped."));
+        if (this.gameStopped || this.gameEnded){
+            this.serverController.sendMessage(command.getPlayerId(),new Error.IllegalMoveError("cannot perform action: game stopped"));
             return;
         }
         this.executor.delegate(command);
@@ -85,16 +87,18 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.executor.delegate(new GameCommand.DisconnectionCommand(id));
     }
 
-    public void notifyConnection(UUID id) {
-        this.executor.delegate(new GameCommand.ConnectionCommand(id));
+    public void notifyConnection(UUID id) throws GameEndedException {
+        if (this.gameEnded) throw new GameEndedException("");
+        else this.executor.delegate(new GameCommand.ConnectionCommand(id));
     }
 
     public void joinLobby(UUID playerID) {
         this.executor.delegate(new GameCommand.JoinLobbyCommand(playerID));
     }
 
-    public void rejoinLobby(UUID playerId) {
-        this.executor.delegate(new GameCommand.RejoinLobbyCommand(playerId));
+    public void rejoinLobby(UUID playerId) throws GameEndedException{
+        if (this.gameEnded) throw new GameEndedException("");
+        else this.executor.delegate(new GameCommand.RejoinLobbyCommand(playerId));
     }
 
 
@@ -107,6 +111,11 @@ public class GameController implements GameObserver, GameCommandReceiver {
                 20, TimeUnit.SECONDS
         );
         this.innerUpdatePlayer(name,new Update.TimerStartedUpdate());
+    }
+
+    public void notifyEndGame(){
+        this.gameEnded=true;
+        this.executor.delegate(new GameCommand.EndGameCommand());
     }
 
 
@@ -132,7 +141,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
             this.disconnectedClients.put(id, name);
             this.innerBroadcast(new Update.PlayerDisconnectedUpdate(name));
             this.model.moveToInactive(this.model.getPlayerByName(name));
-            System.out.println("Lobby #" + this.lobbyId + ": player \"" + name + "\" disconnected");
+            System.out.println(name + " disconnected from lobby " + this.lobbyId);
         }
     }
 
@@ -147,7 +156,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     public void handleJoinLobby(UUID playerID) {
         if (this.clients.isEmpty()){
-            this.serverController.sendMessage(playerID, new Error.LobbyJoinError("Lobby is full"));
+            this.serverController.sendMessage(playerID, new Error.LobbyJoinError("lobby closed, please select another lobby."));
             return;
         }
         this.clients.put(playerID, "-");
@@ -160,7 +169,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     public void handleRejoinLobby(UUID playerId) {
         if (!this.disconnectedClients.containsKey(playerId)) {
-            this.serverController.sendMessage(playerId, new Error.GenericServerError("Player already connected"));
+            this.serverController.sendMessage(playerId, new Error.GenericServerError("player already connected"));
             return;
         }
         if (this.singlePlayerTimeoutTask!=null) this.singlePlayerTimeoutTask.cancel(false);
@@ -172,7 +181,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         ));
         String name = this.clients.get(playerId);
         this.innerBroadcast(new Update.PlayerReconnectionUpdate(name));
-        System.out.println("Lobby #" + this.lobbyId + ": player \"" + name + "\" reconnected");
+        System.out.println(name + " reconnected to lobby " + this.lobbyId);
         if (this.singlePlayerPause && this.gameStopped){
             this.gameStopped=false;
             this.singlePlayerPause=false;
@@ -181,7 +190,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
             this.model.moveToWait(this.model.getPlayerByName(name));
         }
         if (this.disconnectedClients.isEmpty() && this.gameStarted && this.gameStopped) {
-            System.out.println("Lobby #" + this.lobbyId + ": restarting game after complete reconnection");
+            System.out.println("Every player reconnected, lobby " + this.lobbyId + " restarting.");
             if (this.recoveryTimeoutTask != null) this.recoveryTimeoutTask.cancel(false);
             this.gameStopped = false;
             this.model.restartGame();
@@ -190,18 +199,18 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     public void handleRecoveryTimeout() {
         if (!this.gameStopped) return;
-        System.out.println("Lobby #" + this.lobbyId + ": restarting game after elapsed timeout");
-        for (String name : this.disconnectedClients.values()) {
-            this.model.moveToInactive(this.model.getPlayerByName(name));
-            System.out.println("Lobby #" + this.lobbyId + ": player \"" + name + "\" joins the restarted game as disconnected");
-        }
+        System.out.println("Timeout finished, lobby " + this.lobbyId + " restarting.");
         this.gameStopped = false;
         this.model.restartGame();
+        for (UUID id : this.disconnectedClients.keySet()) {
+            this.handleDisconnection(id);
+        }
     }
 
     public void handleSinglePlayerTimeout() {
-        if (this.gameStopped) {
-            this.endGame();
+        if (this.gameStopped && this.singlePlayerPause) {
+            this.gameEnded=true;
+            this.executor.delegate(new GameCommand.EndGameCommand());
         }
     }
 
@@ -280,9 +289,9 @@ public class GameController implements GameObserver, GameCommandReceiver {
         int numPlayers = this.model.getNumPlayers();
         for (Player p : this.model.getAllPlayers().stream()
                 .filter(p -> p.getStatus() != PlayerStatus.INACTIVE).toList()) {
-            dao.saveResult(p.getNickname(), p.getPrestigePoints(), numPlayers);
+            dao.saveresult(p.getNickname(), p.getPrestigePoints(), numPlayers);
         }
-        System.out.println("Lobby #" + this.lobbyId + ": rankings successfully saved to database");
+        System.out.println("Classification successfully saved to database");
         List<RankElement> fullLeaderboard = dao.getFullLeaderboard(numPlayers);
         Map<String, Integer> playerRanks = new HashMap<>();
         for (Player p : this.model.getAllPlayers().stream()

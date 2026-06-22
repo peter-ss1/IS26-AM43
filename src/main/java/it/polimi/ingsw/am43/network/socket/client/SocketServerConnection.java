@@ -66,8 +66,11 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
      */
     public void sendCommand(ServerCommand command) {
         this.lock.readLock().lock();
-        this.remote.sendCommand(command);
-        this.lock.readLock().unlock();
+        try {
+            this.lock.readLock().unlock();
+        }finally {
+            this.remote.sendCommand(command);
+        }
     }
 
     /**
@@ -77,8 +80,11 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
      */
     public void sendCommand(GameCommand command){
         this.lock.readLock().lock();
-        this.remote.sendCommand(command);
-        this.lock.readLock().unlock();
+        try {
+            this.remote.sendCommand(command);
+        }finally {
+            this.lock.readLock().unlock();
+        }
     }
 
     /** Technical shutdown: stops heartbeat and listener and closes the socket. */
@@ -98,34 +104,37 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
      */
     public void open(){
         this.lock.writeLock().lock();
-        while (this.connected.compareAndSet(false,true)){
-            try {
-                Socket socket = new Socket(ip, port);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                out.println(this.playerId.toString());
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                socket.setSoTimeout(5000);
-                String uuidString = in.readLine();
-                UUID playerId = UUID.fromString(uuidString);
-                socket.setSoTimeout(0);
-                if(!playerId.equals(this.playerId)) throw new Exception();//TODO exception
-                this.socket=socket;
-                this.remote = new SocketServerHandler(out);
-                this.listener = new SocketServerListener(this, in);
-                this.heartBeat=new HeartBeat(this);
-                this.listener.start();
-                this.heartBeat.start();
-            }catch (Exception e){
-                //System.out.println("unable to establish connection");
-                this.connected.set(false);
+        try {
+            while (this.connected.compareAndSet(false,true)){
                 try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException ie) {
-                    continue;
+                    Socket socket = new Socket(ip, port);
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                    out.println(this.playerId.toString());
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    socket.setSoTimeout(5000);
+                    String uuidString = in.readLine();
+                    UUID playerId = UUID.fromString(uuidString);
+                    socket.setSoTimeout(0);
+                    if(!playerId.equals(this.playerId)) throw new Exception();//TODO exception
+                    this.socket=socket;
+                    this.remote = new SocketServerHandler(out);
+                    this.listener = new SocketServerListener(this, in);
+                    this.heartBeat=new HeartBeat(this);
+                    this.listener.start();
+                    this.heartBeat.start();
+                }catch (Exception e){
+                    //System.out.println("unable to establish connection");
+                    this.connected.set(false);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ie) {
+                        continue;
+                    }
                 }
             }
+        }finally {
+            this.lock.writeLock().unlock();
         }
-        this.lock.writeLock().unlock();
 
     }
 
@@ -148,8 +157,11 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
     /** Sends a ping to the server (invoked periodically by the heartbeat). */
     public void ping(){
         this.lock.readLock().lock();
-        this.remote.ping();
-        this.lock.readLock().unlock();
+        try {
+            this.remote.ping();
+        }finally {
+            this.lock.readLock().unlock();
+        }
     }
 
     /** @return the timestamp (millis) of the last pong received from the server */
@@ -168,11 +180,14 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
      */
     public void disconnect() {
         this.lock.writeLock().lock();
-        if (this.connected.compareAndSet(true,false)){
-            this.close();
-            this.connectionUser.notifyDisconnection();
+        try {
+            if (this.connected.compareAndSet(true,false)){
+                this.close();
+                this.connectionUser.notifyDisconnection();
+            }
+        }finally {
+            this.lock.writeLock().unlock();
         }
-        this.lock.writeLock().unlock();
     }
 
 }

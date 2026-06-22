@@ -57,7 +57,7 @@ public class Game implements ModelInterface, Serializable {
         player.setStatus(PlayerStatus.INACTIVE);
         List <Player>InGamePlayers=this.players.stream().filter(p-> !p.getStatus().equals(PlayerStatus.INACTIVE)).toList();
         if (InGamePlayers.isEmpty()){
-            this.observer.endGame();
+            this.observer.notifyEndGame();
             return;
         }
 
@@ -78,7 +78,7 @@ public class Game implements ModelInterface, Serializable {
             }
 
         }
-        if (InGamePlayers.size()==1)
+        if (InGamePlayers.size()<2)
             this.observer.notifySinglePlayerGame(InGamePlayers.getFirst().getNickname());
     }
 

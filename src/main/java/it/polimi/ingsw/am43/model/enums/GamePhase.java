@@ -112,7 +112,7 @@ public enum GamePhase {
                     .filter(p -> p.getPrestigePoints() == winner.getPrestigePoints() && p.getFood() == winner.getFood())
                     .map(Player::getNickname).toList();
             game.getObserver().broadcast(new Update.GameOverUpdate(winners, players.stream().collect(Collectors.toMap(Player::getNickname, Player::getPrestigePoints))));
-            game.getObserver().endGame();
+            game.getObserver().notifyEndGame();
         }
     };
 
