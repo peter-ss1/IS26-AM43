@@ -49,31 +49,35 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
 
     public void open(){
         this.lock.writeLock().lock();
-        while(this.connected.compareAndSet(false,true)){
-            try {
-                Registry registry = LocateRegistry.getRegistry(serverIp, this.port);
-                VirtualServerAccessRMI accessRMI = (VirtualServerAccessRMI) registry.lookup(this.accessPointName);
-                VirtualClientRmi stub;
+        try {
+            while(this.connected.compareAndSet(false,true)){
                 try {
-                    stub = (VirtualClientRmi) UnicastRemoteObject.exportObject(this, 0);
-                } catch (ExportException e) {
-                    stub = (VirtualClientRmi) RemoteObject.toStub(this);
-                }
-                this.remote=accessRMI.connect(this.playerID,stub);
-                this.lastPong=System.currentTimeMillis();
-                this.heartBeat= new HeartBeat(this);
-                this.heartBeat.start();
-            }catch (Exception e)  {
-                //System.out.println("unable to establish connection");
-                this.connected.set(false);
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException ie) {
-                    continue;
+                    Registry registry = LocateRegistry.getRegistry(serverIp, this.port);
+                    VirtualServerAccessRMI accessRMI = (VirtualServerAccessRMI) registry.lookup(this.accessPointName);
+                    VirtualClientRmi stub;
+                    try {
+                        stub = (VirtualClientRmi) UnicastRemoteObject.exportObject(this, 0);
+                    } catch (ExportException e) {
+                        stub = (VirtualClientRmi) RemoteObject.toStub(this);
+                    }
+                    this.remote=accessRMI.connect(this.playerID,stub);
+                    this.lastPong=System.currentTimeMillis();
+                    this.heartBeat= new HeartBeat(this);
+                    this.heartBeat.start();
+                }catch (Exception e)  {
+                    //System.out.println("unable to establish connection");
+                    this.connected.set(false);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ie) {
+                        continue;
+                    }
                 }
             }
+        }finally {
+            this.lock.writeLock().unlock();
         }
-        this.lock.writeLock().unlock();
+
     }
     public void close(){
         this.heartBeat.stop();
@@ -134,14 +138,17 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
     }
     public void disconnect(){
         this.lock.writeLock().lock();
-        if (this.connected.compareAndSet(true,false)){
-            this.heartBeat.stop();
-            try {
-                UnicastRemoteObject.unexportObject(this, true);
-            } catch (NoSuchObjectException e) {e.printStackTrace();}
-            this.connectionUser.notifyDisconnection();
+        try {
+            if (this.connected.compareAndSet(true,false)){
+                this.heartBeat.stop();
+                try {
+                    UnicastRemoteObject.unexportObject(this, true);
+                } catch (NoSuchObjectException e) {e.printStackTrace();}
+                this.connectionUser.notifyDisconnection();
+            }
+        }finally {
+            this.lock.writeLock().unlock();
         }
-        this.lock.writeLock().unlock();
     }
 
 

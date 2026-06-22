@@ -7,6 +7,7 @@ import it.polimi.ingsw.am43.database.RankingDAO;
 import it.polimi.ingsw.am43.model.board.ModelInterface;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.PlayerStatus;
+import it.polimi.ingsw.am43.model.exceptions.GameEndedException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.exceptions.IllegalPlayerInitializationException;
 import it.polimi.ingsw.am43.model.exceptions.OutOfTurnException;
@@ -33,6 +34,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     private final int lobbyId;
     private boolean gameStarted;
     private boolean gameStopped;
+    private boolean gameEnded;
     private boolean singlePlayerPause;
     private ScheduledFuture<?> recoveryTimeoutTask;
     private ScheduledFuture<?> singlePlayerTimeoutTask;
@@ -48,6 +50,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.lobbyId = lobbyId;
         this.gameStarted = false;
         this.gameStopped = false;
+        this.gameEnded=false;
         this.singlePlayerPause=false;
         this.executor.start();
     }
@@ -72,7 +75,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     }
 
     public void receiveCommand(GameCommand command) {
-        if (this.gameStopped){
+        if (this.gameStopped || this.gameEnded){
             this.serverController.sendMessage(command.getPlayerId(),new Error.IllegalMoveError("cannot perform action: game stopped"));
             return;
         }
@@ -84,16 +87,18 @@ public class GameController implements GameObserver, GameCommandReceiver {
         this.executor.delegate(new GameCommand.DisconnectionCommand(id));
     }
 
-    public void notifyConnection(UUID id) {
-        this.executor.delegate(new GameCommand.ConnectionCommand(id));
+    public void notifyConnection(UUID id) throws GameEndedException {
+        if (this.gameEnded) throw new GameEndedException("");
+        else this.executor.delegate(new GameCommand.ConnectionCommand(id));
     }
 
     public void joinLobby(UUID playerID) {
         this.executor.delegate(new GameCommand.JoinLobbyCommand(playerID));
     }
 
-    public void rejoinLobby(UUID playerId) {
-        this.executor.delegate(new GameCommand.RejoinLobbyCommand(playerId));
+    public void rejoinLobby(UUID playerId) throws GameEndedException{
+        if (this.gameEnded) throw new GameEndedException("");
+        else this.executor.delegate(new GameCommand.RejoinLobbyCommand(playerId));
     }
 
 
@@ -106,6 +111,11 @@ public class GameController implements GameObserver, GameCommandReceiver {
                 20, TimeUnit.SECONDS
         );
         this.innerUpdatePlayer(name,new Update.TimerStartedUpdate());
+    }
+
+    public void notifyEndGame(){
+        this.gameEnded=true;
+        this.executor.delegate(new GameCommand.EndGameCommand());
     }
 
 
@@ -190,17 +200,17 @@ public class GameController implements GameObserver, GameCommandReceiver {
     public void handleRecoveryTimeout() {
         if (!this.gameStopped) return;
         System.out.println("Timeout finished, lobby " + this.lobbyId + " restarting.");
-        for (String name : this.disconnectedClients.values()) {
-            this.model.moveToInactive(this.model.getPlayerByName(name));
-            System.out.println(name);
-        }
         this.gameStopped = false;
         this.model.restartGame();
+        for (UUID id : this.disconnectedClients.keySet()) {
+            this.handleDisconnection(id);
+        }
     }
 
     public void handleSinglePlayerTimeout() {
-        if (this.gameStopped) {
-            this.endGame();
+        if (this.gameStopped && this.singlePlayerPause) {
+            this.gameEnded=true;
+            this.executor.delegate(new GameCommand.EndGameCommand());
         }
     }
 

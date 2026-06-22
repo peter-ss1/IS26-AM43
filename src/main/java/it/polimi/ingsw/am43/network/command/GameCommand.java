@@ -34,6 +34,15 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    public static class  EndGameCommand extends GameCommand{
+        public EndGameCommand(){super(null);}
+
+        @Override
+        public void execute(GameController controller){
+            controller.endGame();
+        }
+    }
+
     public static class ConnectionCommand extends GameCommand {
         public ConnectionCommand(UUID playerId) { super(playerId); }
 
