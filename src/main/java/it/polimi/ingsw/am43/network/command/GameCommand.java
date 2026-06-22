@@ -19,12 +19,25 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = GameCommand.JoinLobbyCommand.class, name = "joinLobbyCommand"),
         @JsonSubTypes.Type(value = GameCommand.RejoinLobbyCommand.class, name = "rejoinLobbyCommand"),
 })
+/**
+ * Base class for in-game commands, i.e. actions targeting a running game. Each
+ * concrete subtype implements {@link Task#execute} by invoking the matching method
+ * on the {@link GameController}, following the command pattern (no switch needed in
+ * the controller). The Jackson subtypes register the wire-level commands; the
+ * remaining nested classes are internal commands produced server-side (connection,
+ * disconnection, timeouts) and never travel over the network.
+ */
 public non-sealed abstract class GameCommand extends Command implements Task<GameController> {
 
+    /**
+     * @param playerId the player issuing the command (may be {@code null} for
+     *                 internal, system-generated commands)
+     */
     protected GameCommand(UUID playerId) {
         super(playerId);
     }
 
+    /** Internal: signals the single-player turn timer expired. */
     public static class SinglePlayerTimeoutCommand extends GameCommand {
         public SinglePlayerTimeoutCommand() { super(null); }
 
@@ -34,6 +47,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    /** Internal: signals that a player has (re)connected to the game. */
     public static class  EndGameCommand extends GameCommand{
         public EndGameCommand(){super(null);}
 
@@ -52,6 +66,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    /** Internal: signals that a player has disconnected from the game. */
     public static class DisconnectionCommand extends GameCommand {
         public DisconnectionCommand(UUID playerId) { super(playerId); }
 
@@ -61,6 +76,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    /** Internal: signals that the disconnected-player recovery window expired. */
     public static class RecoveryTimeoutCommand extends GameCommand {
         public RecoveryTimeoutCommand() { super(null); }
 
@@ -71,6 +87,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
     }
 
 
+    /** Wire command: the player asks to join the lobby. */
     public static class JoinLobbyCommand extends GameCommand {
         public JoinLobbyCommand(@JsonProperty("playerId") UUID playerId) { super(playerId); }
 
@@ -80,6 +97,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    /** Wire command: the player asks to rejoin the lobby after a disconnection. */
     public static class RejoinLobbyCommand extends GameCommand {
         public RejoinLobbyCommand(@JsonProperty("playerId") UUID playerId) { super(playerId); }
 
@@ -89,6 +107,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    /** Wire command: the player picks the card identified by {@code cardId}. */
     public static class PickCardCommand extends GameCommand {
         @JsonProperty("cardId")
         private final int id;
@@ -104,6 +123,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    /** Wire command: the player places a totem at the given board {@code position}. */
     public static class PlaceTotemCommand extends GameCommand {
         @JsonProperty("position")
         private final int position;
@@ -119,6 +139,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    /** Wire command: the player ends their turn. */
     public static class EndTurnCommand extends GameCommand {
         public EndTurnCommand(@JsonProperty("playerId") UUID playerId) { super(playerId); }
 
@@ -128,6 +149,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    /** Wire command: the player picks their nickname and color to join the game. */
     public static class PickNameColorCommand extends GameCommand {
         @JsonProperty("nickname")
         private final String nickname;
