@@ -18,5 +18,12 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = Pong.class, name = "pong")
 })
 
+/**
+ * Root of everything that travels from the server to a client. It is a sealed,
+ * serializable hierarchy whose subtypes are either a {@link Message} or a
+ * {@link Pong}. The Jackson annotations enable polymorphic JSON through a
+ * {@code dataServerToClientType} discriminator field, which the socket listener
+ * uses to rebuild the right concrete type.
+ */
 public abstract sealed class DataServerToClient implements Serializable permits Message, Pong{
 }
