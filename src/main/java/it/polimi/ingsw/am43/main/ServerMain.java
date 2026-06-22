@@ -1,14 +1,15 @@
 package it.polimi.ingsw.am43.main;
 
-import it.polimi.ingsw.am43.controller.PersistencyManager;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import it.polimi.ingsw.am43.controller.PersistencyManager;
 import it.polimi.ingsw.am43.controller.ServerController;
+import it.polimi.ingsw.am43.database.DatabaseConfig;
+import it.polimi.ingsw.am43.database.DatabaseManager;
 import it.polimi.ingsw.am43.network.connections.ClientsConnectionManager;
 import it.polimi.ingsw.am43.network.connections.ConnectionFactory;
 import it.polimi.ingsw.am43.network.rmi.ServerAccessRMI;
 import it.polimi.ingsw.am43.network.socket.server.SocketServerAccess;
-import it.polimi.ingsw.am43.database.DatabaseConfig;
-import it.polimi.ingsw.am43.database.DatabaseManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,60 +18,62 @@ import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
 import java.sql.Connection;
 
+/**
+ * Main initialization entry point for the game server application.
+ * Manages logging overrides, configures controllers, boots up database pooling,
+ * restores cached game data, and starts network protocols (Socket and RMI).
+ */
 public class ServerMain {
-    private static final int SOCKET_PORT = 8080;
+    private static final int SOCKET_PORT = 8081;
     private static final int RMI_PORT = 1099;
+    private static final String configPath = "/it/polimi/ingsw/am43/config.json";
 
+    /**
+     * Boots up the server application by sequentially initializing components
+     * (database connection pool, Socket protocol, RMI protocol).
+     */
     static void main() {
         System.setProperty("org.slf4j.simpleLogger.log.com.zaxxer.hikari", "warn");
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "warn");
 
-        ClientsConnectionManager connectionManager= new ClientsConnectionManager();
+        ClientsConnectionManager connectionManager = new ClientsConnectionManager();
         ServerController controller = new ServerController(connectionManager);
         connectionManager.setConnectionUser(controller);
-        ConnectionFactory connectionFactory= new ConnectionFactory(controller,connectionManager);
+        ConnectionFactory connectionFactory = new ConnectionFactory(controller, connectionManager);
 
         PersistencyManager.loadSavedStatus(controller);
         try {
 
             ObjectMapper mapper = new ObjectMapper();
-            InputStream inputStream = ServerMain.class.getResourceAsStream("/it/polimi/ingsw/am43/config.json");
+            InputStream inputStream = ServerMain.class.getResourceAsStream(configPath);
             JsonNode rootNode = mapper.readTree(inputStream);
             JsonNode dbNode = rootNode.get("database");
 
             DatabaseConfig config = mapper.treeToValue(dbNode, DatabaseConfig.class);
-
-             //accende la Connection Pool
             DatabaseManager.initialize(config);
-
 
             Connection testConn = DatabaseManager.getConnection();
             if (testConn != null) {
-                System.out.println("Database connection established");
+                System.out.println("Server established database connection");
                 testConn.close();
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println("Failed to establish database connection: " + e.getMessage());
         }
-
 
 
         try {
             System.out.println("Server IP Address: " + InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e) {
-            System.out.println("Server IP Address not found");
+            System.err.println("Server IP Address not found");
         }
 
         new Thread(() -> {
             try {
-                SocketServerAccess socketServer = new SocketServerAccess(SOCKET_PORT,connectionFactory);
+                SocketServerAccess socketServer = new SocketServerAccess(SOCKET_PORT, connectionFactory);
                 System.out.println("Server activated socket protocol on port " + SOCKET_PORT);
                 socketServer.runServer();
             } catch (IOException e) {
@@ -90,8 +93,7 @@ public class ServerMain {
 
             System.out.println("Server activated RMI protocol on port " + RMI_PORT);
         } catch (RemoteException e) {
-            System.err.println("Server exception: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("RMI protocol failed: " + e.getMessage());
         }
     }
 }

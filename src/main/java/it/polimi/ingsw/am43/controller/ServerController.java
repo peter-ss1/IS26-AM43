@@ -86,11 +86,11 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
                 this.lobbies.get(this.clients.get(playerId).getLobbyId()).notifyConnection(playerId);
             else
                 this.fetchLobbies(playerId);
-            System.out.println(playerId + " reconnected");
+            System.out.println("User " + playerId + " reconnected to server");
         } else {
             this.clients.put(playerId, new ClientInfo(ClientState.CHOOSING, 0));
             this.fetchLobbies(playerId);
-            System.out.println("client connected");
+            System.out.println("User " + playerId + " connected to server");
         }
     }
 
@@ -101,7 +101,7 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
                 this.lobbies.get(client.getLobbyId()).notifyDisconnection(id);
             }
             client.setState(ClientState.DISCONNECTED);
-            System.out.println(id + " disconnected");
+            System.out.println("User " + id + " disconnected from server");
         }
     }
 

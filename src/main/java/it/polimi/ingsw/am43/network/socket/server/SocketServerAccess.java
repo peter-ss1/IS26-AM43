@@ -20,7 +20,6 @@ public class SocketServerAccess {
     public void runServer() throws IOException {
         while (true) {
             Socket clientSocket = this.listenSocket.accept();
-            System.out.println("sc");
             new Thread(()->handshake(clientSocket)).start();
         }
     }
@@ -39,8 +38,7 @@ public class SocketServerAccess {
             SocketClientConnection connection=this.connectionFactory.createConnection(playerId, clientSocket,in,out);
             connection.register();
         } catch (Exception e) {
-            System.err.println("Handshake failed");
-            e.printStackTrace();
+            System.err.println("Error while handshaking:" + e.getMessage());
             try { clientSocket.close(); } catch (Exception ignored) {}
         }
     }

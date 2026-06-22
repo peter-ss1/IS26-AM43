@@ -34,7 +34,7 @@ public class Reaper{
                 now=System.currentTimeMillis();
                 if (now - connection.getLastPing() > 5000) {
                     connection.disconnect();
-                    System.out.println("reaper");
+                    System.out.println("Server activated reaper protocol");
                 }
             }
             try {

@@ -2,6 +2,9 @@ package it.polimi.ingsw.am43.client.view.gui;
 
 import it.polimi.ingsw.am43.client.view.ViewState;
 
+/**
+ * Utility class holding FXML view asset resource paths and state mappings.
+ */
 public final class GuiSettings {
     private GuiSettings() {}
 
@@ -10,6 +13,9 @@ public final class GuiSettings {
     public static final String IN_LOBBY_PATH = "/it/polimi/ingsw/am43/fxml/in-lobby-view.fxml";
     public static final String IN_GAME_PATH = "/it/polimi/ingsw/am43/fxml/in-game-view.fxml";
 
+    /**
+     * @return the corresponding FXML template path for a specific view state.
+     */
     public static String getPath(ViewState scene) {
         String path = "";
         switch (scene) {

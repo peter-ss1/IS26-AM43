@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BoardTest {
     @Test
-    void shouldIncreaseCurrEra() {
+    void shouldIncreaseCurrentEraDuringRowReplenishment() {
         List<Building> buildings1 = new ArrayList<>();
         buildings1.add(new FinalBuilding(1, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints()));
         List<Building> buildings2 = new ArrayList<>();
@@ -29,10 +29,10 @@ class BoardTest {
         List<Card> cards = new ArrayList<>();
         cards.add(new Artist(1, 1));
         cards.add(new Artist(2, 1));
-        cards.add(new Gatherer(1, 1));
+        cards.add(new Gatherer(2, 1));
         cards.add(new Artist(2, 1));
-        cards.add(new Artist(3, 1));
-        Board board = new Board(new ArrayList<>(), -4,  new ArrayList<>(), cards, deckInit, new ArrayList<>());
+        cards.add(new Artist(2, 1));
+        Board board = new Board(new ArrayList<>(), -4,  new ArrayList<>(), cards, deckInit, new ArrayList<>(), 0);
         board.replenishTopRow(3);
         assertEquals(2, board.getCurrEra());
     }

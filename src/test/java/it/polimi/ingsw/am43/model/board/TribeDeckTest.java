@@ -15,7 +15,7 @@ class TribeDeckTest {
     private TribeDeck deck;
 
     @Test
-    void draw() {
+    void shouldReturnTopCardInDeck() {
         List<Card> cards = new ArrayList<>();
         cards.add(new Artist(1, 1));
         cards.add(new Artist(2, 1));
@@ -26,7 +26,7 @@ class TribeDeckTest {
     }
 
     @Test
-    void shouldBeEmpty() {
+    void shouldRemoveDrawnCardFromDeck() {
         List<Card> cards = new ArrayList<>();
         cards.add(new Artist(1, 1));
         deck = new TribeDeck(cards);

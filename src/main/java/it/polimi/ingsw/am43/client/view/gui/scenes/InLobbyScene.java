@@ -14,7 +14,11 @@ import javafx.scene.layout.HBox;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+/**
+ * Scene controller for the lobby waiting stage.
+ * Handles nickname validation, player color selection,
+ * and updates other players' status
+ */
 public class InLobbyScene extends CustomScene {
     @FXML
     private Label lobbyId;
@@ -35,6 +39,10 @@ public class InLobbyScene extends CustomScene {
     private void initialize() {
     }
 
+    /**
+     * Prepares the lobby UI elements. Sets up conditional input binding for unjoined clients,
+     * displays the lobby ID, and instantiates the proper number of placeholder player slots.
+     */
     @Override
     public void setUp() {
         this.lobbyId.setText("Lobby ID: " + this.gui.getLocalModel().getOwnLobby().getLobbyId());
@@ -61,6 +69,10 @@ public class InLobbyScene extends CustomScene {
 
     }
 
+    /**
+     * Synchronizes the {@link LobbyPlayerNode} slots with the active players
+     * list from the local model. Deactivates missing players and updates connection statuses.
+     */
     private void updateLobbyPlayers() {
         List<ClientPlayer> allPlayers = this.gui.getLocalModel().getAllPlayers();
         String ownName = this.gui.getLocalModel().getOwnPlayer() == null ? "" : this.gui.getLocalModel().getOwnPlayer().getNickname();
@@ -87,16 +99,30 @@ public class InLobbyScene extends CustomScene {
 
     }
 
+    /**
+     * Locates a player slot node by nickname.
+     *
+     * @param name The player nickname to search for.
+     * @return The matching {@link LobbyPlayerNode}, or {@code null} if not found.
+     */
     private LobbyPlayerNode findNodeForPlayer(String name) {
         return this.playerContainer.getChildren().stream().map(n -> (LobbyPlayerNode) n)
                 .filter(lp -> !lp.isEmpty() && name.equals(lp.getNickname())).findFirst().orElse(null);
     }
 
+    /**
+     * Finds the first available empty slot node among the placeholders.
+     *
+     * @return The first unoccupied {@link LobbyPlayerNode}, or {@code null}.
+     */
     private LobbyPlayerNode findFirstEmptySlot() {
         return this.playerContainer.getChildren().stream().map(n -> (LobbyPlayerNode) n)
                 .filter(LobbyPlayerNode::isEmpty).findFirst().orElse(null);
     }
 
+    /**
+     * Resets input fields and button states.
+     */
     @Override
     public void reset() {
         this.nicknameField.clear();
@@ -104,6 +130,10 @@ public class InLobbyScene extends CustomScene {
         this.confirmButton.setText("CONFIRM");
     }
 
+    /**
+     * Validates chosen nickname rules and availability, pairs it with the selected color,
+     * and submits an asynchronous network task to join the game.
+     */
     @FXML
     private void onConfirmClicked() {
         String nickname = nicknameField.getText() == null ? "" : nicknameField.getText().trim();
@@ -122,6 +152,10 @@ public class InLobbyScene extends CustomScene {
         this.gui.submitTask(() -> this.controller.joinGame(nickname, color));
     }
 
+    /**
+     * UI update triggered when a new player joins the lobby.
+     * Refreshes available choices and re-syncs slots.
+     */
     @Override
     public void showNewPlayer() {
         if (this.gui.getLocalModel().getOwnPlayer() == null) this.updateAvailableColors();
@@ -134,19 +168,31 @@ public class InLobbyScene extends CustomScene {
         updateLobbyPlayers();
     }
 
+    /**
+     * UI update triggered upon player reconnection.
+     * @param nickname The nickname of the reconnected player.
+     */
     @Override
     public void showPlayerReconnection(String nickname) {
         if (this.gui.getLocalModel().getOwnPlayer() == null) this.updateAvailableColors();
         this.updateLobbyPlayers();
     }
 
+    /**
+     * UI update triggered upon player disconnection.
+     * @param nickname The nickname of the disconnected player.
+     */
     @Override
     public void showDisconnectedPlayer(String nickname) {
         if (this.gui.getLocalModel().getOwnPlayer() == null) this.updateAvailableColors();
         this.updateLobbyPlayers();
     }
 
-    public void updateAvailableColors() {
+    /**
+     * Updates the state of the color selection toggles
+     * based on available colors extracted from the local model.
+     */
+    private void updateAvailableColors() {
         List<Color> availableColors = this.gui.getLocalModel().getAvailableColors();
         List<Toggle> toggles = this.colorGroup.getToggles();
 

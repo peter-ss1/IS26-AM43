@@ -52,7 +52,6 @@
         "TOP"
       ]
     ],
-    "seed": 19853,
     "numBuildingsByNumPlayers": {
       "2": [1, 2, 3],
       "3": [2, 2, 4],
@@ -953,6 +952,6 @@
   "database": {
     "url": "jdbc:mysql://localhost:3306/mesos_db",
     "user": "root",
-    "password": "BorLea2389!!"
+    "password": "ciaocomestai"
   }
 }

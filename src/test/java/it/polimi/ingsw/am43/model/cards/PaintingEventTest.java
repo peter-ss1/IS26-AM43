@@ -21,20 +21,21 @@ class PaintingEventTest {
     }
 
     @Test
-    void shouldAddToRow() {
+    void shouldAddAndLeaveRowWithProperOverloads() {
         Row row = new Row();
         example.addToRow(row);
-
         assertEquals(1, row.size());
+        example.removeFromRow(row);
+        assertEquals(0, row.size());
     }
 
     @Test
-    void shouldAddToTop() {
+    void shouldBeAddedToTopRowDuringInitialBoardPopulation() {
         assertEquals(OfferAction.TOP, example.firstRowChoice());
     }
 
     @Test
-    void shouldAffectPlayers() {
+    void shouldResolveAndGiveArtistRelatedBonusesOrMaluses() {
         List<Player> players = new ArrayList<>();
         Player p1 = new Player("p1", Color.WHITE);
         Player p2 = new Player("p2",Color.CYAN);
@@ -50,7 +51,7 @@ class PaintingEventTest {
     }
 
     @Test
-    void shouldTriggerBuilding() {
+    void shouldOnlyTriggerPaintingEventBuildingEffects() {
         Player p1 = new Player("p1",Color.WHITE);
         p1.getTribe().addCardToTribe(new Artist(1, 0));
         example.triggerBuilding(new MockObserver(), new SustenanceEventBuilding(1, 0, 0, 0, (observer, player, event) -> {player.alterFood(2);}), p1);

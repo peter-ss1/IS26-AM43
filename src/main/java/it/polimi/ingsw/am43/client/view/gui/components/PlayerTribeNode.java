@@ -10,7 +10,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * JavaFX node that displays the cards in a player's tribe grouped by metadata type.
+ */
 public class PlayerTribeNode extends VBox {
+    /**
+     * Creates a node for the specified player's tribe.
+     *
+     * @param player the player whose tribe is displayed
+     * @param ownTribe {@code true} if the displayed tribe belongs to the local player, {@code false} otherwise
+     */
     public PlayerTribeNode(ClientPlayer player, boolean ownTribe) {
         this.setSpacing(8.0);
         this.getStyleClass().add("tribe-view");
@@ -23,6 +32,7 @@ public class PlayerTribeNode extends VBox {
     private void render(ClientPlayer player, boolean ownTribe) {
         Label title = new Label(this.createTitle(player, ownTribe));
         title.getStyleClass().add("tribe-title");
+        this.setAlignment(Pos.TOP_CENTER);
         this.getChildren().add(title);
 
         Map<String, List<Integer>> groupedCards = this.groupTribeCards(player.getTribe());
@@ -34,7 +44,7 @@ public class PlayerTribeNode extends VBox {
         }
 
         HBox columns = new HBox(12.0);
-        columns.setAlignment(Pos.TOP_LEFT);
+        columns.setAlignment(Pos.TOP_CENTER);
         columns.getStyleClass().add("tribe-columns");
 
         groupedCards.forEach((groupName, cardIds) -> {
@@ -58,9 +68,9 @@ public class PlayerTribeNode extends VBox {
 
     private String createTitle(ClientPlayer player, boolean ownTribe) {
         if (ownTribe) {
-            return "Your tribe";
+            return "your tribe";
         }
-        return player.getNickname() + "'s tribe";
+        return player.getNickname().toLowerCase() + "'s tribe";
     }
 
     private Map<String, List<Integer>> groupTribeCards(List<Integer> cardIds) {

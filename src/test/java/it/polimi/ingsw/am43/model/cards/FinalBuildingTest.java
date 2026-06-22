@@ -13,21 +13,12 @@ class FinalBuildingTest {
     private FinalBuilding example = new FinalBuilding(1, 0, 1, 1, new FinalEffect.FinalBonusPrestigePoints());
 
     @Test
-    void shouldAddToRow() {
-        Row row  = new Row();
-        example.addToRow(row);
-        assertEquals(1, row.size());
-        example.removeFromRow(row);
-        assertEquals(0, row.size());
-    }
-
-    @Test
-    void shouldGetId() {
+    void shouldReturnStoredId() {
         assertEquals(0, example.getId());
     }
 
     @Test
-    void shouldApplyCorrectEffect() {
+    void shouldApplyCorrectFinalEffect() {
         Player player = new Player("1",Color.WHITE);
         example.finalBuildingEffect(player);
         assertEquals(25, player.getPrestigePoints());
@@ -54,5 +45,14 @@ class FinalBuildingTest {
         example = new  FinalBuilding(1, 0, 1, 1, new FinalEffect.FinalPrestigePointsPerSet());
         example.finalBuildingEffect(player);
         assertEquals(6, player.getPrestigePoints());
+    }
+
+    @Test
+    void shouldAddAndLeaveRowWithProperOverloads() {
+        Row row  = new Row();
+        example.addToRow(row);
+        assertEquals(1, row.size());
+        example.removeFromRow(row);
+        assertEquals(0, row.size());
     }
 }

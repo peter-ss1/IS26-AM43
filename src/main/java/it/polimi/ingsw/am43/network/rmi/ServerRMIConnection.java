@@ -90,7 +90,7 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
         }catch (RemoteException e){
             //disconnection=true;
         }
-        catch (NullPointerException e){System.out.println("connection not already established");}
+        catch (NullPointerException e){System.err.println("Connection not already established");}
         finally {
             this.lock.readLock().unlock();
             //if (disconnection)this.disconnect();
@@ -104,7 +104,7 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
         }catch (RemoteException e){
             //disconnection=true;
             }
-        catch (NullPointerException e){System.out.println("connection not already established");}
+        catch (NullPointerException e){System.err.println("Connection not already established");}
         finally {
             this.lock.readLock().unlock();
             //if (disconnection)this.disconnect();
@@ -119,7 +119,7 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
         }catch (RemoteException e){
             //disconnection=true;
         }
-        catch (NullPointerException e){System.out.println("connection not already established");}
+        catch (NullPointerException e){System.err.println("Connection not already established");}
         finally {
             this.lock.readLock().unlock();
             //if (disconnection)this.disconnect();

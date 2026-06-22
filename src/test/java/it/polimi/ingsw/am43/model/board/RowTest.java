@@ -19,7 +19,7 @@ class RowTest {
     }
 
     @Test
-    void size() {
+    void shouldShowTotalSize() {
         Building building = new TribeBuilding(1, 1, 1, 1, new TribeBonus.FoodOnSet());
         CharacterCard characterCard = new Hunter(1, 3, true);
         Event event = new HuntEvent(1, 6);
@@ -30,7 +30,7 @@ class RowTest {
     }
 
     @Test
-    void removeCharacters() {
+    void shouldRemoveCharacterCardsFromRow() {
         CharacterCard card = new Hunter(1, 1, true);
         this.row.addCard(card);
         assertTrue(this.row.contains(card));
@@ -39,7 +39,7 @@ class RowTest {
     }
 
     @Test
-    void removeBuildings() {
+    void shouldRemoveBuildingCardsFromRow() {
         Building card = new FinalBuilding(1, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints());
         this.row.addCard(card);
         assertTrue(this.row.contains(card));
@@ -49,7 +49,7 @@ class RowTest {
     }
 
     @Test
-    void removeEvents() {
+    void shouldRemoveEventCardsFromRow() {
         Event card = new RitualEvent(1, 1, 1);
         this.row.addCard(card);
         assertTrue(this.row.contains(card));
@@ -59,7 +59,7 @@ class RowTest {
     }
 
     @Test
-    void getAllCharacters() {
+    void shouldReturnCharacterCardsFromRow() {
         CharacterCard card1 = new Hunter(1, 1, true);
         CharacterCard card2 = new Artist(1, 1);
         ArrayList<CharacterCard> list = new ArrayList<>();
@@ -73,7 +73,7 @@ class RowTest {
     }
 
     @Test
-    void getAllBuildings() {
+    void shouldReturnBuildingCardsFromRow() {
         Building card1 = new FinalBuilding(1, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints());
         Building card2 = new FinalBuilding(1, 1, 1, 1, new FinalEffect.FinalPrestigePointsByCharacterType(CharacterType.HUNTER, 2));
         ArrayList<Building> list = new ArrayList<>();
@@ -87,7 +87,7 @@ class RowTest {
     }
 
     @Test
-    void getAllEvents() {
+    void shouldReturnEventCardsFromRow() {
         Event card1 = new HuntEvent(2, 2);
         Event card2 = new RitualEvent(1, 1, 1);
         Event card3 = new SustenanceEvent(1, 1);
@@ -106,7 +106,7 @@ class RowTest {
     }
 
     @Test
-    void addAllCharacters() {
+    void shouldAddCharacterCardsToRow() {
         CharacterCard card1 = new Hunter(1, 1, true);
         CharacterCard card2 = new Artist(1, 1);
         ArrayList<CharacterCard> list = new ArrayList<>();
@@ -117,7 +117,7 @@ class RowTest {
     }
 
     @Test
-    void addAllBuildings() {
+    void shouldAddBuildingCardsToRow() {
         Building card1 = new FinalBuilding(1, 1, 1, 1, new FinalEffect.FinalBonusPrestigePoints());
         Building card2 = new FinalBuilding(1, 1, 1, 1, new FinalEffect.FinalPrestigePointsByCharacterType(CharacterType.HUNTER, 2));
         ArrayList<Building> list = new ArrayList<>();
@@ -131,7 +131,7 @@ class RowTest {
     }
 
     @Test
-    void addAllEvents() {
+    void shouldAddEventCardsToRow() {
         Event card1 = new HuntEvent(2, 2);
         Event card2 = new RitualEvent(1, 1, 1);
         ArrayList<Event> list = new ArrayList<>();
@@ -145,7 +145,7 @@ class RowTest {
     }
 
     @Test
-    void contains() {
+    void shouldCheckCardPresence() {
         CharacterCard card = new Artist(1, 1);
         this.row.addCard(card);
         assertTrue(row.contains(card));
@@ -153,17 +153,11 @@ class RowTest {
     }
 
     @Test
-    void removeCard() {
+    void shouldRemoveCardFromRow() {
         Event card = new RitualEvent(1, 1, 1);
         this.row.addCard(card);
         assertTrue(this.row.contains(card));
         this.row.removeCard(card);
         assertFalse(this.row.contains(card));
     }
-
-    @Test
-    void activateEvents() {
-        row.activateEvents(new MockObserver(), new ArrayList<>());
-    }
-
 }

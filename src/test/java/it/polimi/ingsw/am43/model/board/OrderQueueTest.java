@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OrderQueueTest {
     private OrderQueue orderQueue;
-    private GameObserver observer = new MockObserver();
+    private final GameObserver observer = new MockObserver();
 
     @BeforeEach
     void setUp() {
@@ -24,16 +24,16 @@ class OrderQueueTest {
         ArrayList<Integer> modifiers = new ArrayList<>();
         modifiers.add(1);
         modifiers.add(-1);
-        orderQueue = new OrderQueue(players, modifiers);
+        orderQueue = new OrderQueue(players, modifiers, 0);
     }
 
     @Test
-    void shouldGetLastFoodGiven() {
+    void shouldGetLastFoodModifierApplied() {
         assertEquals(-1, orderQueue.getLastFoodGiven());
     }
 
     @Test
-    void shouldAppend() {
+    void shouldAppendPlayerToTurnOrder() {
         orderQueue.pop();
         orderQueue.pop();
         assertTrue(orderQueue.isEmpty());
@@ -48,7 +48,7 @@ class OrderQueueTest {
     }
 
     @Test
-    void shouldPopFirstPlayer() {
+    void shouldReturnNextActivePlayer() {
         orderQueue.pop();
         orderQueue.pop();
         Player player1= new Player("pippo", Color.WHITE);
@@ -60,7 +60,7 @@ class OrderQueueTest {
     }
 
     @Test
-    void peek(){
+    void shouldReturnNextActivePlayerWithoutRemoval() {
         orderQueue.pop();
         orderQueue.pop();
         Player player1= new Player("pippo", Color.WHITE);

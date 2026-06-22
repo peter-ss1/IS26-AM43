@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am43.client.view.tui;
 
+/**
+ * Utility class defining ANSI escape codes for TUI text formatting and coloring.
+ */
 public final class TextFormatting {
     private TextFormatting() {}
 
@@ -29,21 +32,13 @@ public final class TextFormatting {
     public static final String GOLD   = "\u001B[38;5;214m";
 
     public static final String BLACK = "\u001B[38;5;244m";
+    public static final String WHITE = "\u001B[38;5;255m";
     public static final String BG_BLACK = "\u001B[48;5;244m";
     public static final String BG_WHITE = "\u001B[107m";
 
+    public static final String ARROW_UP = "\033[92m";
+    public static final String ARROW_DOWN = "\033[91m";
 
-    public static final String HUNT_RED    = "\u001B[38;5;160m";
-    public static final String GATHER_GREEN = "\u001B[38;5;34m";
-    public static final String BUILD_GOLD   = "\u001B[38;5;214m";
-    public static final String INFO_CYAN    = "\u001B[38;5;39m";
-
-    public static final String BG_HUNT   = "\u001B[48;5;160m";
-    public static final String BG_GATHER = "\u001B[48;5;34m";
-    public static final String BG_BUILD  = "\u001B[48;5;214m";
-    public static final String BG_BLUE   = "\u001B[48;5;25m";
-
-    public static final String WHITE = "\u001B[38;5;255m";
     public static final String ERROR = "\u001B[1;31m";
 
 }

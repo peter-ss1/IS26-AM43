@@ -45,6 +45,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+/**
+ * JavaFX controller for the in-game scene.
+ */
 public class InGameScene extends CustomScene {
     private static final int MAX_ACTIVITY_MESSAGES = 8;
     private static final String FOOD_ICON_PATH = "/it/polimi/ingsw/am43/images/food&prestige/food.png";
@@ -106,27 +109,34 @@ public class InGameScene extends CustomScene {
                     setText(null);
                     setGraphic(null);
                 } else {
-                    setGraphic(createLeaderboardRow(entry, getIndex()+1));
+                    setGraphic(createLeaderboardRow(entry));
                 }
             }
         });
     }
 
+    /**
+     * Stores the owning {@code GUI} instance and refreshes the scene from the local model.
+     *
+     * @param gui the GUI instance that owns this scene
+     */
     @Override
     public void setGui(GUI gui) {
         this.gui = gui;
         this.refreshFromModel();
     }
 
+    /**
+     * Rebuilds the visible game scene from the current local client model.
+     */
     @Override
     public void refreshFromModel() {
         if (this.gui == null) {
             return;
         }
         ClientModel model = this.gui.getLocalModel();
-        this.eraLabel.setText("Era " + model.getCurrentEra());
-        this.phaseLabel.setText(model.getPhase() == null ? "Phase: -" : "Phase: " + model.getPhase());
-        this.currentPlayerLabel.setText("Current player: " + this.emptyFallback(model.getCurrentPlayerNickname()));
+        this.eraLabel.setText("ERA " + model.getCurrentEra());
+        this.phaseLabel.setText(getPhaseText(model));
 
         this.updateActionContext(model);
         this.confirmPendingPick(model);
@@ -141,11 +151,34 @@ public class InGameScene extends CustomScene {
         this.renderPlayerTribe(model);
     }
 
+    private String getPhaseText(ClientModel model) {
+        String text;
+        if (model.isOwnTurn()) {
+            switch (model.getPhase()) {
+                case ACTION_RESOLUTION -> text = "Pick a card!";
+                case OFFER_TRACK_SELECTION ->  text = "Choose an offer track card!";
+                case DRAW_FROM_TOP_BONUS_ACTION ->  text = "Pick an additional card from the top row!";
+                default -> text = "";
+            }
+        } else text = "Current player is " + this.emptyFallback(model.getCurrentPlayerNickname()) + ", wait for your turn.";
+        return text;
+    }
+
+    /**
+     * Displays an informational activity message.
+     *
+     * @param message the message to display
+     */
     @Override
     public void showInfo(String message) {
         this.addActivityMessage(message, "activity-info");
     }
 
+    /**
+     * Displays an error activity message and rolls back any pending card pick action.
+     *
+     * @param message the error message to display
+     */
     @Override
     public void showError(String message) {
         if (this.rollbackPendingPickAction()) {
@@ -154,12 +187,22 @@ public class InGameScene extends CustomScene {
         this.addActivityMessage(message, "activity-error");
     }
 
+    /**
+     * Refreshes the scene and reports that a player disconnected.
+     *
+     * @param nickname the nickname of the disconnected player
+     */
     @Override
     public void showDisconnectedPlayer(String nickname) {
         this.refreshFromModel();
         this.showError("Player " + nickname + " lost connection. Waiting for reconnection.");
     }
 
+    /**
+     * Refreshes the scene and reports that a player reconnected.
+     *
+     * @param nickname the nickname of the reconnected player
+     */
     @Override
     public void showPlayerReconnection(String nickname) {
         this.refreshFromModel();
@@ -580,8 +623,8 @@ public class InGameScene extends CustomScene {
         return value == null || value.isBlank() ? "-" : value;
     }
 
-    private HBox createLeaderboardRow(RankElement entry, int rank) {
-        Label position = new Label("#" + rank);
+    private HBox createLeaderboardRow(RankElement entry) {
+        Label position = new Label("#" + entry.getRank());
         Label nickname = new Label(entry.getNickname());
         Label score = new Label(entry.getPoints() + " points");
         Label date = new Label(entry.getTimestamp() == null ? "-" : entry.getTimestamp().toString());
@@ -592,6 +635,12 @@ public class InGameScene extends CustomScene {
         return row;
     }
 
+    /**
+     * Shows the end-game overlay with winners, the player's rank, and the leaderboard.
+     *
+     * @param leaderboard the leaderboard entries to display
+     * @param myRank the rank of the local player in the relevant leaderboard
+     */
     @Override
     public void showGameEnd(List<RankElement> leaderboard, int myRank) {
         List<String> winners = this.gui.getLocalModel().getWinners();

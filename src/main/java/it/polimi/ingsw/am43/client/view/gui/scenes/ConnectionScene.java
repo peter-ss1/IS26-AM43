@@ -1,19 +1,11 @@
 package it.polimi.ingsw.am43.client.view.gui.scenes;
 
-import it.polimi.ingsw.am43.client.view.ViewState;
-import it.polimi.ingsw.am43.client.view.gui.GUI;
-import it.polimi.ingsw.am43.client.view.gui.PopUp;
-import it.polimi.ingsw.am43.controller.ClientController;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
-
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.rmi.NotBoundException;
-
+/**
+ * Scene controller for managing the initial server connection screen.
+ * Handles the validation of the server IP address and communication protocol selection.
+ */
 public class ConnectionScene extends CustomScene {
     @FXML
     private TextField ipField;
@@ -22,6 +14,11 @@ public class ConnectionScene extends CustomScene {
     @FXML
     private Button connectButton;
 
+    /**
+     * Validates user input and initiates the network connection setup.
+     * Disables UI controls during validation, defaults empty IPs to "localhost",
+     * and dispatches an asynchronous connection task if inputs are valid.
+     */
     @FXML
     private void onConnectClicked() {
         boolean valid = true;

@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
+/**
+ * JavaFX node that displays the order queue with player totems and drag support.
+ */
 public class OrderQueueNode extends StackPane {
     private static final double ASSET_WIDTH = 118.0;
     private static final double DISCONNECTED_OPACITY = 0.55;
@@ -28,6 +31,14 @@ public class OrderQueueNode extends StackPane {
 
     private static final ResourceImageCache<Integer> IMAGE_CACHE = new ResourceImageCache<>();
 
+    /**
+     * Creates a node that renders the order queue for the specified player count.
+     *
+     * @param numPlayers the number of players in the game
+     * @param orderQueueSlots the slots to display in the order queue
+     * @param highlightPredicate predicate used to determine whether a totem is highlighted
+     * @param dragConfigurator callback used to configure draggable totems
+     */
     public OrderQueueNode(int numPlayers, List<OrderQueueSlot> orderQueueSlots, Predicate<Color> highlightPredicate,
                           BiConsumer<TotemNode, Color> dragConfigurator) {
         Image image = IMAGE_CACHE.get(numPlayers, id -> String.format(IMAGE_PATH, id));

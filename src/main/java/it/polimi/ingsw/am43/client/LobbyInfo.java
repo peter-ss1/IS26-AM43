@@ -4,6 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
+/**
+ * Represents simplified lobby data for lightweight storing.
+ * Tracks the unique identifier of the lobby, the total number of players
+ * required to start the game, and the number of players currently connected to it.
+ */
 public class LobbyInfo implements Serializable {
     private final int lobbyId;
     private final int numPlayers;
