@@ -28,9 +28,4 @@ public class HuntEventBuilding extends EventBuilding {
     public void reactToEvent(GameObserver observer, Player player, HuntEvent event) {
         reaction.manifest(observer, player, event);
     }
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return "Edificio Evento Caccia (Costo: " + getCost() + " cibo, PV: " + getPrestigePoints() + ") - Reagisce quando si risolve un Evento Caccia.";
-    }
 }

@@ -359,7 +359,6 @@ public class Board implements Serializable {
         observer.broadcast(new Update.NewRoundUpdate(this.currEra, this.topRow.getIds(), this.bottomRow.getIds()));
     }
 
-
     /**
      * Builds the full snapshot of the current game (used when a player reconnects).
      *

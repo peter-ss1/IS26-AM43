@@ -16,38 +16,39 @@ public class CharacterCardTest {
         }
 
         @Override
-        public void tribeEntranceEffect(GameObserver observer, Player player) {}
+        public void tribeEntranceEffect(GameObserver observer, Player player) {
         }
+    }
 
-        @Test
-        void constructorShouldStoreEra() {
-            DummyCharacterCard card = new DummyCharacterCard(2, 0);
+    @Test
+    void constructorShouldStoreEra() {
+        DummyCharacterCard card = new DummyCharacterCard(2, 0);
 
-            assertEquals(2, card.getEra());
-        }
+        assertEquals(2, card.getEra());
+    }
 
-        @Test
-        void isPickableShouldAlwaysReturnTrue() {
-            DummyCharacterCard card = new DummyCharacterCard(1, 0);
+    @Test
+    void isPickableShouldAlwaysReturnTrue() {
+        DummyCharacterCard card = new DummyCharacterCard(1, 0);
 
-            assertTrue(card.isPickable());
-        }
+        assertTrue(card.isPickable());
+    }
 
-        @Test
-        void firstRowChoiceShouldAlwaysReturnBottom() {
-            DummyCharacterCard card = new DummyCharacterCard(3, 0);
+    @Test
+    void firstRowChoiceShouldAlwaysReturnBottom() {
+        DummyCharacterCard card = new DummyCharacterCard(3, 0);
 
-            assertEquals(OfferAction.BOTTOM, card.firstRowChoice());
-        }
+        assertEquals(OfferAction.BOTTOM, card.firstRowChoice());
+    }
 
-        @Test
-        void addToRowShouldAddCardToRowsCharacterCollection() {
-            DummyCharacterCard card = new DummyCharacterCard(1, 0);
-            Row row = new Row();
+    @Test
+    void addToRowShouldAddCardToRowsCharacterCollection() {
+        DummyCharacterCard card = new DummyCharacterCard(1, 0);
+        Row row = new Row();
 
-            card.addToRow(row);
+        card.addToRow(row);
 
-            assertEquals(1, row.size());
-        }
+        assertEquals(1, row.size());
+    }
 
 }

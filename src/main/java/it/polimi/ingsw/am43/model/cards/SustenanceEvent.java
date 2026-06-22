@@ -66,9 +66,4 @@ public class SustenanceEvent extends Event {
         building.reactToEvent(observer, player, this);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return "Evento Sostentamento (Era " + getEra() + ") - Devi spendere cibo pari alla grandezza della tua tribù (meno gli sconti). Se non puoi, perdi PV.";
-    }
 }

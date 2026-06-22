@@ -8,7 +8,6 @@ import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.enums.InventorSymbol;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
-import it.polimi.ingsw.am43.network.message.Update;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,14 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TribeTest {
     private final GameObserver observer = new MockObserver();
 
-    //  FinalBuilding, TribeBuilding e TimedBuilding richiedono nel
-    //  costruttore un'implementazione di FinalEffect, TribeBonus e TimedEffect.
-    //  Senza fornirne una non puoi creare quegli oggetti.
-
-
     static class NoOpFinalEffect implements FinalEffect {
         @Override
-        public void manifest(Player player) {}
+        public void manifest(Player player) {
+        }
     }
 
     static class NoOpTribeBonus implements TribeBonus {
@@ -43,13 +38,17 @@ class TribeTest {
 
     static class NoOpTimedEffect implements TimedEffect {
         @Override
-        public void manifest(Player player, Game game, Board board) {}
+        public void manifest(Player player, Game game, Board board) {
+        }
     }
 
     static class CountingFinalEffect implements FinalEffect {
         int timesCalled = 0;
+
         @Override
-        public void manifest(Player player) { timesCalled++; }
+        public void manifest(Player player) {
+            timesCalled++;
+        }
     }
 
     static class FoodGivingTribeBonus implements TribeBonus {
@@ -67,11 +66,16 @@ class TribeTest {
 
     static class CountingEventBuilding extends EventBuilding {
         int timesCalled = 0;
-        public CountingEventBuilding() { super(1, 0, 0, 0); }
-        @Override
-        public void reactToEvent(GameObserver observer, Player player, HuntEvent event) { timesCalled++; }
-    }
 
+        public CountingEventBuilding() {
+            super(1, 0, 0, 0);
+        }
+
+        @Override
+        public void reactToEvent(GameObserver observer, Player player, HuntEvent event) {
+            timesCalled++;
+        }
+    }
 
 
     private Player player;
@@ -82,16 +86,13 @@ class TribeTest {
     }
 
 
-
-
-
     @Test
     void testGetTribeNumberEmpty() {
         assertEquals(0, player.getTribe().getTribeNumber());
     }
 
     @Test
-    void testGetTribeNumberAfterAdds() {
+    void testTribeNumberReturnsTotalCharacterCards() {
         new Hunter(1, 0, false).tribeEntranceEffect(observer, player);
         new Artist(1, 0).tribeEntranceEffect(observer, player);
         new Shaman(1, 0, 2).tribeEntranceEffect(observer, player);
@@ -144,13 +145,13 @@ class TribeTest {
 
     @Test
     void testAddFinalBuilding() {
-        new FinalBuilding(1, 0,0, 0, new NoOpFinalEffect()).tribeEntranceEffect(observer, player);
+        new FinalBuilding(1, 0, 0, 0, new NoOpFinalEffect()).tribeEntranceEffect(observer, player);
         assertDoesNotThrow(() -> player.getTribe().activateFinalBuildings(player));
     }
 
     @Test
     void testAddTribeBuilding() {
-        new TribeBuilding(1, 0,0, 0, new NoOpTribeBonus()).tribeEntranceEffect(observer, player);
+        new TribeBuilding(1, 0, 0, 0, new NoOpTribeBonus()).tribeEntranceEffect(observer, player);
         assertDoesNotThrow(() -> player.getTribe().activateTribeBuildings(observer, player));
     }
 
@@ -158,12 +159,12 @@ class TribeTest {
     void testAddEventBuilding() {
         new CountingEventBuilding().tribeEntranceEffect(observer, player);
         assertDoesNotThrow(() ->
-                player.getTribe().activateEventBuildings(observer, new HuntEvent(1,0), player));
+                player.getTribe().activateEventBuildings(observer, new HuntEvent(1, 0), player));
     }
 
     @Test
     void testAddTimedBuilding() {
-        new TimedBuilding(1, 0,0, 0, new NoOpTimedEffect()).tribeEntranceEffect(observer, player);
+        new TimedBuilding(1, 0, 0, 0, new NoOpTimedEffect()).tribeEntranceEffect(observer, player);
         assertDoesNotThrow(() -> player.getTribe().activateTimedBuilding(null, player, null));
     }
 
@@ -189,10 +190,9 @@ class TribeTest {
     void testActivateEventBuildingsCallsReactToEvent() {
         CountingEventBuilding eb = new CountingEventBuilding();
         eb.tribeEntranceEffect(observer, player);
-        player.getTribe().activateEventBuildings(observer, new HuntEvent(1,0), player);
+        player.getTribe().activateEventBuildings(observer, new HuntEvent(1, 0), player);
         assertEquals(1, eb.timesCalled);
     }
-
 
 
     @Test
@@ -203,105 +203,114 @@ class TribeTest {
     }
 
     @Test
-    void testGetNumberOfSetsOneCompleteSet() {
+    void testGetNumberOfSetsWithOneCompleteSet() {
         new Hunter(1, 0, false).tribeEntranceEffect(observer, player);
         new Inventor(1, 0, InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
-        new Builder(1, 0,1, 0).tribeEntranceEffect(observer, player);
-        new Gatherer(1,0).tribeEntranceEffect(observer, player);
-        new Artist(1,0).tribeEntranceEffect(observer, player);
-        new Shaman(1, 0,1).tribeEntranceEffect(observer, player);
+        new Builder(1, 0, 1, 0).tribeEntranceEffect(observer, player);
+        new Gatherer(1, 0).tribeEntranceEffect(observer, player);
+        new Artist(1, 0).tribeEntranceEffect(observer, player);
+        new Shaman(1, 0, 1).tribeEntranceEffect(observer, player);
         assertEquals(1, player.getTribe().getNumberOfSets());
     }
 
 
-
     @Test
-    void testGetInventorSymbolPairsEmpty() {
+    void testGetInventorSymbolPairsWhenEmpty() {
         assertEquals(0, player.getTribe().getInventorSymbolPairs());
     }
 
     @Test
-    void testGetInventorSymbolPairsNoPairs() {
-        new Inventor(1, 0,InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
-        new Inventor(1,0, InventorSymbol.HOOK).tribeEntranceEffect(observer, player);
+    void testGetInventorSymbolPairsWithNoPairs() {
+        new Inventor(1, 0, InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
+        new Inventor(1, 0, InventorSymbol.HOOK).tribeEntranceEffect(observer, player);
         assertEquals(0, player.getTribe().getInventorSymbolPairs());
     }
 
     @Test
-    void testGetInventorSymbolPairsOnePair() {
-        new Inventor(1, 0,InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
-        new Inventor(1, 0,InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
+    void testGetInventorSymbolPairsWithOnePair() {
+        new Inventor(1, 0, InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
+        new Inventor(1, 0, InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
         assertEquals(1, player.getTribe().getInventorSymbolPairs());
     }
 
-
     @Test
-    void testGetDistinctInventorSymbolsEmpty() {
+    void testGetDistinctInventorSymbolsWhenEmpty() {
         assertEquals(0, player.getTribe().getDistinctInventorSymbols());
     }
 
     @Test
-    void testGetDistinctInventorSymbols() {
-        new Inventor(1,0, InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
-        new Inventor(1, 0,InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
-        new Inventor(1,0, InventorSymbol.HOOK).tribeEntranceEffect(observer, player);
+    void testGetDistinctInventorSymbolsWithDuplicates() {
+        new Inventor(1, 0, InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
+        new Inventor(1, 0, InventorSymbol.BOAT).tribeEntranceEffect(observer, player);
+        new Inventor(1, 0, InventorSymbol.HOOK).tribeEntranceEffect(observer, player);
         assertEquals(2, player.getTribe().getDistinctInventorSymbols());
     }
 
 
     @Test
     void testGathererIncreasesSustenanceDiscount() {
-        new Gatherer(1,0).tribeEntranceEffect(observer, player);
+        new Gatherer(1, 0).tribeEntranceEffect(observer, player);
         assertEquals(3, player.getSustenanceDiscount());
     }
 
     @Test
     void testBuilderIncreasesBuildingDiscount() {
-        new Builder(1, 0,2, 0).tribeEntranceEffect(observer, player);
+        new Builder(1, 0, 2, 0).tribeEntranceEffect(observer, player);
         assertEquals(2, player.getBuildingDiscount());
     }
 
     @Test
     void testShamanIncreasesShamanStars() {
-        new Shaman(1, 0,3).tribeEntranceEffect(observer, player);
+        new Shaman(1, 0, 3).tribeEntranceEffect(observer, player);
         assertEquals(3, player.getShamanStars());
     }
 
     @Test
     void testActiveHunterAddsFood() {
-        new Hunter(1, 0,true).tribeEntranceEffect(observer, player);
+        new Hunter(1, 0, true).tribeEntranceEffect(observer, player);
         assertEquals(1, player.getFood());
     }
 
     @Test
     void testInactiveHunterDoesNotAddFood() {
-        new Hunter(1, 0,false).tribeEntranceEffect(observer, player);
+        new Hunter(1, 0, false).tribeEntranceEffect(observer, player);
         assertEquals(0, player.getFood());
     }
+
     @Test
-    void testGetBuildersTotalPrestigePointsEmpty() {
+    void testGetBuildersTotalPrestigePointsWhenEmpty() {
         assertEquals(0, player.getTribe().getBuildersTotalPrestigePoints());
     }
 
     @Test
     void testGetBuildersTotalPrestigePoints() {
-        new Builder(1, 0,0, 3).tribeEntranceEffect(observer, player);
-        new Builder(1, 0,0, 2).tribeEntranceEffect(observer, player);
+        new Builder(1, 0, 0, 3).tribeEntranceEffect(observer, player);
+        new Builder(1, 0, 0, 2).tribeEntranceEffect(observer, player);
         assertEquals(5, player.getTribe().getBuildersTotalPrestigePoints());
     }
 
     @Test
-    void testGetBuildingsTotalPrestigePointsEmpty() {
+    void testGetBuildingsTotalPrestigePointsWhenEmpty() {
         assertEquals(0, player.getTribe().getBuildingsTotalPrestigePoints());
     }
 
     @Test
     void testGetBuildingsTotalPrestigePoints() {
-        new FinalBuilding(1, 0,0, 3, new NoOpFinalEffect()).tribeEntranceEffect(observer, player);
-        new EventBuilding(1, 0,0, 2) {}.pick(new MockObserver(), player);
-        new TribeBuilding(1, 0,0, 4, new NoOpTribeBonus()).tribeEntranceEffect(observer, player);
-        new TimedBuilding(1, 0,0, 1, new NoOpTimedEffect()).tribeEntranceEffect(observer, player);
+        new FinalBuilding(1, 0, 0, 3, new NoOpFinalEffect()).tribeEntranceEffect(observer, player);
+        new EventBuilding(1, 0, 0, 2) {
+        }.pick(new MockObserver(), player);
+        new TribeBuilding(1, 0, 0, 4, new NoOpTribeBonus()).tribeEntranceEffect(observer, player);
+        new TimedBuilding(1, 0, 0, 1, new NoOpTimedEffect()).tribeEntranceEffect(observer, player);
         assertEquals(10, player.getTribe().getBuildingsTotalPrestigePoints());
+    }
+
+    @Test
+    void testGetAllIdsWithinTribe() {
+        player.getTribe().addCardToTribe(new Artist(1, 1));
+        player.getTribe().addCardToTribe(new Artist(1, 2));
+        assertEquals(1, player.getTribe().getIds().getFirst());
+        assertEquals(2, player.getTribe().getIds().getLast());
+
     }
 }
 

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RitualEventTest {
     private RitualEvent example;
     @Test
-    void shouldAffectPlayers() {
+    void shouldResolveAndGiveShamanRelatedBonusesOrMaluses() {
         example = new RitualEvent(1, 0, -3);
         List<Player> players = new ArrayList<>();
         Player p1 = new Player("p1", Color.WHITE);
@@ -33,7 +33,7 @@ class RitualEventTest {
     }
 
     @Test
-    void shouldTriggerBuilding() {
+    void shouldOnlyTriggerRitualEventBuildingEffects() {
         example = new RitualEvent(1, 0, -3);
         List<Player> players = new ArrayList<>();
         Player p1 = new Player("p1",Color.BLACK);

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class TribeBuildingTest {
     TribeBuilding example;
     @Test
-    void shouldApplyCorrectEffect() {
+    void shouldApplyCorrectTribeRelatedEffect() {
         Player player = new Player("1", Color.YELLOW);
         player.getTribe().addCardToTribe(new Inventor(1, 0, InventorSymbol.BOAT));
         player.getTribe().addCardToTribe(new Inventor(1, 0, InventorSymbol.BOAT));
@@ -53,7 +53,7 @@ class TribeBuildingTest {
     }
 
     @Test
-    void shouldNotBePickedWithoutFood() {
+    void shouldNotBePickedWithoutSufficientFood() {
         example = new TribeBuilding(1, 0, 1, 1, new TribeBonus.FoodOnInventorSymbolPair());
         IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> {
             example.pick(new MockObserver(), new Player("p1", Color.WHITE));

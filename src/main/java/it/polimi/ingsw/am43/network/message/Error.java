@@ -57,11 +57,21 @@ public non-sealed abstract class Error extends Message {
         public OutOfTurnError(String message) {
             super(message);
         }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getView().showGameError("The command could not be performed because: " + this.message);
+        }
     }
 
     public static class WrongPhaseError extends Error {
         public WrongPhaseError(String message) {
             super(message);
+        }
+
+        @Override
+        public void execute(ClientController controller) {
+            controller.getView().showGameError("The command could not be performed because: " + this.message);
         }
     }
 

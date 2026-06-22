@@ -13,6 +13,7 @@ module it.polimi.ingsw.am43 {
     exports it.polimi.ingsw.am43.network.message;
     exports it.polimi.ingsw.am43.network.command;
     exports it.polimi.ingsw.am43.network.rmi;
+    exports it.polimi.ingsw.am43.controller;
     exports it.polimi.ingsw.am43.main to javafx.graphics;
     opens it.polimi.ingsw.am43.network to java.rmi;
     opens it.polimi.ingsw.am43 to javafx.fxml;

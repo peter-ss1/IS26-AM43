@@ -47,9 +47,4 @@ public class HuntEvent extends Event {
     public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
         building.reactToEvent(observer, player, this);
     }
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return "Evento Caccia (Era " + getEra() + ") - Ottieni cibo e PV in base al numero dei tuoi Cacciatori attivi.";
-    }
 }

@@ -28,12 +28,12 @@ class OrderQueueTest {
     }
 
     @Test
-    void shouldGetLastFoodGiven() {
+    void shouldGetLastFoodModifierApplied() {
         assertEquals(-1, orderQueue.getLastFoodGiven());
     }
 
     @Test
-    void shouldAppend() {
+    void shouldAppendPlayerToTurnOrder() {
         orderQueue.pop();
         orderQueue.pop();
         assertTrue(orderQueue.isEmpty());
@@ -48,7 +48,7 @@ class OrderQueueTest {
     }
 
     @Test
-    void shouldPopFirstPlayer() {
+    void shouldReturnNextActivePlayer() {
         orderQueue.pop();
         orderQueue.pop();
         Player player1= new Player("pippo", Color.WHITE);
@@ -60,7 +60,7 @@ class OrderQueueTest {
     }
 
     @Test
-    void peek(){
+    void shouldReturnNextActivePlayerWithoutRemoval() {
         orderQueue.pop();
         orderQueue.pop();
         Player player1= new Player("pippo", Color.WHITE);
