@@ -8,7 +8,11 @@ import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.player.Player;
 
 import java.io.Serializable;
-
+/**
+ * Strategy describing the end-game scoring effect of a {@link FinalBuilding}.
+ * Each concrete implementation encodes one way of granting prestige points to
+ * a player when the game ends.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FinalEffect.FinalPrestigePointsByCharacterType.class, name = "finalPointsByType"),
@@ -17,11 +21,7 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = FinalEffect.FinalBonusPrestigePoints.class, name = "finalBonusPoints")
 })
 
-/**
- * Strategy describing the end-game scoring effect of a {@link FinalBuilding}.
- * Each concrete implementation encodes one way of granting prestige points to
- * a player when the game ends.
- */
+
 @FunctionalInterface
 public interface FinalEffect extends Serializable {
     /**

@@ -13,7 +13,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Strategy describing the round-time effect of a {@link TimedBuilding}. Each
+ * concrete implementation activates a bonus in a specific game phase.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = TimedEffect.BonusTurnFood.class, name = "bonusTurnFood"),
@@ -21,10 +24,7 @@ import java.util.List;
 })
 
 
-/**
- * Strategy describing the round-time effect of a {@link TimedBuilding}. Each
- * concrete implementation activates a bonus in a specific game phase.
- */
+
 @FunctionalInterface
 public interface TimedEffect extends Serializable {
     /**

@@ -182,7 +182,6 @@ class TribeTest {
         new TribeBuilding(1, 0, 0, 0, new FoodGivingTribeBonus()).tribeEntranceEffect(observer, player);
         int foodBefore = player.getFood();
         player.getTribe().activateTribeBuildings(observer, player);
-        // bonus è 2, lastGivenBonus era già 2 dopo tribeEntranceEffect → delta = 0
         assertEquals(foodBefore, player.getFood());
     }
 

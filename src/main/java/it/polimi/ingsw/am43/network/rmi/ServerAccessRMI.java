@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am43.network.rmi;
 
 import it.polimi.ingsw.am43.network.connections.ConnectionFactory;
-import it.polimi.ingsw.am43.network.connections.MultiPersistentClientConnection;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;

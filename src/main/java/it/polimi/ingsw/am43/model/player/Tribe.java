@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * Represents a player's collection of cards, split based on card type. Manages sub-list registrations via polymorphic
+ * overloads and exposes score helper methods for passive effects and endgame updates.
+ */
 public class Tribe implements Serializable {
-
-
     // Characters
-
     private final List<Hunter> hunters;
     private final List<Inventor> inventors;
     private final List<Builder> builders;
@@ -25,25 +25,27 @@ public class Tribe implements Serializable {
     private final List<Artist> artists;
     private final List<Shaman> shaman;
 
-
     // Buildings
+    private final List<FinalBuilding> finalBuildings;
+    private final List<EventBuilding> eventBuildings;
+    private final List<TribeBuilding> tribeBuildings;
+    private final List<TimedBuilding> timedBuildings;
 
-    private final List<FinalBuilding>  finalBuildings;
-    private final List<EventBuilding>  eventBuildings;
-    private final List<TribeBuilding>  tribeBuildings;
-    private final List<TimedBuilding>  timedBuildings;
-
+    /**
+     * Constructs an empty Tribe, initializing internal storage sub-lists
+     * for each unique subtype of character and building card.
+     */
     public Tribe() {
-        hunters=new ArrayList<>();
-        inventors=new ArrayList<>();
-        builders=new ArrayList<>();
-        gatherers=new ArrayList<>();
-        artists=new ArrayList<>();
-        shaman=new ArrayList<>();
-        finalBuildings=new ArrayList<>();
-        eventBuildings=new ArrayList<>();
-        tribeBuildings=new ArrayList<>();
-        timedBuildings=new ArrayList<>();
+        hunters = new ArrayList<>();
+        inventors = new ArrayList<>();
+        builders = new ArrayList<>();
+        gatherers = new ArrayList<>();
+        artists = new ArrayList<>();
+        shaman = new ArrayList<>();
+        finalBuildings = new ArrayList<>();
+        eventBuildings = new ArrayList<>();
+        tribeBuildings = new ArrayList<>();
+        timedBuildings = new ArrayList<>();
     }
 
     /**
@@ -52,43 +54,49 @@ public class Tribe implements Serializable {
      *
      * @param c the card to add
      */
-    public void addCardToTribe(Hunter c){
+    public void addCardToTribe(Hunter c) {
         hunters.add(c);
     }
-    public void addCardToTribe(Inventor c){
+
+    public void addCardToTribe(Inventor c) {
         inventors.add(c);
     }
-    public void addCardToTribe(Builder c){
+
+    public void addCardToTribe(Builder c) {
         builders.add(c);
     }
-    public void addCardToTribe(Gatherer c){
+
+    public void addCardToTribe(Gatherer c) {
         gatherers.add(c);
     }
-    public void addCardToTribe(Artist c){
-        artists.add(c); }
-    public void addCardToTribe(Shaman c){
+
+    public void addCardToTribe(Artist c) {
+        artists.add(c);
+    }
+
+    public void addCardToTribe(Shaman c) {
         shaman.add(c);
     }
-    public void addCardToTribe(FinalBuilding c){
+
+    public void addCardToTribe(FinalBuilding c) {
         finalBuildings.add(c);
     }
-    public void addCardToTribe(EventBuilding c){
+
+    public void addCardToTribe(EventBuilding c) {
         eventBuildings.add(c);
     }
-    public void addCardToTribe(TribeBuilding c){
+
+    public void addCardToTribe(TribeBuilding c) {
         tribeBuildings.add(c);
     }
-    public void addCardToTribe(TimedBuilding c){
+
+    public void addCardToTribe(TimedBuilding c) {
         timedBuildings.add(c);
     }
 
 
-
-
-
-
     /**
-     *ridà numero character in tribe
+     * ridà numero character in tribe
      */
     public int getTribeNumber() {
         return hunters.size()
@@ -175,8 +183,6 @@ public class Tribe implements Serializable {
     }
 
 
-
-
     /**
      * @return the number of complete sets (minimum across the sizes of all six character lists)
      */
@@ -200,7 +206,9 @@ public class Tribe implements Serializable {
     }
 
 
-    /** @return the number of Inventor symbol pairs in the tribe */
+    /**
+     * @return the number of Inventor symbol pairs in the tribe
+     */
     public int getInventorSymbolPairs() {
         Map<InventorSymbol, Integer> counts = getSymbolCounts();
         int pairs = 0;
@@ -211,21 +219,22 @@ public class Tribe implements Serializable {
     }
 
 
-    /** @return the number of distinct Inventor symbols (used for the Inventor scoring) */
+    /**
+     * @return the number of distinct Inventor symbols (used for the Inventor scoring)
+     */
     public int getDistinctInventorSymbols() {
         return getSymbolCounts().size();
     }
 
 
     private Map<InventorSymbol, Integer> getSymbolCounts() {
-        Map<InventorSymbol, Integer> counts = new HashMap<>();  //mappa per contare quante volte simbolo appare
+        Map<InventorSymbol, Integer> counts = new HashMap<>();
         for (Inventor inv : inventors) {
             InventorSymbol sym = inv.getSymbol();
             counts.put(sym, counts.getOrDefault(sym, 0) + 1);
         }
         return counts;
     }
-
 
 
     public int getBuildersTotalPrestigePoints() {
@@ -236,19 +245,22 @@ public class Tribe implements Serializable {
         return total;
     }
 
-    /** @return the sum of the prestige points of all buildings in the tribe */
+    /**
+     * @return the sum of the prestige points of all buildings in the tribe
+     */
     public int getBuildingsTotalPrestigePoints() {
         int total = 0;
-        for (FinalBuilding fb : finalBuildings)  total += fb.getPrestigePoints();
-        for (EventBuilding eb : eventBuildings)  total += eb.getPrestigePoints();
-        for (TribeBuilding tb : tribeBuildings)  total += tb.getPrestigePoints();
-        for (TimedBuilding tb : timedBuildings)  total += tb.getPrestigePoints();
+        for (FinalBuilding fb : finalBuildings) total += fb.getPrestigePoints();
+        for (EventBuilding eb : eventBuildings) total += eb.getPrestigePoints();
+        for (TribeBuilding tb : tribeBuildings) total += tb.getPrestigePoints();
+        for (TimedBuilding tb : timedBuildings) total += tb.getPrestigePoints();
         return total;
     }
 
 
-
-    /** @return the list of ids of all cards present in the tribe */
+    /**
+     * @return the list of ids of all cards present in the tribe
+     */
     public List<Integer> getIds() {
         List<Integer> ids = new ArrayList<>();
         this.hunters.forEach(h -> ids.add(h.getId()));

@@ -7,6 +7,11 @@ import it.polimi.ingsw.am43.model.utils.GameObserver;
 
 import java.io.Serializable;
 
+/**
+ * Abstract class representing a generic card within the game.
+ * Outlines high-level shared properties such as eras,
+ * unique identifiers, and pickup behaviors.
+ */
 public abstract class Card implements Serializable {
     private final int era;
     private final int id;

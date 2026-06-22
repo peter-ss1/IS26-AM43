@@ -1,11 +1,10 @@
 package it.polimi.ingsw.am43.network.rmi;
 
-import it.polimi.ingsw.am43.network.connections.ConnectionHandler;
-import it.polimi.ingsw.am43.network.connections.PersistentClientConnection;
-
 import it.polimi.ingsw.am43.network.command.CommandReceiver;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
+import it.polimi.ingsw.am43.network.connections.ConnectionHandler;
+import it.polimi.ingsw.am43.network.connections.PersistentClientConnection;
 import it.polimi.ingsw.am43.network.message.Message;
 
 import java.rmi.RemoteException;
@@ -92,7 +91,6 @@ public class ClientRMIConnection implements PersistentClientConnection, VirtualS
         try {
             this.remote.sendMessage(message);
         }catch (RemoteException e){
-            //this.disconnect();
         }
 
     };

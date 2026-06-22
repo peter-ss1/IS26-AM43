@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.Ping;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
-import it.polimi.ingsw.am43.utils.UtilsJSON;
 import it.polimi.ingsw.am43.network.socket.VirtualServerSocket;
+import it.polimi.ingsw.am43.utils.UtilsJSON;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -4,8 +4,6 @@ import it.polimi.ingsw.am43.network.VirtualServer;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 
-import java.util.UUID;
-
 /**
  * Socket-specific specialization of {@link VirtualServer}. On top of forwarding
  * commands it adds {@link #ping()}, since over a raw socket the keep-alive probe

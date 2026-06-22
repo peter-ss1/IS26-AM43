@@ -4,8 +4,6 @@ import it.polimi.ingsw.am43.network.Reaper;
 
 import java.util.HashSet;
 import java.util.Iterator;
-
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -59,7 +57,7 @@ public class ClientsConnectionManager implements MultiPersistentClientConnection
         } finally {
             this.lock.readLock().unlock();
         }
-    }//to put protected
+    }
 
     /**
      * Registers a connection for a player. If a different connection already
@@ -123,4 +121,3 @@ public class ClientsConnectionManager implements MultiPersistentClientConnection
     }
 
 }
-//TODO implement all exceptions

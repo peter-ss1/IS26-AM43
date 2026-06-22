@@ -2,23 +2,11 @@ package it.polimi.ingsw.am43.network.command;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am43.controller.GameController;
-import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.utils.Task;
 
-import java.rmi.RemoteException;
 import java.util.UUID;
-
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = GameCommand.PickNameColorCommand.class, name = "pickNameColorCommand"),
-        @JsonSubTypes.Type(value = GameCommand.PlaceTotemCommand.class, name = "placeTotemCommand"),
-        @JsonSubTypes.Type(value = GameCommand.PickCardCommand.class, name = "pickCardCommand"),
-        @JsonSubTypes.Type(value = GameCommand.EndTurnCommand.class, name = "endTurnCommand"),
-        @JsonSubTypes.Type(value = GameCommand.JoinLobbyCommand.class, name = "joinLobbyCommand"),
-        @JsonSubTypes.Type(value = GameCommand.RejoinLobbyCommand.class, name = "rejoinLobbyCommand"),
-})
 /**
  * Base class for in-game commands, i.e. actions targeting a running game. Each
  * concrete subtype implements {@link Task#execute} by invoking the matching method
@@ -27,6 +15,15 @@ import java.util.UUID;
  * remaining nested classes are internal commands produced server-side (connection,
  * disconnection, timeouts) and never travel over the network.
  */
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = GameCommand.PickNameColorCommand.class, name = "pickNameColorCommand"),
+        @JsonSubTypes.Type(value = GameCommand.PlaceTotemCommand.class, name = "placeTotemCommand"),
+        @JsonSubTypes.Type(value = GameCommand.PickCardCommand.class, name = "pickCardCommand"),
+        @JsonSubTypes.Type(value = GameCommand.EndTurnCommand.class, name = "endTurnCommand"),
+        @JsonSubTypes.Type(value = GameCommand.JoinLobbyCommand.class, name = "joinLobbyCommand"),
+        @JsonSubTypes.Type(value = GameCommand.RejoinLobbyCommand.class, name = "rejoinLobbyCommand"),
+})
+
 public non-sealed abstract class GameCommand extends Command implements Task<GameController> {
 
     /**
@@ -47,7 +44,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
-    /** Internal: signals that a player has (re)connected to the game. */
+    /** Internal: signals that the game has ended and the lobby must be closed. */
     public static class  EndGameCommand extends GameCommand{
         public EndGameCommand(){super(null);}
 
@@ -57,6 +54,7 @@ public non-sealed abstract class GameCommand extends Command implements Task<Gam
         }
     }
 
+    /** Internal: signals that a player has (re)connected to the game. */
     public static class ConnectionCommand extends GameCommand {
         public ConnectionCommand(UUID playerId) { super(playerId); }
 

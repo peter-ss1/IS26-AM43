@@ -9,7 +9,7 @@ public class MockObserver implements GameObserver {
     }
 
     @Override
-    public void endGame() {
+    public void notifyEndGame() {
     }
 
     @Override

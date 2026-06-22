@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.utils.DTOs.BuildingDeckCardDTO.*;
-
+/**
+ * Data Transfer Object for building cards as stored in the configuration file.
+ * Each concrete subtype knows how to create the matching {@link Building}
+ * instance from the deserialized data.
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -21,12 +25,6 @@ import it.polimi.ingsw.am43.model.utils.DTOs.BuildingDeckCardDTO.*;
         @JsonSubTypes.Type(value = PaintingEventBuildingDTO.class, name = "PAINTING_BUILDING"),
 
 })
-
-/**
- * Data Transfer Object for building cards as stored in the configuration file.
- * Each concrete subtype knows how to create the matching {@link Building}
- * instance from the deserialized data.
- */
 public abstract class BuildingDeckCardDTO {
     public Integer era;
     public Integer id;

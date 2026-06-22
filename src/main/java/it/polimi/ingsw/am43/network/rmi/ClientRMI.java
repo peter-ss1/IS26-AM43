@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.network.rmi;
 
-import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.network.message.Message;
 
 import java.rmi.RemoteException;

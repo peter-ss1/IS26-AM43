@@ -6,7 +6,6 @@ import it.polimi.ingsw.am43.client.view.gui.GUI;
 import it.polimi.ingsw.am43.controller.ClientController;
 import it.polimi.ingsw.am43.database.RankElement;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 
 import java.util.List;
 import java.util.Map;

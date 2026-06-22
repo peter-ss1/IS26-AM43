@@ -1,14 +1,13 @@
 package it.polimi.ingsw.am43.network.rmi;
 
 import it.polimi.ingsw.am43.client.HeartBeat;
-import it.polimi.ingsw.am43.network.message.MessageReceiver;
-import it.polimi.ingsw.am43.network.connections.ServerConnectionUser;
-import it.polimi.ingsw.am43.network.connections.PersistentServerConnection;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
-import it.polimi.ingsw.am43.network.message.*;
+import it.polimi.ingsw.am43.network.connections.PersistentServerConnection;
+import it.polimi.ingsw.am43.network.connections.ServerConnectionUser;
+import it.polimi.ingsw.am43.network.message.Message;
+import it.polimi.ingsw.am43.network.message.MessageReceiver;
 
-import java.net.InetAddress;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -87,7 +86,6 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
                     this.heartBeat= new HeartBeat(this);
                     this.heartBeat.start();
                 }catch (Exception e)  {
-                    //System.out.println("unable to establish connection");
                     this.connected.set(false);
                     try {
                         Thread.sleep(3000);
@@ -113,16 +111,13 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
      */
     public void sendCommand(ServerCommand command){
         this.lock.readLock().lock();
-        //boolean disconnection=false;
         try {
             this.remote.sendCommand(command);
         }catch (RemoteException e){
-            //disconnection=true;
         }
         catch (NullPointerException e){System.err.println("Connection not already established");}
         finally {
             this.lock.readLock().unlock();
-            //if (disconnection)this.disconnect();
         }
     }
     /**
@@ -132,16 +127,13 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
      */
     public void sendCommand(GameCommand command){
         this.lock.readLock().lock();
-        //boolean disconnection=false;
         try {
             this.remote.sendCommand(command);
         }catch (RemoteException e){
-            //disconnection=true;
             }
         catch (NullPointerException e){System.err.println("Connection not already established");}
         finally {
             this.lock.readLock().unlock();
-            //if (disconnection)this.disconnect();
         }
     }
     /**
@@ -151,17 +143,14 @@ public class ServerRMIConnection implements PersistentServerConnection, VirtualC
      */
     public void ping(){
         this.lock.readLock().lock();
-        //boolean disconnection=false;
         try {
             this.remote.ping();
             this.updateLastPong();
         }catch (RemoteException e){
-            //disconnection=true;
         }
         catch (NullPointerException e){System.err.println("Connection not already established");}
         finally {
             this.lock.readLock().unlock();
-            //if (disconnection)this.disconnect();
         }
     }
 

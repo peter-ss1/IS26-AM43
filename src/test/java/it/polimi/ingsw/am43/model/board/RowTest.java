@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am43.model.board;
 
-import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.cards.*;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import org.junit.jupiter.api.BeforeEach;

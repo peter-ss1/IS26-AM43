@@ -89,10 +89,10 @@ public class TotemNode extends StackPane {
      */
     public static String toPantoneHex(Color color) {
         return switch (color) {
-            case RED -> "#EF3340";    // Pantone 1788
-            case YELLOW -> "#FECB00"; // Pantone 7406
-            case CYAN -> "#009CBD";   // Pantone 3135
-            case BLACK -> "#41273B";  // Pantone 7449
+            case RED -> "#EF3340";
+            case YELLOW -> "#FECB00";
+            case CYAN -> "#009CBD";
+            case BLACK -> "#41273B";
             case WHITE -> "#FFFFFF";
         };
     }

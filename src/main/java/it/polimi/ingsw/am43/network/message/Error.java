@@ -3,7 +3,11 @@ package it.polimi.ingsw.am43.network.message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import it.polimi.ingsw.am43.controller.ClientController;
-
+/**
+ * A server-to-client message reporting that something went wrong. It carries a
+ * human-readable description and, by default, shows it as a game error on the
+ * client view; concrete subtypes refine how the specific error is presented.
+ */
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Error.LobbyCreationError.class, name = "lobbyCreationError"),
         @JsonSubTypes.Type(value = Error.OutOfTurnError.class, name = "outOfTurnError"),
@@ -14,11 +18,7 @@ import it.polimi.ingsw.am43.controller.ClientController;
         @JsonSubTypes.Type(value = Error.GenericServerError.class, name = "genericServerError"),
 })
 
-/**
- * A server-to-client message reporting that something went wrong. It carries a
- * human-readable description and, by default, shows it as a game error on the
- * client view; concrete subtypes refine how the specific error is presented.
- */
+
 public non-sealed abstract class Error extends Message {
     @JsonProperty("message")
     protected final String message;

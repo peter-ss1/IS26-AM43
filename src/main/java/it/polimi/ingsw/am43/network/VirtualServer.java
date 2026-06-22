@@ -1,12 +1,10 @@
 package it.polimi.ingsw.am43.network;
 
 import it.polimi.ingsw.am43.network.command.GameCommand;
-import it.polimi.ingsw.am43.network.command.Ping;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.UUID;
 
 /**
  * Protocol-agnostic contract for everything that can act as a server endpoint,

@@ -5,42 +5,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
-/*
-public class ResiliencyManager {
-    private static final Path UUID_FILE = Paths.get("client_id.txt");
 
-    public static UUID getOrCreateUUID() {
-        if (Files.exists(UUID_FILE)) {
-            try {
-                String savedId = Files.readString(UUID_FILE).trim();
-                UUID recoveredUUID = UUID.fromString(savedId);
-
-                System.out.println("Identity recovered: " + recoveredUUID);
-                return recoveredUUID;
-
-            } catch (IllegalArgumentException e) {
-                System.err.println("Id corrupted, generating new one");
-            } catch (IOException e) {
-                System.err.println("Disc reading error, generating new one");
-            }
-        }
-
-        UUID newUUID = UUID.randomUUID();
-        try {
-            Files.writeString(UUID_FILE, newUUID.toString());
-            System.out.println("new player, generating identity: " + newUUID);
-
-        } catch (IOException e) {
-            System.err.println("error while writing id on the disc");
-        }
-
-        return newUUID;
-    }
-}
-*/
+/**
+ * Manages client side recovery of local identity stored configurations.
+ * Ensures that if a client application crashes or is restarted, it can restore its unique identifier (UUID)
+ * to reconnect to the server and return to own session.
+ */
 public class ResiliencyManager {
     private static final Path CLIENTS_DIR = Paths.get("clients");
 
+    /**
+     * Retrieves an existing unique network identifier for a given client index from disk,
+     * or generates and writes a new one if it does not already exist.
+     *
+     * @param client a numerical index
+     * @return a persistent or newly assigned {@link UUID} uniquely mapping to this client instance
+     */
     public static UUID getOrCreateUUID(int client) {
 
         try {

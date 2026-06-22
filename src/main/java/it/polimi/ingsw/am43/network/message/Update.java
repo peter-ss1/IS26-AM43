@@ -15,7 +15,12 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * A server-to-client message describing a state change the client must apply to its
+ * local model. Each concrete subtype carries the data for one specific change and
+ * implements {@link #execute} by calling the matching method on the client model,
+ * so the local view stays in sync with the authoritative server state.
+ */
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Update.AvailableLobbiesUpdate.class, name = "showAvailableLobbies"),
         @JsonSubTypes.Type(value = Update.LobbyCreatedUpdate.class, name = "lobbyCreatedUpdate"),
@@ -50,12 +55,7 @@ import java.util.Map;
 
 })
 
-/**
- * A server-to-client message describing a state change the client must apply to its
- * local model. Each concrete subtype carries the data for one specific change and
- * implements {@link #execute} by calling the matching method on the client model,
- * so the local view stays in sync with the authoritative server state.
- */
+
 public non-sealed abstract class Update extends Message {
 
 
@@ -483,7 +483,6 @@ public non-sealed abstract class Update extends Message {
 
         @Override
         public void execute(ClientController controller) {
-            // Quando il messaggio arriva a destinazione, dice al ClientModel di far vedere la classifica
             controller.getLocalModel().showLeaderboard(leaderboard, playerRanks);
         }
     }

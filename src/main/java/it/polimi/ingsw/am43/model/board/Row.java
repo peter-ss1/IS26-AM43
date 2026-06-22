@@ -1,11 +1,17 @@
 package it.polimi.ingsw.am43.model.board;
 
-import it.polimi.ingsw.am43.model.cards.*;
+import it.polimi.ingsw.am43.model.cards.Building;
+import it.polimi.ingsw.am43.model.cards.Card;
+import it.polimi.ingsw.am43.model.cards.CharacterCard;
+import it.polimi.ingsw.am43.model.cards.Event;
 import it.polimi.ingsw.am43.model.player.Player;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.stream.Stream;
 
 /**
@@ -54,7 +60,7 @@ public class Row implements Serializable {
      *
      * @param building the building to add
      */
-    public void addCard(Building building) {//to talk later
+    public void addCard(Building building) {
         this.buildings.add(building);
     }
 

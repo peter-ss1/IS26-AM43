@@ -952,6 +952,6 @@
   "database": {
     "url": "jdbc:mysql://localhost:3306/mesos_db",
     "user": "root",
-    "password": "ciaocomestai"
+    "password": "password"
   }
 }

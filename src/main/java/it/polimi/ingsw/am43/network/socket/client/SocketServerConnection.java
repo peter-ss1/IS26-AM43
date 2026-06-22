@@ -1,15 +1,18 @@
 package it.polimi.ingsw.am43.network.socket.client;
 
 import it.polimi.ingsw.am43.client.HeartBeat;
-import it.polimi.ingsw.am43.network.connections.PersistentServerConnection;
-
-import it.polimi.ingsw.am43.network.connections.ServerConnectionUser;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
-import it.polimi.ingsw.am43.network.message.*;
+import it.polimi.ingsw.am43.network.connections.PersistentServerConnection;
+import it.polimi.ingsw.am43.network.connections.ServerConnectionUser;
+import it.polimi.ingsw.am43.network.message.Message;
+import it.polimi.ingsw.am43.network.message.MessageReceiver;
 import it.polimi.ingsw.am43.network.socket.VirtualClientSocket;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -115,7 +118,7 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
                     String uuidString = in.readLine();
                     UUID playerId = UUID.fromString(uuidString);
                     socket.setSoTimeout(0);
-                    if(!playerId.equals(this.playerId)) throw new Exception();//TODO exception
+                    if(!playerId.equals(this.playerId)) throw new Exception();
                     this.socket=socket;
                     this.remote = new SocketServerHandler(out);
                     this.listener = new SocketServerListener(this, in);
@@ -123,7 +126,6 @@ public class SocketServerConnection implements PersistentServerConnection, Virtu
                     this.listener.start();
                     this.heartBeat.start();
                 }catch (Exception e){
-                    //System.out.println("unable to establish connection");
                     this.connected.set(false);
                     try {
                         Thread.sleep(3000);

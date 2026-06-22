@@ -2,20 +2,17 @@ package it.polimi.ingsw.am43.network.socket.server;
 
 
 import it.polimi.ingsw.am43.network.command.CommandReceiver;
-import it.polimi.ingsw.am43.network.connections.ConnectionHandler;
-
-import it.polimi.ingsw.am43.network.connections.PersistentClientConnection;
-
 import it.polimi.ingsw.am43.network.command.GameCommand;
-
 import it.polimi.ingsw.am43.network.command.ServerCommand;
+import it.polimi.ingsw.am43.network.connections.ConnectionHandler;
+import it.polimi.ingsw.am43.network.connections.PersistentClientConnection;
 import it.polimi.ingsw.am43.network.message.Message;
-
 import it.polimi.ingsw.am43.network.socket.VirtualServerSocket;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
-
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 

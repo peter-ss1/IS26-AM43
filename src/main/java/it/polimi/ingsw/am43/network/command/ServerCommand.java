@@ -7,7 +7,6 @@ import it.polimi.ingsw.am43.controller.ServerController;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.utils.Task;
 
-import java.rmi.RemoteException;
 import java.util.UUID;
 
 /**
@@ -34,8 +33,6 @@ public non-sealed abstract class ServerCommand extends Command implements Task<S
     protected ServerCommand(UUID playerId) {
         super(playerId);
     }
-
-    // --- SERVER INTERNAL ---
 
     /** Internal: signals that a player has (re)connected at the server level. */
     public static class ConnectionCommand extends ServerCommand {
@@ -80,8 +77,6 @@ public non-sealed abstract class ServerCommand extends Command implements Task<S
             controller.handleEndGame(this.lobbyId);
         }
     }
-
-    // --- DA CLIENT ---
 
     /** Wire command: the client asks for the list of available lobbies. */
     public static class FetchLobbiesCommand extends ServerCommand {
