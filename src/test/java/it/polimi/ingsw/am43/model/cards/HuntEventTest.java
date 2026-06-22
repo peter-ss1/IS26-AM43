@@ -18,7 +18,7 @@ class HuntEventTest {
     private final HuntEvent example = new HuntEvent(2, 0);
 
     @Test
-    void shouldAffectPlayers() {
+    void shouldResolveAndGiveHunterRelatedBonuses() {
         List<Player> players = new ArrayList<>();
         Player p1 = new Player("p1", Color.WHITE);
         Player p2 = new Player("p2",Color.CYAN);
@@ -36,7 +36,7 @@ class HuntEventTest {
     }
 
     @Test
-    void shouldTriggerBuilding() {
+    void shouldOnlyTriggerHuntEventBuildingEffects() {
         Player p1 = new Player("p1",Color.WHITE);
         p1.getTribe().addCardToTribe(new Hunter(1, 0, false));
         example.triggerBuilding(new MockObserver(), new HuntEventBuilding(1, 0, 0, 0, new EventEffect.BonusHuntEvent()), p1);

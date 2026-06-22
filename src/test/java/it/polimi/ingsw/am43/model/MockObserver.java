@@ -6,7 +6,6 @@ import it.polimi.ingsw.am43.network.message.Update;
 public class MockObserver implements GameObserver {
     @Override
     public void broadcast(Update update) {
-
     }
 
     @Override
@@ -15,11 +14,9 @@ public class MockObserver implements GameObserver {
 
     @Override
     public void notifySinglePlayerGame(String name) {
-
     }
 
     @Override
     public void updatePlayer(String name, Update update) {
-
     }
 }

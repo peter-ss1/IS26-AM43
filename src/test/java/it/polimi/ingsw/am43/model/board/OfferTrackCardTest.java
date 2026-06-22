@@ -22,7 +22,7 @@ class OfferTrackCardTest {
     }
 
     @Test
-    void shouldGetActions() {
+    void shouldGetOfferTrackCardActions() {
         ArrayList<OfferAction> actions=new ArrayList<OfferAction>();
         actions.add(OfferAction.BOTTOM);
         actions.add(OfferAction.TOP);
@@ -30,7 +30,7 @@ class OfferTrackCardTest {
     }
 
     @Test
-    void shouldSetPlayer() {
+    void shouldSetPlayerOnCard() {
         Player player = new Player("pippo",Color.WHITE);
         assertFalse(this.offerTrackCard.getPlayer().isPresent());
         this.offerTrackCard.setPlayer(player);
@@ -39,7 +39,7 @@ class OfferTrackCardTest {
     }
 
     @Test
-    void shouldRemovePlayer() {
+    void shouldRemovePlayerFromCard() {
         Player player = new Player("pippo",Color.WHITE);
         assertFalse(this.offerTrackCard.getPlayer().isPresent());
         this.offerTrackCard.setPlayer(player);

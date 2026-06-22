@@ -100,9 +100,4 @@ public class RitualEvent extends Event {
     public void triggerBuilding(GameObserver observer, EventBuilding building, Player player) {
         building.reactToEvent(observer, player, this);
     }
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return "Evento Rituale (Era " + getEra() + ") - Il giocatore con meno Stelle Sciamano subisce " + malus + " PV. Chi ne ha di più vince PV extra.";
-    }
 }

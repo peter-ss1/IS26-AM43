@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SustenanceEventTest {
     private final SustenanceEvent example = new SustenanceEvent(2, 0);
     @Test
-    void shouldAffectPlayers() {
+    void shouldResolveAndApplyTribeRelatedCosts() {
         List<Player> players = new ArrayList<>();
         Player p1 = new Player("p1", Color.BLACK);
         Player p2 = new Player("p2",Color.RED);
@@ -48,7 +48,7 @@ class SustenanceEventTest {
         assertEquals(0, p4.getPrestigePoints());
    }
     @Test
-    void shouldAddToRow() {
+    void shouldAddAndLeaveRowWithProperOverloads() {
         Row row = new Row();
         example.addToRow(row);
         assertEquals(1, row.size());
@@ -59,13 +59,12 @@ class SustenanceEventTest {
     }
 
     @Test
-    void shouldTriggerBuilding() {
+    void shouldOnlyTriggerSustenanceEventBuildingEffects() {
         Player p1 = new Player("p1",Color.CYAN);
         example.triggerBuilding(new MockObserver(), new SustenanceEventBuilding(1, 0, 0, 0, (observer, player, event) -> {player.alterFood(2);}), p1);
         example.triggerBuilding(new MockObserver(), new PaintingEventBuilding(1, 0, 0, 0, (observer, player, event) -> {player.alterFood(2);}), p1);
         example.triggerBuilding(new MockObserver(), new RitualEventBuilding(1, 0, 0, 0, (observer, player, event) -> {player.alterFood(2);}), p1);
         assertEquals(2, p1.getFood());
-
     }
 
 }

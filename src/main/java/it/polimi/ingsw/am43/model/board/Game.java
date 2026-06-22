@@ -25,7 +25,7 @@ public class Game implements ModelInterface, Serializable {
     private Board board;
     private final Map<Integer, Card> idToCard;
     private transient GameObserver observer;
-    private long seed;
+    private final long seed;
 
     public Game(int np, String nk, Color color) {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
@@ -358,14 +358,6 @@ public class Game implements ModelInterface, Serializable {
                     });
         }
 
-    }
-
-    /**
-     * @return the ids of the cards currently visible on the board (present in one of the two rows)
-     */
-    public List<Integer> getVisibleIds() {
-        List<Integer> ids = new ArrayList<>(this.idToCard.keySet());
-        return ids.stream().filter(id -> this.board.containsCard(this.getCardById(id))).toList();
     }
 
     /** @return the associated GameObserver */

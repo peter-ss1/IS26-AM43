@@ -10,11 +10,4 @@ public enum Color {
     RED,
     YELLOW,
     CYAN;
-
-    /**
-     * @return the ANSI escape code used to render this color in the text UI
-     */
-    public String getAnsiCode() {
-        return ERROR;
-    }
 }
