@@ -199,6 +199,10 @@ public class GameController implements GameObserver, GameCommandReceiver {
 
     public void handleRecoveryTimeout() {
         if (!this.gameStopped) return;
+        if(this.disconnectedClients.size()==this.clients.size()){
+            this.endGame();
+            return;
+        };
         System.out.println("Timeout finished, lobby " + this.lobbyId + " restarting.");
         this.gameStopped = false;
         this.model.restartGame();
@@ -289,7 +293,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         int numPlayers = this.model.getNumPlayers();
         for (Player p : this.model.getAllPlayers().stream()
                 .filter(p -> p.getStatus() != PlayerStatus.INACTIVE).toList()) {
-            dao.saveresult(p.getNickname(), p.getPrestigePoints(), numPlayers);
+            dao.saveResult(p.getNickname(), p.getPrestigePoints(), numPlayers);
         }
         System.out.println("Classification successfully saved to database");
         List<RankElement> fullLeaderboard = dao.getFullLeaderboard(numPlayers);
@@ -319,6 +323,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
         if (this.gameStopped)return;
         this.clients.entrySet().stream()
                 .filter(e -> e.getValue().equals(name))
+                .filter(e->!this.disconnectedClients.containsKey(e.getKey()))
                 .findFirst()
                 .ifPresent(e -> this.serverController.sendMessage(e.getKey(), update));
     }
@@ -333,6 +338,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
     private void innerUpdatePlayer(String name, Update update){
         this.clients.entrySet().stream()
                 .filter(e -> e.getValue().equals(name))
+                .filter(e->!this.disconnectedClients.containsKey(e.getKey()))
                 .findFirst()
                 .ifPresent(e -> this.serverController.sendMessage(e.getKey(), update));
     }
