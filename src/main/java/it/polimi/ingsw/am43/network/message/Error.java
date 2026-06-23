@@ -71,7 +71,7 @@ public non-sealed abstract class Error extends Message {
 
     /** The player tried to act when it was not their turn. */
     public static class OutOfTurnError extends Error {
-        public OutOfTurnError(String message) {
+        public OutOfTurnError(@JsonProperty("message") String message) {
             super(message);
         }
 
@@ -83,7 +83,7 @@ public non-sealed abstract class Error extends Message {
 
     /** The action is not allowed in the current game phase. */
     public static class WrongPhaseError extends Error {
-        public WrongPhaseError(String message) {
+        public WrongPhaseError(@JsonProperty("message") String message) {
             super(message);
         }
 
@@ -107,7 +107,7 @@ public non-sealed abstract class Error extends Message {
 
     /** Joining a lobby failed; shown on the lobby-choice screen. */
     public static class LobbyJoinError extends Error {
-        public LobbyJoinError(String message) {
+        public LobbyJoinError(@JsonProperty("message") String message) {
             super(message);
         }
 
@@ -119,7 +119,7 @@ public non-sealed abstract class Error extends Message {
 
     /** The player identity was not valid when joining a lobby. */
     public static class InvalidPlayerError extends Error {
-        public InvalidPlayerError(String message) {
+        public InvalidPlayerError(@JsonProperty("message") String message) {
             super(message);
         }
 

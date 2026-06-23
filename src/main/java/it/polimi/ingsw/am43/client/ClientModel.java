@@ -287,7 +287,7 @@ public class ClientModel {
      */
     public void addLobby(LobbyInfo lobbyInfo) {
         this.lobbies.removeIf(l -> l.getLobbyId() == lobbyInfo.getLobbyId());
-        if (lobbyInfo.getNumPlayers() != lobbyInfo.getCurrentPlayers()) {
+        if (lobbyInfo.getCurrentPlayers() != 0 && lobbyInfo.getNumPlayers() != lobbyInfo.getCurrentPlayers()) {
             this.lobbies.add(lobbyInfo);
         }
         this.ui.showAvailableLobbies();

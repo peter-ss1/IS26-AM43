@@ -219,7 +219,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
                 this.serverController.notifyEndGame(this.lobbyId);
             this.serverController.putPlayerChoosing(id);
             this.innerBroadcast(new Update.PlayerDisconnectedUpdate(name));
-
+            this.serverController.choosingBroadcast(new Update.NewLobbyUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers())));
         } else {
             String name = this.clients.get(id);
             this.disconnectedClients.put(id, name);
@@ -259,6 +259,7 @@ public class GameController implements GameObserver, GameCommandReceiver {
                 this.getPlayersInfo()
         ));
         this.innerBroadcast(new Update.NewLobbyJoinUpdate(this.getCurrentPlayers()));
+        this.serverController.choosingBroadcast(new Update.NewLobbyUpdate(new LobbyInfo(this.lobbyId, this.getNumPlayers(), this.getCurrentPlayers())));
     }
 
     /**

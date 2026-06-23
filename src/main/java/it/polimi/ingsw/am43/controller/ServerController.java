@@ -257,12 +257,6 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         }
         this.clients.get(playerId).setLobbyId(lobbyId);
         this.clients.get(playerId).setState(ClientState.PLAYING);
-        for (Map.Entry<UUID, ClientInfo> entry : clients.entrySet()) {
-            if (entry.getValue().getState().equals(ClientState.CHOOSING)) {
-                this.connectionManager.getConnection(entry.getKey())
-                        .sendMessage(new Update.NewLobbyUpdate(new LobbyInfo(lobbyId, gameController.getNumPlayers(), gameController.getCurrentPlayers())));
-            }
-        }
     }
 
     /**
@@ -308,5 +302,19 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         }
         GameController gameController = new GameController(this, gameRecovery.getGame(), lobbyId, gameRecovery.getClients());
         this.lobbies.put(lobbyId, gameController);
+    }
+
+    /**
+     * Dispatches via network a broadcast lobby-related update to all clients in the choosing state.
+     *
+     * @param update the data object to dispatch
+     */
+    public void choosingBroadcast(Update update){
+        for (Map.Entry<UUID, ClientInfo> entry : clients.entrySet()) {
+            if (entry.getValue().getState().equals(ClientState.CHOOSING)) {
+                this.connectionManager.getConnection(entry.getKey())
+                        .sendMessage(update);
+            }
+        }
     }
 }
