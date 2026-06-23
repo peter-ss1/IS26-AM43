@@ -8,7 +8,13 @@ import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
 import java.io.Serializable;
-
+/**
+ * Strategy describing how an event building reacts to a given event type.
+ * Each concrete implementation encodes one event-building effect; the type
+ * parameter binds it to the specific {@link Event} subtype it handles.
+ *
+ * @param <T> the event type this effect reacts to
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EventEffect.NoLossInRitualEvent.class, name = "noLossRitual"),
@@ -17,13 +23,7 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = EventEffect.BonusPaintingEvent.class, name = "bonusPainting")
 })
 
-/**
- * Strategy describing how an event building reacts to a given event type.
- * Each concrete implementation encodes one event-building effect; the type
- * parameter binds it to the specific {@link Event} subtype it handles.
- *
- * @param <T> the event type this effect reacts to
- */
+
 @FunctionalInterface
 public interface EventEffect<T extends Event> extends Serializable {
     /**

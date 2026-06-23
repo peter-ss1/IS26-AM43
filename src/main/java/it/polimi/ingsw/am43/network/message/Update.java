@@ -15,7 +15,12 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * A server-to-client message describing a state change the client must apply to its
+ * local model. Each concrete subtype carries the data for one specific change and
+ * implements {@link #execute} by calling the matching method on the client model,
+ * so the local view stays in sync with the authoritative server state.
+ */
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Update.AvailableLobbiesUpdate.class, name = "showAvailableLobbies"),
         @JsonSubTypes.Type(value = Update.LobbyCreatedUpdate.class, name = "lobbyCreatedUpdate"),
@@ -50,9 +55,11 @@ import java.util.Map;
 
 })
 
+
 public non-sealed abstract class Update extends Message {
 
 
+    /** Starts the single-player turn timer on the client. */
     public static class TimerStartedUpdate extends Update{
         public TimerStartedUpdate(){};
 
@@ -65,6 +72,7 @@ public non-sealed abstract class Update extends Message {
 
 
 
+    /** Asks the client to restore a previous player identity for a rejoin. */
     public static class RejoinRequestUpdate extends Update{
         @JsonProperty("nickname")
         private final String nickname;
@@ -80,6 +88,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Refreshes the list of joinable lobbies shown to the client. */
     public static class AvailableLobbiesUpdate extends Update {
         @JsonProperty("lobbies")
         private final List<LobbyInfo> lobbies;
@@ -94,6 +103,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Confirms the lobby was created and sets the client's own player and lobby. */
     public static class LobbyCreatedUpdate extends Update {
         @JsonProperty("lobby")
         private final LobbyInfo lobby;
@@ -115,6 +125,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Confirms the client joined a lobby and provides its current players. */
     public static class LobbyJoinedUpdate extends Update {
         @JsonProperty("lobby")
         private final LobbyInfo lobby;
@@ -133,6 +144,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Sets the client's own player after joining a game. */
     public static class GameJoinedUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -150,6 +162,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Adds another player (nickname and color) to the client's view. */
     public static class PlayerAddedUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -167,6 +180,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Reflects that a player picked a card (possibly the final pick of the turn). */
     public static class CardPickedUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -187,6 +201,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Reflects that a player placed a totem at a given board position. */
     public static class TotemPlacedUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -204,6 +219,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Reflects that a player ended their turn. */
     public static class TurnEndedUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -218,6 +234,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Adds a newly created lobby to the client's list of lobbies. */
     public static class NewLobbyUpdate extends Update {
         @JsonProperty("lobby")
         private final LobbyInfo lobby;
@@ -232,6 +249,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Bootstraps the client model with the full initial game state. */
     public static class GameStartedUpdate extends Update {
         @JsonProperty("initialFood")
         private final Map<String, Integer> initialFood;
@@ -263,6 +281,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Advances the client model to a new game phase. */
     public static class NewPhaseUpdate extends Update {
         @JsonProperty("phase")
         private final GamePhase phase;
@@ -277,6 +296,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Sets which player is currently to move. */
     public static class CurrentPlayerUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -291,6 +311,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Reflects that a player bought a building at a given cost. */
     public static class BuildingBoughtUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -308,6 +329,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Applies a hunter effect (food gain) for a player. */
     public static class HunterEffectUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -325,6 +347,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Applies a building effect (resource bonus) for a player. */
     public static class BuildingEffectUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -345,6 +368,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Applies the per-player effects of a hunt event. */
     public static class HuntEventEffectUpdate extends Update {
         @JsonProperty("effects")
         private final Map<String, PointsPair> effects;
@@ -359,6 +383,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Applies the per-player effects of a painting event. */
     public static class PaintingEventEffectUpdate extends Update {
         @JsonProperty("effects")
         private final Map<String, Integer> effects;
@@ -373,6 +398,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Applies the per-player effects of a sustenance event. */
     public static class SustenaceEventEffectUpdate extends Update {
         @JsonProperty("effects")
         private final Map<String, PointsPair> effects;
@@ -387,6 +413,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Applies the per-player effects of a ritual event. */
     public static class RitualEventEffectUpdate extends Update {
         @JsonProperty("effects")
         private final Map<String, Integer> effects;
@@ -401,6 +428,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Ends the current round and deals the new era's card rows. */
     public static class NewRoundUpdate extends Update {
         @JsonProperty("currEra")
         private final int currEra;
@@ -421,6 +449,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Ends the game, providing winners and final points. */
     public static class GameOverUpdate extends Update {
         @JsonProperty("winners")
         private final List<String> winners;
@@ -438,6 +467,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Shows the global leaderboard and the players' ranks. */
     public static class LeaderboardUpdate extends Update {
         @JsonProperty("leaderboard")
         private final List<RankElement> leaderboard;
@@ -453,11 +483,11 @@ public non-sealed abstract class Update extends Message {
 
         @Override
         public void execute(ClientController controller) {
-            // Quando il messaggio arriva a destinazione, dice al ClientModel di far vedere la classifica
             controller.getLocalModel().showLeaderboard(leaderboard, playerRanks);
         }
     }
 
+    /** Updates the current player count of the client's own lobby. */
     public static class NewLobbyJoinUpdate extends Update {
         @JsonProperty("currentPlayers")
         private final int currentPlayers;
@@ -472,6 +502,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Applies a turn-order / prestige modifier for a player. */
     public static class OrderModifierUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -492,6 +523,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Resolves a player's food offer. */
     public static class FoodOfferUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;
@@ -506,6 +538,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Reflects that a previously disconnected player has reconnected. */
     public static class PlayerReconnectionUpdate extends Update {
         @JsonProperty("reconnectedPlayer")
         private final String reconnectedPlayer;
@@ -518,6 +551,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Rebuilds the full game state on the client after a restart/recovery. */
     public static class GameRestartedUpdate extends Update {
         @JsonProperty("players")
         private final List<ClientPlayer> players;
@@ -554,6 +588,7 @@ public non-sealed abstract class Update extends Message {
         }
     }
 
+    /** Reflects that a player has disconnected from the game. */
     public static class PlayerDisconnectedUpdate extends Update {
         @JsonProperty("nickname")
         private final String nickname;

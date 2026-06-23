@@ -1,13 +1,16 @@
 package it.polimi.ingsw.am43.client.view.gui.components;
 
 import it.polimi.ingsw.am43.model.enums.Color;
-import javafx.animation.*;
-import javafx.scene.Node;
-import javafx.scene.layout.VBox;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 /**
  * A custom JavaFX UI component representing a player slot in the game lobby.

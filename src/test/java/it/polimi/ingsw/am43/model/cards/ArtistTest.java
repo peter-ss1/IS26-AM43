@@ -4,8 +4,6 @@ import it.polimi.ingsw.am43.model.MockObserver;
 import it.polimi.ingsw.am43.model.enums.CharacterType;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.player.Player;
-import it.polimi.ingsw.am43.model.utils.GameObserver;
-import it.polimi.ingsw.am43.network.message.Update;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

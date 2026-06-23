@@ -4,11 +4,11 @@ import it.polimi.ingsw.am43.client.LobbyInfo;
 import it.polimi.ingsw.am43.model.board.Game;
 import it.polimi.ingsw.am43.model.enums.Color;
 import it.polimi.ingsw.am43.model.exceptions.GameEndedException;
-import it.polimi.ingsw.am43.network.connections.ClientConnectionUser;
-import it.polimi.ingsw.am43.network.connections.MultiClientConnection;
 import it.polimi.ingsw.am43.network.command.CommandReceiver;
 import it.polimi.ingsw.am43.network.command.GameCommand;
 import it.polimi.ingsw.am43.network.command.ServerCommand;
+import it.polimi.ingsw.am43.network.connections.ClientConnectionUser;
+import it.polimi.ingsw.am43.network.connections.MultiClientConnection;
 import it.polimi.ingsw.am43.network.message.Error;
 import it.polimi.ingsw.am43.network.message.Message;
 import it.polimi.ingsw.am43.network.message.Update;
@@ -19,20 +19,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Global server-side controller.
- * It manages open lobbies and dispatches commands either to itself
- * or to a specific GameController.
+ * Serves as the central coordinator for network access. Manages client states,
+ * initializes new match instances, and routes gameplay updates securely
+ * to their respective localized {@link GameController} instances.
  */
-
 public class ServerController implements ClientConnectionUser, CommandReceiver {
     private final MultiClientConnection connectionManager;
     private final ConcurrentHashMap<UUID, ClientInfo> clients;
     private final ConcurrentHashMap<Integer, GameController> lobbies;
     private final Executor<ServerController> executor;
 
+    /**
+     * Instantiates the central server manager and starts its asynchronous command executor thread.
+     *
+     * @param connectionManager network adapter managing multiple client endpoints
+     */
     public ServerController(MultiClientConnection connectionManager) {
         this.connectionManager = connectionManager;
         this.clients = new ConcurrentHashMap<>();
@@ -41,28 +45,57 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         this.executor.start();
     }
 
-
+    /**
+     * Flags a client network connection attempt to the command executor queue.
+     *
+     * @param playerId network UUID of the connecting client
+     */
     public void notifyConnection(UUID playerId) {
         this.executor.delegate(new ServerCommand.ConnectionCommand(playerId));
     }
 
+    /**
+     * Flags a client network disconnection event to the command executor queue.
+     *
+     * @param id network UUID of the disconnected client
+     */
     public void notifyDisconnection(UUID id) {
         this.executor.delegate(new ServerCommand.DisconnectionCommand(id));
     }
 
-
+    /**
+     * Flags a client state change to the command executor queue.
+     *
+     * @param id network UUID of the transitioning client
+     */
     public void putPlayerChoosing(UUID id) {
         this.executor.delegate(new ServerCommand.PutPlayerChoosingCommand(id));
     }
 
+    /**
+     * Flags the conclusion of a specified game to the command executor queue.
+     *
+     * @param lobbyId numerical identifier of lobby to destroy
+     */
     public void notifyEndGame(int lobbyId) {
         this.executor.delegate(new ServerCommand.NotifyEndGameCommand(lobbyId));
     }
 
+    /**
+     * Accepts global client requests and delegates them to the dedicated executor thread.
+     *
+     * @param command incoming client requested task
+     */
     public void receiveCommand(ServerCommand command) {
         this.executor.delegate(command);
     }
 
+    /**
+     * Intercepts game-specific client requests and dispatches them to the correct game controller.
+     * Ignores invalid requests.
+     *
+     * @param command incoming client requested task
+     */
     public void receiveCommand(GameCommand command) {
         ClientInfo info = this.clients.get(command.getPlayerId());
         if (info == null || info.getLobbyId() == 0) return;
@@ -71,6 +104,12 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         gc.receiveCommand(command);
     }
 
+    /**
+     * Delivers a network message data object to a specified client.
+     *
+     * @param playerId network UUID of the destination client
+     * @param message  data object to deliver
+     */
     public void sendMessage(UUID playerId, Message message) {
         try {
             this.connectionManager.getConnection(playerId).sendMessage(message);
@@ -79,6 +118,12 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
 
     }
 
+    /**
+     * Callback method managing client connections. Restores disconnected profiles or initializes
+     * new records inside the client map before delivering available lobbies.
+     *
+     * @param playerId requested network identity
+     */
     public void handleConnection(UUID playerId) {
         if (this.clients.containsKey(playerId)) {
             this.clients.get(playerId).setState(ClientState.CHOOSING);
@@ -94,6 +139,12 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         }
     }
 
+    /**
+     * Callback method managing client disconnections. Updates internal registries
+     * and notifies local lobby managers.
+     *
+     * @param id network UUID of the disconnected client
+     */
     public void handleDisconnection(UUID id) {
         ClientInfo client = this.clients.get(id);
         if (client != null) {
@@ -105,10 +156,21 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         }
     }
 
+    /**
+     * Unbinds an existing client association from its chosen lobby.
+     *
+     * @param id network UUID of the transitioning client
+     */
     public void handlePutPlayerChoosing(UUID id) {
         this.clients.get(id).setLobbyId(0);
     }
 
+    /**
+     * Destroys an active lobby from internal registries and releases its
+     * active participants back into the main server pool.
+     *
+     * @param lobbyId unique identifier of the target lobby
+     */
     public void handleEndGame(int lobbyId) {
         this.lobbies.remove(lobbyId);
         this.clients.values().stream()
@@ -120,6 +182,11 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
                 });
     }
 
+    /**
+     * Gathers all open game lobbies and updates the target client with the current list.
+     *
+     * @param playerId network UUID of the target client
+     */
     public void fetchLobbies(UUID playerId) {
         List<LobbyInfo> availableLobbies = lobbies.values().stream()
                 .map(game -> new LobbyInfo(game.getLobbyId(), game.getNumPlayers(), game.getCurrentPlayers()))
@@ -128,6 +195,15 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         this.connectionManager.getConnection(playerId).sendMessage(new Update.AvailableLobbiesUpdate(availableLobbies));
     }
 
+    /**
+     * Sanitizes data, generates a new match, binds the creator profile as the owner, and alerts all other
+     * choosing clients that a new lobby has opened.
+     *
+     * @param playerId   network UUID of the creator client
+     * @param nickname   the client's chosen name
+     * @param color      the client's chosen color
+     * @param numPlayers the client's chosen lobby size
+     */
     public void createLobby(UUID playerId, String nickname, Color color, int numPlayers) {
         if (nickname.isBlank() || !nickname.matches("^[a-zA-Z0-9]{3,12}$")) {
             this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyCreationError("Invalid name"));
@@ -157,6 +233,12 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         }
     }
 
+    /**
+     * Registers a client into chosen game lobby instance if slot rules permit.
+     *
+     * @param playerId network UUID of the joining client
+     * @param lobbyId  the identifier of the chosen lobby
+     */
     public void joinLobby(UUID playerId, int lobbyId) {
         if (!this.lobbies.containsKey(lobbyId)) {
             this.connectionManager.getConnection(playerId).sendMessage(new Error.LobbyJoinError("Lobby #" + lobbyId + " could not be found."));
@@ -169,7 +251,7 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         }
         try {
             gameController.joinLobby(playerId);
-        }catch (GameEndedException e){
+        } catch (GameEndedException e) {
             this.fetchLobbies(playerId);
             return;
         }
@@ -183,6 +265,12 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
         }
     }
 
+    /**
+     * Handles answers to a rejoining prompt following disconnection.
+     *
+     * @param playerId network UUID of the responding client
+     * @param answer   {@code true} to request room re-entry, {@code false} to reset state back to selection
+     */
     public void rejoinLobby(UUID playerId, boolean answer) {
         if (!this.clients.containsKey(playerId)) {
             this.connectionManager.getConnection(playerId).sendMessage(new Error.GenericServerError("player not registered"));
@@ -193,20 +281,26 @@ public class ServerController implements ClientConnectionUser, CommandReceiver {
             this.fetchLobbies(playerId);
             return;
         }
-        if (answer){
+        if (answer) {
             this.clients.get(playerId).setState(ClientState.PLAYING);
             try {
                 this.lobbies.get(this.clients.get(playerId).getLobbyId()).rejoinLobby(playerId);
-            }catch (GameEndedException e){
+            } catch (GameEndedException e) {
                 this.fetchLobbies(playerId);
             }
-        }else {
+        } else {
             this.clients.get(playerId).setLobbyId(0);
             this.fetchLobbies(playerId);
         }
 
     }
 
+    /**
+     * Initializes recovery routines during system boot stage. Re-allocates registries
+     * and builds matching {@link GameController} using saved data configurations.
+     *
+     * @param gameRecovery deserialized recovered match state
+     */
     public void recoverLobby(GameRecovery gameRecovery) {
         int lobbyId = gameRecovery.getLobbyId();
         for (UUID id : gameRecovery.getClients().keySet()) {

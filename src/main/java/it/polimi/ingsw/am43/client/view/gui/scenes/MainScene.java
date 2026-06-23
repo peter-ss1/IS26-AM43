@@ -165,7 +165,7 @@ public class MainScene extends CustomScene {
         RotateTransition rotate = new RotateTransition(Duration.seconds(3), icon);
         rotate.setByAngle(360);
         rotate.setCycleCount(Animation.INDEFINITE);
-        rotate.setInterpolator(Interpolator.LINEAR); // Keep it steady
+        rotate.setInterpolator(Interpolator.LINEAR);
 
         ScaleTransition pulse = new ScaleTransition(Duration.seconds(1.5), icon);
         pulse.setFromX(1.0);

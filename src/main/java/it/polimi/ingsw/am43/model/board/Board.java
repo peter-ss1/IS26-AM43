@@ -8,14 +8,19 @@ import it.polimi.ingsw.am43.model.enums.GamePhase;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.exceptions.IllegalMoveException;
 import it.polimi.ingsw.am43.model.player.Player;
-import it.polimi.ingsw.am43.model.player.Tribe;
 import it.polimi.ingsw.am43.model.utils.GameObserver;
 import it.polimi.ingsw.am43.network.message.Update;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Represents the game board containing the order queue, decks, offer track,
+ * rows of cards, and manages round updates and active players.
+ */
 public class Board implements Serializable {
 
     private final OrderQueue turnOrder;
@@ -27,6 +32,19 @@ public class Board implements Serializable {
     private int currEra;
     private int playersOnBoard;
 
+    /**
+     * Constructs a new Board, initializes rows, decks, and queues, and seeds
+     * the initial setup of cards across the rows.
+     *
+     * @param players        the list of participating players
+     * @param numPlayers     the total number of players
+     * @param foodModifiers  the list of food modifiers for the turn order queue
+     * @param tribeDeck      the list of cards to populate the tribe deck
+     * @param buildingDeck   the map of buildings categorized by era
+     * @param offerTrack     the tiles of the offer track
+     * @param seed           the random seed used to shuffle turn order
+     * @throws RuntimeException if an unexpected action type is encountered while drawing cards
+     */
     public Board(List<Player> players, int numPlayers, List<Integer> foodModifiers, List<Card> tribeDeck, Map<Integer, List<Building>> buildingDeck, List<OfferTrackCard> offerTrack, long seed) throws RuntimeException {
         this.turnOrder = new OrderQueue(players, foodModifiers, seed);
         this.tribeDeck = new TribeDeck(tribeDeck);
@@ -236,7 +254,6 @@ public class Board implements Serializable {
             }
         }
         this.turnOrder.append(observer, player);
-        //TODO boolean on modifiers
     }
 
     /** @return true if the order queue is empty (all players are on the offer track) */
@@ -300,7 +317,7 @@ public class Board implements Serializable {
     /** @return true if all active players are in the order queue */
     public boolean isOrderQueueFull() {
         return turnOrder.size()==this.playersOnBoard;
-    }//TODO res
+    }
 
     /**
      * Checks whether the given row contains cards the player can actually pick

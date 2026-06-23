@@ -12,6 +12,11 @@ import it.polimi.ingsw.am43.network.message.Update;
 import java.io.Serializable;
 
 
+/**
+ * Strategy describing the recurring bonus granted by a {@link TribeBuilding}.
+ * A bonus is split into computing its current value and applying the delta to
+ * the player.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "classEvent")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = TribeBonus.FoodOnSet.class, name = "foodOnSet"),
@@ -20,11 +25,6 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = TribeBonus.BonusShamanStars.class, name = "shamanStars")
 })
 
-/**
- * Strategy describing the recurring bonus granted by a {@link TribeBuilding}.
- * A bonus is split into computing its current value and applying the delta to
- * the player.
- */
 public interface TribeBonus extends Serializable {
     /**
      * Computes the current value of this bonus for the given player.

@@ -8,6 +8,10 @@ import it.polimi.ingsw.am43.model.utils.GameObserver;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Public business logic contract exposed by the model to the controller.
+ * It only allows player-related state changes and connection handling notifiers.
+ */
 public interface ModelInterface extends Serializable {
 
     /** Marks the player as disconnected (INACTIVE) and advances the turn if needed. */

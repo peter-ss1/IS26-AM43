@@ -9,6 +9,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a participant in the match, tracking individual resources
+ * such as food and prestige points, persistent bonuses, and offer-related actions.
+ * It also tracks the connection status of the player.
+ */
 public class Player implements Serializable {
 
     private final String nickname;
@@ -22,6 +27,12 @@ public class Player implements Serializable {
     private List<OfferAction> availableActions;
     private PlayerStatus status;
 
+    /**
+     * Constructs a new Player entity with standard properties.
+     *
+     * @param nickname the unique identification name chosen by the player
+     * @param color    the unique totem color chosen by the player
+     */
     public Player(String nickname, Color color) {
         this.nickname = nickname;
         this.color = color;

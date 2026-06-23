@@ -16,6 +16,10 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Core model class representing the state and game logic of a single match.
+ * Tracks connected players, current phases, turn management, and board interaction handlers.
+ */
 public class Game implements ModelInterface, Serializable {
     private final List<Color> availableColors;
     private final List<Player> players;
@@ -27,6 +31,14 @@ public class Game implements ModelInterface, Serializable {
     private transient GameObserver observer;
     private final long seed;
 
+    /**
+     * Initializes a new Game with a randomly generated internal seed.
+     * Sets the state to PREPARATION and registers the founding player.
+     *
+     * @param np    the expected number of players for this match
+     * @param nk    the nickname chosen by the initial player
+     * @param color the color chosen by the initial player
+     */
     public Game(int np, String nk, Color color) {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
         this.numPlayers = np;
@@ -37,6 +49,15 @@ public class Game implements ModelInterface, Serializable {
         this.addPlayer(nk, color);
     }
 
+    /**
+     * Initializes a new Game context with a pregenerated seed.
+     * Sets the state to PREPARATION and registers the founding player.
+     *
+     * @param np    the expected number of players for this match
+     * @param nk    the nickname chosen by the initial player
+     * @param color the color chosen by the initial player
+     * @param seed  the given seed utilized to reproduce deterministic outcomes
+     */
     public Game(int np, String nk, Color color, Long seed) {
         this.availableColors = new ArrayList<>(Arrays.asList(Color.values()));
         this.numPlayers = np;
@@ -161,16 +182,6 @@ public class Game implements ModelInterface, Serializable {
     /** @return players in the ACTIVE state */
     public ArrayList<Player> getActivePlayers() {
         return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.ACTIVE)).toList());
-    }
-
-    /** @return players in the INACTIVE state */
-    public ArrayList<Player> getInactivePlayers() {
-        return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.INACTIVE)).toList());
-    }
-
-    /** @return players in the WAITING state */
-    public ArrayList<Player> getWaitingPlayers() {
-        return new ArrayList<>(this.players.stream().filter(p->p.getStatus().equals(PlayerStatus.WAITING)).toList());
     }
 
     /**

@@ -1,7 +1,9 @@
 package it.polimi.ingsw.am43.client.view.gui.scenes;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 /**
  * Scene controller for managing the initial server connection screen.
  * Handles the validation of the server IP address and communication protocol selection.

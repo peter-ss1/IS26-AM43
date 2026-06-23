@@ -1,14 +1,20 @@
 package it.polimi.ingsw.am43.controller;
 
-import it.polimi.ingsw.am43.model.board.Game;
-import it.polimi.ingsw.am43.model.board.ModelInterface;
 import java.io.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
+/**
+ * Manages disk serialization and recovery routines for server resilience.
+ * Implements crash-safe atomic disk writing routines and handles initial snapshot recovery.
+ */
 public class PersistencyManager {
 
     private static final Path SAVE_DIRECTORY = Paths.get("recovery/");
+
     static {
         try {
             Files.createDirectories(SAVE_DIRECTORY);
@@ -17,8 +23,17 @@ public class PersistencyManager {
         }
     }
 
-    private PersistencyManager() { }
+    private PersistencyManager() {
+    }
 
+    /**
+     * Serializes a model snapshot state to disk using an atomic file write procedure.
+     * Writes to a temporary {@code .tmp} file first before atomically replacing the final destination file,
+     * ensuring existing records remain safe from intermediate corruption.
+     *
+     * @param game the {@link GameRecovery} snapshot containing model state data structures
+     * @param id   the lobby identifier used as the unique filename prefix
+     */
     public static void saveRecovery(GameRecovery game, String id) {
         Path tempPath = SAVE_DIRECTORY.resolve(id + "_model.dat.tmp");
         Path finalPath = SAVE_DIRECTORY.resolve(id + "_model.dat");
@@ -31,14 +46,19 @@ public class PersistencyManager {
             }
             Files.move(tempPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
             System.out.println("Server saved a recovery file to: " + finalPath.toAbsolutePath());
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Error while moving recovery file: " + e.getMessage());
         }
 
     }
 
-
-    public static void loadSavedStatus(ServerController serverController){
+    /**
+     * Scans the default recovery directory for lingering recovery files and
+     * instructs the server controller to recreate previously active lobbies.
+     *
+     * @param serverController the server orchestrator handling recovered lobbies
+     */
+    public static void loadSavedStatus(ServerController serverController) {
         if (!Files.exists(SAVE_DIRECTORY)) {
             System.out.println("Server did not find previous recovery files");
             return;
@@ -81,6 +101,12 @@ public class PersistencyManager {
         }
     }
 
+    /**
+     * Permanently deletes a specific lobby snapshot from the disk memory.
+     * Executed when a match reaches conclusion.
+     *
+     * @param id the lobby identifier whose backup data is to be removed
+     */
     public static void deleteRecovery(int id) {
         Path path = SAVE_DIRECTORY.resolve(id + "_model.dat");
         try {

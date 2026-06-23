@@ -185,6 +185,7 @@ public class TUI implements UI, Runnable {
      */
     private void lobbyWaitLoop() throws DisconnectedException {
         while (true) {
+            if (this.state != ViewState.IN_LOBBY) return;
             synchronized (printLock) {
                 System.out.println(MESOS + "Type 'rules' to show game rules" + RESET);
                 System.out.print("> ");
@@ -390,6 +391,7 @@ public class TUI implements UI, Runnable {
      */
     private void gameLoopInput() throws DisconnectedException {
         while (true) {
+            if (this.state != ViewState.IN_GAME) return;
             synchronized (this.printLock) {
                 this.printGamePrompt();
             }
@@ -822,6 +824,7 @@ public class TUI implements UI, Runnable {
      */
     @Override
     public void showTimer(int length) {
+        if (this.state != ViewState.IN_GAME) return;
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             this.printError("You are the only player left. Timer started of length: " + length);
@@ -992,9 +995,8 @@ public class TUI implements UI, Runnable {
 
             for (int i = 1; i <= leaderboard.size(); i++) {
                 RankElement element = leaderboard.get(i - 1);
-                //String turnMarker = (i == myRank) ? "»" : "#";
                 String rankString = String.format("%s%3d", "#", element.getRank());
-                String color = RESET;//(i == myRank) ? BOLD + MESOS : RESET;
+                String color = RESET;
                 System.out.printf(" ║ %s ║%s║%s║ %-22s ║\n",
                         color + rankString + RESET,
                         this.visualizer.centerLine(element.getNickname(), color, 20),
@@ -1051,8 +1053,7 @@ public class TUI implements UI, Runnable {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
+                    return;
                 }
                 i++;
             }

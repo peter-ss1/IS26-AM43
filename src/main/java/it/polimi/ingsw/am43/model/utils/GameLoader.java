@@ -1,18 +1,18 @@
 package it.polimi.ingsw.am43.model.utils;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am43.model.board.OfferTrackCard;
 import it.polimi.ingsw.am43.model.cards.Building;
 import it.polimi.ingsw.am43.model.cards.Card;
-import it.polimi.ingsw.am43.model.cards.Card.*;
-import it.polimi.ingsw.am43.model.cards.TribeCard;
 import it.polimi.ingsw.am43.model.enums.OfferAction;
 import it.polimi.ingsw.am43.model.utils.DTOs.BuildingDeckCardDTO;
 import it.polimi.ingsw.am43.model.utils.DTOs.TribeDeckCardDTO;
 
-import java.util.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.*;
 
 /**
  * Loads the game configuration from the bundled {@code config.json} resource and

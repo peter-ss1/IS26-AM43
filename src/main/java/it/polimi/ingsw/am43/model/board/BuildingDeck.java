@@ -3,10 +3,8 @@ package it.polimi.ingsw.am43.model.board;
 import it.polimi.ingsw.am43.model.cards.Building;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Holds the building cards split by era. Each era's buildings are revealed
