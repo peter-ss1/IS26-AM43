@@ -378,6 +378,7 @@ public class GUI implements UI {
      */
     @Override
     public void showTimer(int length) {
+        if (this.state != ViewState.IN_GAME) return;
         Platform.runLater(() -> {
             this.navigator.getCurrentScene().refreshFromModel();
             this.navigator.getCurrentScene().showError("You are the only player left. Timer started of length: " + length);

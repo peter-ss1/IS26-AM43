@@ -185,6 +185,7 @@ public class TUI implements UI, Runnable {
      */
     private void lobbyWaitLoop() throws DisconnectedException {
         while (true) {
+            if (this.state != ViewState.IN_LOBBY) return;
             synchronized (printLock) {
                 System.out.println(MESOS + "Type 'rules' to show game rules" + RESET);
                 System.out.print("> ");
@@ -390,6 +391,7 @@ public class TUI implements UI, Runnable {
      */
     private void gameLoopInput() throws DisconnectedException {
         while (true) {
+            if (this.state != ViewState.IN_GAME) return;
             synchronized (this.printLock) {
                 this.printGamePrompt();
             }
@@ -822,6 +824,7 @@ public class TUI implements UI, Runnable {
      */
     @Override
     public void showTimer(int length) {
+        if (this.state != ViewState.IN_GAME) return;
         synchronized (this.printLock) {
             System.out.print("\r\033[K");
             this.printError("You are the only player left. Timer started of length: " + length);
@@ -1050,8 +1053,7 @@ public class TUI implements UI, Runnable {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
+                    return;
                 }
                 i++;
             }
