@@ -1,6 +1,6 @@
 
 <a href="https://www.craniocreations.it/prodotto/mesos">
-    <img alt="logo" src="https://github.com/user-attachments/assets/3678bab9-fba5-4c10-9c79-79911825b421"/>
+    <img alt="logo" src="assets/header.jpg"/>
 </a>
 <h1 align="center">Software Engineering Final Project</h1>
 <h3 align="center">085923 - PROVA FINALE (INGEGNERIA DEL SOFTWARE) A.A. 2025/2026</h3>
@@ -19,7 +19,7 @@
 The project implements the digital version of the <a href="https://www.craniocreations.it/prodotto/mesos"> Mesos </a> board game, produced by <a href="https://www.craniocreations.it/"> Cranio Creations </a>. It utilizes the MVC pattern, distributed over a client-server architecture. The implementation allows multiple concurrent matches and stores ranking data in an auxiliary database. Disconnections and crashes are handled both client- and server-side, improving user experience. The client application offers a Text-based User Interface (TUI) as well as a Graphical User Interface (GUI).
 
 ## Implemented Features
-The project follows the provided [Requirements](https://github.com/user-attachments/files/29117144/requirements.pdf), implementing all four advanced features.
+The project follows the provided [Requirements](assets/requirements.pdf), implementing all four advanced features.
 
 
 <table align="center" width="100%">
@@ -77,6 +77,7 @@ The project documentation can be found in the `/deliverables` directory, which c
 | JUnit | Framework used for automated unit testing |
 | Jackson | JSON parser for data serialization |
 | HikariCP | JDBC connection pool for database management |
+| MySQL | JDBC driver for MySQL database connectivity |
 
 </center>
 </td>
@@ -84,7 +85,49 @@ The project documentation can be found in the `/deliverables` directory, which c
 
 ## User Manual
 
-### 1. Generating JARs via IntelliJ IDEA (Maven required)
+### 1. Initial Database Setup & Configuration
+
+In order to correctly run the server application, you must set up the MySQL database to track game statistics and leaderboard rankings.
+
+#### A. Create the Database and Schema
+
+1. Open your MySQL terminal or database client (e.g., MySQL Workbench).
+2. Execute the following SQL commands to create the database:
+
+```sql
+-- Create the game database
+CREATE DATABASE IF NOT EXISTS mesos_db;
+USE mesos_db;
+
+-- Create the leaderboard table
+CREATE TABLE IF NOT EXISTS Classifica (
+    id SERIAL PRIMARY KEY,
+    nickname VARCHAR(50) NOT NULL,
+    punteggio INT NOT NULL,
+    data_partita TIMESTAMP NOT NULL,
+    num_giocatori INT NOT NULL
+);
+
+```
+
+#### B. Configure Connection Settings
+
+1. Locate the `src/main/resources/it/polimi/ingsw/am43/config.json` file in the project's root directory.
+2. Open it in a text editor and update the password field with your private database credentials:
+
+```json
+"database": {
+    "url": "jdbc:mysql://localhost:3306/mesos_db",
+    "user": "root",
+    "password": "password"
+}
+
+```
+
+3. Save and close the file.
+
+
+### 2. Generating JARs via IntelliJ IDEA (Maven required)
 
 1. Open the project in **IntelliJ IDEA**.
 2. Open the **Maven Tool Window** located on the right-hand sidebar (or go to *View -> Tool Windows -> Maven*).
@@ -93,7 +136,7 @@ The project documentation can be found in the `/deliverables` directory, which c
 5. Double-click **`package`** to compile the code and execute test suites.
 6. Once the build finishes successfully, look into your project directory. You will find the generated `.jar` files (`server.jar` and `client.jar`) inside the newly created **`/target`** folder.
 
-### 2. Running Application from Terminal
+### 3. Running Application from Terminal
 
 Once you are in your terminal, navigate to the directory where your `.jar` files are stored and run one of the following commands to execute the corresponding application. **Please note that Java 25 is required to run these files.**
 
@@ -129,4 +172,38 @@ java -jar client.jar
 
 ### GUI
 
+<div align="center">
+  <figure>
+    <img alt="titles" src="assets/TitleViewGUI.png" />
+    <figcaption>Welcome Screen</figcaption>
+  </figure>
+    <br><br>
+  <figure>
+    <img alt="lobby" src="assets/LobbyViewGUI.png" />
+    <figcaption>Lobby Screen</figcaption>
+  </figure>
+    <br><br>
+  <figure>
+    <img alt="game" src="assets/GameViewGUI.png" />
+    <figcaption>Game Screen</figcaption>
+  </figure>
+    <br><br>
+  <figure>
+    <img alt="loading" src="assets/LoadingScreen.png" />
+    <figcaption>Loading Screen</figcaption>
+  </figure>
+</div>
+
 ### TUI
+
+<div align="center">
+  <figure>
+    <img alt="titles" src="assets/TitleViewTUI.png" />
+    <figcaption>Welcome and Lobby Selection</figcaption>
+  </figure>
+    <br><br>
+  <figure>
+    <img alt="game" src="assets/GameViewTUI.png" />
+    <figcaption>Game Screen</figcaption>
+  </figure>
+</div>
