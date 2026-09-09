@@ -207,3 +207,7 @@ java -jar client.jar
     <figcaption>Game Screen</figcaption>
   </figure>
 </div>
+
+<div align="center">
+<p>Il Gioco da tavolo Mesos e tutto il relativo materiale grafico è di esclusiva proprietà di Cranio Creations.</p>
+</div>
